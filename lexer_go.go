@@ -419,13 +419,17 @@ func (l *Lexer) NextToken() Token {
 		if isLetter(l.ch) {
 			tok.Literal = l.readIdentifier()
 			tok.Type = lookupIdent(tok.Literal)
+			tok.Line = line
+			tok.Column = column
 			// Don't call readChar() here because readIdentifier() already does it
 			return tok
 		} else if isDigit(l.ch) {
 			tok.Literal, tok.Type = l.readNumber()
+			tok.Line = line
+			tok.Column = column
 			return tok
 		} else {
-			tok = newToken(ILLEGAL, l.ch)
+			tok = Token{Type: ILLEGAL, Literal: string(l.ch), Line: line, Column: column}
 		}
 	}
 	
