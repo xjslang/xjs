@@ -48,6 +48,7 @@ const (
 	// Delimiters
 	COMMA     // ,
 	SEMICOLON // ;
+	COLON     // :
 	DOT       // .
 
 	LPAREN   // (
@@ -141,6 +142,8 @@ func (tt TokenType) String() string {
 		return "COMMA"
 	case SEMICOLON:
 		return "SEMICOLON"
+	case COLON:
+		return "COLON"
 	case DOT:
 		return "DOT"
 	case LPAREN:
@@ -386,6 +389,8 @@ func (l *Lexer) NextToken() Token {
 		tok = Token{Type: COMMA, Literal: string(l.ch), Line: line, Column: column}
 	case ';':
 		tok = Token{Type: SEMICOLON, Literal: string(l.ch), Line: line, Column: column}
+	case ':':
+		tok = Token{Type: COLON, Literal: string(l.ch), Line: line, Column: column}
 	case '.':
 		tok = Token{Type: DOT, Literal: string(l.ch), Line: line, Column: column}
 	case '(':
@@ -460,7 +465,7 @@ func isDigit(ch byte) bool {
 	return '0' <= ch && ch <= '9'
 }
 
-// Example function to test the lexer
+// Example function to test the lexer and parser
 func main() {
 	input := `
 		let x = 5
@@ -476,6 +481,7 @@ func main() {
 		}
 	`
 	
+	fmt.Println("=== LEXER OUTPUT ===")
 	lexer := NewLexer(input)
 	
 	for {
@@ -485,4 +491,20 @@ func main() {
 			break
 		}
 	}
+	
+	fmt.Println("\n=== PARSER OUTPUT ===")
+	lexer2 := NewLexer(input)
+	parser := NewParser(lexer2)
+	program := parser.ParseProgram()
+	
+	if len(parser.Errors()) > 0 {
+		fmt.Println("Parser errors:")
+		for _, err := range parser.Errors() {
+			fmt.Println("\t" + err)
+		}
+		return
+	}
+	
+	fmt.Println("AST:")
+	fmt.Println(program.String())
 }

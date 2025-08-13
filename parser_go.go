@@ -939,35 +939,3 @@ func (p *Parser) parseExpressionList(end TokenType) []Expression {
 	
 	return args
 }
-
-// Example function to test the parser
-func main() {
-	input := `
-		let x = 5
-		let y = 10.5
-		let name = "Hello World"
-		
-		function add(a, b) {
-			return a + b
-		}
-		
-		if (x < y) {
-			console.log("x is less than y")
-		}
-	`
-	
-	lexer := NewLexer(input)
-	parser := NewParser(lexer)
-	program := parser.ParseProgram()
-	
-	if len(parser.Errors()) > 0 {
-		fmt.Println("Parser errors:")
-		for _, err := range parser.Errors() {
-			fmt.Println("\t" + err)
-		}
-		return
-	}
-	
-	fmt.Println("AST:")
-	fmt.Println(program.String())
-}
