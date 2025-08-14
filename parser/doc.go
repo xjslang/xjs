@@ -1,5 +1,5 @@
 /*
-Package parser provides syntax analysis functionality for the xjslang language.
+Package parser provides syntax analysis functionality for the XJS language.
 
 The parser uses Pratt parsing (also known as "top-down operator precedence parsing")
 to build an Abstract Syntax Tree (AST) from tokens provided by the lexer. It handles

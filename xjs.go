@@ -38,5 +38,4 @@ func Parse(input string) (*ast.Program, []string) {
 	return program, p.Errors()
 }
 
-// Version returns the current version of xjslang
 const Version = "0.1.0"

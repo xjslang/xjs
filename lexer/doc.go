@@ -1,8 +1,8 @@
 /*
-Package lexer provides lexical analysis functionality for the xjslang language.
+Package lexer provides lexical analysis functionality for the XJS language.
 
 The lexer tokenizes source code into a sequence of tokens that can be consumed
-by the parser. It supports all xjslang language features including variables,
+by the parser. It supports all XJS language features including variables,
 functions, control flow, arrays, objects, and various operators.
 
 Example:

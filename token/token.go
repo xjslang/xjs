@@ -1,4 +1,4 @@
-// Package token defines the token types and structures used by the xjslang lexer and parser.
+// Package token defines the token types and structures used by the XJS lexer and parser.
 package token
 
 import "fmt"

@@ -1,7 +1,7 @@
 /*
-Package token defines the token types and structures used by the xjslang lexer and parser.
+Package token defines the token types and structures used by the XJS lexer and parser.
 
-This package provides all the token types supported by the xjslang language, including
+This package provides all the token types supported by the XJS language, including
 literals, operators, keywords, and delimiters. It also includes utility functions for
 working with tokens and identifiers.
 

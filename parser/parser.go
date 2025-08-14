@@ -1,4 +1,4 @@
-// Package parser provides syntax analysis functionality for the xjslang language.
+// Package parser provides syntax analysis functionality for the XJS language.
 // It builds an Abstract Syntax Tree (AST) from tokens provided by the lexer.
 package parser
 
