@@ -1,5 +1,5 @@
 /*
-Package ast defines the Abstract Syntax Tree nodes for the xjslang language.
+Package ast defines the Abstract Syntax Tree nodes for the XJS language.
 
 This package provides interfaces and concrete types representing different language
 constructs such as statements, expressions, and literals. The AST is designed to
