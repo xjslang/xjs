@@ -2,7 +2,7 @@
 // It tokenizes source code into a sequence of tokens that can be consumed by the parser.
 package lexer
 
-import "github.com/xjslang/xjslang/token"
+import "github.com/xjslang/xjs/token"
 
 // Lexer represents the lexical analyzer
 type Lexer struct {

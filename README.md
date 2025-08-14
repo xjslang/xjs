@@ -1,4 +1,4 @@
-# xjslang
+# xjs
 
 A clean, simplified JavaScript-like language lexer and parser written in Go. This library provides tokenization and parsing capabilities for a JavaScript-like syntax without redundant or complex features like classes, arrow functions, const/var declarations, etc.
 
@@ -64,7 +64,7 @@ let object = {name: "John", age: 30}
 ## Installation
 
 ```bash
-go get github.com/xjslang/xjslang
+go get github.com/xjslang/xjs
 ```
 
 ## Quick Start
@@ -74,8 +74,8 @@ package main
 
 import (
     "fmt"
-    "github.com/xjslang/xjslang/lexer"
-    "github.com/xjslang/xjslang/parser"
+    "github.com/xjslang/xjs/lexer"
+    "github.com/xjslang/xjs/parser"
 )
 
 func main() {
@@ -108,7 +108,7 @@ func main() {
 The lexer tokenizes input source code:
 
 ```go
-import "github.com/xjslang/xjslang/lexer"
+import "github.com/xjslang/xjs/lexer"
 
 l := lexer.New(sourceCode)
 for {
@@ -125,7 +125,7 @@ for {
 The parser builds an Abstract Syntax Tree (AST):
 
 ```go
-import "github.com/xjslang/xjslang/parser"
+import "github.com/xjslang/xjs/parser"
 
 l := lexer.New(sourceCode)
 p := parser.New(l)
@@ -142,9 +142,9 @@ if len(p.Errors()) > 0 {
 Use the convenience function for simple parsing:
 
 ```go
-import "github.com/xjslang/xjslang"
+import "github.com/xjslang/xjs"
 
-program, errors := xjslang.Parse(sourceCode)
+program, errors := xjs.Parse(sourceCode)
 ```
 
 ## Examples

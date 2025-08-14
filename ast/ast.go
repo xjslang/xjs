@@ -2,7 +2,7 @@
 // It provides interfaces and concrete types representing different language constructs.
 package ast
 
-import "github.com/xjslang/xjslang/token"
+import "github.com/xjslang/xjs/token"
 
 // Node represents any node in the AST
 type Node interface {

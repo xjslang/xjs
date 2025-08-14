@@ -1,12 +1,12 @@
-// Package main demonstrates basic usage of the xjslang library
+// Package main demonstrates basic usage of the xjs library
 package main
 
 import (
 	"fmt"
 
-	"github.com/xjslang/xjslang/lexer"
-	"github.com/xjslang/xjslang/parser"
-	"github.com/xjslang/xjslang/token"
+	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/parser"
+	"github.com/xjslang/xjs/token"
 )
 
 func main() {

@@ -1,12 +1,12 @@
-// Package main demonstrates the xjslang library functionality
+// Package main demonstrates the xjs library functionality
 package main
 
 import (
 	"fmt"
 
-	"github.com/xjslang/xjslang"
-	"github.com/xjslang/xjslang/lexer"
-	"github.com/xjslang/xjslang/token"
+	"github.com/xjslang/xjs"
+	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/token"
 )
 
 func main() {
@@ -39,7 +39,7 @@ func main() {
 	}
 
 	fmt.Println("\n=== PARSER OUTPUT (using convenience function) ===")
-	program, errors := xjslang.Parse(input)
+	program, errors := xjs.Parse(input)
 
 	if len(errors) > 0 {
 		fmt.Println("Parser errors:")
@@ -52,5 +52,5 @@ func main() {
 	fmt.Println("AST:")
 	fmt.Println(program.String())
 
-	fmt.Printf("\nxjslang version: %s\n", xjslang.Version)
+	fmt.Printf("\nxjs version: %s\n", xjs.Version)
 }

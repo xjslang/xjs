@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/xjslang/xjslang/ast"
-	"github.com/xjslang/xjslang/lexer"
-	"github.com/xjslang/xjslang/token"
+	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/token"
 )
 
 // Operator precedence levels
