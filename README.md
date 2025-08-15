@@ -1,4 +1,4 @@
-# xjs
+# XJS (eXtensible JavaScript language)
 
 A clean, simplified JavaScript-like language lexer and parser written in Go. This library provides tokenization and parsing capabilities for a JavaScript-like syntax without redundant or complex features like classes, arrow functions, const/var declarations, etc.
 
