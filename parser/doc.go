@@ -28,12 +28,12 @@ Example:
 
 	fmt.Println(program.String())
 
-Error Handling
+# Error Handling
 
 The parser provides comprehensive error reporting with specific line and column
 information for each error encountered during parsing.
 
-Operator Precedence
+# Operator Precedence
 
 The parser correctly handles operator precedence for all supported operators:
 
@@ -47,7 +47,7 @@ The parser correctly handles operator precedence for all supported operators:
 8. Unary operators (!, -, ++, --)
 9. Function calls and member access
 
-Supported Language Features
+# Supported Language Features
 
 - Variable declarations with let
 - Function declarations

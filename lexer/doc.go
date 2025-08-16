@@ -18,12 +18,12 @@ Example:
 		}
 	}
 
-Position Tracking
+# Position Tracking
 
 The lexer automatically tracks line and column positions for each token,
 which is useful for error reporting and debugging.
 
-Supported Features
+# Supported Features
 
 - Variable declarations (let)
 - Function declarations

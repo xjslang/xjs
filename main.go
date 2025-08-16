@@ -21,7 +21,7 @@ func Parse(input string) (program interface{}, errors []string) {
 	l := lexer.New(input)
 	p := parser.New(l)
 	prog := p.ParseProgram()
-	
+
 	errs := p.Errors()
 	return prog, errs
 }
@@ -55,7 +55,7 @@ func main() {
 	}
 
 	filename := args[0]
-	
+
 	if filepath.Ext(filename) != ".xjs" {
 		fmt.Fprintf(os.Stderr, "Error: File must have .xjs extension\n")
 		os.Exit(1)

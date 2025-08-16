@@ -6,7 +6,7 @@ constructs such as statements, expressions, and literals. The AST is designed to
 be simple and easy to work with while covering all essential JavaScript-like
 language features.
 
-Node Types
+# Node Types
 
 The AST defines three main categories of nodes:
 
@@ -31,7 +31,7 @@ Example:
 
 	fmt.Println(letStmt.String()) // Output: let x = 5;
 
-String Representation
+# String Representation
 
 All AST nodes implement the String() method, providing a readable representation
 of the parsed code structure.

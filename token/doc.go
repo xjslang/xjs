@@ -5,7 +5,7 @@ This package provides all the token types supported by the XJS language, includi
 literals, operators, keywords, and delimiters. It also includes utility functions for
 working with tokens and identifiers.
 
-Token Types
+# Token Types
 
 The following token types are supported:
 

@@ -174,7 +174,7 @@ type Identifier struct {
 }
 
 func (i *Identifier) expressionNode() {}
-func (i *Identifier) String() string { return i.Value }
+func (i *Identifier) String() string  { return i.Value }
 
 type IntegerLiteral struct {
 	Token token.Token // the INT token
@@ -182,7 +182,7 @@ type IntegerLiteral struct {
 }
 
 func (il *IntegerLiteral) expressionNode() {}
-func (il *IntegerLiteral) String() string { return il.Token.Literal }
+func (il *IntegerLiteral) String() string  { return il.Token.Literal }
 
 type FloatLiteral struct {
 	Token token.Token // the FLOAT token
@@ -190,7 +190,7 @@ type FloatLiteral struct {
 }
 
 func (fl *FloatLiteral) expressionNode() {}
-func (fl *FloatLiteral) String() string { return fl.Token.Literal }
+func (fl *FloatLiteral) String() string  { return fl.Token.Literal }
 
 type StringLiteral struct {
 	Token token.Token // the STRING token
@@ -198,7 +198,7 @@ type StringLiteral struct {
 }
 
 func (sl *StringLiteral) expressionNode() {}
-func (sl *StringLiteral) String() string { return "\"" + sl.Value + "\"" }
+func (sl *StringLiteral) String() string  { return "\"" + sl.Value + "\"" }
 
 type BooleanLiteral struct {
 	Token token.Token // the TRUE or FALSE token
@@ -206,14 +206,14 @@ type BooleanLiteral struct {
 }
 
 func (bl *BooleanLiteral) expressionNode() {}
-func (bl *BooleanLiteral) String() string { return bl.Token.Literal }
+func (bl *BooleanLiteral) String() string  { return bl.Token.Literal }
 
 type NullLiteral struct {
 	Token token.Token // the NULL token
 }
 
 func (nl *NullLiteral) expressionNode() {}
-func (nl *NullLiteral) String() string { return "null" }
+func (nl *NullLiteral) String() string  { return "null" }
 
 type BinaryExpression struct {
 	Token    token.Token // the operator token
