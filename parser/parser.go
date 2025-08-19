@@ -11,6 +11,28 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
+// Parses any kind of statement
+func baseParseStatement(p *Parser) ast.Statement {
+	switch p.CurrentToken.Type {
+	case token.LET:
+		return p.parseLetStatement()
+	case token.FUNCTION:
+		return p.parseFunctionDeclaration()
+	case token.RETURN:
+		return p.parseReturnStatement()
+	case token.IF:
+		return p.parseIfStatement()
+	case token.WHILE:
+		return p.parseWhileStatement()
+	case token.FOR:
+		return p.parseForStatement()
+	case token.LBRACE:
+		return p.parseBlockStatement()
+	default:
+		return p.parseExpressionStatement()
+	}
+}
+
 // Operator precedence levels
 const (
 	_ int = iota
@@ -58,17 +80,20 @@ type Parser struct {
 	CurrentToken token.Token
 	PeekToken    token.Token
 
-	errors []string
+	parseStatement func(p *Parser) ast.Statement
 
 	prefixParseFns map[token.Type]func() ast.Expression
 	infixParseFns  map[token.Type]func(ast.Expression) ast.Expression
+
+	errors []string
 }
 
 // New creates a new parser instance
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
-		lexer:  l,
-		errors: []string{},
+		lexer:          l,
+		errors:         []string{},
+		parseStatement: baseParseStatement,
 	}
 
 	// Initialize prefix parse functions
@@ -123,7 +148,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 	program.Statements = []ast.Statement{}
 
 	for p.CurrentToken.Type != token.EOF {
-		stmt := p.parseStatement()
+		stmt := p.parseStatement(p)
 		if stmt != nil {
 			program.Statements = append(program.Statements, stmt)
 		}
@@ -174,28 +199,6 @@ func (p *Parser) currentPrecedence() int {
 		return p
 	}
 	return LOWEST
-}
-
-// parseStatement parses any kind of statement
-func (p *Parser) parseStatement() ast.Statement {
-	switch p.CurrentToken.Type {
-	case token.LET:
-		return p.parseLetStatement()
-	case token.FUNCTION:
-		return p.parseFunctionDeclaration()
-	case token.RETURN:
-		return p.parseReturnStatement()
-	case token.IF:
-		return p.parseIfStatement()
-	case token.WHILE:
-		return p.parseWhileStatement()
-	case token.FOR:
-		return p.parseForStatement()
-	case token.LBRACE:
-		return p.parseBlockStatement()
-	default:
-		return p.parseExpressionStatement()
-	}
 }
 
 // parseLetStatement parses variable declarations
@@ -306,12 +309,12 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 	}
 
 	p.NextToken()
-	stmt.ThenBranch = p.parseStatement()
+	stmt.ThenBranch = p.parseStatement(p)
 
 	if p.PeekToken.Type == token.ELSE {
 		p.NextToken()
 		p.NextToken()
-		stmt.ElseBranch = p.parseStatement()
+		stmt.ElseBranch = p.parseStatement(p)
 	}
 
 	return stmt
@@ -333,7 +336,7 @@ func (p *Parser) parseWhileStatement() *ast.WhileStatement {
 	}
 
 	p.NextToken()
-	stmt.Body = p.parseStatement()
+	stmt.Body = p.parseStatement(p)
 
 	return stmt
 }
@@ -349,7 +352,7 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 	// Parse init
 	if p.PeekToken.Type != token.SEMICOLON {
 		p.NextToken()
-		stmt.Init = p.parseStatement()
+		stmt.Init = p.parseStatement(p)
 	} else {
 		p.NextToken() // consume semicolon
 	}
@@ -375,7 +378,7 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 	}
 
 	p.NextToken()
-	stmt.Body = p.parseStatement()
+	stmt.Body = p.parseStatement(p)
 
 	return stmt
 }
@@ -388,7 +391,7 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	p.NextToken()
 
 	for p.CurrentToken.Type != token.RBRACE && p.CurrentToken.Type != token.EOF {
-		stmt := p.parseStatement()
+		stmt := p.parseStatement(p)
 		if stmt != nil {
 			block.Statements = append(block.Statements, stmt)
 		}
