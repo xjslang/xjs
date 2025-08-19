@@ -8,3 +8,10 @@ func (p *Parser) UseParseStatement(middleware func(p *Parser, next func(p *Parse
 		return middleware(p, next)
 	}
 }
+
+func (p *Parser) UseParseLetStatement(middleware func(p *Parser, next func(p *Parser) *ast.LetStatement) *ast.LetStatement) {
+	next := p.parseLetStatement
+	p.parseLetStatement = func(p *Parser) *ast.LetStatement {
+		return middleware(p, next)
+	}
+}

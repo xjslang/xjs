@@ -11,28 +11,6 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-// Parses any kind of statement
-func baseParseStatement(p *Parser) ast.Statement {
-	switch p.CurrentToken.Type {
-	case token.LET:
-		return p.parseLetStatement()
-	case token.FUNCTION:
-		return p.parseFunctionDeclaration()
-	case token.RETURN:
-		return p.parseReturnStatement()
-	case token.IF:
-		return p.parseIfStatement()
-	case token.WHILE:
-		return p.parseWhileStatement()
-	case token.FOR:
-		return p.parseForStatement()
-	case token.LBRACE:
-		return p.parseBlockStatement()
-	default:
-		return p.parseExpressionStatement()
-	}
-}
-
 // Operator precedence levels
 const (
 	_ int = iota
@@ -80,7 +58,8 @@ type Parser struct {
 	CurrentToken token.Token
 	PeekToken    token.Token
 
-	parseStatement func(p *Parser) ast.Statement
+	parseStatement    func(p *Parser) ast.Statement
+	parseLetStatement func(p *Parser) *ast.LetStatement
 
 	prefixParseFns map[token.Type]func() ast.Expression
 	infixParseFns  map[token.Type]func(ast.Expression) ast.Expression
@@ -91,9 +70,10 @@ type Parser struct {
 // New creates a new parser instance
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
-		lexer:          l,
-		errors:         []string{},
-		parseStatement: baseParseStatement,
+		lexer:             l,
+		errors:            []string{},
+		parseStatement:    baseParseStatement,
+		parseLetStatement: baseParseLetStatement,
 	}
 
 	// Initialize prefix parse functions
@@ -199,29 +179,6 @@ func (p *Parser) currentPrecedence() int {
 		return p
 	}
 	return LOWEST
-}
-
-// parseLetStatement parses variable declarations
-func (p *Parser) parseLetStatement() *ast.LetStatement {
-	stmt := &ast.LetStatement{Token: p.CurrentToken}
-
-	if !p.ExpectToken(token.IDENT) {
-		return nil
-	}
-
-	stmt.Name = &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
-
-	if p.PeekToken.Type == token.ASSIGN {
-		p.NextToken() // consume =
-		p.NextToken() // move to value
-		stmt.Value = p.parseExpression(LOWEST)
-	}
-
-	if p.PeekToken.Type == token.SEMICOLON {
-		p.NextToken()
-	}
-
-	return stmt
 }
 
 // parseFunctionDeclaration parses function declarations
