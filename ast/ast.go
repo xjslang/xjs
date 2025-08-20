@@ -12,7 +12,6 @@ type Node interface {
 // Statement represents all statement nodes
 type Statement interface {
 	Node
-	statementNode()
 }
 
 // Expression represents all expression nodes
@@ -41,7 +40,6 @@ type LetStatement struct {
 	Value Expression
 }
 
-func (ls *LetStatement) statementNode() {}
 func (ls *LetStatement) String() string {
 	out := "let " + ls.Name.String()
 	if ls.Value != nil {
@@ -56,7 +54,6 @@ type ReturnStatement struct {
 	ReturnValue Expression
 }
 
-func (rs *ReturnStatement) statementNode() {}
 func (rs *ReturnStatement) String() string {
 	out := "return"
 	if rs.ReturnValue != nil {
@@ -71,7 +68,6 @@ type ExpressionStatement struct {
 	Expression Expression
 }
 
-func (es *ExpressionStatement) statementNode() {}
 func (es *ExpressionStatement) String() string {
 	if es.Expression != nil {
 		return es.Expression.String()
@@ -86,7 +82,6 @@ type FunctionDeclaration struct {
 	Body       *BlockStatement
 }
 
-func (fd *FunctionDeclaration) statementNode() {}
 func (fd *FunctionDeclaration) String() string {
 	out := "function " + fd.Name.String() + "("
 	for i, param := range fd.Parameters {
@@ -104,7 +99,6 @@ type BlockStatement struct {
 	Statements []Statement
 }
 
-func (bs *BlockStatement) statementNode() {}
 func (bs *BlockStatement) String() string {
 	out := "{"
 	for _, stmt := range bs.Statements {
@@ -121,7 +115,6 @@ type IfStatement struct {
 	ElseBranch Statement // can be nil
 }
 
-func (ifs *IfStatement) statementNode() {}
 func (ifs *IfStatement) String() string {
 	out := "if (" + ifs.Condition.String() + ") " + ifs.ThenBranch.String()
 	if ifs.ElseBranch != nil {
@@ -136,7 +129,6 @@ type WhileStatement struct {
 	Body      Statement
 }
 
-func (ws *WhileStatement) statementNode() {}
 func (ws *WhileStatement) String() string {
 	return "while (" + ws.Condition.String() + ") " + ws.Body.String()
 }
@@ -149,7 +141,6 @@ type ForStatement struct {
 	Body      Statement
 }
 
-func (fs *ForStatement) statementNode() {}
 func (fs *ForStatement) String() string {
 	out := "for ("
 	if fs.Init != nil {
