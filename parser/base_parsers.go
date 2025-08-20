@@ -9,7 +9,7 @@ import (
 func baseParseStatement(p *Parser) ast.Statement {
 	switch p.CurrentToken.Type {
 	case token.LET:
-		return p.parseLetStatement(p)
+		return p.parseLetStatement()
 	case token.FUNCTION:
 		return p.parseFunctionDeclaration()
 	case token.RETURN:
@@ -25,27 +25,4 @@ func baseParseStatement(p *Parser) ast.Statement {
 	default:
 		return p.parseExpressionStatement()
 	}
-}
-
-// Parses variable declarations
-func baseParseLetStatement(p *Parser) *ast.LetStatement {
-	stmt := &ast.LetStatement{Token: p.CurrentToken}
-
-	if !p.ExpectToken(token.IDENT) {
-		return nil
-	}
-
-	stmt.Name = &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
-
-	if p.PeekToken.Type == token.ASSIGN {
-		p.NextToken() // consume =
-		p.NextToken() // move to value
-		stmt.Value = p.parseExpression(LOWEST)
-	}
-
-	if p.PeekToken.Type == token.SEMICOLON {
-		p.NextToken()
-	}
-
-	return stmt
 }

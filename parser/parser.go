@@ -58,8 +58,7 @@ type Parser struct {
 	CurrentToken token.Token
 	PeekToken    token.Token
 
-	parseStatement    func(p *Parser) ast.Statement
-	parseLetStatement func(p *Parser) *ast.LetStatement
+	parseStatement func(p *Parser) ast.Statement
 
 	prefixParseFns map[token.Type]func() ast.Expression
 	infixParseFns  map[token.Type]func(ast.Expression) ast.Expression
@@ -70,10 +69,9 @@ type Parser struct {
 // New creates a new parser instance
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
-		lexer:             l,
-		errors:            []string{},
-		parseStatement:    baseParseStatement,
-		parseLetStatement: baseParseLetStatement,
+		lexer:          l,
+		errors:         []string{},
+		parseStatement: baseParseStatement,
 	}
 
 	// Initialize prefix parse functions
@@ -181,6 +179,29 @@ func (p *Parser) currentPrecedence() int {
 	return LOWEST
 }
 
+// Parses variable declarations
+func (p *Parser) parseLetStatement() *ast.LetStatement {
+	stmt := &ast.LetStatement{Token: p.CurrentToken}
+
+	if !p.ExpectToken(token.IDENT) {
+		return nil
+	}
+
+	stmt.Name = &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
+
+	if p.PeekToken.Type == token.ASSIGN {
+		p.NextToken() // consume =
+		p.NextToken() // move to value
+		stmt.Value = p.ParseExpression(LOWEST)
+	}
+
+	if p.PeekToken.Type == token.SEMICOLON {
+		p.NextToken()
+	}
+
+	return stmt
+}
+
 // parseFunctionDeclaration parses function declarations
 func (p *Parser) parseFunctionDeclaration() *ast.FunctionDeclaration {
 	stmt := &ast.FunctionDeclaration{Token: p.CurrentToken}
@@ -240,7 +261,7 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 
 	if p.PeekToken.Type != token.SEMICOLON && p.PeekToken.Type != token.EOF {
 		p.NextToken()
-		stmt.ReturnValue = p.parseExpression(LOWEST)
+		stmt.ReturnValue = p.ParseExpression(LOWEST)
 	}
 
 	if p.PeekToken.Type == token.SEMICOLON {
@@ -259,7 +280,7 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 	}
 
 	p.NextToken()
-	stmt.Condition = p.parseExpression(LOWEST)
+	stmt.Condition = p.ParseExpression(LOWEST)
 
 	if !p.ExpectToken(token.RPAREN) {
 		return nil
@@ -286,7 +307,7 @@ func (p *Parser) parseWhileStatement() *ast.WhileStatement {
 	}
 
 	p.NextToken()
-	stmt.Condition = p.parseExpression(LOWEST)
+	stmt.Condition = p.ParseExpression(LOWEST)
 
 	if !p.ExpectToken(token.RPAREN) {
 		return nil
@@ -317,7 +338,7 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 	// Parse condition
 	if p.PeekToken.Type != token.SEMICOLON {
 		p.NextToken()
-		stmt.Condition = p.parseExpression(LOWEST)
+		stmt.Condition = p.ParseExpression(LOWEST)
 	}
 
 	if !p.ExpectToken(token.SEMICOLON) {
@@ -327,7 +348,7 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 	// Parse update
 	if p.PeekToken.Type != token.RPAREN {
 		p.NextToken()
-		stmt.Update = p.parseExpression(LOWEST)
+		stmt.Update = p.ParseExpression(LOWEST)
 	}
 
 	if !p.ExpectToken(token.RPAREN) {
@@ -361,7 +382,7 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 // parseExpressionStatement parses expression statements
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	stmt := &ast.ExpressionStatement{Token: p.CurrentToken}
-	stmt.Expression = p.parseExpression(LOWEST)
+	stmt.Expression = p.ParseExpression(LOWEST)
 
 	if p.PeekToken.Type == token.SEMICOLON {
 		p.NextToken()
@@ -370,8 +391,8 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	return stmt
 }
 
-// parseExpression parses expressions using Pratt parsing
-func (p *Parser) parseExpression(precedence int) ast.Expression {
+// ParseExpression parses expressions using Pratt parsing
+func (p *Parser) ParseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.CurrentToken.Type]
 	if prefix == nil {
 		p.AddError(fmt.Sprintf("no prefix parse function for %s found", p.CurrentToken.Type))
@@ -443,7 +464,7 @@ func (p *Parser) parseUnaryExpression() ast.Expression {
 	}
 
 	p.NextToken()
-	expression.Right = p.parseExpression(UNARY)
+	expression.Right = p.ParseExpression(UNARY)
 
 	return expression
 }
@@ -451,7 +472,7 @@ func (p *Parser) parseUnaryExpression() ast.Expression {
 func (p *Parser) parseGroupedExpression() ast.Expression {
 	p.NextToken()
 
-	exp := p.parseExpression(LOWEST)
+	exp := p.ParseExpression(LOWEST)
 
 	if !p.ExpectToken(token.RPAREN) {
 		return nil
@@ -478,14 +499,14 @@ func (p *Parser) parseObjectLiteral() ast.Expression {
 	p.NextToken()
 
 	for {
-		key := p.parseExpression(LOWEST)
+		key := p.ParseExpression(LOWEST)
 
 		if !p.ExpectToken(token.COLON) {
 			return nil
 		}
 
 		p.NextToken()
-		value := p.parseExpression(LOWEST)
+		value := p.ParseExpression(LOWEST)
 
 		obj.Properties[key] = value
 
@@ -513,7 +534,7 @@ func (p *Parser) parseBinaryExpression(left ast.Expression) ast.Expression {
 
 	precedence := p.currentPrecedence()
 	p.NextToken()
-	expression.Right = p.parseExpression(precedence)
+	expression.Right = p.ParseExpression(precedence)
 
 	return expression
 }
@@ -525,7 +546,7 @@ func (p *Parser) parseAssignmentExpression(left ast.Expression) ast.Expression {
 	}
 
 	p.NextToken()
-	expression.Value = p.parseExpression(LOWEST)
+	expression.Value = p.ParseExpression(LOWEST)
 
 	return expression
 }
@@ -544,7 +565,7 @@ func (p *Parser) parseMemberExpression(left ast.Expression) ast.Expression {
 	}
 
 	p.NextToken()
-	exp.Property = p.parseExpression(MEMBER)
+	exp.Property = p.ParseExpression(MEMBER)
 
 	return exp
 }
@@ -557,7 +578,7 @@ func (p *Parser) parseComputedMemberExpression(left ast.Expression) ast.Expressi
 	}
 
 	p.NextToken()
-	exp.Property = p.parseExpression(LOWEST)
+	exp.Property = p.ParseExpression(LOWEST)
 
 	if !p.ExpectToken(token.RBRACKET) {
 		return nil
@@ -576,12 +597,12 @@ func (p *Parser) parseExpressionList(end token.Type) []ast.Expression {
 	}
 
 	p.NextToken()
-	args = append(args, p.parseExpression(LOWEST))
+	args = append(args, p.ParseExpression(LOWEST))
 
 	for p.PeekToken.Type == token.COMMA {
 		p.NextToken()
 		p.NextToken()
-		args = append(args, p.parseExpression(LOWEST))
+		args = append(args, p.ParseExpression(LOWEST))
 	}
 
 	if !p.ExpectToken(end) {
