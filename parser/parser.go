@@ -222,7 +222,7 @@ func (p *Parser) parseFunctionDeclaration() *ast.FunctionDeclaration {
 		return nil
 	}
 
-	stmt.Body = p.parseBlockStatement()
+	stmt.Body = p.ParseBlockStatement()
 
 	return stmt
 }
@@ -361,8 +361,8 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 	return stmt
 }
 
-// parseBlockStatement parses block statements
-func (p *Parser) parseBlockStatement() *ast.BlockStatement {
+// ParseBlockStatement parses block statements
+func (p *Parser) ParseBlockStatement() *ast.BlockStatement {
 	block := &ast.BlockStatement{Token: p.CurrentToken}
 	block.Statements = []ast.Statement{}
 

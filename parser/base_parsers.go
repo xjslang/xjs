@@ -21,7 +21,7 @@ func baseParseStatement(p *Parser) ast.Statement {
 	case token.FOR:
 		return p.parseForStatement()
 	case token.LBRACE:
-		return p.parseBlockStatement()
+		return p.ParseBlockStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
