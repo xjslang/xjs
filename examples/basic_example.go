@@ -1,4 +1,4 @@
-// Package main demonstrates basic usage of the xjs library
+// Package main demonstrates basic usage of the xjs library with function expressions
 package main
 
 import (
@@ -14,6 +14,11 @@ func main() {
 		let x = 5
 		let y = 10.5
 		let name = "Hello World"
+
+		let items = []
+		items.push(function () {
+			console.log("new item")
+		})
 		
 		function add(a, b) {
 			return a + b

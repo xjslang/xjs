@@ -274,6 +274,25 @@ func (ae *AssignmentExpression) String() string {
 	return ae.Left.String() + " = " + ae.Value.String()
 }
 
+type FunctionExpression struct {
+	Token      token.Token // the FUNCTION token
+	Parameters []*Identifier
+	Body       *BlockStatement
+}
+
+func (fe *FunctionExpression) expressionNode() {}
+func (fe *FunctionExpression) String() string {
+	out := "function("
+	for i, param := range fe.Parameters {
+		if i > 0 {
+			out += ", "
+		}
+		out += param.String()
+	}
+	out += ") " + fe.Body.String()
+	return out
+}
+
 type ArrayLiteral struct {
 	Token    token.Token // the [ token
 	Elements []Expression

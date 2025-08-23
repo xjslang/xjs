@@ -90,6 +90,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.prefixParseFns[token.LPAREN] = p.parseGroupedExpression
 	p.prefixParseFns[token.LBRACKET] = p.parseArrayLiteral
 	p.prefixParseFns[token.LBRACE] = p.parseObjectLiteral
+	p.prefixParseFns[token.FUNCTION] = p.parseFunctionExpression
 
 	// Initialize infix parse functions
 	p.infixParseFns = make(map[token.Type]func(ast.Expression) ast.Expression)
@@ -522,6 +523,24 @@ func (p *Parser) parseObjectLiteral() ast.Expression {
 	}
 
 	return obj
+}
+
+func (p *Parser) parseFunctionExpression() ast.Expression {
+	fe := &ast.FunctionExpression{Token: p.CurrentToken}
+
+	if !p.ExpectToken(token.LPAREN) {
+		return nil
+	}
+
+	fe.Parameters = p.parseFunctionParameters()
+
+	if !p.ExpectToken(token.LBRACE) {
+		return nil
+	}
+
+	fe.Body = p.ParseBlockStatement()
+
+	return fe
 }
 
 // Infix parse functions
