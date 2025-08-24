@@ -8,7 +8,6 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-// Parses variable declarations
 func (p *Parser) parseLetStatement() *ast.LetStatement {
 	stmt := &ast.LetStatement{Token: p.CurrentToken}
 
@@ -31,7 +30,6 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	return stmt
 }
 
-// parseFunctionDeclaration parses function declarations
 func (p *Parser) parseFunctionDeclaration() *ast.FunctionDeclaration {
 	stmt := &ast.FunctionDeclaration{Token: p.CurrentToken}
 
@@ -56,7 +54,6 @@ func (p *Parser) parseFunctionDeclaration() *ast.FunctionDeclaration {
 	return stmt
 }
 
-// parseFunctionParameters parses function parameter list
 func (p *Parser) parseFunctionParameters() []*ast.Identifier {
 	identifiers := []*ast.Identifier{}
 
@@ -84,7 +81,6 @@ func (p *Parser) parseFunctionParameters() []*ast.Identifier {
 	return identifiers
 }
 
-// parseReturnStatement parses return statements
 func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	stmt := &ast.ReturnStatement{Token: p.CurrentToken}
 
@@ -100,7 +96,6 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	return stmt
 }
 
-// parseIfStatement parses if/else statements
 func (p *Parser) parseIfStatement() *ast.IfStatement {
 	stmt := &ast.IfStatement{Token: p.CurrentToken}
 
@@ -127,7 +122,6 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 	return stmt
 }
 
-// parseWhileStatement parses while loops
 func (p *Parser) parseWhileStatement() *ast.WhileStatement {
 	stmt := &ast.WhileStatement{Token: p.CurrentToken}
 
@@ -148,7 +142,6 @@ func (p *Parser) parseWhileStatement() *ast.WhileStatement {
 	return stmt
 }
 
-// parseForStatement parses for loops
 func (p *Parser) parseForStatement() *ast.ForStatement {
 	stmt := &ast.ForStatement{Token: p.CurrentToken}
 
@@ -156,7 +149,6 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 		return nil
 	}
 
-	// Parse init
 	if p.PeekToken.Type != token.SEMICOLON {
 		p.NextToken()
 		stmt.Init = p.parseStatement(p)
@@ -164,7 +156,6 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 		p.NextToken() // consume semicolon
 	}
 
-	// Parse condition
 	if p.PeekToken.Type != token.SEMICOLON {
 		p.NextToken()
 		stmt.Condition = p.ParseExpression(LOWEST)
@@ -174,7 +165,6 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 		return nil
 	}
 
-	// Parse update
 	if p.PeekToken.Type != token.RPAREN {
 		p.NextToken()
 		stmt.Update = p.ParseExpression(LOWEST)
@@ -190,7 +180,6 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 	return stmt
 }
 
-// ParseBlockStatement parses block statements
 func (p *Parser) ParseBlockStatement() *ast.BlockStatement {
 	block := &ast.BlockStatement{Token: p.CurrentToken}
 	block.Statements = []ast.Statement{}
@@ -208,7 +197,6 @@ func (p *Parser) ParseBlockStatement() *ast.BlockStatement {
 	return block
 }
 
-// parseExpressionStatement parses expression statements
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	stmt := &ast.ExpressionStatement{Token: p.CurrentToken}
 	stmt.Expression = p.ParseExpression(LOWEST)
@@ -220,7 +208,6 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	return stmt
 }
 
-// ParseExpression parses expressions using Pratt parsing
 func (p *Parser) ParseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.CurrentToken.Type]
 	if prefix == nil {
@@ -243,7 +230,6 @@ func (p *Parser) ParseExpression(precedence int) ast.Expression {
 	return leftExp
 }
 
-// Prefix parse functions
 func (p *Parser) parseIdentifier() ast.Expression {
 	return &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
 }
@@ -371,7 +357,6 @@ func (p *Parser) parseFunctionExpression() ast.Expression {
 	return fe
 }
 
-// Infix parse functions
 func (p *Parser) parseBinaryExpression(left ast.Expression) ast.Expression {
 	expression := &ast.BinaryExpression{
 		Token:    p.CurrentToken,
@@ -434,7 +419,6 @@ func (p *Parser) parseComputedMemberExpression(left ast.Expression) ast.Expressi
 	return exp
 }
 
-// parseExpressionList parses a comma-separated list of expressions
 func (p *Parser) parseExpressionList(end token.Type) []ast.Expression {
 	args := []ast.Expression{}
 
