@@ -146,7 +146,6 @@ func (fs *ForStatement) String() string {
 	if fs.Init != nil {
 		out += fs.Init.String()
 	}
-	out += "; "
 	if fs.Condition != nil {
 		out += fs.Condition.String()
 	}
