@@ -100,10 +100,10 @@ type BlockStatement struct {
 func (bs *BlockStatement) String() string {
 	out := "{"
 	for i, stmt := range bs.Statements {
-		out += stmt.String()
-		if i < len(bs.Statements)-1 {
+		if i > 0 {
 			out += ";"
 		}
+		out += stmt.String()
 	}
 	out += "}"
 	return out
