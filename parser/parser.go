@@ -27,7 +27,6 @@ const (
 	MEMBER      // obj.prop obj[prop]
 )
 
-// Token precedences mapping
 var precedences = map[token.Type]int{
 	token.ASSIGN:        ASSIGNMENT,
 	token.OR:            LOGICAL_OR,
@@ -50,7 +49,6 @@ var precedences = map[token.Type]int{
 	token.LBRACKET:      MEMBER,
 }
 
-// Parser represents the parser state and configuration
 type Parser struct {
 	lexer *lexer.Lexer
 
@@ -65,7 +63,6 @@ type Parser struct {
 	errors []string
 }
 
-// New creates a new parser instance
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
 		lexer:          l,
@@ -73,7 +70,6 @@ func New(l *lexer.Lexer) *Parser {
 		parseStatement: baseParseStatement,
 	}
 
-	// Initialize prefix parse functions
 	p.prefixParseFns = make(map[token.Type]func() ast.Expression)
 	p.prefixParseFns[token.IDENT] = p.parseIdentifier
 	p.prefixParseFns[token.INT] = p.parseIntegerLiteral
@@ -91,7 +87,6 @@ func New(l *lexer.Lexer) *Parser {
 	p.prefixParseFns[token.LBRACE] = p.parseObjectLiteral
 	p.prefixParseFns[token.FUNCTION] = p.parseFunctionExpression
 
-	// Initialize infix parse functions
 	p.infixParseFns = make(map[token.Type]func(ast.Expression) ast.Expression)
 	p.infixParseFns[token.PLUS] = p.parseBinaryExpression
 	p.infixParseFns[token.MINUS] = p.parseBinaryExpression
@@ -120,7 +115,6 @@ func New(l *lexer.Lexer) *Parser {
 	return p
 }
 
-// ParseProgram parses the entire program and returns the root AST node
 func (p *Parser) ParseProgram() *ast.Program {
 	program := &ast.Program{}
 	program.Statements = []ast.Statement{}
@@ -136,24 +130,20 @@ func (p *Parser) ParseProgram() *ast.Program {
 	return program
 }
 
-// NextToken advances both CurrentToken and PeekToken
 func (p *Parser) NextToken() {
 	p.CurrentToken = p.PeekToken
 	p.PeekToken = p.lexer.NextToken()
 }
 
-// Errors returns the list of parsing errors
 func (p *Parser) Errors() []string {
 	return p.errors
 }
 
-// AddError adds an error message to the parser's error list
 func (p *Parser) AddError(msg string) {
 	p.errors = append(p.errors, fmt.Sprintf("Line %d, Col %d: %s",
 		p.CurrentToken.Line, p.CurrentToken.Column, msg))
 }
 
-// ExpectToken checks if PeekToken is of expected type and advances if so
 func (p *Parser) ExpectToken(t token.Type) bool {
 	if p.PeekToken.Type == t {
 		p.NextToken()
@@ -163,7 +153,6 @@ func (p *Parser) ExpectToken(t token.Type) bool {
 	return false
 }
 
-// peekPrecedence returns the precedence of the peek token
 func (p *Parser) peekPrecedence() int {
 	if p, ok := precedences[p.PeekToken.Type]; ok {
 		return p
@@ -171,7 +160,6 @@ func (p *Parser) peekPrecedence() int {
 	return LOWEST
 }
 
-// currentPrecedence returns the precedence of the current token
 func (p *Parser) currentPrecedence() int {
 	if p, ok := precedences[p.CurrentToken.Type]; ok {
 		return p

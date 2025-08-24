@@ -5,7 +5,6 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-// Parses any kind of statement
 func baseParseStatement(p *Parser) ast.Statement {
 	switch p.CurrentToken.Type {
 	case token.LET:
