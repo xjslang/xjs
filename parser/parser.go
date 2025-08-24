@@ -10,6 +10,15 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
+// ContextType represents the parsing context
+type ContextType int
+
+const (
+	GlobalContext ContextType = iota
+	FunctionContext
+	BlockContext
+)
+
 // Operator precedence levels
 const (
 	_ int = iota
@@ -61,6 +70,9 @@ type Parser struct {
 	infixParseFns  map[token.Type]func(ast.Expression) ast.Expression
 
 	errors []string
+
+	// Context stack for tracking parsing state
+	contextStack []ContextType
 }
 
 func New(l *lexer.Lexer) *Parser {
@@ -68,6 +80,7 @@ func New(l *lexer.Lexer) *Parser {
 		lexer:          l,
 		errors:         []string{},
 		parseStatement: baseParseStatement,
+		contextStack:   []ContextType{GlobalContext}, // Initialize with global context
 	}
 
 	p.prefixParseFns = make(map[token.Type]func() ast.Expression)

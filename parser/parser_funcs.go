@@ -49,6 +49,10 @@ func (p *Parser) ParseFunctionStatement() *ast.FunctionDeclaration {
 		return nil
 	}
 
+	// Push function context before parsing the body
+	p.PushContext(FunctionContext)
+	defer p.PopContext()
+
 	stmt.Body = p.ParseBlockStatement()
 
 	return stmt
@@ -183,6 +187,10 @@ func (p *Parser) ParseForStatement() *ast.ForStatement {
 func (p *Parser) ParseBlockStatement() *ast.BlockStatement {
 	block := &ast.BlockStatement{Token: p.CurrentToken}
 	block.Statements = []ast.Statement{}
+
+	// Push block context
+	p.PushContext(BlockContext)
+	defer p.PopContext()
 
 	p.NextToken()
 
@@ -351,6 +359,10 @@ func (p *Parser) ParseFunctionExpression() ast.Expression {
 	if !p.ExpectToken(token.LBRACE) {
 		return nil
 	}
+
+	// Push function context before parsing the body
+	p.PushContext(FunctionContext)
+	defer p.PopContext()
 
 	fe.Body = p.ParseBlockStatement()
 
