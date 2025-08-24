@@ -10,7 +10,7 @@ func baseParseStatement(p *Parser) ast.Statement {
 	case token.LET:
 		return p.ParseLetStatement()
 	case token.FUNCTION:
-		return p.ParseFunctionDeclaration()
+		return p.ParseFunctionStatement()
 	case token.RETURN:
 		return p.ParseReturnStatement()
 	case token.IF:

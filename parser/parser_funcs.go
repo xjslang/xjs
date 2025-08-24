@@ -30,7 +30,7 @@ func (p *Parser) ParseLetStatement() *ast.LetStatement {
 	return stmt
 }
 
-func (p *Parser) ParseFunctionDeclaration() *ast.FunctionDeclaration {
+func (p *Parser) ParseFunctionStatement() *ast.FunctionDeclaration {
 	stmt := &ast.FunctionDeclaration{Token: p.CurrentToken}
 
 	if !p.ExpectToken(token.IDENT) {
