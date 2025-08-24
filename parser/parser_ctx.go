@@ -1,5 +1,7 @@
 package parser
 
+import "slices"
+
 type ContextType int
 
 const (
@@ -26,10 +28,5 @@ func (p *Parser) CurrentContext() ContextType {
 }
 
 func (p *Parser) IsInFunction() bool {
-	for _, ctx := range p.contextStack {
-		if ctx == FunctionContext {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(p.contextStack, FunctionContext)
 }

@@ -17,7 +17,7 @@ import (
 const Version = "0.1.0"
 
 // Parse parses the input string and returns the AST and any errors
-func Parse(input string) (program interface{}, errors []string) {
+func Parse(input string) (program any, errors []string) {
 	l := lexer.New(input)
 	p := parser.New(l)
 	prog := p.ParseProgram()
