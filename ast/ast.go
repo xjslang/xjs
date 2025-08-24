@@ -45,7 +45,6 @@ func (ls *LetStatement) String() string {
 	if ls.Value != nil {
 		out += " = " + ls.Value.String()
 	}
-	out += ";"
 	return out
 }
 
@@ -59,7 +58,6 @@ func (rs *ReturnStatement) String() string {
 	if rs.ReturnValue != nil {
 		out += " " + rs.ReturnValue.String()
 	}
-	out += ";"
 	return out
 }
 
@@ -101,8 +99,11 @@ type BlockStatement struct {
 
 func (bs *BlockStatement) String() string {
 	out := "{"
-	for _, stmt := range bs.Statements {
+	for i, stmt := range bs.Statements {
 		out += stmt.String()
+		if i < len(bs.Statements)-1 {
+			out += ";"
+		}
 	}
 	out += "}"
 	return out
@@ -146,6 +147,7 @@ func (fs *ForStatement) String() string {
 	if fs.Init != nil {
 		out += fs.Init.String()
 	}
+	out += "; "
 	if fs.Condition != nil {
 		out += fs.Condition.String()
 	}
