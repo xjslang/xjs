@@ -8,20 +8,20 @@ import (
 func baseParseStatement(p *Parser) ast.Statement {
 	switch p.CurrentToken.Type {
 	case token.LET:
-		return p.parseLetStatement()
+		return p.ParseLetStatement()
 	case token.FUNCTION:
-		return p.parseFunctionDeclaration()
+		return p.ParseFunctionDeclaration()
 	case token.RETURN:
-		return p.parseReturnStatement()
+		return p.ParseReturnStatement()
 	case token.IF:
-		return p.parseIfStatement()
+		return p.ParseIfStatement()
 	case token.WHILE:
-		return p.parseWhileStatement()
+		return p.ParseWhileStatement()
 	case token.FOR:
-		return p.parseForStatement()
+		return p.ParseForStatement()
 	case token.LBRACE:
 		return p.ParseBlockStatement()
 	default:
-		return p.parseExpressionStatement()
+		return p.ParseExpressionStatement()
 	}
 }

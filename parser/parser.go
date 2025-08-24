@@ -71,42 +71,42 @@ func New(l *lexer.Lexer) *Parser {
 	}
 
 	p.prefixParseFns = make(map[token.Type]func() ast.Expression)
-	p.prefixParseFns[token.IDENT] = p.parseIdentifier
-	p.prefixParseFns[token.INT] = p.parseIntegerLiteral
-	p.prefixParseFns[token.FLOAT] = p.parseFloatLiteral
-	p.prefixParseFns[token.STRING] = p.parseStringLiteral
-	p.prefixParseFns[token.TRUE] = p.parseBooleanLiteral
-	p.prefixParseFns[token.FALSE] = p.parseBooleanLiteral
-	p.prefixParseFns[token.NULL] = p.parseNullLiteral
-	p.prefixParseFns[token.NOT] = p.parseUnaryExpression
-	p.prefixParseFns[token.MINUS] = p.parseUnaryExpression
-	p.prefixParseFns[token.INCREMENT] = p.parseUnaryExpression
-	p.prefixParseFns[token.DECREMENT] = p.parseUnaryExpression
-	p.prefixParseFns[token.LPAREN] = p.parseGroupedExpression
-	p.prefixParseFns[token.LBRACKET] = p.parseArrayLiteral
-	p.prefixParseFns[token.LBRACE] = p.parseObjectLiteral
-	p.prefixParseFns[token.FUNCTION] = p.parseFunctionExpression
+	p.prefixParseFns[token.IDENT] = p.ParseIdentifier
+	p.prefixParseFns[token.INT] = p.ParseIntegerLiteral
+	p.prefixParseFns[token.FLOAT] = p.ParseFloatLiteral
+	p.prefixParseFns[token.STRING] = p.ParseStringLiteral
+	p.prefixParseFns[token.TRUE] = p.ParseBooleanLiteral
+	p.prefixParseFns[token.FALSE] = p.ParseBooleanLiteral
+	p.prefixParseFns[token.NULL] = p.ParseNullLiteral
+	p.prefixParseFns[token.NOT] = p.ParseUnaryExpression
+	p.prefixParseFns[token.MINUS] = p.ParseUnaryExpression
+	p.prefixParseFns[token.INCREMENT] = p.ParseUnaryExpression
+	p.prefixParseFns[token.DECREMENT] = p.ParseUnaryExpression
+	p.prefixParseFns[token.LPAREN] = p.ParseGroupedExpression
+	p.prefixParseFns[token.LBRACKET] = p.ParseArrayLiteral
+	p.prefixParseFns[token.LBRACE] = p.ParseObjectLiteral
+	p.prefixParseFns[token.FUNCTION] = p.ParseFunctionExpression
 
 	p.infixParseFns = make(map[token.Type]func(ast.Expression) ast.Expression)
-	p.infixParseFns[token.PLUS] = p.parseBinaryExpression
-	p.infixParseFns[token.MINUS] = p.parseBinaryExpression
-	p.infixParseFns[token.MULTIPLY] = p.parseBinaryExpression
-	p.infixParseFns[token.DIVIDE] = p.parseBinaryExpression
-	p.infixParseFns[token.MODULO] = p.parseBinaryExpression
-	p.infixParseFns[token.EQ] = p.parseBinaryExpression
-	p.infixParseFns[token.NOT_EQ] = p.parseBinaryExpression
-	p.infixParseFns[token.EQ_STRICT] = p.parseBinaryExpression
-	p.infixParseFns[token.NOT_EQ_STRICT] = p.parseBinaryExpression
-	p.infixParseFns[token.LT] = p.parseBinaryExpression
-	p.infixParseFns[token.GT] = p.parseBinaryExpression
-	p.infixParseFns[token.LTE] = p.parseBinaryExpression
-	p.infixParseFns[token.GTE] = p.parseBinaryExpression
-	p.infixParseFns[token.AND] = p.parseBinaryExpression
-	p.infixParseFns[token.OR] = p.parseBinaryExpression
-	p.infixParseFns[token.ASSIGN] = p.parseAssignmentExpression
-	p.infixParseFns[token.LPAREN] = p.parseCallExpression
-	p.infixParseFns[token.DOT] = p.parseMemberExpression
-	p.infixParseFns[token.LBRACKET] = p.parseComputedMemberExpression
+	p.infixParseFns[token.PLUS] = p.ParseBinaryExpression
+	p.infixParseFns[token.MINUS] = p.ParseBinaryExpression
+	p.infixParseFns[token.MULTIPLY] = p.ParseBinaryExpression
+	p.infixParseFns[token.DIVIDE] = p.ParseBinaryExpression
+	p.infixParseFns[token.MODULO] = p.ParseBinaryExpression
+	p.infixParseFns[token.EQ] = p.ParseBinaryExpression
+	p.infixParseFns[token.NOT_EQ] = p.ParseBinaryExpression
+	p.infixParseFns[token.EQ_STRICT] = p.ParseBinaryExpression
+	p.infixParseFns[token.NOT_EQ_STRICT] = p.ParseBinaryExpression
+	p.infixParseFns[token.LT] = p.ParseBinaryExpression
+	p.infixParseFns[token.GT] = p.ParseBinaryExpression
+	p.infixParseFns[token.LTE] = p.ParseBinaryExpression
+	p.infixParseFns[token.GTE] = p.ParseBinaryExpression
+	p.infixParseFns[token.AND] = p.ParseBinaryExpression
+	p.infixParseFns[token.OR] = p.ParseBinaryExpression
+	p.infixParseFns[token.ASSIGN] = p.ParseAssignmentExpression
+	p.infixParseFns[token.LPAREN] = p.ParseCallExpression
+	p.infixParseFns[token.DOT] = p.ParseMemberExpression
+	p.infixParseFns[token.LBRACKET] = p.ParseComputedMemberExpression
 
 	// Read two tokens, so CurrentToken and PeekToken are both set
 	p.NextToken()
