@@ -10,15 +10,6 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-// ContextType represents the parsing context
-type ContextType int
-
-const (
-	GlobalContext ContextType = iota
-	FunctionContext
-	BlockContext
-)
-
 // Operator precedence levels
 const (
 	_ int = iota

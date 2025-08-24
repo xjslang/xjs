@@ -1,5 +1,13 @@
 package parser
 
+type ContextType int
+
+const (
+	GlobalContext ContextType = iota
+	FunctionContext
+	BlockContext
+)
+
 func (p *Parser) PushContext(ctx ContextType) {
 	p.contextStack = append(p.contextStack, ctx)
 }
