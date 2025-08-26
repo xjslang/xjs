@@ -205,6 +205,10 @@ func (p *Parser) ParseBlockStatement() *ast.BlockStatement {
 	return block
 }
 
+func (p *Parser) ParseStatement() ast.Statement {
+	return p.parseStatement(p)
+}
+
 func (p *Parser) ParseExpressionStatement() *ast.ExpressionStatement {
 	return p.parseExpressionStatement(p)
 }
