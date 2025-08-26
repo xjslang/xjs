@@ -206,14 +206,7 @@ func (p *Parser) ParseBlockStatement() *ast.BlockStatement {
 }
 
 func (p *Parser) ParseExpressionStatement() *ast.ExpressionStatement {
-	stmt := &ast.ExpressionStatement{Token: p.CurrentToken}
-	stmt.Expression = p.ParseExpression(LOWEST)
-
-	if p.PeekToken.Type == token.SEMICOLON {
-		p.NextToken()
-	}
-
-	return stmt
+	return p.parseExpressionStatement(p)
 }
 
 func (p *Parser) ParseExpression(precedence int) ast.Expression {

@@ -8,3 +8,10 @@ func (p *Parser) UseParseStatement(middleware func(p *Parser, next func(p *Parse
 		return middleware(p, next)
 	}
 }
+
+func (p *Parser) UseParseExpressionStatement(middleware func(p *Parser, next func(p *Parser) *ast.ExpressionStatement) *ast.ExpressionStatement) {
+	next := p.parseExpressionStatement
+	p.parseExpressionStatement = func(p *Parser) *ast.ExpressionStatement {
+		return middleware(p, next)
+	}
+}
