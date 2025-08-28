@@ -17,7 +17,6 @@ type Statement interface {
 // Expression represents all expression nodes
 type Expression interface {
 	Node
-	expressionNode()
 }
 
 // Program represents the root of every AST
