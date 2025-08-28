@@ -1,6 +1,23 @@
 package parser
 
-import "github.com/xjslang/xjs/ast"
+import (
+	"fmt"
+
+	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/token"
+)
+
+type Handler func(p *Parser) ast.Expression
+
+func (p *Parser) UsePrefixHandler(hook token.Type, middleware func(p *Parser, next Handler) ast.Expression) {
+	next, ok := p.prefixParseFns[hook]
+	if !ok {
+		panic(fmt.Sprintf("no existing handler for hook %v", hook))
+	}
+	p.prefixParseFns[hook] = func(p *Parser) ast.Expression {
+		return middleware(p, next)
+	}
+}
 
 func (p *Parser) UseParseStatement(middleware func(p *Parser, next func(p *Parser) ast.Statement) ast.Statement) {
 	next := p.parseStatement

@@ -2,7 +2,6 @@ package parser
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/token"
@@ -220,7 +219,7 @@ func (p *Parser) ParseExpression(precedence int) ast.Expression {
 		return nil
 	}
 
-	leftExp := prefix()
+	leftExp := prefix(p)
 
 	for p.PeekToken.Type != token.SEMICOLON && precedence < p.peekPrecedence() {
 		infix := p.infixParseFns[p.PeekToken.Type]
@@ -236,134 +235,47 @@ func (p *Parser) ParseExpression(precedence int) ast.Expression {
 }
 
 func (p *Parser) ParseIdentifier() ast.Expression {
-	return &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
+	return baseParseIdentifier(p)
 }
 
 func (p *Parser) ParseIntegerLiteral() ast.Expression {
-	lit := &ast.IntegerLiteral{Token: p.CurrentToken}
-
-	value, err := strconv.ParseInt(p.CurrentToken.Literal, 0, 64)
-	if err != nil {
-		p.AddError(fmt.Sprintf("could not parse %q as integer", p.CurrentToken.Literal))
-		return nil
-	}
-
-	lit.Value = value
-	return lit
+	return baseParseIntegerLiteral(p)
 }
 
 func (p *Parser) ParseFloatLiteral() ast.Expression {
-	lit := &ast.FloatLiteral{Token: p.CurrentToken}
-
-	value, err := strconv.ParseFloat(p.CurrentToken.Literal, 64)
-	if err != nil {
-		p.AddError(fmt.Sprintf("could not parse %q as float", p.CurrentToken.Literal))
-		return nil
-	}
-
-	lit.Value = value
-	return lit
+	return baseParseFloatLiteral(p)
 }
 
 func (p *Parser) ParseStringLiteral() ast.Expression {
-	return &ast.StringLiteral{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
+	return baseParseStringLiteral(p)
 }
 
 func (p *Parser) ParseBooleanLiteral() ast.Expression {
-	return &ast.BooleanLiteral{Token: p.CurrentToken, Value: p.CurrentToken.Type == token.TRUE}
+	return baseParseBooleanLiteral(p)
 }
 
 func (p *Parser) ParseNullLiteral() ast.Expression {
-	return &ast.NullLiteral{Token: p.CurrentToken}
+	return baseParseNullLiteral(p)
 }
 
 func (p *Parser) ParseUnaryExpression() ast.Expression {
-	expression := &ast.UnaryExpression{
-		Token:    p.CurrentToken,
-		Operator: p.CurrentToken.Literal,
-	}
-
-	p.NextToken()
-	expression.Right = p.ParseExpression(UNARY)
-
-	return expression
+	return baseParseUnaryExpression(p)
 }
 
 func (p *Parser) ParseGroupedExpression() ast.Expression {
-	p.NextToken()
-
-	exp := p.ParseExpression(LOWEST)
-
-	if !p.ExpectToken(token.RPAREN) {
-		return nil
-	}
-
-	return exp
+	return baseParseGroupedExpression(p)
 }
 
 func (p *Parser) ParseArrayLiteral() ast.Expression {
-	array := &ast.ArrayLiteral{Token: p.CurrentToken}
-	array.Elements = p.ParseExpressionList(token.RBRACKET)
-	return array
+	return baseParseArrayLiteral(p)
 }
 
 func (p *Parser) ParseObjectLiteral() ast.Expression {
-	obj := &ast.ObjectLiteral{Token: p.CurrentToken}
-	obj.Properties = make(map[ast.Expression]ast.Expression)
-
-	if p.PeekToken.Type == token.RBRACE {
-		p.NextToken()
-		return obj
-	}
-
-	p.NextToken()
-
-	for {
-		key := p.ParseExpression(LOWEST)
-
-		if !p.ExpectToken(token.COLON) {
-			return nil
-		}
-
-		p.NextToken()
-		value := p.ParseExpression(LOWEST)
-
-		obj.Properties[key] = value
-
-		if p.PeekToken.Type != token.COMMA {
-			break
-		}
-		p.NextToken()
-		p.NextToken()
-	}
-
-	if !p.ExpectToken(token.RBRACE) {
-		return nil
-	}
-
-	return obj
+	return baseParseObjectLiteral(p)
 }
 
 func (p *Parser) ParseFunctionExpression() ast.Expression {
-	fe := &ast.FunctionExpression{Token: p.CurrentToken}
-
-	if !p.ExpectToken(token.LPAREN) {
-		return nil
-	}
-
-	fe.Parameters = p.ParseFunctionParameters()
-
-	if !p.ExpectToken(token.LBRACE) {
-		return nil
-	}
-
-	// Push function context before parsing the body
-	p.PushContext(FunctionContext)
-	defer p.PopContext()
-
-	fe.Body = p.ParseBlockStatement()
-
-	return fe
+	return baseParseFunctionExpression(p)
 }
 
 func (p *Parser) ParseBinaryExpression(left ast.Expression) ast.Expression {

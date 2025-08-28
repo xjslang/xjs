@@ -58,7 +58,7 @@ type Parser struct {
 	parseStatement           func(p *Parser) ast.Statement
 	parseExpressionStatement func(p *Parser) *ast.ExpressionStatement
 
-	prefixParseFns map[token.Type]func() ast.Expression
+	prefixParseFns map[token.Type]func(p *Parser) ast.Expression
 	infixParseFns  map[token.Type]func(ast.Expression) ast.Expression
 
 	errors []string
@@ -76,22 +76,22 @@ func New(l *lexer.Lexer) *Parser {
 		contextStack:             []ContextType{GlobalContext}, // Initialize with global context
 	}
 
-	p.prefixParseFns = make(map[token.Type]func() ast.Expression)
-	p.prefixParseFns[token.IDENT] = p.ParseIdentifier
-	p.prefixParseFns[token.INT] = p.ParseIntegerLiteral
-	p.prefixParseFns[token.FLOAT] = p.ParseFloatLiteral
-	p.prefixParseFns[token.STRING] = p.ParseStringLiteral
-	p.prefixParseFns[token.TRUE] = p.ParseBooleanLiteral
-	p.prefixParseFns[token.FALSE] = p.ParseBooleanLiteral
-	p.prefixParseFns[token.NULL] = p.ParseNullLiteral
-	p.prefixParseFns[token.NOT] = p.ParseUnaryExpression
-	p.prefixParseFns[token.MINUS] = p.ParseUnaryExpression
-	p.prefixParseFns[token.INCREMENT] = p.ParseUnaryExpression
-	p.prefixParseFns[token.DECREMENT] = p.ParseUnaryExpression
-	p.prefixParseFns[token.LPAREN] = p.ParseGroupedExpression
-	p.prefixParseFns[token.LBRACKET] = p.ParseArrayLiteral
-	p.prefixParseFns[token.LBRACE] = p.ParseObjectLiteral
-	p.prefixParseFns[token.FUNCTION] = p.ParseFunctionExpression
+	p.prefixParseFns = make(map[token.Type]func(p *Parser) ast.Expression)
+	p.prefixParseFns[token.IDENT] = baseParseIdentifier
+	p.prefixParseFns[token.INT] = baseParseIntegerLiteral
+	p.prefixParseFns[token.FLOAT] = baseParseFloatLiteral
+	p.prefixParseFns[token.STRING] = baseParseStringLiteral
+	p.prefixParseFns[token.TRUE] = baseParseBooleanLiteral
+	p.prefixParseFns[token.FALSE] = baseParseBooleanLiteral
+	p.prefixParseFns[token.NULL] = baseParseNullLiteral
+	p.prefixParseFns[token.NOT] = baseParseUnaryExpression
+	p.prefixParseFns[token.MINUS] = baseParseUnaryExpression
+	p.prefixParseFns[token.INCREMENT] = baseParseUnaryExpression
+	p.prefixParseFns[token.DECREMENT] = baseParseUnaryExpression
+	p.prefixParseFns[token.LPAREN] = baseParseGroupedExpression
+	p.prefixParseFns[token.LBRACKET] = baseParseArrayLiteral
+	p.prefixParseFns[token.LBRACE] = baseParseObjectLiteral
+	p.prefixParseFns[token.FUNCTION] = baseParseFunctionExpression
 
 	p.infixParseFns = make(map[token.Type]func(ast.Expression) ast.Expression)
 	p.infixParseFns[token.PLUS] = p.ParseBinaryExpression
