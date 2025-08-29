@@ -7,11 +7,11 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-type Handler func(p *Parser) ast.Expression
-type InfixHandler func(p *Parser, left ast.Expression) ast.Expression
-type StatementHandler func(p *Parser) ast.Statement
+type PrefixParseFn func(p *Parser) ast.Expression
+type InfixParseFn func(p *Parser, left ast.Expression) ast.Expression
+type StatementParseFn func(p *Parser) ast.Statement
 
-func (p *Parser) UsePrefixExpressionHandler(hook token.Type, middleware func(p *Parser, next Handler) ast.Expression) {
+func (p *Parser) UsePrefixExpressionHandler(hook token.Type, middleware func(p *Parser, next PrefixParseFn) ast.Expression) {
 	next, ok := p.prefixParseFns[hook]
 	if !ok {
 		// TODO: recover panic
@@ -22,7 +22,7 @@ func (p *Parser) UsePrefixExpressionHandler(hook token.Type, middleware func(p *
 	}
 }
 
-func (p *Parser) UseInfixExpressionHandler(hook token.Type, middleware func(p *Parser, left ast.Expression, next InfixHandler) ast.Expression) {
+func (p *Parser) UseInfixExpressionHandler(hook token.Type, middleware func(p *Parser, left ast.Expression, next InfixParseFn) ast.Expression) {
 	next, ok := p.infixParseFns[hook]
 	if !ok {
 		// TODO: recover panic
@@ -33,7 +33,7 @@ func (p *Parser) UseInfixExpressionHandler(hook token.Type, middleware func(p *P
 	}
 }
 
-func (p *Parser) UseStatementHandler(middleware func(p *Parser, next StatementHandler) ast.Statement) {
+func (p *Parser) UseStatementHandler(middleware func(p *Parser, next StatementParseFn) ast.Statement) {
 	next := p.statementParseFn
 	p.statementParseFn = func(p *Parser) ast.Statement {
 		return middleware(p, next)
