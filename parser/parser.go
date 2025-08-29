@@ -55,11 +55,10 @@ type Parser struct {
 	CurrentToken token.Token
 	PeekToken    token.Token
 
-	statementParseFn           func(*Parser) ast.Statement
-	expressionParseFn          func(*Parser, int) ast.Expression
-	expressionStatementParseFn func(*Parser) *ast.ExpressionStatement
-	prefixParseFns             map[token.Type]func() ast.Expression
-	infixParseFns              map[token.Type]func(ast.Expression) ast.Expression
+	statementParseFn  func(*Parser) ast.Statement
+	expressionParseFn func(*Parser, int) ast.Expression
+	prefixParseFns    map[token.Type]func() ast.Expression
+	infixParseFns     map[token.Type]func(ast.Expression) ast.Expression
 
 	errors []string
 
@@ -69,12 +68,11 @@ type Parser struct {
 
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
-		lexer:                      l,
-		errors:                     []string{},
-		statementParseFn:           baseParseStatement,
-		expressionParseFn:          baseParseExpression,
-		expressionStatementParseFn: baseParseExpressionStatement,
-		contextStack:               []ContextType{GlobalContext}, // Initialize with global context
+		lexer:             l,
+		errors:            []string{},
+		statementParseFn:  baseParseStatement,
+		expressionParseFn: baseParseExpression,
+		contextStack:      []ContextType{GlobalContext}, // Initialize with global context
 	}
 
 	p.prefixParseFns = make(map[token.Type]func() ast.Expression)

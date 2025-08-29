@@ -45,12 +45,3 @@ func baseParseExpression(p *Parser, precedence int) ast.Expression {
 	}
 	return leftExp
 }
-
-func baseParseExpressionStatement(p *Parser) *ast.ExpressionStatement {
-	stmt := &ast.ExpressionStatement{Token: p.CurrentToken}
-	stmt.Expression = p.ParseExpression(LOWEST)
-	if p.PeekToken.Type == token.SEMICOLON {
-		p.NextToken()
-	}
-	return stmt
-}

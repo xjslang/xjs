@@ -163,7 +163,12 @@ func (p *Parser) ParseStatement() ast.Statement {
 }
 
 func (p *Parser) ParseExpressionStatement() *ast.ExpressionStatement {
-	return p.expressionStatementParseFn(p)
+	stmt := &ast.ExpressionStatement{Token: p.CurrentToken}
+	stmt.Expression = p.ParseExpression(LOWEST)
+	if p.PeekToken.Type == token.SEMICOLON {
+		p.NextToken()
+	}
+	return stmt
 }
 
 func (p *Parser) ParseExpression(precedence int) ast.Expression {
