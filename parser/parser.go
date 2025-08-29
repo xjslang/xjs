@@ -58,8 +58,8 @@ type Parser struct {
 	statementParseFn           func(*Parser) ast.Statement
 	expressionParseFn          func(*Parser, int) ast.Expression
 	expressionStatementParseFn func(*Parser) *ast.ExpressionStatement
-	prefixParseFns             map[token.Type]func(*Parser) ast.Expression
-	infixParseFns              map[token.Type]func(*Parser, ast.Expression) ast.Expression
+	prefixParseFns             map[token.Type]func() ast.Expression
+	infixParseFns              map[token.Type]func(ast.Expression) ast.Expression
 
 	errors []string
 
@@ -77,43 +77,43 @@ func New(l *lexer.Lexer) *Parser {
 		contextStack:               []ContextType{GlobalContext}, // Initialize with global context
 	}
 
-	p.prefixParseFns = make(map[token.Type]func(p *Parser) ast.Expression)
-	p.prefixParseFns[token.IDENT] = baseParseIdentifier
-	p.prefixParseFns[token.INT] = baseParseIntegerLiteral
-	p.prefixParseFns[token.FLOAT] = baseParseFloatLiteral
-	p.prefixParseFns[token.STRING] = baseParseStringLiteral
-	p.prefixParseFns[token.TRUE] = baseParseBooleanLiteral
-	p.prefixParseFns[token.FALSE] = baseParseBooleanLiteral
-	p.prefixParseFns[token.NULL] = baseParseNullLiteral
-	p.prefixParseFns[token.NOT] = baseParseUnaryExpression
-	p.prefixParseFns[token.MINUS] = baseParseUnaryExpression
-	p.prefixParseFns[token.INCREMENT] = baseParseUnaryExpression
-	p.prefixParseFns[token.DECREMENT] = baseParseUnaryExpression
-	p.prefixParseFns[token.LPAREN] = baseParseGroupedExpression
-	p.prefixParseFns[token.LBRACKET] = baseParseArrayLiteral
-	p.prefixParseFns[token.LBRACE] = baseParseObjectLiteral
-	p.prefixParseFns[token.FUNCTION] = baseParseFunctionExpression
+	p.prefixParseFns = make(map[token.Type]func() ast.Expression)
+	p.prefixParseFns[token.IDENT] = p.ParseIdentifier
+	p.prefixParseFns[token.INT] = p.ParseIntegerLiteral
+	p.prefixParseFns[token.FLOAT] = p.ParseFloatLiteral
+	p.prefixParseFns[token.STRING] = p.ParseStringLiteral
+	p.prefixParseFns[token.TRUE] = p.ParseBooleanLiteral
+	p.prefixParseFns[token.FALSE] = p.ParseBooleanLiteral
+	p.prefixParseFns[token.NULL] = p.ParseNullLiteral
+	p.prefixParseFns[token.NOT] = p.ParseUnaryExpression
+	p.prefixParseFns[token.MINUS] = p.ParseUnaryExpression
+	p.prefixParseFns[token.INCREMENT] = p.ParseUnaryExpression
+	p.prefixParseFns[token.DECREMENT] = p.ParseUnaryExpression
+	p.prefixParseFns[token.LPAREN] = p.ParseGroupedExpression
+	p.prefixParseFns[token.LBRACKET] = p.ParseArrayLiteral
+	p.prefixParseFns[token.LBRACE] = p.ParseObjectLiteral
+	p.prefixParseFns[token.FUNCTION] = p.ParseFunctionExpression
 
-	p.infixParseFns = make(map[token.Type]func(*Parser, ast.Expression) ast.Expression)
-	p.infixParseFns[token.PLUS] = baseParseBinaryExpression
-	p.infixParseFns[token.MINUS] = baseParseBinaryExpression
-	p.infixParseFns[token.MULTIPLY] = baseParseBinaryExpression
-	p.infixParseFns[token.DIVIDE] = baseParseBinaryExpression
-	p.infixParseFns[token.MODULO] = baseParseBinaryExpression
-	p.infixParseFns[token.EQ] = baseParseBinaryExpression
-	p.infixParseFns[token.NOT_EQ] = baseParseBinaryExpression
-	p.infixParseFns[token.EQ_STRICT] = baseParseBinaryExpression
-	p.infixParseFns[token.NOT_EQ_STRICT] = baseParseBinaryExpression
-	p.infixParseFns[token.LT] = baseParseBinaryExpression
-	p.infixParseFns[token.GT] = baseParseBinaryExpression
-	p.infixParseFns[token.LTE] = baseParseBinaryExpression
-	p.infixParseFns[token.GTE] = baseParseBinaryExpression
-	p.infixParseFns[token.AND] = baseParseBinaryExpression
-	p.infixParseFns[token.OR] = baseParseBinaryExpression
-	p.infixParseFns[token.ASSIGN] = baseParseAssignmentExpression
-	p.infixParseFns[token.LPAREN] = baseParseCallExpression
-	p.infixParseFns[token.DOT] = baseParseMemberExpression
-	p.infixParseFns[token.LBRACKET] = baseParseComputedMemberExpression
+	p.infixParseFns = make(map[token.Type]func(ast.Expression) ast.Expression)
+	p.infixParseFns[token.PLUS] = p.ParseBinaryExpression
+	p.infixParseFns[token.MINUS] = p.ParseBinaryExpression
+	p.infixParseFns[token.MULTIPLY] = p.ParseBinaryExpression
+	p.infixParseFns[token.DIVIDE] = p.ParseBinaryExpression
+	p.infixParseFns[token.MODULO] = p.ParseBinaryExpression
+	p.infixParseFns[token.EQ] = p.ParseBinaryExpression
+	p.infixParseFns[token.NOT_EQ] = p.ParseBinaryExpression
+	p.infixParseFns[token.EQ_STRICT] = p.ParseBinaryExpression
+	p.infixParseFns[token.NOT_EQ_STRICT] = p.ParseBinaryExpression
+	p.infixParseFns[token.LT] = p.ParseBinaryExpression
+	p.infixParseFns[token.GT] = p.ParseBinaryExpression
+	p.infixParseFns[token.LTE] = p.ParseBinaryExpression
+	p.infixParseFns[token.GTE] = p.ParseBinaryExpression
+	p.infixParseFns[token.AND] = p.ParseBinaryExpression
+	p.infixParseFns[token.OR] = p.ParseBinaryExpression
+	p.infixParseFns[token.ASSIGN] = p.ParseAssignmentExpression
+	p.infixParseFns[token.LPAREN] = p.ParseCallExpression
+	p.infixParseFns[token.DOT] = p.ParseMemberExpression
+	p.infixParseFns[token.LBRACKET] = p.ParseComputedMemberExpression
 
 	// Read two tokens, so CurrentToken and PeekToken are both set
 	p.NextToken()
