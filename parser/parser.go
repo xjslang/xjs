@@ -55,11 +55,10 @@ type Parser struct {
 	CurrentToken token.Token
 	PeekToken    token.Token
 
-	parseStatement           func(*Parser) ast.Statement
+	statementParseFn         func(*Parser) ast.Statement
 	parseExpressionStatement func(*Parser) *ast.ExpressionStatement
-
-	prefixParseFns map[token.Type]func(*Parser) ast.Expression
-	infixParseFns  map[token.Type]func(*Parser, ast.Expression) ast.Expression
+	prefixParseFns           map[token.Type]func(*Parser) ast.Expression
+	infixParseFns            map[token.Type]func(*Parser, ast.Expression) ast.Expression
 
 	errors []string
 
@@ -71,7 +70,7 @@ func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
 		lexer:                    l,
 		errors:                   []string{},
-		parseStatement:           baseParseStatement,
+		statementParseFn:         baseParseStatement,
 		parseExpressionStatement: baseParseExpressionStatement,
 		contextStack:             []ContextType{GlobalContext}, // Initialize with global context
 	}
@@ -126,7 +125,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 	program.Statements = []ast.Statement{}
 
 	for p.CurrentToken.Type != token.EOF {
-		stmt := p.parseStatement(p)
+		stmt := p.statementParseFn(p)
 		if stmt != nil {
 			program.Statements = append(program.Statements, stmt)
 		}

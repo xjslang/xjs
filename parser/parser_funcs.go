@@ -87,11 +87,11 @@ func (p *Parser) ParseIfStatement() *ast.IfStatement {
 		return nil
 	}
 	p.NextToken()
-	stmt.ThenBranch = p.parseStatement(p)
+	stmt.ThenBranch = p.statementParseFn(p)
 	if p.PeekToken.Type == token.ELSE {
 		p.NextToken()
 		p.NextToken()
-		stmt.ElseBranch = p.parseStatement(p)
+		stmt.ElseBranch = p.statementParseFn(p)
 	}
 	return stmt
 }
@@ -107,7 +107,7 @@ func (p *Parser) ParseWhileStatement() *ast.WhileStatement {
 		return nil
 	}
 	p.NextToken()
-	stmt.Body = p.parseStatement(p)
+	stmt.Body = p.statementParseFn(p)
 	return stmt
 }
 
@@ -118,7 +118,7 @@ func (p *Parser) ParseForStatement() *ast.ForStatement {
 	}
 	if p.PeekToken.Type != token.SEMICOLON {
 		p.NextToken()
-		stmt.Init = p.parseStatement(p)
+		stmt.Init = p.statementParseFn(p)
 	} else {
 		p.NextToken() // consume semicolon
 	}
@@ -137,7 +137,7 @@ func (p *Parser) ParseForStatement() *ast.ForStatement {
 		return nil
 	}
 	p.NextToken()
-	stmt.Body = p.parseStatement(p)
+	stmt.Body = p.statementParseFn(p)
 	return stmt
 }
 
@@ -148,7 +148,7 @@ func (p *Parser) ParseBlockStatement() *ast.BlockStatement {
 	defer p.PopContext()
 	p.NextToken()
 	for p.CurrentToken.Type != token.RBRACE && p.CurrentToken.Type != token.EOF {
-		stmt := p.parseStatement(p)
+		stmt := p.statementParseFn(p)
 		if stmt != nil {
 			block.Statements = append(block.Statements, stmt)
 		}
@@ -158,7 +158,7 @@ func (p *Parser) ParseBlockStatement() *ast.BlockStatement {
 }
 
 func (p *Parser) ParseStatement() ast.Statement {
-	return p.parseStatement(p)
+	return p.statementParseFn(p)
 }
 
 func (p *Parser) ParseExpressionStatement() *ast.ExpressionStatement {
