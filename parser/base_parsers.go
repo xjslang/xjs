@@ -143,3 +143,56 @@ func baseParseFunctionExpression(p *Parser) ast.Expression {
 	fe.Body = p.ParseBlockStatement()
 	return fe
 }
+
+func baseParseBinaryExpression(p *Parser, left ast.Expression) ast.Expression {
+	expression := &ast.BinaryExpression{
+		Token:    p.CurrentToken,
+		Left:     left,
+		Operator: p.CurrentToken.Literal,
+	}
+	precedence := p.currentPrecedence()
+	p.NextToken()
+	expression.Right = p.ParseExpression(precedence)
+	return expression
+}
+
+func baseParseAssignmentExpression(p *Parser, left ast.Expression) ast.Expression {
+	expression := &ast.AssignmentExpression{
+		Token: p.CurrentToken,
+		Left:  left,
+	}
+	p.NextToken()
+	expression.Value = p.ParseExpression(LOWEST)
+	return expression
+}
+
+func baseParseCallExpression(p *Parser, fn ast.Expression) ast.Expression {
+	exp := &ast.CallExpression{Token: p.CurrentToken, Function: fn}
+	exp.Arguments = p.ParseExpressionList(token.RPAREN)
+	return exp
+}
+
+func baseParseMemberExpression(p *Parser, left ast.Expression) ast.Expression {
+	exp := &ast.MemberExpression{
+		Token:    p.CurrentToken,
+		Object:   left,
+		Computed: false,
+	}
+	p.NextToken()
+	exp.Property = p.ParseExpression(MEMBER)
+	return exp
+}
+
+func baseParseComputedMemberExpression(p *Parser, left ast.Expression) ast.Expression {
+	exp := &ast.MemberExpression{
+		Token:    p.CurrentToken,
+		Object:   left,
+		Computed: true,
+	}
+	p.NextToken()
+	exp.Property = p.ParseExpression(LOWEST)
+	if !p.ExpectToken(token.RBRACKET) {
+		return nil
+	}
+	return exp
+}

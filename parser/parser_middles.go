@@ -8,14 +8,27 @@ import (
 )
 
 type Handler func(p *Parser) ast.Expression
+type InfixHandler func(p *Parser, left ast.Expression) ast.Expression
 
-func (p *Parser) UsePrefixHandler(hook token.Type, middleware func(p *Parser, next Handler) ast.Expression) {
+func (p *Parser) UsePrefixExpressionHandler(hook token.Type, middleware func(p *Parser, next Handler) ast.Expression) {
 	next, ok := p.prefixParseFns[hook]
 	if !ok {
+		// TODO: recover panic
 		panic(fmt.Sprintf("no existing handler for hook %v", hook))
 	}
 	p.prefixParseFns[hook] = func(p *Parser) ast.Expression {
 		return middleware(p, next)
+	}
+}
+
+func (p *Parser) UseInfixExpressionHandler(hook token.Type, middleware func(p *Parser, left ast.Expression, next InfixHandler) ast.Expression) {
+	next, ok := p.infixParseFns[hook]
+	if !ok {
+		// TODO: recover panic
+		panic(fmt.Sprintf("no existing handler for hook %v", hook))
+	}
+	p.infixParseFns[hook] = func(p *Parser, left ast.Expression) ast.Expression {
+		return middleware(p, left, next)
 	}
 }
 

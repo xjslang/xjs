@@ -11,12 +11,16 @@ import (
 
 func TestHandler(t *testing.T) {
 	input := `
-	let x := 100`
+	let x := "hello" + "Dolly!"`
 	l := lexer.New(input)
 	p := New(l)
-	p.UsePrefixHandler(token.INT, func(p *Parser, next Handler) ast.Expression {
-		fmt.Println("yes!")
+	p.UsePrefixExpressionHandler(token.STRING, func(p *Parser, next Handler) ast.Expression {
+		fmt.Println(p.CurrentToken)
 		return next(p)
+	})
+	p.UseInfixExpressionHandler(token.PLUS, func(p *Parser, left ast.Expression, next InfixHandler) ast.Expression {
+		fmt.Println(p.CurrentToken)
+		return next(p, left)
 	})
 	p.ParseProgram()
 }

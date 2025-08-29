@@ -55,11 +55,11 @@ type Parser struct {
 	CurrentToken token.Token
 	PeekToken    token.Token
 
-	parseStatement           func(p *Parser) ast.Statement
-	parseExpressionStatement func(p *Parser) *ast.ExpressionStatement
+	parseStatement           func(*Parser) ast.Statement
+	parseExpressionStatement func(*Parser) *ast.ExpressionStatement
 
-	prefixParseFns map[token.Type]func(p *Parser) ast.Expression
-	infixParseFns  map[token.Type]func(ast.Expression) ast.Expression
+	prefixParseFns map[token.Type]func(*Parser) ast.Expression
+	infixParseFns  map[token.Type]func(*Parser, ast.Expression) ast.Expression
 
 	errors []string
 
@@ -93,26 +93,26 @@ func New(l *lexer.Lexer) *Parser {
 	p.prefixParseFns[token.LBRACE] = baseParseObjectLiteral
 	p.prefixParseFns[token.FUNCTION] = baseParseFunctionExpression
 
-	p.infixParseFns = make(map[token.Type]func(ast.Expression) ast.Expression)
-	p.infixParseFns[token.PLUS] = p.ParseBinaryExpression
-	p.infixParseFns[token.MINUS] = p.ParseBinaryExpression
-	p.infixParseFns[token.MULTIPLY] = p.ParseBinaryExpression
-	p.infixParseFns[token.DIVIDE] = p.ParseBinaryExpression
-	p.infixParseFns[token.MODULO] = p.ParseBinaryExpression
-	p.infixParseFns[token.EQ] = p.ParseBinaryExpression
-	p.infixParseFns[token.NOT_EQ] = p.ParseBinaryExpression
-	p.infixParseFns[token.EQ_STRICT] = p.ParseBinaryExpression
-	p.infixParseFns[token.NOT_EQ_STRICT] = p.ParseBinaryExpression
-	p.infixParseFns[token.LT] = p.ParseBinaryExpression
-	p.infixParseFns[token.GT] = p.ParseBinaryExpression
-	p.infixParseFns[token.LTE] = p.ParseBinaryExpression
-	p.infixParseFns[token.GTE] = p.ParseBinaryExpression
-	p.infixParseFns[token.AND] = p.ParseBinaryExpression
-	p.infixParseFns[token.OR] = p.ParseBinaryExpression
-	p.infixParseFns[token.ASSIGN] = p.ParseAssignmentExpression
-	p.infixParseFns[token.LPAREN] = p.ParseCallExpression
-	p.infixParseFns[token.DOT] = p.ParseMemberExpression
-	p.infixParseFns[token.LBRACKET] = p.ParseComputedMemberExpression
+	p.infixParseFns = make(map[token.Type]func(*Parser, ast.Expression) ast.Expression)
+	p.infixParseFns[token.PLUS] = baseParseBinaryExpression
+	p.infixParseFns[token.MINUS] = baseParseBinaryExpression
+	p.infixParseFns[token.MULTIPLY] = baseParseBinaryExpression
+	p.infixParseFns[token.DIVIDE] = baseParseBinaryExpression
+	p.infixParseFns[token.MODULO] = baseParseBinaryExpression
+	p.infixParseFns[token.EQ] = baseParseBinaryExpression
+	p.infixParseFns[token.NOT_EQ] = baseParseBinaryExpression
+	p.infixParseFns[token.EQ_STRICT] = baseParseBinaryExpression
+	p.infixParseFns[token.NOT_EQ_STRICT] = baseParseBinaryExpression
+	p.infixParseFns[token.LT] = baseParseBinaryExpression
+	p.infixParseFns[token.GT] = baseParseBinaryExpression
+	p.infixParseFns[token.LTE] = baseParseBinaryExpression
+	p.infixParseFns[token.GTE] = baseParseBinaryExpression
+	p.infixParseFns[token.AND] = baseParseBinaryExpression
+	p.infixParseFns[token.OR] = baseParseBinaryExpression
+	p.infixParseFns[token.ASSIGN] = baseParseAssignmentExpression
+	p.infixParseFns[token.LPAREN] = baseParseCallExpression
+	p.infixParseFns[token.DOT] = baseParseMemberExpression
+	p.infixParseFns[token.LBRACKET] = baseParseComputedMemberExpression
 
 	// Read two tokens, so CurrentToken and PeekToken are both set
 	p.NextToken()
