@@ -164,47 +164,41 @@ type Identifier struct {
 	Value string
 }
 
-func (i *Identifier) expressionNode() {}
-func (i *Identifier) String() string  { return i.Value }
+func (i *Identifier) String() string { return i.Value }
 
 type IntegerLiteral struct {
 	Token token.Token // the INT token
 	Value int64
 }
 
-func (il *IntegerLiteral) expressionNode() {}
-func (il *IntegerLiteral) String() string  { return il.Token.Literal }
+func (il *IntegerLiteral) String() string { return il.Token.Literal }
 
 type FloatLiteral struct {
 	Token token.Token // the FLOAT token
 	Value float64
 }
 
-func (fl *FloatLiteral) expressionNode() {}
-func (fl *FloatLiteral) String() string  { return fl.Token.Literal }
+func (fl *FloatLiteral) String() string { return fl.Token.Literal }
 
 type StringLiteral struct {
 	Token token.Token // the STRING token
 	Value string
 }
 
-func (sl *StringLiteral) expressionNode() {}
-func (sl *StringLiteral) String() string  { return "\"" + sl.Value + "\"" }
+func (sl *StringLiteral) String() string { return "\"" + sl.Value + "\"" }
 
 type BooleanLiteral struct {
 	Token token.Token // the TRUE or FALSE token
 	Value bool
 }
 
-func (bl *BooleanLiteral) expressionNode() {}
-func (bl *BooleanLiteral) String() string  { return bl.Token.Literal }
+func (bl *BooleanLiteral) String() string { return bl.Token.Literal }
 
 type NullLiteral struct {
 	Token token.Token // the NULL token
 }
 
-func (nl *NullLiteral) expressionNode() {}
-func (nl *NullLiteral) String() string  { return "null" }
+func (nl *NullLiteral) String() string { return "null" }
 
 type BinaryExpression struct {
 	Token    token.Token // the operator token
@@ -213,7 +207,6 @@ type BinaryExpression struct {
 	Right    Expression
 }
 
-func (be *BinaryExpression) expressionNode() {}
 func (be *BinaryExpression) String() string {
 	return "(" + be.Left.String() + " " + be.Operator + " " + be.Right.String() + ")"
 }
@@ -224,7 +217,6 @@ type UnaryExpression struct {
 	Right    Expression
 }
 
-func (ue *UnaryExpression) expressionNode() {}
 func (ue *UnaryExpression) String() string {
 	return "(" + ue.Operator + ue.Right.String() + ")"
 }
@@ -235,7 +227,6 @@ type CallExpression struct {
 	Arguments []Expression
 }
 
-func (ce *CallExpression) expressionNode() {}
 func (ce *CallExpression) String() string {
 	out := ce.Function.String() + "("
 	for i, arg := range ce.Arguments {
@@ -255,7 +246,6 @@ type MemberExpression struct {
 	Computed bool // true for obj[prop], false for obj.prop
 }
 
-func (me *MemberExpression) expressionNode() {}
 func (me *MemberExpression) String() string {
 	if me.Computed {
 		return me.Object.String() + "[" + me.Property.String() + "]"
@@ -269,7 +259,6 @@ type AssignmentExpression struct {
 	Value Expression
 }
 
-func (ae *AssignmentExpression) expressionNode() {}
 func (ae *AssignmentExpression) String() string {
 	return ae.Left.String() + " = " + ae.Value.String()
 }
@@ -280,7 +269,6 @@ type FunctionExpression struct {
 	Body       *BlockStatement
 }
 
-func (fe *FunctionExpression) expressionNode() {}
 func (fe *FunctionExpression) String() string {
 	out := "function("
 	for i, param := range fe.Parameters {
@@ -298,7 +286,6 @@ type ArrayLiteral struct {
 	Elements []Expression
 }
 
-func (al *ArrayLiteral) expressionNode() {}
 func (al *ArrayLiteral) String() string {
 	out := "["
 	for i, elem := range al.Elements {
@@ -316,7 +303,6 @@ type ObjectLiteral struct {
 	Properties map[Expression]Expression
 }
 
-func (ol *ObjectLiteral) expressionNode() {}
 func (ol *ObjectLiteral) String() string {
 	out := "{"
 	i := 0
