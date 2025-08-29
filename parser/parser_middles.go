@@ -40,6 +40,13 @@ func (p *Parser) UseStatementHandler(middleware func(p *Parser, next StatementPa
 	}
 }
 
+func (p *Parser) UseExpressionHandler(middleware func(p *Parser, precedence int, next func(*Parser, int) ast.Expression) ast.Expression) {
+	next := p.expressionParseFn
+	p.expressionParseFn = func(p *Parser, precedence int) ast.Expression {
+		return middleware(p, precedence, next)
+	}
+}
+
 func (p *Parser) UseExpressionStatementHandler(middleware func(p *Parser, next func(p *Parser) *ast.ExpressionStatement) *ast.ExpressionStatement) {
 	next := p.expressionStatementParseFn
 	p.expressionStatementParseFn = func(p *Parser) *ast.ExpressionStatement {

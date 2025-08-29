@@ -29,6 +29,24 @@ func baseParseStatement(p *Parser) ast.Statement {
 	}
 }
 
+func baseParseExpression(p *Parser, precedence int) ast.Expression {
+	prefix := p.prefixParseFns[p.CurrentToken.Type]
+	if prefix == nil {
+		p.AddError(fmt.Sprintf("no prefix parse function for %s found", p.CurrentToken.Type))
+		return nil
+	}
+	leftExp := prefix(p)
+	for p.PeekToken.Type != token.SEMICOLON && precedence < p.peekPrecedence() {
+		infix := p.infixParseFns[p.PeekToken.Type]
+		if infix == nil {
+			return leftExp
+		}
+		p.NextToken()
+		leftExp = infix(p, leftExp)
+	}
+	return leftExp
+}
+
 func baseParseExpressionStatement(p *Parser) *ast.ExpressionStatement {
 	stmt := &ast.ExpressionStatement{Token: p.CurrentToken}
 	stmt.Expression = p.ParseExpression(LOWEST)

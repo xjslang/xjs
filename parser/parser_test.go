@@ -10,20 +10,17 @@ import (
 )
 
 func TestHandler(t *testing.T) {
-	input := "let x = 'hello' + 'Dolly!'"
+	input := "let x = 'hello' + 'Dolly!' + 100"
 	l := lexer.New(input)
 	p := New(l)
-	p.UsePrefixExpressionHandler(token.STRING, func(p *Parser, next PrefixParseFn) ast.Expression {
-		fmt.Println("prefix: ", p.CurrentToken)
-		return next(p)
-	})
-	p.UseInfixExpressionHandler(token.PLUS, func(p *Parser, left ast.Expression, next InfixParseFn) ast.Expression {
-		fmt.Println("infix: ", p.CurrentToken)
-		return next(p, left)
-	})
-	p.UseStatementHandler(func(p *Parser, next StatementParseFn) ast.Statement {
-		fmt.Println("statement: ", p.CurrentToken)
-		return next(p)
+	p.UseExpressionHandler(func(p *Parser, precedence int, next func(p *Parser, precedence int) ast.Expression) ast.Expression {
+		switch p.CurrentToken.Type {
+		case token.STRING:
+			fmt.Println("string!")
+		case token.INT:
+			fmt.Println("int!")
+		}
+		return next(p, precedence)
 	})
 	p.ParseProgram()
 }

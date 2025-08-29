@@ -56,6 +56,7 @@ type Parser struct {
 	PeekToken    token.Token
 
 	statementParseFn           func(*Parser) ast.Statement
+	expressionParseFn          func(*Parser, int) ast.Expression
 	expressionStatementParseFn func(*Parser) *ast.ExpressionStatement
 	prefixParseFns             map[token.Type]func(*Parser) ast.Expression
 	infixParseFns              map[token.Type]func(*Parser, ast.Expression) ast.Expression
@@ -71,6 +72,7 @@ func New(l *lexer.Lexer) *Parser {
 		lexer:                      l,
 		errors:                     []string{},
 		statementParseFn:           baseParseStatement,
+		expressionParseFn:          baseParseExpression,
 		expressionStatementParseFn: baseParseExpressionStatement,
 		contextStack:               []ContextType{GlobalContext}, // Initialize with global context
 	}

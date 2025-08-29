@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"fmt"
-
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/token"
 )
@@ -166,21 +164,7 @@ func (p *Parser) ParseExpressionStatement() *ast.ExpressionStatement {
 }
 
 func (p *Parser) ParseExpression(precedence int) ast.Expression {
-	prefix := p.prefixParseFns[p.CurrentToken.Type]
-	if prefix == nil {
-		p.AddError(fmt.Sprintf("no prefix parse function for %s found", p.CurrentToken.Type))
-		return nil
-	}
-	leftExp := prefix(p)
-	for p.PeekToken.Type != token.SEMICOLON && precedence < p.peekPrecedence() {
-		infix := p.infixParseFns[p.PeekToken.Type]
-		if infix == nil {
-			return leftExp
-		}
-		p.NextToken()
-		leftExp = infix(p, leftExp)
-	}
-	return leftExp
+	return p.expressionParseFn(p, precedence)
 }
 
 func (p *Parser) ParseIdentifier() ast.Expression {
