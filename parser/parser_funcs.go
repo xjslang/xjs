@@ -162,7 +162,7 @@ func (p *Parser) ParseStatement() ast.Statement {
 }
 
 func (p *Parser) ParseExpressionStatement() *ast.ExpressionStatement {
-	return p.parseExpressionStatement(p)
+	return p.expressionStatementParseFn(p)
 }
 
 func (p *Parser) ParseExpression(precedence int) ast.Expression {
