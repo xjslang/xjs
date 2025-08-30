@@ -17,7 +17,7 @@ func (p *Parser) ParseLetStatement() *ast.LetStatement {
 	if p.PeekToken.Type == token.ASSIGN {
 		p.NextToken() // consume =
 		p.NextToken() // move to value
-		stmt.Value = p.ParseExpression(LOWEST)
+		stmt.Value = p.ParseExpression()
 	}
 	if p.PeekToken.Type == token.SEMICOLON {
 		p.NextToken()
@@ -69,7 +69,7 @@ func (p *Parser) ParseReturnStatement() *ast.ReturnStatement {
 	stmt := &ast.ReturnStatement{Token: p.CurrentToken}
 	if p.PeekToken.Type != token.SEMICOLON && p.PeekToken.Type != token.EOF {
 		p.NextToken()
-		stmt.ReturnValue = p.ParseExpression(LOWEST)
+		stmt.ReturnValue = p.ParseExpression()
 	}
 	if p.PeekToken.Type == token.SEMICOLON {
 		p.NextToken()
@@ -83,7 +83,7 @@ func (p *Parser) ParseIfStatement() *ast.IfStatement {
 		return nil
 	}
 	p.NextToken()
-	stmt.Condition = p.ParseExpression(LOWEST)
+	stmt.Condition = p.ParseExpression()
 	if !p.ExpectToken(token.RPAREN) {
 		return nil
 	}
@@ -103,7 +103,7 @@ func (p *Parser) ParseWhileStatement() *ast.WhileStatement {
 		return nil
 	}
 	p.NextToken()
-	stmt.Condition = p.ParseExpression(LOWEST)
+	stmt.Condition = p.ParseExpression()
 	if !p.ExpectToken(token.RPAREN) {
 		return nil
 	}
@@ -125,14 +125,14 @@ func (p *Parser) ParseForStatement() *ast.ForStatement {
 	}
 	if p.PeekToken.Type != token.SEMICOLON {
 		p.NextToken()
-		stmt.Condition = p.ParseExpression(LOWEST)
+		stmt.Condition = p.ParseExpression()
 	}
 	if !p.ExpectToken(token.SEMICOLON) {
 		return nil
 	}
 	if p.PeekToken.Type != token.RPAREN {
 		p.NextToken()
-		stmt.Update = p.ParseExpression(LOWEST)
+		stmt.Update = p.ParseExpression()
 	}
 	if !p.ExpectToken(token.RPAREN) {
 		return nil
@@ -164,15 +164,15 @@ func (p *Parser) ParseStatement() ast.Statement {
 
 func (p *Parser) ParseExpressionStatement() *ast.ExpressionStatement {
 	stmt := &ast.ExpressionStatement{Token: p.CurrentToken}
-	stmt.Expression = p.ParseExpression(LOWEST)
+	stmt.Expression = p.ParseExpression()
 	if p.PeekToken.Type == token.SEMICOLON {
 		p.NextToken()
 	}
 	return stmt
 }
 
-func (p *Parser) ParseExpression(precedence int) ast.Expression {
-	return p.expressionParseFn(p, precedence)
+func (p *Parser) ParseExpression() ast.Expression {
+	return p.expressionParseFn(p, LOWEST)
 }
 
 func (p *Parser) ParseIdentifier() ast.Expression {
@@ -219,13 +219,13 @@ func (p *Parser) ParseUnaryExpression() ast.Expression {
 		Operator: p.CurrentToken.Literal,
 	}
 	p.NextToken()
-	expression.Right = p.ParseExpression(UNARY)
+	expression.Right = p.expressionParseFn(p, UNARY)
 	return expression
 }
 
 func (p *Parser) ParseGroupedExpression() ast.Expression {
 	p.NextToken()
-	exp := p.ParseExpression(LOWEST)
+	exp := p.ParseExpression()
 	if !p.ExpectToken(token.RPAREN) {
 		return nil
 	}
@@ -247,12 +247,12 @@ func (p *Parser) ParseObjectLiteral() ast.Expression {
 	}
 	p.NextToken()
 	for {
-		key := p.ParseExpression(LOWEST)
+		key := p.ParseExpression()
 		if !p.ExpectToken(token.COLON) {
 			return nil
 		}
 		p.NextToken()
-		value := p.ParseExpression(LOWEST)
+		value := p.ParseExpression()
 		obj.Properties[key] = value
 		if p.PeekToken.Type != token.COMMA {
 			break
@@ -289,7 +289,7 @@ func (p *Parser) ParseBinaryExpression(left ast.Expression) ast.Expression {
 	}
 	precedence := p.currentPrecedence()
 	p.NextToken()
-	expression.Right = p.ParseExpression(precedence)
+	expression.Right = p.expressionParseFn(p, precedence)
 	return expression
 }
 
@@ -299,7 +299,7 @@ func (p *Parser) ParseAssignmentExpression(left ast.Expression) ast.Expression {
 		Left:  left,
 	}
 	p.NextToken()
-	expression.Value = p.ParseExpression(LOWEST)
+	expression.Value = p.ParseExpression()
 	return expression
 }
 
@@ -316,7 +316,7 @@ func (p *Parser) ParseMemberExpression(left ast.Expression) ast.Expression {
 		Computed: false,
 	}
 	p.NextToken()
-	exp.Property = p.ParseExpression(MEMBER)
+	exp.Property = p.expressionParseFn(p, MEMBER)
 	return exp
 }
 
@@ -327,7 +327,7 @@ func (p *Parser) ParseComputedMemberExpression(left ast.Expression) ast.Expressi
 		Computed: true,
 	}
 	p.NextToken()
-	exp.Property = p.ParseExpression(LOWEST)
+	exp.Property = p.ParseExpression()
 	if !p.ExpectToken(token.RBRACKET) {
 		return nil
 	}
@@ -341,11 +341,11 @@ func (p *Parser) ParseExpressionList(end token.Type) []ast.Expression {
 		return args
 	}
 	p.NextToken()
-	args = append(args, p.ParseExpression(LOWEST))
+	args = append(args, p.ParseExpression())
 	for p.PeekToken.Type == token.COMMA {
 		p.NextToken()
 		p.NextToken()
-		args = append(args, p.ParseExpression(LOWEST))
+		args = append(args, p.ParseExpression())
 	}
 	if !p.ExpectToken(end) {
 		return nil

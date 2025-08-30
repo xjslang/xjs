@@ -11,9 +11,11 @@ func (p *Parser) UseStatementHandler(handler func(p *Parser, next func(p *Parser
 	}
 }
 
-func (p *Parser) UseExpressionHandler(handler func(p *Parser, precedence int, next func(*Parser, int) ast.Expression) ast.Expression) {
+func (p *Parser) UseExpressionHandler(handler func(p *Parser, next func(*Parser) ast.Expression) ast.Expression) {
 	next := p.expressionParseFn
 	p.expressionParseFn = func(p *Parser, precedence int) ast.Expression {
-		return handler(p, precedence, next)
+		return handler(p, func(p *Parser) ast.Expression {
+			return next(p, precedence)
+		})
 	}
 }
