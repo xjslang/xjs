@@ -28,15 +28,15 @@ This approach ensures that:
 
 Located in `testdata/`:
 
-- `basic.js` / `basic.out` - Simple console.log test
-- `function.js` / `function.out` - Function declaration and execution
-- `array_loop.js` / `array_loop.out` - Array iteration with loops
-- `conditional.js` / `conditional.out` - If/else conditionals
-- `object.js` / `object.out` - Object creation and property access
+- `basic.js` / `basic.output` - Simple console.log test
+- `function.js` / `function.output` - Function declaration and execution
+- `array_loop.js` / `array_loop.output` - Array iteration with loops
+- `conditional.js` / `conditional.output` - If/else conditionals
+- `object.js` / `object.output` - Object creation and property access
 
 Each test case consists of:
 - `.js` file - The XJS source code to transpile
-- `.out` file - The expected output when executed
+- `.output` file - The expected output when executed
 
 ## Running Tests
 

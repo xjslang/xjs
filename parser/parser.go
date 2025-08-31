@@ -154,7 +154,7 @@ func (p *Parser) ExpectToken(t token.Type) bool {
 		p.NextToken()
 		return true
 	}
-	p.AddError(fmt.Sprintf("expected %s, got %s", t, p.PeekToken.Type))
+	p.AddError(fmt.Sprintf("output %s, got %s", t, p.PeekToken.Type))
 	return false
 }
 
