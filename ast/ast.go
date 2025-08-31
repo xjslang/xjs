@@ -26,7 +26,10 @@ type Program struct {
 
 func (p *Program) String() string {
 	var out string
-	for _, stmt := range p.Statements {
+	for i, stmt := range p.Statements {
+		if i > 0 {
+			out += ";"
+		}
 		out += stmt.String()
 	}
 	return out
