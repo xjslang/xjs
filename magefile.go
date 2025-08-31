@@ -25,12 +25,12 @@ func Test() error {
 
 	fmt.Println()
 
-	// Ejecutar todos los tests de transpilación en secuencia
+	// Ejecutar todos los tests de integración en secuencia
 	mg.SerialDeps(TestTranspilation, TestInline, TestErrors)
 
 	fmt.Println()
 	fmt.Println("⚡ Running benchmarks...")
-	if err := sh.RunV("go", "test", "-run=^$", "-bench=BenchmarkTranspilation", "-benchmem"); err != nil {
+	if err := sh.RunV("go", "test", "-run=^$", "-bench=BenchmarkTranspilation", "-benchmem", "./test/integration"); err != nil {
 		// Los benchmarks pueden fallar pero no queremos que falle todo el test
 		fmt.Println("⚠️  Some benchmarks failed, but continuing...")
 	}
@@ -43,7 +43,7 @@ func Test() error {
 // TestTranspilation ejecuta los tests de transpilación con fixtures
 func TestTranspilation() error {
 	fmt.Println("🧪 Running transpilation tests...")
-	err := sh.RunV("go", "test", "-v", "-run", "TestTranspilation$")
+	err := sh.RunV("go", "test", "-v", "-run", "TestTranspilation$", "./test/integration")
 	if err != nil {
 		fmt.Println()
 		fmt.Println("❌ Some transpilation tests failed.")
@@ -57,7 +57,7 @@ func TestTranspilation() error {
 // TestInline ejecuta los tests de transpilación inline
 func TestInline() error {
 	fmt.Println("🎯 Running inline transpilation tests...")
-	err := sh.RunV("go", "test", "-v", "-run", "TestTranspilationBasicInline")
+	err := sh.RunV("go", "test", "-v", "-run", "TestTranspilationBasicInline", "./test/integration")
 	if err != nil {
 		fmt.Println()
 		fmt.Println("❌ Some inline transpilation tests failed.")
@@ -71,7 +71,7 @@ func TestInline() error {
 // TestErrors ejecuta los tests de manejo de errores
 func TestErrors() error {
 	fmt.Println("🔥 Running error handling tests...")
-	err := sh.RunV("go", "test", "-v", "-run", "TestTranspilationErrors")
+	err := sh.RunV("go", "test", "-v", "-run", "TestTranspilationErrors", "./test/integration")
 	if err != nil {
 		fmt.Println()
 		fmt.Println("❌ Some error handling tests failed.")
@@ -82,7 +82,13 @@ func TestErrors() error {
 	return nil
 }
 
-// TestAll ejecuta todos los tests del proyecto (no solo transpilación)
+// TestUnit ejecuta solo los tests unitarios (sin tags)
+func TestUnit() error {
+	fmt.Println("🧪 Running unit tests...")
+	return sh.RunV("go", "test", "-v", "./...")
+}
+
+// TestAll ejecuta todos los tests del proyecto (unitarios + integración)
 func TestAll() error {
 	fmt.Println("🧪 Running all project tests...")
 	return sh.RunV("go", "test", "-v", "./...")
@@ -91,19 +97,19 @@ func TestAll() error {
 // TestMiddleware ejecuta solo los tests de middleware
 func TestMiddleware() error {
 	fmt.Println("⚙️ Running middleware tests...")
-	return sh.RunV("go", "test", "-v", "-run", "TestMiddleware")
+	return sh.RunV("go", "test", "-v", "-run", "TestMiddleware", "./test/integration")
 }
 
 // Bench ejecuta solo los benchmarks
 func Bench() error {
 	fmt.Println("⚡ Running benchmarks...")
-	return sh.RunV("go", "test", "-bench=.", "-benchmem")
+	return sh.RunV("go", "test", "-bench=.", "-benchmem", "./test/integration")
 }
 
 // BenchTranspilation ejecuta solo los benchmarks de transpilación
 func BenchTranspilation() error {
 	fmt.Println("⚡ Running transpilation benchmarks...")
-	return sh.RunV("go", "test", "-run=^$", "-bench=BenchmarkTranspilation", "-benchmem")
+	return sh.RunV("go", "test", "-run=^$", "-bench=BenchmarkTranspilation", "-benchmem", "./test/integration")
 }
 
 // Build compila el proyecto

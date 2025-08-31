@@ -1,4 +1,4 @@
-package main
+package integration
 
 import (
 	"fmt"
@@ -7,6 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/parser"
 )
 
 // TranspilationTest represents a single transpilation test case
@@ -55,21 +58,25 @@ func checkNodeJSAvailability(t *testing.T) {
 
 // transpileXJSCode transpiles XJS code to JavaScript using the main Parse function
 func transpileXJSCode(input string) (string, error) {
-	program, errors := Parse(input)
+	l := lexer.New(input)
+	p := parser.New(l)
+	program := p.ParseProgram()
+
+	errors := p.Errors()
 	if len(errors) > 0 {
 		return "", fmt.Errorf("parser errors: %v", errors)
 	}
 
 	// Convert the AST to JavaScript code (now with automatic semicolons)
-	result := program.(fmt.Stringer).String()
+	result := program.String()
 
 	return result, nil
 }
 
 // loadTestCase loads a test case from fixture files
 func loadTestCase(t *testing.T, baseName string) TranspilationTest {
-	inputFile := filepath.Join("testdata", baseName+".js")
-	outputFile := filepath.Join("testdata", baseName+".out")
+	inputFile := filepath.Join("../testdata", baseName+".js")
+	outputFile := filepath.Join("../testdata", baseName+".out")
 
 	// Read input file
 	inputContent, err := os.ReadFile(inputFile)

@@ -1,5 +1,5 @@
 // Package main demonstrates basic usage of the xjs library with function expressions
-package main
+package integration
 
 import (
 	"fmt"

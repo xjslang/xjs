@@ -14,16 +14,72 @@ go install github.com/magefile/mage@latest
 
 ```bash
 # Ejecutar todos los tests de transpilación (equivalente al script original)
-mage test                    # Target por defecto
+mage test                    # Target por defecto - tests de integración
 mage                         # Equivalente a 'mage test'
 
-# Tests específicos
+# Tests por tipo
+mage testUnit               # Solo tests unitarios (rápidos)
+mage testAll                # Todos los tests (unitarios + integración)
+
+# Tests específicos de integración
 mage testTranspilation       # Tests con fixtures del directorio testdata/
 mage testInline             # Tests inline de transpilación básica
 mage testErrors             # Tests de manejo de errores
 mage testMiddleware         # Tests del sistema de middleware
-mage testAll                # Todos los tests del proyecto
 ```
+
+## Organización de Tests
+
+El proyecto sigue la **estructura de Kubernetes** para organizar diferentes tipos de tests:
+
+### 📁 **Estructura de Directorios**
+```
+xjs/
+├── parser/
+│   └── parser_test.go           # Tests unitarios del parser
+├── lexer/
+│   └── lexer_test.go           # Tests unitarios del lexer  
+├── ast/
+│   └── ast_test.go             # Tests unitarios del AST
+├── token/
+│   └── token_test.go           # Tests unitarios de tokens
+└── test/
+    ├── integration/            # Tests de integración
+    │   ├── transpilation_test.go
+    │   ├── middleware_test.go
+    │   └── examples_test.go
+    └── testdata/               # Fixtures compartidas
+        ├── basic.js
+        ├── basic.out
+        └── ...
+```
+
+### 🧪 **Tests por tipo**
+```bash
+# Tests unitarios (rápidos, sin dependencias externas)
+mage testUnit               # Solo tests unitarios, no requiere Node.js
+go test ./parser ./lexer    # Equivalente directo
+
+# Tests de integración (requieren Node.js)
+mage test                  # Tests de integración (requiere Node.js)
+go test ./test/integration  # Equivalente directo
+```
+
+### 🎯 **Tests específicos de integración**
+```bash
+mage testTranspilation       # Tests con fixtures del directorio testdata/
+mage testInline             # Tests inline de transpilación básica
+mage testErrors             # Tests de manejo de errores
+mage testMiddleware         # Tests del sistema de middleware
+```
+
+## Ventajas de la Organización Kubernetes
+
+1. **Separación clara**: Tests unitarios cerca del código, integración centralizada
+2. **Escalabilidad**: Fácil agregar nuevos tipos de tests (e2e, performance, etc.)
+3. **Navegación**: Fácil localizar tests por tipo y propósito
+4. **CI eficiente**: Pipelines optimizados por tipo de test
+5. **Estándar profesional**: Usado por proyectos enterprise
 
 ### Benchmarking
 
