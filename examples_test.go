@@ -6,10 +6,9 @@ import (
 
 	"github.com/xjslang/xjs/lexer"
 	"github.com/xjslang/xjs/parser"
-	"github.com/xjslang/xjs/token"
 )
 
-func main() {
+func Example_general() {
 	input := `
 		let x = 5
 		let y = 10.5
@@ -19,33 +18,20 @@ func main() {
 		items.push(function () {
 			console.log("new item")
 		})
-		
+
 		function add(a, b) {
 			return a + b
 		}
-		
+
 		if (x < y) {
 			console.log("x is less than y")
 		}
-		
+
 		let numbers = [1, 2, 3, 4, 5]
 		let person = {name: "John", age: 30}
 	`
-
-	fmt.Println("=== LEXER OUTPUT ===")
 	l := lexer.New(input)
-
-	for {
-		tok := l.NextToken()
-		fmt.Println(tok)
-		if tok.Type == token.EOF {
-			break
-		}
-	}
-
-	fmt.Println("\n=== PARSER OUTPUT ===")
-	l2 := lexer.New(input)
-	p := parser.New(l2)
+	p := parser.New(l)
 	program := p.ParseProgram()
 
 	if len(p.Errors()) > 0 {
@@ -56,6 +42,6 @@ func main() {
 		return
 	}
 
-	fmt.Println("AST:")
 	fmt.Println(program.String())
+	// Output: let x = 5let y = 10.5let name = "Hello World"let items = []items.push(function() {console.log("new item")})function add(a, b) {return (a + b)}if ((x < y)) {console.log("x is less than y")}let numbers = [1, 2, 3, 4, 5]let person = {name: "John", age: 30}
 }
