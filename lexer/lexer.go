@@ -115,12 +115,7 @@ func (l *Lexer) NextToken() token.Token {
 	case '=':
 		if l.peekChar() == '=' {
 			l.readChar()
-			if l.peekChar() == '=' {
-				l.readChar()
-				tok = token.Token{Type: token.EQ_STRICT, Literal: "===", Line: line, Column: column}
-			} else {
-				tok = token.Token{Type: token.EQ, Literal: "==", Line: line, Column: column}
-			}
+			tok = token.Token{Type: token.EQ, Literal: "==", Line: line, Column: column}
 		} else {
 			tok = token.Token{Type: token.ASSIGN, Literal: string(l.ch), Line: line, Column: column}
 		}
@@ -128,12 +123,7 @@ func (l *Lexer) NextToken() token.Token {
 		if l.peekChar() == '=' {
 			ch := l.ch
 			l.readChar()
-			if l.peekChar() == '=' {
-				l.readChar()
-				tok = token.Token{Type: token.NOT_EQ_STRICT, Literal: "!==", Line: line, Column: column}
-			} else {
-				tok = token.Token{Type: token.NOT_EQ, Literal: string(ch) + string(l.ch), Line: line, Column: column}
-			}
+			tok = token.Token{Type: token.NOT_EQ, Literal: string(ch) + string(l.ch), Line: line, Column: column}
 		} else {
 			tok = token.Token{Type: token.NOT, Literal: string(l.ch), Line: line, Column: column}
 		}

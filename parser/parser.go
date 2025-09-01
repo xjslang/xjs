@@ -28,25 +28,23 @@ const (
 )
 
 var precedences = map[token.Type]int{
-	token.ASSIGN:        ASSIGNMENT,
-	token.OR:            LOGICAL_OR,
-	token.AND:           LOGICAL_AND,
-	token.EQ:            EQUALITY,
-	token.NOT_EQ:        EQUALITY,
-	token.EQ_STRICT:     EQUALITY,
-	token.NOT_EQ_STRICT: EQUALITY,
-	token.LT:            COMPARISON,
-	token.GT:            COMPARISON,
-	token.LTE:           COMPARISON,
-	token.GTE:           COMPARISON,
-	token.PLUS:          SUM,
-	token.MINUS:         SUM,
-	token.MULTIPLY:      PRODUCT,
-	token.DIVIDE:        PRODUCT,
-	token.MODULO:        PRODUCT,
-	token.LPAREN:        CALL,
-	token.DOT:           MEMBER,
-	token.LBRACKET:      MEMBER,
+	token.ASSIGN:   ASSIGNMENT,
+	token.OR:       LOGICAL_OR,
+	token.AND:      LOGICAL_AND,
+	token.EQ:       EQUALITY,
+	token.NOT_EQ:   EQUALITY,
+	token.LT:       COMPARISON,
+	token.GT:       COMPARISON,
+	token.LTE:      COMPARISON,
+	token.GTE:      COMPARISON,
+	token.PLUS:     SUM,
+	token.MINUS:    SUM,
+	token.MULTIPLY: PRODUCT,
+	token.DIVIDE:   PRODUCT,
+	token.MODULO:   PRODUCT,
+	token.LPAREN:   CALL,
+	token.DOT:      MEMBER,
+	token.LBRACKET: MEMBER,
 }
 
 type Parser struct {
@@ -100,8 +98,6 @@ func New(l *lexer.Lexer) *Parser {
 	p.infixParseFns[token.MODULO] = p.ParseBinaryExpression
 	p.infixParseFns[token.EQ] = p.ParseBinaryExpression
 	p.infixParseFns[token.NOT_EQ] = p.ParseBinaryExpression
-	p.infixParseFns[token.EQ_STRICT] = p.ParseBinaryExpression
-	p.infixParseFns[token.NOT_EQ_STRICT] = p.ParseBinaryExpression
 	p.infixParseFns[token.LT] = p.ParseBinaryExpression
 	p.infixParseFns[token.GT] = p.ParseBinaryExpression
 	p.infixParseFns[token.LTE] = p.ParseBinaryExpression

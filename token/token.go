@@ -26,14 +26,12 @@ const (
 	MODULO   // %
 
 	// Comparison operators
-	EQ            // ==
-	NOT_EQ        // !=
-	EQ_STRICT     // ===
-	NOT_EQ_STRICT // !==
-	LT            // <
-	GT            // >
-	LTE           // <=
-	GTE           // >=
+	EQ     // ==
+	NOT_EQ // !=
+	LT     // <
+	GT     // >
+	LTE    // <=
+	GTE    // >=
 
 	// Logical operators
 	AND // &&
@@ -115,10 +113,6 @@ func (tt Type) String() string {
 		return "EQ"
 	case NOT_EQ:
 		return "NOT_EQ"
-	case EQ_STRICT:
-		return "EQ_STRICT"
-	case NOT_EQ_STRICT:
-		return "NOT_EQ_STRICT"
 	case LT:
 		return "LT"
 	case GT:

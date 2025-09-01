@@ -211,7 +211,14 @@ type BinaryExpression struct {
 }
 
 func (be *BinaryExpression) String() string {
-	return "(" + be.Left.String() + " " + be.Operator + " " + be.Right.String() + ")"
+	op := be.Operator
+	switch be.Operator {
+	case "==":
+		op = "==="
+	case "!=":
+		op = "!=="
+	}
+	return "(" + be.Left.String() + " " + op + " " + be.Right.String() + ")"
 }
 
 type UnaryExpression struct {
