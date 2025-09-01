@@ -26,14 +26,14 @@ func executeJavaScript(code string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to create temp file: %v", err)
 	}
-	defer os.Remove(tempFile.Name())
+	defer func() { _ = os.Remove(tempFile.Name()) }()
 
 	// Write the transpiled code to the temporary file
 	_, err = tempFile.WriteString(code)
 	if err != nil {
 		return "", fmt.Errorf("failed to write to temp file: %v", err)
 	}
-	tempFile.Close()
+	_ = tempFile.Close()
 
 	// Execute the JavaScript file using Node.js
 	cmd := exec.Command("node", tempFile.Name())
