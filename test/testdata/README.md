@@ -43,6 +43,8 @@ Located in `testdata/`:
 - `complex_expressions.js` / `complex_expressions.output` - Complex function calls and recursive functions
 - `type_coercion.js` / `type_coercion.output` - Strict equality behavior (== and != perform strict comparison without type coercion)
 - `strict_equality.js` / `strict_equality.output` - Comprehensive demonstration of strict equality behavior across different data types
+- `comments.js` / `comments.output` - Line comments support using // syntax
+- `comments_comprehensive.js` / `comments_comprehensive.output` - Comprehensive demonstration of line comments in various contexts
 
 Each test case consists of:
 - `.js` file - The XJS source code to transpile

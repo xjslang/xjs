@@ -178,7 +178,12 @@ func (l *Lexer) NextToken() token.Token {
 	case '*':
 		tok = token.Token{Type: token.MULTIPLY, Literal: string(l.ch), Line: line, Column: column}
 	case '/':
-		tok = token.Token{Type: token.DIVIDE, Literal: string(l.ch), Line: line, Column: column}
+		if l.peekChar() == '/' {
+			l.skipLineComment()
+			return l.NextToken() // Skip the comment and get the next token
+		} else {
+			tok = token.Token{Type: token.DIVIDE, Literal: string(l.ch), Line: line, Column: column}
+		}
 	case '%':
 		tok = token.Token{Type: token.MODULO, Literal: string(l.ch), Line: line, Column: column}
 	case ',':
@@ -246,4 +251,11 @@ func isLetter(ch byte) bool {
 // isDigit checks if a character is a digit
 func isDigit(ch byte) bool {
 	return '0' <= ch && ch <= '9'
+}
+
+// skipLineComment skips characters until the end of line for line comments (//)
+func (l *Lexer) skipLineComment() {
+	for l.ch != '\n' && l.ch != 0 {
+		l.readChar()
+	}
 }

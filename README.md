@@ -9,20 +9,22 @@ A clean, simplified JavaScript-like language lexer and parser written in Go. Thi
 - **Comprehensive parsing** - Full AST generation with position tracking
 - **Easy to use** - Simple API for lexing and parsing
 - **Well documented** - Extensive documentation and examples
+- **Line comments** - Supports `//` line comments for code documentation
 
 ## Supported Language Features
 
 ### Variables
 ```javascript
-let x = 5
-let name = "Hello World"
-let pi = 3.14159
+let x = 5  // Integer variable
+let name = "Hello World"  // String variable
+let pi = 3.14159  // Float variable
 ```
 
 ### Functions
 ```javascript
+// Function declaration
 function add(a, b) {
-    return a + b
+    return a + b  // Return the sum
 }
 ```
 
