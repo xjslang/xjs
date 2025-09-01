@@ -30,17 +30,20 @@ function add(a, b) {
 
 ### Control Flow
 ```javascript
+// Conditionals
 if (x < y) {
     console.log("x is less than y")
 } else {
     console.log("x is not less than y")
 }
 
+// While loops
 while (i < 10) {
-    i++
+    i++  // Postfix increment
 }
 
-for (let i = 0; i < 10; i++) {
+// For loops
+for (let i = 0; i < 10; i++) {  // Both prefix and postfix supported
     console.log(i)
 }
 ```
@@ -60,6 +63,8 @@ let object = {name: "John", age: 30}
 - Arithmetic: `+`, `-`, `*`, `/`, `%`
 - Comparison: `==`, `!=`, `<`, `>`, `<=`, `>=` (Note: `==` and `!=` perform strict comparison without type coercion)
 - Logical: `&&`, `||`, `!`
+- Assignment: `=`
+- Increment/Decrement: `++`, `--` (both prefix and postfix)
 - Assignment: `=`
 - Increment/Decrement: `++`, `--`
 

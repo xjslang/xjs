@@ -1,20 +1,25 @@
 let x = 5;
 console.log(x);
 
-x = x + 1;
+// Incremento
+x++;
 console.log(x);
 
-x = x - 1;
+// Decremento
+x--;
 console.log(x);
 
+// Asignación
 x = 10;
 console.log(x);
 
+// Operadores unarios
 let y = -x;
 console.log(y);
 
 let z = !true;
 console.log(z);
 
+// Expresiones agrupadas
 let result = (x + 5) * 2;
 console.log(result);

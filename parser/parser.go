@@ -28,23 +28,25 @@ const (
 )
 
 var precedences = map[token.Type]int{
-	token.ASSIGN:   ASSIGNMENT,
-	token.OR:       LOGICAL_OR,
-	token.AND:      LOGICAL_AND,
-	token.EQ:       EQUALITY,
-	token.NOT_EQ:   EQUALITY,
-	token.LT:       COMPARISON,
-	token.GT:       COMPARISON,
-	token.LTE:      COMPARISON,
-	token.GTE:      COMPARISON,
-	token.PLUS:     SUM,
-	token.MINUS:    SUM,
-	token.MULTIPLY: PRODUCT,
-	token.DIVIDE:   PRODUCT,
-	token.MODULO:   PRODUCT,
-	token.LPAREN:   CALL,
-	token.DOT:      MEMBER,
-	token.LBRACKET: MEMBER,
+	token.ASSIGN:    ASSIGNMENT,
+	token.OR:        LOGICAL_OR,
+	token.AND:       LOGICAL_AND,
+	token.EQ:        EQUALITY,
+	token.NOT_EQ:    EQUALITY,
+	token.LT:        COMPARISON,
+	token.GT:        COMPARISON,
+	token.LTE:       COMPARISON,
+	token.GTE:       COMPARISON,
+	token.PLUS:      SUM,
+	token.MINUS:     SUM,
+	token.MULTIPLY:  PRODUCT,
+	token.DIVIDE:    PRODUCT,
+	token.MODULO:    PRODUCT,
+	token.INCREMENT: POSTFIX,
+	token.DECREMENT: POSTFIX,
+	token.LPAREN:    CALL,
+	token.DOT:       MEMBER,
+	token.LBRACKET:  MEMBER,
 }
 
 type Parser struct {
@@ -108,6 +110,8 @@ func New(l *lexer.Lexer) *Parser {
 	p.infixParseFns[token.LPAREN] = p.ParseCallExpression
 	p.infixParseFns[token.DOT] = p.ParseMemberExpression
 	p.infixParseFns[token.LBRACKET] = p.ParseComputedMemberExpression
+	p.infixParseFns[token.INCREMENT] = p.ParsePostfixExpression
+	p.infixParseFns[token.DECREMENT] = p.ParsePostfixExpression
 
 	// Read two tokens, so CurrentToken and PeekToken are both set
 	p.NextToken()

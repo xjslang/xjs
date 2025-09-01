@@ -231,6 +231,16 @@ func (ue *UnaryExpression) String() string {
 	return "(" + ue.Operator + ue.Right.String() + ")"
 }
 
+type PostfixExpression struct {
+	Token    token.Token // the operator token
+	Left     Expression
+	Operator string
+}
+
+func (pe *PostfixExpression) String() string {
+	return "(" + pe.Left.String() + pe.Operator + ")"
+}
+
 type CallExpression struct {
 	Token     token.Token // the ( token
 	Function  Expression  // Identifier or FunctionLiteral

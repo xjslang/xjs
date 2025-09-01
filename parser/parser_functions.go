@@ -223,6 +223,15 @@ func (p *Parser) ParseUnaryExpression() ast.Expression {
 	return expression
 }
 
+func (p *Parser) ParsePostfixExpression(left ast.Expression) ast.Expression {
+	expression := &ast.PostfixExpression{
+		Token:    p.CurrentToken,
+		Left:     left,
+		Operator: p.CurrentToken.Literal,
+	}
+	return expression
+}
+
 func (p *Parser) ParseGroupedExpression() ast.Expression {
 	p.NextToken()
 	exp := p.ParseExpression()

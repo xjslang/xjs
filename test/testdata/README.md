@@ -36,7 +36,7 @@ Located in `testdata/`:
 - `operators.js` / `operators.output` - Arithmetic, comparison, and logical operators
 - `loops.js` / `loops.output` - While and for loops
 - `data_types.js` / `data_types.output` - All supported data types (integers, floats, strings, booleans, null, arrays, objects)
-- `assignment.js` / `assignment.output` - Variable assignment and unary operators
+- `assignment.js` / `assignment.output` - Variable assignment and unary operators (including ++ and --)
 - `function_expressions.js` / `function_expressions.output` - Anonymous functions and function expressions
 - `property_access.js` / `property_access.output` - Complex property access patterns (nested objects/arrays)
 - `complex_conditionals.js` / `complex_conditionals.output` - Nested and complex conditional logic
@@ -45,6 +45,7 @@ Located in `testdata/`:
 - `strict_equality.js` / `strict_equality.output` - Comprehensive demonstration of strict equality behavior across different data types
 - `comments.js` / `comments.output` - Line comments support using // syntax
 - `comments_comprehensive.js` / `comments_comprehensive.output` - Comprehensive demonstration of line comments in various contexts
+- `increment_decrement.js` / `increment_decrement.output` - Prefix and postfix increment/decrement operators (++x, x++, --x, x--)
 
 Each test case consists of:
 - `.js` file - The XJS source code to transpile

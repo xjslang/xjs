@@ -144,6 +144,7 @@ func TestTranspilation(t *testing.T) {
 		"strict_equality",
 		"comments",
 		"comments_comprehensive",
+		"increment_decrement",
 	}
 
 	for _, testCase := range testCases {
