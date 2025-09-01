@@ -132,6 +132,15 @@ func TestTranspilation(t *testing.T) {
 		"array_loop",
 		"conditional",
 		"object",
+		"operators",
+		"loops",
+		"data_types",
+		"assignment",
+		"function_expressions",
+		"property_access",
+		"complex_conditionals",
+		"complex_expressions",
+		"type_coercion",
 	}
 
 	for _, testCase := range testCases {

@@ -33,6 +33,15 @@ Located in `testdata/`:
 - `array_loop.js` / `array_loop.output` - Array iteration with loops
 - `conditional.js` / `conditional.output` - If/else conditionals
 - `object.js` / `object.output` - Object creation and property access
+- `operators.js` / `operators.output` - Arithmetic, comparison, and logical operators
+- `loops.js` / `loops.output` - While and for loops
+- `data_types.js` / `data_types.output` - All supported data types (integers, floats, strings, booleans, null, arrays, objects)
+- `assignment.js` / `assignment.output` - Variable assignment and unary operators
+- `function_expressions.js` / `function_expressions.output` - Anonymous functions and function expressions
+- `property_access.js` / `property_access.output` - Complex property access patterns (nested objects/arrays)
+- `complex_conditionals.js` / `complex_conditionals.output` - Nested and complex conditional logic
+- `complex_expressions.js` / `complex_expressions.output` - Complex function calls and recursive functions
+- `type_coercion.js` / `type_coercion.output` - Type coercion behavior with == vs === operators
 
 Each test case consists of:
 - `.js` file - The XJS source code to transpile
