@@ -4,7 +4,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -61,7 +60,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	content, err := ioutil.ReadFile(filename)
+	content, err := os.ReadFile(filename)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
 		os.Exit(1)
@@ -84,7 +83,7 @@ func main() {
 	result := program.(fmt.Stringer).String()
 
 	if *output != "" {
-		err := ioutil.WriteFile(*output, []byte(result), 0644)
+		err := os.WriteFile(*output, []byte(result), 0644)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error writing output: %v\n", err)
 			os.Exit(1)
