@@ -1,0 +1,14 @@
+Number vs String:
+false
+Boolean vs Number:
+false
+false
+Empty string vs Zero:
+false
+Null comparisons:
+false
+false
+Same type comparisons:
+true
+true
+true

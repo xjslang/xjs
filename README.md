@@ -56,7 +56,7 @@ let object = {name: "John", age: 30}
 
 ### Operators
 - Arithmetic: `+`, `-`, `*`, `/`, `%`
-- Comparison: `==`, `!=`, `===`, `!==`, `<`, `>`, `<=`, `>=`
+- Comparison: `==`, `!=`, `<`, `>`, `<=`, `>=` (Note: `==` and `!=` perform strict comparison without type coercion)
 - Logical: `&&`, `||`, `!`
 - Assignment: `=`
 - Increment/Decrement: `++`, `--`

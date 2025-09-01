@@ -41,7 +41,8 @@ Located in `testdata/`:
 - `property_access.js` / `property_access.output` - Complex property access patterns (nested objects/arrays)
 - `complex_conditionals.js` / `complex_conditionals.output` - Nested and complex conditional logic
 - `complex_expressions.js` / `complex_expressions.output` - Complex function calls and recursive functions
-- `type_coercion.js` / `type_coercion.output` - Type coercion behavior with == vs === operators
+- `type_coercion.js` / `type_coercion.output` - Strict equality behavior (== and != perform strict comparison without type coercion)
+- `strict_equality.js` / `strict_equality.output` - Comprehensive demonstration of strict equality behavior across different data types
 
 Each test case consists of:
 - `.js` file - The XJS source code to transpile
