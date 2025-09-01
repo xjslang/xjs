@@ -1,1 +1,1 @@
-Both the code, documentation, and comments must be in English, as this project is expected to be international.
+"This project requires all code, documentation, and comments in English for international compatibility. Please follow this rule throughout our conversation."
