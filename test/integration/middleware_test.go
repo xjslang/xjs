@@ -203,7 +203,7 @@ func TestPerformanceRegression(t *testing.T) {
 	var inputBuilder strings.Builder
 	inputBuilder.WriteString("let sum = 0;\n")
 	for i := 0; i < 100; i++ {
-		inputBuilder.WriteString(fmt.Sprintf("sum = sum + %d;\n", i))
+		inputBuilder.WriteString(fmt.Sprintf("sum += %d;\n", i))
 	}
 	inputBuilder.WriteString("console.log(sum);")
 

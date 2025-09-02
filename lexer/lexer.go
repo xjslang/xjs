@@ -164,6 +164,10 @@ func (l *Lexer) NextToken() token.Token {
 			ch := l.ch
 			l.readChar()
 			tok = token.Token{Type: token.INCREMENT, Literal: string(ch) + string(l.ch), Line: line, Column: column}
+		} else if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			tok = token.Token{Type: token.PLUS_ASSIGN, Literal: string(ch) + string(l.ch), Line: line, Column: column}
 		} else {
 			tok = token.Token{Type: token.PLUS, Literal: string(l.ch), Line: line, Column: column}
 		}
@@ -172,6 +176,10 @@ func (l *Lexer) NextToken() token.Token {
 			ch := l.ch
 			l.readChar()
 			tok = token.Token{Type: token.DECREMENT, Literal: string(ch) + string(l.ch), Line: line, Column: column}
+		} else if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			tok = token.Token{Type: token.MINUS_ASSIGN, Literal: string(ch) + string(l.ch), Line: line, Column: column}
 		} else {
 			tok = token.Token{Type: token.MINUS, Literal: string(l.ch), Line: line, Column: column}
 		}

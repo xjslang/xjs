@@ -18,12 +18,14 @@ const (
 	STRING // "hello"
 
 	// Operators
-	ASSIGN   // =
-	PLUS     // +
-	MINUS    // -
-	MULTIPLY // *
-	DIVIDE   // /
-	MODULO   // %
+	ASSIGN       // =
+	PLUS_ASSIGN  // +=
+	MINUS_ASSIGN // -=
+	PLUS         // +
+	MINUS        // -
+	MULTIPLY     // *
+	DIVIDE       // /
+	MODULO       // %
 
 	// Comparison operators
 	EQ     // ==
@@ -99,6 +101,10 @@ func (tt Type) String() string {
 		return "STRING"
 	case ASSIGN:
 		return "ASSIGN"
+	case PLUS_ASSIGN:
+		return "PLUS_ASSIGN"
+	case MINUS_ASSIGN:
+		return "MINUS_ASSIGN"
 	case PLUS:
 		return "PLUS"
 	case MINUS:

@@ -332,6 +332,21 @@ func (ae *AssignmentExpression) WriteTo(b *strings.Builder) {
 	ae.Value.WriteTo(b)
 }
 
+type CompoundAssignmentExpression struct {
+	Token    token.Token // the += or -= token
+	Left     Expression
+	Operator string // "+" or "-"
+	Value    Expression
+}
+
+func (cae *CompoundAssignmentExpression) WriteTo(b *strings.Builder) {
+	cae.Left.WriteTo(b)
+	b.WriteString(" ")
+	b.WriteString(cae.Operator)
+	b.WriteString("= ")
+	cae.Value.WriteTo(b)
+}
+
 type FunctionExpression struct {
 	Token      token.Token // the FUNCTION token
 	Parameters []*Identifier

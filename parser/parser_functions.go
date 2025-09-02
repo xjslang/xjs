@@ -312,6 +312,22 @@ func (p *Parser) ParseAssignmentExpression(left ast.Expression) ast.Expression {
 	return expression
 }
 
+func (p *Parser) ParseCompoundAssignmentExpression(left ast.Expression) ast.Expression {
+	expression := &ast.CompoundAssignmentExpression{
+		Token: p.CurrentToken,
+		Left:  left,
+	}
+	switch p.CurrentToken.Type {
+	case token.PLUS_ASSIGN:
+		expression.Operator = "+"
+	case token.MINUS_ASSIGN:
+		expression.Operator = "-"
+	}
+	p.NextToken()
+	expression.Value = p.ParseExpression()
+	return expression
+}
+
 func (p *Parser) ParseCallExpression(fn ast.Expression) ast.Expression {
 	exp := &ast.CallExpression{Token: p.CurrentToken, Function: fn}
 	exp.Arguments = p.ParseExpressionList(token.RPAREN)
