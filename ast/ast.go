@@ -91,7 +91,7 @@ type FunctionDeclaration struct {
 }
 
 func (fd *FunctionDeclaration) WriteTo(b *strings.Builder) {
-	b.WriteString("function")
+	b.WriteString("function ")
 	fd.Name.WriteTo(b)
 	b.WriteRune('(')
 	for i, param := range fd.Parameters {
@@ -253,6 +253,7 @@ func (be *BinaryExpression) WriteTo(b *strings.Builder) {
 	}
 	b.WriteRune(' ')
 	be.Right.WriteTo(b)
+	b.WriteRune(')')
 }
 
 type UnaryExpression struct {
