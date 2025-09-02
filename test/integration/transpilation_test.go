@@ -136,6 +136,7 @@ func TestTranspilation(t *testing.T) {
 		"loops",
 		"data_types",
 		"assignment",
+		"compound_assignment",
 		"function_expressions",
 		"property_access",
 		"complex_conditionals",
