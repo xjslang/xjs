@@ -112,16 +112,19 @@ func BenchTranspilation() error {
 	return sh.RunV("go", "test", "-run=^$", "-bench=BenchmarkTranspilation", "-benchmem", "./test/integration")
 }
 
-// Build compila el proyecto
-func Build() error {
-	fmt.Println("🔨 Building XJS...")
-	return sh.RunV("go", "build", "-o", "bin/xjs", ".")
-}
-
-// Clean limpia archivos generados
+// Clean limpia archivos temporales y caché
 func Clean() error {
-	fmt.Println("🧹 Cleaning generated files...")
-	return sh.Rm("bin")
+	fmt.Println("🧹 Cleaning temporary files and cache...")
+	// Limpiar caché de tests de Go
+	if err := sh.RunV("go", "clean", "-testcache"); err != nil {
+		fmt.Println("Note: failed to clean test cache, continuing...")
+	}
+	// Limpiar caché de módulos (opcional)
+	if err := sh.RunV("go", "clean", "-modcache"); err != nil {
+		fmt.Println("Note: failed to clean mod cache, continuing...")
+	}
+	fmt.Println("✅ Cleanup completed!")
+	return nil
 }
 
 // Install instala dependencias
@@ -159,7 +162,7 @@ func Dev() error {
 // Release prepara una release completa
 func Release() error {
 	fmt.Println("🚢 Preparing release...")
-	mg.SerialDeps(Clean, Install, Tidy, Lint, TestAll, Build)
+	mg.SerialDeps(Clean, Install, Tidy, Lint, TestAll)
 	fmt.Println("🎉 Release ready!")
 	return nil
 }
