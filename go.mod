@@ -4,4 +4,4 @@ go 1.23.0
 
 require github.com/magefile/mage v1.15.0
 
-require github.com/davecgh/go-spew v1.1.1 // indirect
+require github.com/davecgh/go-spew v1.1.1
