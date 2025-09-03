@@ -50,20 +50,20 @@ func TestParseBinaryExpressions(t *testing.T) {
 		input    string
 		expected string
 	}{
-		{"addition", "1 + 2", "(1 + 2)"},
-		{"subtraction", "5 - 3", "(5 - 3)"},
-		{"multiplication", "3 * 4", "(3 * 4)"},
-		{"division", "8 / 2", "(8 / 2)"},
-		{"modulo", "10 % 3", "(10 % 3)"},
-		{"equality", "x == y", "(x === y)"},
-		{"inequality", "x != y", "(x !== y)"},
-		{"less than", "x < y", "(x < y)"},
-		{"greater than", "x > y", "(x > y)"},
-		{"logical and", "a && b", "(a && b)"},
-		{"logical or", "a || b", "(a || b)"},
-		{"operator precedence", "1 + 2 * 3", "(1 + (2 * 3))"},
-		{"parentheses override", "(1 + 2) * 3", "((1 + 2) * 3)"},
-		{"complex precedence", "1 + 2 * 3 - 4", "((1 + (2 * 3)) - 4)"},
+		{"addition", "1 + 2", "(1+2)"},
+		{"subtraction", "5 - 3", "(5-3)"},
+		{"multiplication", "3 * 4", "(3*4)"},
+		{"division", "8 / 2", "(8/2)"},
+		{"modulo", "10 % 3", "(10%3)"},
+		{"equality", "x == y", "(x===y)"},
+		{"inequality", "x != y", "(x!==y)"},
+		{"less than", "x < y", "(x<y)"},
+		{"greater than", "x > y", "(x>y)"},
+		{"logical and", "a && b", "(a&&b)"},
+		{"logical or", "a || b", "(a||b)"},
+		{"operator precedence", "1 + 2 * 3", "(1+(2*3))"},
+		{"parentheses override", "(1 + 2) * 3", "((1+2)*3)"},
+		{"complex precedence", "1 + 2 * 3 - 4", "((1+(2*3))-4)"},
 	}
 
 	for _, tt := range tests {
@@ -169,7 +169,7 @@ func TestParseLetStatements(t *testing.T) {
 	}{
 		{"let without assignment", "let x", "let x"},
 		{"let with assignment", "let x = 5", "let x=5"},
-		{"let with expression", "let result = 1 + 2", "let result=(1 + 2)"},
+		{"let with expression", "let result = 1 + 2", "let result=(1+2)"},
 	}
 
 	for _, tt := range tests {
@@ -273,7 +273,7 @@ func TestParseAssignmentExpressions(t *testing.T) {
 		{"simple assignment", "x = 5", "x=5"},
 		{"compound addition", "x += 10", "x +=10"},
 		{"compound subtraction", "x -= 5", "x -=5"},
-		{"assignment with expression", "x = 1 + 2", "x=(1 + 2)"},
+		{"assignment with expression", "x = 1 + 2", "x=(1+2)"},
 	}
 
 	for _, tt := range tests {
@@ -458,7 +458,7 @@ func TestParseMultipleStatements(t *testing.T) {
 		return
 	}
 
-	expected := "let x=5;let y=10;(x + y)"
+	expected := "let x=5;let y=10;(x+y)"
 	if program.String() != expected {
 		t.Errorf("Expected %q, got %q", expected, program.String())
 	}

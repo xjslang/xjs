@@ -43,5 +43,5 @@ func Example_general() {
 	}
 
 	fmt.Println(program.String())
-	// Output: let x=5;let y=10.5;let name="Hello World";let items=[];items.push(function(){console.log("new item")});function add(a,b){return (a + b)};if ((x < y)){console.log("x is less than y")};let numbers=[1,2,3,4,5];let person={name:"John",age:30}
+	// Output: let x=5;let y=10.5;let name="Hello World";let items=[];items.push(function(){console.log("new item")});function add(a,b){return (a+b)};if ((x<y)){console.log("x is less than y")};let numbers=[1,2,3,4,5];let person={age:30,name:"John"}
 }

@@ -3,6 +3,7 @@
 package ast
 
 import (
+	"sort"
 	"strings"
 
 	"github.com/xjslang/xjs/token"
@@ -238,7 +239,6 @@ type BinaryExpression struct {
 func (be *BinaryExpression) WriteTo(b *strings.Builder) {
 	b.WriteRune('(')
 	be.Left.WriteTo(b)
-	b.WriteRune(' ')
 	switch be.Operator {
 	case "==":
 		b.WriteString("===")
@@ -247,7 +247,6 @@ func (be *BinaryExpression) WriteTo(b *strings.Builder) {
 	default:
 		b.WriteString(be.Operator)
 	}
-	b.WriteRune(' ')
 	be.Right.WriteTo(b)
 	b.WriteRune(')')
 }
@@ -384,15 +383,30 @@ type ObjectLiteral struct {
 
 func (ol *ObjectLiteral) WriteTo(b *strings.Builder) {
 	b.WriteRune('{')
-	i := 0
-	for key, value := range ol.Properties {
+
+	// Extract keys and sort them for deterministic output
+	keys := make([]Expression, 0, len(ol.Properties))
+	for key := range ol.Properties {
+		keys = append(keys, key)
+	}
+
+	// Sort keys by their string representation
+	sort.Slice(keys, func(i, j int) bool {
+		var keyI, keyJ strings.Builder
+		keys[i].WriteTo(&keyI)
+		keys[j].WriteTo(&keyJ)
+		return keyI.String() < keyJ.String()
+	})
+
+	// Write properties in sorted order
+	for i, key := range keys {
 		if i > 0 {
 			b.WriteRune(',')
 		}
 		key.WriteTo(b)
 		b.WriteRune(':')
-		value.WriteTo(b)
-		i++
+		ol.Properties[key].WriteTo(b)
 	}
+
 	b.WriteRune('}')
 }
