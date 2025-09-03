@@ -18,6 +18,12 @@ type TranspilationTest struct {
 	expectedOutput string
 }
 
+func normalizeLineEndings(s string) string {
+	s = strings.ReplaceAll(s, "\r\n", "\n")
+	s = strings.ReplaceAll(s, "\r", "\n")
+	return s
+}
+
 // executeJavaScript executes JavaScript code using Goja and returns the output
 func executeJavaScript(code string) (string, error) {
 	vm := goja.New()
@@ -41,7 +47,8 @@ func executeJavaScript(code string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to execute JavaScript: %v", err)
 	}
-	return strings.TrimSpace(output.String()), nil
+	result := strings.TrimSpace(output.String())
+	return normalizeLineEndings(result), nil
 }
 
 // transpileXJSCode transpiles XJS code to JavaScript using the main Parse function
@@ -81,7 +88,7 @@ func loadTestCase(t *testing.T, baseName string) TranspilationTest {
 	return TranspilationTest{
 		name:           baseName,
 		inputFile:      string(inputContent),
-		expectedOutput: strings.TrimSpace(string(expectedOutput)),
+		expectedOutput: normalizeLineEndings(strings.TrimSpace(string(expectedOutput))),
 	}
 }
 
@@ -101,7 +108,7 @@ func RunTranspilationTest(t *testing.T, test TranspilationTest) {
 		}
 
 		// Compare the actual output with expected output
-		actualOutput = strings.TrimSpace(actualOutput)
+		actualOutput = normalizeLineEndings(strings.TrimSpace(actualOutput))
 		if actualOutput != test.expectedOutput {
 			t.Errorf("Output mismatch:\nExpected: %q\nActual:   %q\nTranspiled JS:\n%s",
 				test.expectedOutput, actualOutput, transpiledJS)
