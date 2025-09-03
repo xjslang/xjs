@@ -31,7 +31,8 @@ This package uses [Mage](https://magefile.org/) as a taks manager:
 ```bash
 go install github.com/magefile/mage@latest
 
-# view available tasks
+# execute the following command from
+# the package directory to view available tasks
 mage -l
 ```
 
