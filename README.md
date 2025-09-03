@@ -1,10 +1,12 @@
 # XJS (eXtensible JavaScript parser)
 
-**XJS** is a highly customizable JavaScript parser and dialect. The idea is to keep the core minimal, excluding redundant or non essential constructs such as `const`, `var`, or `arrow functions`, and allowing users to add their own constructs through the `UseStatementHandler` and `UseExpressionHandler` methods, which follow a "middleware design pattern" similar to Express.js. Check out [VISION.md](./VISION.md) to learn more.
+**XJS** is a highly customizable JavaScript parser and dialect. The idea is to keep the core minimal, excluding redundant or non essential constructs such as `const`, `var`, or `arrow functions`, and allowing users to add their own constructs through the `UseStatementHandler` and `UseExpressionHandler` methods, which follow a "middleware design pattern" similar to Express.js.
+
+Check out [VISION.md](./VISION.md) to learn more.
 
 ## Supported Language Features
 
-Many JavaScript features are already supported by **XJS**. The following table highlights only the most notable differences:
+Many JavaScript features are already supported by **XJS**. The following table highlights only the most notable ones:
 
 | Construct                | Supported | Comments / Alternative            |
 |--------------------------|-----------|-----------------------------------|
@@ -29,6 +31,7 @@ go get github.com/xjslang/xjs
 
 This package uses [Mage](https://magefile.org/) as a taks manager:
 ```bash
+# install mage if not already installed
 go install github.com/magefile/mage@latest
 
 # execute the following command from
@@ -75,7 +78,7 @@ func main() {
 
 ## Create your own parser (or plugin)
 
-Crear un nuevo parser que extienda la sintaxis **XJS** es realmente sencillo.
+Creating a new parser that extends the **XJS** syntax is very simple. You just need to declare the structures you want to add to the language and intercept statements or expressions. In the following example, we have added the `const` statement and the `PI` constant:
 
 ```go
 type ConstStatement struct {
@@ -148,56 +151,6 @@ func main() {
 	// Output: const pi=3.1416
 }
 ```
-
-## API Documentation
-
-### Lexer
-
-The lexer tokenizes input source code:
-
-```go
-import "github.com/xjslang/xjs/lexer"
-
-l := lexer.New(sourceCode)
-for {
-    token := l.NextToken()
-    if token.Type == token.EOF {
-        break
-    }
-    fmt.Println(token)
-}
-```
-
-### Parser
-
-The parser builds an Abstract Syntax Tree (AST):
-
-```go
-import "github.com/xjslang/xjs/parser"
-
-l := lexer.New(sourceCode)
-p := parser.New(l)
-program := p.ParseProgram()
-
-// Check for parsing errors
-if len(p.Errors()) > 0 {
-    // Handle errors
-}
-```
-
-### Convenience Function
-
-Use the convenience function for simple parsing:
-
-```go
-import "github.com/xjslang/xjs"
-
-program, errors := xjs.Parse(sourceCode)
-```
-
-## Examples
-
-See the [examples](examples/) directory for more comprehensive examples.
 
 ## Contributing
 
