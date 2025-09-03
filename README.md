@@ -1,6 +1,6 @@
 # XJS (eXtensible JavaScript parser)
 
-**XJS** is a highly customizable JavaScript parser and dialect. The idea is to keep the core minimal, excluding redundant or non essential constructs such as `const`, `var`, or `arrow functions`, and allowing users to add their own constructs through the `UseStatementHandler` and `UseExpressionHandler` methods, which follow a "middleware design pattern" similar to Express.js. Check out [VISION.md](./VISION.md) to learn more about the underlying philosophy.
+**XJS** is a highly customizable JavaScript parser and dialect. The idea is to keep the core minimal, excluding redundant or non essential constructs such as `const`, `var`, or `arrow functions`, and allowing users to add their own constructs through the `UseStatementHandler` and `UseExpressionHandler` methods, which follow a "middleware design pattern" similar to Express.js. Check out [VISION.md](./VISION.md) to learn more.
 
 ## Supported Language Features
 
