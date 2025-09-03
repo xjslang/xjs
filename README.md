@@ -81,6 +81,18 @@ func main() {
 Creating a new parser that extends the **XJS** syntax is very simple. You just need to declare the structures you want to add to the language and intercept statements or expressions. In the following example, we have added the `const` statement and the `PI` constant:
 
 ```go
+package main
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/parser"
+	"github.com/xjslang/xjs/token"
+)
+
 type ConstStatement struct {
 	Token token.Token
 	Name  *ast.Identifier
@@ -106,7 +118,7 @@ func (nl *PiLiteral) WriteTo(b *strings.Builder) {
 }
 
 // Intercepts the statements
-func ConstStatementHandler(p *Parser, next func() ast.Statement) ast.Statement {
+func ConstStatementHandler(p *parser.Parser, next func() ast.Statement) ast.Statement {
 	if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
 		stmt := &ConstStatement{Token: p.CurrentToken}
 		// moves to identifier token
@@ -126,20 +138,23 @@ func ConstStatementHandler(p *Parser, next func() ast.Statement) ast.Statement {
 }
 
 // Intercepts the expressions
-func PiExpressionHandler(p *Parser, next func() ast.Expression) ast.Expression {
+func PiExpressionHandler(p *parser.Parser, next func() ast.Expression) ast.Expression {
 	if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "PI" {
 		return &PiLiteral{Token: p.CurrentToken}
 	}
-    // otherwise, next!
+	// otherwise, next!
 	return next()
 }
 
 func main() {
 	input := "const pi = PI"
 	l := lexer.New(input)
-	p := New(l)
+	p := parser.New(l)
+
+	// extends the language syntax!
 	p.UseStatementHandler(ConstStatementHandler)
 	p.UseExpressionHandler(PiExpressionHandler)
+
 	ast := p.ParseProgram()
 	if len(p.Errors()) > 0 {
 		for _, err := range p.Errors() {
@@ -151,6 +166,23 @@ func main() {
 	// Output: const pi=3.1416
 }
 ```
+
+Additionally, we can chain as many parsers as we want:
+
+```go
+// ...
+p := New(l)
+p.UseStatementHandler(ConstStatementHandler)
+p.UseStatementHandler(TryCatchStatementHandler)
+p.UseStatementHandler(AwaitStatementHandler)
+p.UseExpressionHandler(JsxExpressionHandler)
+p.UseExpressionHandler(MathExpressionHandler)
+p.UseExpressionHandler(VectorExpressionHandler)
+// ...
+```
+
+Here you will find numerous parser examples:  
+https://github.com/search?q=org%3Axjslang+-parser&type=repositories
 
 ## Contributing
 
