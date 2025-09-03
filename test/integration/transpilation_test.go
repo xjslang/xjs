@@ -22,7 +22,7 @@ type TranspilationTest struct {
 func executeJavaScript(code string) (string, error) {
 	vm := goja.New()
 	var output strings.Builder
-	vm.Set("console", map[string]interface{}{
+	_ = vm.Set("console", map[string]interface{}{
 		"log": func(args ...interface{}) {
 			for i, arg := range args {
 				if i > 0 {
