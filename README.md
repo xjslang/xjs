@@ -1,6 +1,9 @@
 # XJS (eXtensible JavaScript language)
 
-A clean, simplified JavaScript-like language lexer and parser written in Go. This library provides tokenization and parsing capabilities for a JavaScript-like syntax without redundant or complex features like classes, arrow functions, const/var declarations, etc.
+XJS is a highly customizable JavaScript parser. The idea is to keep the core minimal, excluding redundant structures such as `const`, `var`, or `arrow functions`, and allowing users to add their own structures through the `UseStatementHandler` and `UseExpressionHandler` methods, which follow a "middleware design pattern" similar to Express.js.
+
+> [!NOTE]  
+> As an interesting fact, XJS always interprets the `==` operator as `===`, thus ending the eternal debate between "loose equality" and "strict equality". Otherwise, XJS could be considered a subset of JavaScript.
 
 ## Features
 
