@@ -10,30 +10,22 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
-// Default target to run when no target is specified
-var Default = Test
-
-// Test runs all transpilation tests (equivalent to test_transpilation.sh)
+// Test runs all project tests (unit, integration, middleware)
 func Test() error {
-	fmt.Println("🚀 Starting XJS Transpilation Tests")
-	fmt.Println("====================================")
+	fmt.Println("🚀 Starting XJS Test Suite")
+	fmt.Println("==========================")
 	if err := checkNodeJS(); err != nil {
 		return err
 	}
 	fmt.Println()
-	mg.SerialDeps(TestTranspilation, TestInline, TestErrors)
-	fmt.Println()
-	fmt.Println("⚡ Running benchmarks...")
-	if err := sh.RunV("go", "test", "-run=^$", "-bench=BenchmarkTranspilation", "-benchmem", "./test/integration"); err != nil {
-		fmt.Println("⚠️  Some benchmarks failed, but continuing...")
-	}
+	mg.SerialDeps(testTranspilation, testInline, testErrors, testUnit, testMiddleware)
 	fmt.Println()
 	fmt.Println("🎉 All tests completed successfully!")
 	return nil
 }
 
-// TestTranspilation runs transpilation tests with fixtures
-func TestTranspilation() error {
+// testTranspilation runs transpilation tests with fixtures
+func testTranspilation() error {
 	fmt.Println("🧪 Running transpilation tests...")
 	err := sh.RunV("go", "test", "-v", "-run", "TestTranspilation$", "./test/integration")
 	if err != nil {
@@ -46,8 +38,8 @@ func TestTranspilation() error {
 	return nil
 }
 
-// TestInline runs inline transpilation tests
-func TestInline() error {
+// testInline runs inline transpilation tests
+func testInline() error {
 	fmt.Println("🎯 Running inline transpilation tests...")
 	err := sh.RunV("go", "test", "-v", "-run", "TestTranspilationBasicInline", "./test/integration")
 	if err != nil {
@@ -60,8 +52,8 @@ func TestInline() error {
 	return nil
 }
 
-// TestErrors runs error handling tests
-func TestErrors() error {
+// testErrors runs error handling tests
+func testErrors() error {
 	fmt.Println("🔥 Running error handling tests...")
 	err := sh.RunV("go", "test", "-v", "-run", "TestTranspilationErrors", "./test/integration")
 	if err != nil {
@@ -74,20 +66,20 @@ func TestErrors() error {
 	return nil
 }
 
-// TestUnit runs only unit tests (without tags)
-func TestUnit() error {
+// testUnit runs only unit tests (without tags)
+func testUnit() error {
 	fmt.Println("🧪 Running unit tests...")
 	return sh.RunV("go", "test", "-v", "./...")
 }
 
-// TestAll runs all project tests (unit + integration)
-func TestAll() error {
+// testAll runs all project tests (unit + integration) - private function
+func testAll() error {
 	fmt.Println("🧪 Running all project tests...")
 	return sh.RunV("go", "test", "-v", "./...")
 }
 
-// TestMiddleware runs only middleware tests
-func TestMiddleware() error {
+// testMiddleware runs only middleware tests
+func testMiddleware() error {
 	fmt.Println("⚙️ Running middleware tests...")
 	return sh.RunV("go", "test", "-v", "-run", "TestMiddleware", "./test/integration")
 }
@@ -152,7 +144,7 @@ func Dev() error {
 // Release prepares a complete release
 func Release() error {
 	fmt.Println("🚢 Preparing release...")
-	mg.SerialDeps(Clean, Install, Tidy, Lint, TestAll)
+	mg.SerialDeps(Clean, Install, Tidy, Lint, Test)
 	fmt.Println("🎉 Release ready!")
 	return nil
 }
@@ -160,7 +152,7 @@ func Release() error {
 // CI runs continuous integration pipeline
 func CI() error {
 	fmt.Println("🔄 Running CI pipeline...")
-	mg.SerialDeps(Install, Lint, TestAll)
+	mg.SerialDeps(Install, Lint, Test)
 	return nil
 }
 
