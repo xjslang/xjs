@@ -72,12 +72,6 @@ func testUnit() error {
 	return sh.RunV("go", "test", "-v", "./...")
 }
 
-// testAll runs all project tests (unit + integration) - private function
-func testAll() error {
-	fmt.Println("🧪 Running all project tests...")
-	return sh.RunV("go", "test", "-v", "./...")
-}
-
 // testMiddleware runs only middleware tests
 func testMiddleware() error {
 	fmt.Println("⚙️ Running middleware tests...")
