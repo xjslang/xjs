@@ -13,34 +13,26 @@ import (
 // Default target to run when no target is specified
 var Default = Test
 
-// Test ejecuta todos los tests de transpilación (equivalente a test_transpilation.sh)
+// Test runs all transpilation tests (equivalent to test_transpilation.sh)
 func Test() error {
 	fmt.Println("🚀 Starting XJS Transpilation Tests")
 	fmt.Println("====================================")
-
-	// Verificar que Node.js esté disponible
 	if err := checkNodeJS(); err != nil {
 		return err
 	}
-
 	fmt.Println()
-
-	// Ejecutar todos los tests de integración en secuencia
 	mg.SerialDeps(TestTranspilation, TestInline, TestErrors)
-
 	fmt.Println()
 	fmt.Println("⚡ Running benchmarks...")
 	if err := sh.RunV("go", "test", "-run=^$", "-bench=BenchmarkTranspilation", "-benchmem", "./test/integration"); err != nil {
-		// Los benchmarks pueden fallar pero no queremos que falle todo el test
 		fmt.Println("⚠️  Some benchmarks failed, but continuing...")
 	}
-
 	fmt.Println()
 	fmt.Println("🎉 All tests completed successfully!")
 	return nil
 }
 
-// TestTranspilation ejecuta los tests de transpilación con fixtures
+// TestTranspilation runs transpilation tests with fixtures
 func TestTranspilation() error {
 	fmt.Println("🧪 Running transpilation tests...")
 	err := sh.RunV("go", "test", "-v", "-run", "TestTranspilation$", "./test/integration")
@@ -54,7 +46,7 @@ func TestTranspilation() error {
 	return nil
 }
 
-// TestInline ejecuta los tests de transpilación inline
+// TestInline runs inline transpilation tests
 func TestInline() error {
 	fmt.Println("🎯 Running inline transpilation tests...")
 	err := sh.RunV("go", "test", "-v", "-run", "TestTranspilationBasicInline", "./test/integration")
@@ -68,7 +60,7 @@ func TestInline() error {
 	return nil
 }
 
-// TestErrors ejecuta los tests de manejo de errores
+// TestErrors runs error handling tests
 func TestErrors() error {
 	fmt.Println("🔥 Running error handling tests...")
 	err := sh.RunV("go", "test", "-v", "-run", "TestTranspilationErrors", "./test/integration")
@@ -82,44 +74,42 @@ func TestErrors() error {
 	return nil
 }
 
-// TestUnit ejecuta solo los tests unitarios (sin tags)
+// TestUnit runs only unit tests (without tags)
 func TestUnit() error {
 	fmt.Println("🧪 Running unit tests...")
 	return sh.RunV("go", "test", "-v", "./...")
 }
 
-// TestAll ejecuta todos los tests del proyecto (unitarios + integración)
+// TestAll runs all project tests (unit + integration)
 func TestAll() error {
 	fmt.Println("🧪 Running all project tests...")
 	return sh.RunV("go", "test", "-v", "./...")
 }
 
-// TestMiddleware ejecuta solo los tests de middleware
+// TestMiddleware runs only middleware tests
 func TestMiddleware() error {
 	fmt.Println("⚙️ Running middleware tests...")
 	return sh.RunV("go", "test", "-v", "-run", "TestMiddleware", "./test/integration")
 }
 
-// Bench ejecuta solo los benchmarks
+// Bench runs only benchmarks
 func Bench() error {
 	fmt.Println("⚡ Running benchmarks...")
 	return sh.RunV("go", "test", "-bench=.", "-benchmem", "./test/integration")
 }
 
-// BenchTranspilation ejecuta solo los benchmarks de transpilación
+// BenchTranspilation runs only transpilation benchmarks
 func BenchTranspilation() error {
 	fmt.Println("⚡ Running transpilation benchmarks...")
 	return sh.RunV("go", "test", "-run=^$", "-bench=BenchmarkTranspilation", "-benchmem", "./test/integration")
 }
 
-// Clean limpia archivos temporales y caché
+// Clean removes temporary files and cache
 func Clean() error {
 	fmt.Println("🧹 Cleaning temporary files and cache...")
-	// Limpiar caché de tests de Go
 	if err := sh.RunV("go", "clean", "-testcache"); err != nil {
 		fmt.Println("Note: failed to clean test cache, continuing...")
 	}
-	// Limpiar caché de módulos (opcional)
 	if err := sh.RunV("go", "clean", "-modcache"); err != nil {
 		fmt.Println("Note: failed to clean mod cache, continuing...")
 	}
@@ -127,19 +117,19 @@ func Clean() error {
 	return nil
 }
 
-// Install instala dependencias
+// Install installs dependencies
 func Install() error {
 	fmt.Println("📦 Installing dependencies...")
 	return sh.RunV("go", "mod", "download")
 }
 
-// Tidy limpia y organiza go.mod
+// Tidy cleans and organizes go.mod
 func Tidy() error {
 	fmt.Println("🔧 Tidying go.mod...")
 	return sh.RunV("go", "mod", "tidy")
 }
 
-// Lint ejecuta linting (si tienes golangci-lint instalado)
+// Lint runs linting (if golangci-lint is installed)
 func Lint() error {
 	fmt.Println("🔍 Running linter...")
 	if !commandExists("golangci-lint") {
@@ -149,7 +139,7 @@ func Lint() error {
 	return sh.RunV("golangci-lint", "run")
 }
 
-// Dev ejecuta tests en modo watch (requiere watchexec)
+// Dev runs tests in watch mode (requires watchexec)
 func Dev() error {
 	fmt.Println("🚀 Starting development mode...")
 	if !commandExists("watchexec") {
@@ -159,7 +149,7 @@ func Dev() error {
 	return sh.RunV("watchexec", "-e", "go", "-i", "bin/", "--", "mage", "test")
 }
 
-// Release prepara una release completa
+// Release prepares a complete release
 func Release() error {
 	fmt.Println("🚢 Preparing release...")
 	mg.SerialDeps(Clean, Install, Tidy, Lint, TestAll)
@@ -167,21 +157,20 @@ func Release() error {
 	return nil
 }
 
-// CI ejecuta pipeline de integración continua
+// CI runs continuous integration pipeline
 func CI() error {
 	fmt.Println("🔄 Running CI pipeline...")
 	mg.SerialDeps(Install, Lint, TestAll)
 	return nil
 }
 
-// checkNodeJS verifica que Node.js esté disponible
+// checkNodeJS verifies that Node.js is available
 func checkNodeJS() error {
 	if !commandExists("node") {
 		fmt.Println("❌ Error: Node.js is required but not installed.")
 		fmt.Println("   Please install Node.js to run transpilation tests.")
 		return fmt.Errorf("node.js not found")
 	}
-
 	version, err := sh.Output("node", "--version")
 	if err != nil {
 		return err
@@ -190,7 +179,7 @@ func checkNodeJS() error {
 	return nil
 }
 
-// commandExists verifica si un comando existe en el PATH
+// commandExists checks if a command exists in PATH
 func commandExists(cmd string) bool {
 	_, err := exec.LookPath(cmd)
 	return err == nil
