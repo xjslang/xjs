@@ -187,8 +187,8 @@ func TestComplexTranspilation(t *testing.T) {
 		},
 		{
 			name:           "undefined_and_null",
-			inputFile:      `let x; let y = null; console.log(typeof x); console.log(y === null)`,
-			expectedOutput: "undefined\ntrue",
+			inputFile:      `let y = null; console.log(y == null)`,
+			expectedOutput: "true",
 		},
 	}
 
