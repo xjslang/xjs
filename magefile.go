@@ -14,9 +14,6 @@ import (
 func Test() error {
 	fmt.Println("🚀 Starting XJS Test Suite")
 	fmt.Println("==========================")
-	if err := checkNodeJS(); err != nil {
-		return err
-	}
 	fmt.Println()
 	mg.SerialDeps(testTranspilation, testInline, testErrors, testUnit, testMiddleware)
 	fmt.Println()
@@ -127,18 +124,10 @@ func Release() error {
 	return nil
 }
 
-// checkNodeJS verifies that Node.js is available
-func checkNodeJS() error {
-	if !commandExists("node") {
-		fmt.Println("❌ Error: Node.js is required but not installed.")
-		fmt.Println("   Please install Node.js to run transpilation tests.")
-		return fmt.Errorf("node.js not found")
-	}
-	version, err := sh.Output("node", "--version")
-	if err != nil {
-		return err
-	}
-	fmt.Printf("✅ Node.js found: %s\n", version)
+// CI runs continuous integration pipeline
+func CI() error {
+	fmt.Println("🔄 Running CI pipeline...")
+	mg.SerialDeps(Install, Lint, Test)
 	return nil
 }
 

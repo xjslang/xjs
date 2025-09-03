@@ -18,8 +18,6 @@ func transpileASTToJS(program *ast.Program) string {
 
 // TestMiddlewareHandlers tests the custom middleware functionality
 func TestMiddlewareHandlers(t *testing.T) {
-	checkNodeJSAvailability(t)
-
 	t.Run("expression_handler_middleware", func(t *testing.T) {
 		input := `let x = 5 + 3; console.log(x)`
 		expectedOutput := "8"
@@ -116,8 +114,6 @@ func TestMiddlewareHandlers(t *testing.T) {
 
 // TestCustomLanguageFeatures tests custom language features that could be added via middleware
 func TestCustomLanguageFeatures(t *testing.T) {
-	checkNodeJSAvailability(t)
-
 	t.Run("logging_middleware", func(t *testing.T) {
 		input := `function test() { let x = 42; return x; } console.log(test())`
 		expectedOutput := "42"
@@ -162,8 +158,6 @@ func TestCustomLanguageFeatures(t *testing.T) {
 
 // TestComplexTranspilation tests more complex transpilation scenarios
 func TestComplexTranspilation(t *testing.T) {
-	checkNodeJSAvailability(t)
-
 	complexTests := []TranspilationTest{
 		{
 			name:           "nested_functions",

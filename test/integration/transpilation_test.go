@@ -3,11 +3,11 @@ package integration
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/dop251/goja"
 	"github.com/xjslang/xjs/lexer"
 	"github.com/xjslang/xjs/parser"
 )
@@ -18,41 +18,30 @@ type TranspilationTest struct {
 	expectedOutput string
 }
 
-// executeJavaScript executes JavaScript code using Node.js and returns the output
+// executeJavaScript executes JavaScript code using Goja and returns the output
 func executeJavaScript(code string) (string, error) {
-	// Create a temporary file with the transpiled JavaScript
-	tempFile, err := os.CreateTemp("", "xjs_test_*.js")
+	vm := goja.New()
+	var output strings.Builder
+	vm.Set("console", map[string]interface{}{
+		"log": func(args ...interface{}) {
+			for i, arg := range args {
+				if i > 0 {
+					output.WriteString(" ")
+				}
+				if arg == nil {
+					output.WriteString("null")
+				} else {
+					output.WriteString(fmt.Sprintf("%v", arg))
+				}
+			}
+			output.WriteString("\n")
+		},
+	})
+	_, err := vm.RunString(code)
 	if err != nil {
-		return "", fmt.Errorf("failed to create temp file: %v", err)
-	}
-	defer func() { _ = os.Remove(tempFile.Name()) }()
-
-	// Write the transpiled code to the temporary file
-	_, err = tempFile.WriteString(code)
-	if err != nil {
-		return "", fmt.Errorf("failed to write to temp file: %v", err)
-	}
-	_ = tempFile.Close()
-
-	// Execute the JavaScript file using Node.js
-	cmd := exec.Command("node", tempFile.Name())
-	output, err := cmd.Output()
-	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			return "", fmt.Errorf("execution failed with exit code %d: %s", exitError.ExitCode(), string(exitError.Stderr))
-		}
 		return "", fmt.Errorf("failed to execute JavaScript: %v", err)
 	}
-
-	return string(output), nil
-}
-
-// checkNodeJSAvailability verifies that Node.js is available for testing
-func checkNodeJSAvailability(t *testing.T) {
-	_, err := exec.LookPath("node")
-	if err != nil {
-		t.Skip("Node.js is not available, skipping transpilation tests")
-	}
+	return strings.TrimSpace(output.String()), nil
 }
 
 // transpileXJSCode transpiles XJS code to JavaScript using the main Parse function
@@ -122,8 +111,6 @@ func RunTranspilationTest(t *testing.T, test TranspilationTest) {
 
 // TestTranspilation tests the transpilation of XJS code to JavaScript by executing it
 func TestTranspilation(t *testing.T) {
-	checkNodeJSAvailability(t)
-
 	// Test cases based on fixture files
 	testCases := []string{
 		"basic",
@@ -155,8 +142,6 @@ func TestTranspilation(t *testing.T) {
 
 // TestTranspilationBasicInline tests basic transpilation with inline test data
 func TestTranspilationBasicInline(t *testing.T) {
-	checkNodeJSAvailability(t)
-
 	tests := []TranspilationTest{
 		{
 			name:           "simple_console_log",
@@ -187,8 +172,6 @@ func TestTranspilationBasicInline(t *testing.T) {
 
 // TestTranspilationErrors tests error handling in transpilation
 func TestTranspilationErrors(t *testing.T) {
-	checkNodeJSAvailability(t)
-
 	errorTests := []struct {
 		name  string
 		input string
