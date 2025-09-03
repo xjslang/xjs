@@ -131,21 +131,19 @@ func PiExpressionHandler(p *Parser, next func() ast.Expression) ast.Expression {
 	return next()
 }
 
-func Example_plugin() {
+func main() {
 	input := "const pi = PI"
 	l := lexer.New(input)
 	p := New(l)
 	p.UseStatementHandler(ConstStatementHandler)
 	p.UseExpressionHandler(PiExpressionHandler)
 	ast := p.ParseProgram()
-
 	if len(p.Errors()) > 0 {
 		for _, err := range p.Errors() {
 			fmt.Println("Error:", err)
 		}
 		return
 	}
-
 	fmt.Println(ast.String())
 	// Output: const pi=3.1416
 }
