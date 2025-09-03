@@ -21,7 +21,7 @@ Many JavaScript features are already supported by **XJS**. The following table h
 | `class`                  | ❌ No     | Use `function(s)`                 |
 | `switch/case`            | ❌ No     | Use `if/else`                     |
 | `try/catch`              | ❌ No     | Use [`try-parser`](https://github.com/xjslang/try-parser) |
-| `async/await`            | ❌ No     | Create your own plugin 😊         |
+| `async/await`            | ❌ No     | Create your own parser 😊         |
 
 ## Installation
 
