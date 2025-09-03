@@ -1,9 +1,22 @@
 # XJS (eXtensible JavaScript language)
 
-XJS is a highly customizable JavaScript parser. The idea is to keep the core minimal, excluding redundant structures such as `const`, `var`, or `arrow functions`, and allowing users to add their own structures through the `UseStatementHandler` and `UseExpressionHandler` methods, which follow a "middleware design pattern" similar to Express.js.
+XJS is a highly customizable JavaScript parser. The idea is to keep the core minimal, excluding redundant or non essential constructs such as `const`, `var`, or `arrow functions`, and allowing users to add their own constructs through the `UseStatementHandler` and `UseExpressionHandler` methods, which follow a "middleware design pattern" similar to Express.js.
 
 > [!NOTE]  
 > As an interesting fact, XJS always interprets the `==` operator as `===`, thus ending the eternal debate between "loose equality" and "strict equality". Otherwise, XJS could be considered a subset of JavaScript.
+
+| Construct                | Supported | Reason/Alternative                |
+|--------------------------|-----------|-----------------------------------|
+| `let`                    | Yes       |                                   |
+| `function`               | Yes       |                                   |
+| `if/else`, `while/for`   | Yes       |                                   |
+| `x++`/`x--`, `++x`/`--x` | Yes       | Pre/postfix supported             |
+| `const`, `var`           | No        | Use `let`                         |
+| `arrow functions`        | No        | Use `function`                    |
+| `class`                  | No        | Use `function`                    |
+| `try/catch`              | No        | Use [`try-parser`](http://todetermine) |
+| `switch/case`            | No        | Use `if/else`                     |
+| `async/await`            | No        | Create your own plugin            |
 
 ## Features
 
