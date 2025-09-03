@@ -12,7 +12,6 @@ import (
 	"github.com/xjslang/xjs/parser"
 )
 
-// TranspilationTest represents a single transpilation test case
 type TranspilationTest struct {
 	name           string
 	inputFile      string

@@ -4,7 +4,6 @@ package lexer
 
 import "github.com/xjslang/xjs/token"
 
-// Lexer represents the lexical analyzer
 type Lexer struct {
 	input        string
 	position     int  // current position in input (points to current char)
@@ -43,7 +42,6 @@ func (l *Lexer) readChar() {
 	}
 }
 
-// peekChar returns the next character without advancing position
 func (l *Lexer) peekChar() byte {
 	if l.readPosition >= len(l.input) {
 		return 0
@@ -101,13 +99,9 @@ func (l *Lexer) readString(delimiter byte) string {
 	return l.input[position:l.position]
 }
 
-// NextToken scans the input and returns the next token
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
-
 	l.skipWhitespace()
-
-	// Capture position before processing the token
 	line := l.line
 	column := l.column
 

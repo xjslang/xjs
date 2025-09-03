@@ -8,22 +8,18 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-// Node represents any node in the AST
 type Node interface {
 	WriteTo(b *strings.Builder)
 }
 
-// Statement represents all statement nodes
 type Statement interface {
 	Node
 }
 
-// Expression represents all expression nodes
 type Expression interface {
 	Node
 }
 
-// Program represents the root of every AST
 type Program struct {
 	Statements []Statement
 }

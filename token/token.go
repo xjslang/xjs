@@ -3,7 +3,6 @@ package token
 
 import "fmt"
 
-// Type represents the different types of tokens
 type Type int
 
 const (
@@ -70,7 +69,6 @@ const (
 	NULL
 )
 
-// Token represents a lexer token with its type, literal value, and position information
 type Token struct {
 	Type    Type
 	Literal string
@@ -78,13 +76,11 @@ type Token struct {
 	Column  int
 }
 
-// String returns a string representation of the token
 func (t Token) String() string {
 	return fmt.Sprintf("{Type: %s, Literal: %q, Line: %d, Col: %d}",
 		t.Type, t.Literal, t.Line, t.Column)
 }
 
-// String returns the token type name
 func (tt Type) String() string {
 	switch tt {
 	case ILLEGAL:
@@ -196,7 +192,6 @@ var Keywords = map[string]Type{
 	"null":     NULL,
 }
 
-// LookupIdent checks if an identifier is a keyword and returns the appropriate token type
 func LookupIdent(ident string) Type {
 	if tok, ok := Keywords[ident]; ok {
 		return tok
