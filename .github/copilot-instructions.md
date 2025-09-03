@@ -1,6 +1,6 @@
 ## Introduction
 
-XJS is a highly configurable JavaScript parser. The idea is to keep the core minimal, excluding redundant structures such as `const`, `var`, or `arrow functions`, and allowing users to add their own structures through the `UseStatementHandler` and `UseExpressionHandler` methods, which follow a "middleware" design pattern similar to Node.js.
+XJS is a highly configurable JavaScript parser. The idea is to keep the core minimal, excluding redundant structures such as `const`, `var`, or `arrow functions`, and allowing users to add their own structures through the `UseStatementHandler` and `UseExpressionHandler` methods, which follow a "middleware" design pattern similar to Express.js.
 
 ## Style Guide
 
