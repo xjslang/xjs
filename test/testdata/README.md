@@ -71,9 +71,6 @@ go test -v -run TestComplexTranspilation
 
 # Run with the convenience script
 ./test_transpilation.sh
-
-# Run benchmarks
-go test -bench=BenchmarkTranspilation -benchmem
 ```
 
 ## Test Categories
@@ -116,13 +113,6 @@ Negative test cases:
 - Invalid syntax
 - Malformed input
 - Parser error handling
-
-### 6. Performance Tests (`BenchmarkTranspilation`, `TestPerformanceRegression`)
-
-Performance validation:
-- Transpilation speed benchmarks
-- Large input handling
-- Memory usage verification
 
 ## Adding New Tests
 

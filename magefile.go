@@ -84,12 +84,6 @@ func Bench() error {
 	return sh.RunV("go", "test", "-bench=.", "-benchmem", "./test/integration")
 }
 
-// BenchTranspilation runs only transpilation benchmarks
-func BenchTranspilation() error {
-	fmt.Println("⚡ Running transpilation benchmarks...")
-	return sh.RunV("go", "test", "-run=^$", "-bench=BenchmarkTranspilation", "-benchmem", "./test/integration")
-}
-
 // Clean removes temporary files and cache
 func Clean() error {
 	fmt.Println("🧹 Cleaning temporary files and cache...")

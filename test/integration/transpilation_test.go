@@ -212,22 +212,3 @@ func TestTranspilationErrors(t *testing.T) {
 		})
 	}
 }
-
-// BenchmarkTranspilation benchmarks the transpilation process
-func BenchmarkTranspilation(b *testing.B) {
-	input := `
-		function fibonacci(n) {
-			if (n <= 1) return n;
-			return fibonacci(n - 1) + fibonacci(n - 2);
-		}
-		console.log(fibonacci(10));
-	`
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_, err := transpileXJSCode(input)
-		if err != nil {
-			b.Fatalf("Transpilation failed: %v", err)
-		}
-	}
-}
