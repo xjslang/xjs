@@ -125,28 +125,11 @@ func Lint() error {
 	return sh.RunV("golangci-lint", "run")
 }
 
-// Dev runs tests in watch mode (requires watchexec)
-func Dev() error {
-	fmt.Println("🚀 Starting development mode...")
-	if !commandExists("watchexec") {
-		fmt.Println("ℹ️  Install watchexec for auto-testing: brew install watchexec")
-		return fmt.Errorf("watchexec not found")
-	}
-	return sh.RunV("watchexec", "-e", "go", "-i", "bin/", "--", "mage", "test")
-}
-
 // Release prepares a complete release
 func Release() error {
 	fmt.Println("🚢 Preparing release...")
 	mg.SerialDeps(Clean, Install, Tidy, Lint, Test)
 	fmt.Println("🎉 Release ready!")
-	return nil
-}
-
-// CI runs continuous integration pipeline
-func CI() error {
-	fmt.Println("🔄 Running CI pipeline...")
-	mg.SerialDeps(Install, Lint, Test)
 	return nil
 }
 
