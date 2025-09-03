@@ -54,7 +54,7 @@ func (ls *LetStatement) WriteTo(b *strings.Builder) {
 	b.WriteString("let ")
 	ls.Name.WriteTo(b)
 	if ls.Value != nil {
-		b.WriteString(" = ")
+		b.WriteRune('=')
 		ls.Value.WriteTo(b)
 	}
 }
@@ -328,7 +328,7 @@ type AssignmentExpression struct {
 
 func (ae *AssignmentExpression) WriteTo(b *strings.Builder) {
 	ae.Left.WriteTo(b)
-	b.WriteString(" = ")
+	b.WriteRune('=')
 	ae.Value.WriteTo(b)
 }
 
