@@ -27,7 +27,7 @@ Many JavaScript features are already supported by **XJS**. The following table h
 go get github.com/xjslang/xjs
 ```
 
-This project uses [Mage](https://magefile.org/) as a taks manager:
+This package uses [Mage](https://magefile.org/) as a taks manager:
 ```bash
 go install github.com/magefile/mage@latest
 
