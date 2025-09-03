@@ -2,92 +2,27 @@
 
 ## Overview
 
-XJS represents a paradigm shift in programming language design, moving away from traditional committee-driven development toward a community-driven, extensible architecture. Our goal is to create a JavaScript compiler that includes only the essential, proven features while enabling users to extend the language through dynamic plugins.
+**XJS** represents a paradigm shift in programming language design, moving away from traditional committee-driven development toward a community-driven, extensible architecture. Our goal is to create a JavaScript compiler that includes only the essential, proven features while enabling users to extend the language through dynamic plugins.
 
 ## Core Philosophy
 
 ### Minimalism and Sufficiency
 
-Rather than accumulating features over time, XJS starts with a carefully curated set of **necessary and sufficient** language constructs. We have deliberately excluded redundant features:
+Rather than accumulating features over time, **XJS** starts with a carefully curated set of **necessary and sufficient** language constructs. We have deliberately excluded redundant features:
 
 - **No classes** - Functions provide sufficient abstraction capabilities
 - **No arrow functions** - Regular function syntax is adequate
-- **No `const`/`var`** - A single variable declaration mechanism suffices
-- **No try/catch** - Alternative error handling patterns are preferred
+- **No `const/var`** - A single variable declaration mechanism suffices
+- **No `try/catch`** - Alternative error handling patterns are preferred
 - **No redundant syntactic sugar** - Focus on core functionality
 
 This approach ensures that every included feature has demonstrated genuine utility and necessity over the years.
 
 ### Extensible Architecture
 
-The revolutionary aspect of XJS lies in its **plugin-based extension system**. Instead of a central authority deciding which experimental features to include, individual developers and communities can create their own language extensions.
+The revolutionary aspect of **XJS** lies in its **plugin-based extension system**.
 
-## Extension System
-
-### How It Works
-
-Extensions are compiled as independent shared libraries (`.so` files) that can be dynamically loaded into the XJS compiler. Each extension can:
-
-- Add new keywords and syntax
-- Modify parsing behavior
-- Extend the AST (Abstract Syntax Tree)
-- Integrate seamlessly with the core parser
-
-### Configuration
-
-Projects using XJS can declare their desired extensions through a configuration file:
-
-```json
-// xjsconfig.json
-{
-  "extensions": [
-    {
-      "name": "defer",
-      "file": "./extensions/defer.so",
-      "keywords": ["defer"],
-      "enabled": true
-    },
-    {
-      "name": "arrow_functions", 
-      "file": "./extensions/arrow.so",
-      "keywords": ["=>"],
-      "enabled": false
-    },
-    {
-      "name": "mutability",
-      "file": "./extensions/mut.so", 
-      "keywords": ["mut"],
-      "enabled": true
-    }
-  ]
-}
-```
-
-### Extension Examples
-
-**Defer Statement Extension**
-```javascript
-// Enables Go-like defer functionality
-function processFile() {
-  let file = openFile("data.txt");
-  defer file.close();
-  
-  // Process file...
-  // file.close() automatically called on function exit
-}
-```
-
-**Mutability Extension**
-```javascript
-// Explicit mutability markers
-function counter() {
-  mut count = 0;  // Mutable variable
-  name = "John";  // Immutable by default
-  
-  count++;  // OK
-  name = "Jane";  // Compile error
-}
-```
+> Instead of a central authority deciding which experimental features to include, individual developers and communities can create their own language extensions.
 
 ## Democratic Language Evolution
 
@@ -112,7 +47,7 @@ This architecture fundamentally changes how programming languages evolve:
 
 ### Core Parser
 
-The XJS core parser handles:
+The **XJS** core parser handles:
 - Essential JavaScript constructs
 - Base AST generation
 - Extension loading and integration
@@ -146,7 +81,7 @@ This approach could revolutionize how programming languages are developed and ma
 
 ### Educational Value
 
-XJS serves as a platform for:
+**XJS** serves as a platform for:
 - Teaching compiler construction
 - Experimenting with language design
 - Understanding the relationship between syntax and semantics
@@ -154,7 +89,7 @@ XJS serves as a platform for:
 
 ## Conclusion
 
-XJS represents a new model for programming language development where the community, rather than committees, drives evolution. By providing a minimal, extensible core with a robust plugin architecture, we enable democratic language evolution while maintaining stability and performance.
+**XJS** represents a new model for programming language development where the community, rather than committees, drives evolution. By providing a minimal, extensible core with a robust plugin architecture, we enable democratic language evolution while maintaining stability and performance.
 
 This approach acknowledges that programming language design is not about finding the "one true way" but about providing users with the tools to create the language that best fits their needs. In doing so, we transform language design from a top-down process into a bottom-up, market-driven ecosystem.
 
