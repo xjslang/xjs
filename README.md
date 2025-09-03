@@ -76,7 +76,7 @@ func main() {
 }
 ```
 
-## Create your own parser to extend the XJS language
+## Create your own parser to extend the XJS syntax
 
 Creating a new parser that extends the **XJS** syntax is very simple. You just need to declare the structures you want to add to the language and intercept statements or expressions. In the following example, we have added the `const` statement and the `PI` constant:
 
