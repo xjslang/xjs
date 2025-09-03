@@ -96,11 +96,11 @@ func (fd *FunctionDeclaration) WriteTo(b *strings.Builder) {
 	b.WriteRune('(')
 	for i, param := range fd.Parameters {
 		if i > 0 {
-			b.WriteString(", ")
+			b.WriteRune(',')
 		}
 		param.WriteTo(b)
 	}
-	b.WriteString(") ")
+	b.WriteRune(')')
 	fd.Body.WriteTo(b)
 }
 
@@ -130,7 +130,7 @@ type IfStatement struct {
 func (ifs *IfStatement) WriteTo(b *strings.Builder) {
 	b.WriteString("if (")
 	ifs.Condition.WriteTo(b)
-	b.WriteString(") ")
+	b.WriteRune(')')
 	ifs.ThenBranch.WriteTo(b)
 	if ifs.ElseBranch != nil {
 		b.WriteString(" else ")
@@ -147,7 +147,7 @@ type WhileStatement struct {
 func (ws *WhileStatement) WriteTo(b *strings.Builder) {
 	b.WriteString("while (")
 	ws.Condition.WriteTo(b)
-	b.WriteString(") ")
+	b.WriteRune(')')
 	ws.Body.WriteTo(b)
 }
 
@@ -164,15 +164,15 @@ func (fs *ForStatement) WriteTo(b *strings.Builder) {
 	if fs.Init != nil {
 		fs.Init.WriteTo(b)
 	}
-	b.WriteString("; ")
+	b.WriteRune(';')
 	if fs.Condition != nil {
 		fs.Condition.WriteTo(b)
 	}
-	b.WriteString("; ")
+	b.WriteRune(';')
 	if fs.Update != nil {
 		fs.Update.WriteTo(b)
 	}
-	b.WriteString(") ")
+	b.WriteRune(')')
 	fs.Body.WriteTo(b)
 }
 
@@ -293,7 +293,7 @@ func (ce *CallExpression) WriteTo(b *strings.Builder) {
 	b.WriteRune('(')
 	for i, arg := range ce.Arguments {
 		if i > 0 {
-			b.WriteString(", ")
+			b.WriteRune(',')
 		}
 		arg.WriteTo(b)
 	}
@@ -341,9 +341,9 @@ type CompoundAssignmentExpression struct {
 
 func (cae *CompoundAssignmentExpression) WriteTo(b *strings.Builder) {
 	cae.Left.WriteTo(b)
-	b.WriteString(" ")
+	b.WriteRune(' ')
 	b.WriteString(cae.Operator)
-	b.WriteString("= ")
+	b.WriteRune('=')
 	cae.Value.WriteTo(b)
 }
 
@@ -357,7 +357,7 @@ func (fe *FunctionExpression) WriteTo(b *strings.Builder) {
 	b.WriteString("function(")
 	for i, param := range fe.Parameters {
 		if i > 0 {
-			b.WriteString(", ")
+			b.WriteRune(',')
 		}
 		param.WriteTo(b)
 	}
@@ -374,7 +374,7 @@ func (al *ArrayLiteral) WriteTo(b *strings.Builder) {
 	b.WriteRune('[')
 	for i, elem := range al.Elements {
 		if i > 0 {
-			b.WriteString(", ")
+			b.WriteRune(',')
 		}
 		elem.WriteTo(b)
 	}
@@ -391,10 +391,10 @@ func (ol *ObjectLiteral) WriteTo(b *strings.Builder) {
 	i := 0
 	for key, value := range ol.Properties {
 		if i > 0 {
-			b.WriteString(", ")
+			b.WriteRune(',')
 		}
 		key.WriteTo(b)
-		b.WriteString(": ")
+		b.WriteRune(':')
 		value.WriteTo(b)
 		i++
 	}
