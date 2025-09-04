@@ -15,14 +15,14 @@ func Test() error {
 	fmt.Println("🚀 Starting XJS Test Suite")
 	fmt.Println("==========================")
 	fmt.Println()
-	mg.SerialDeps(testTranspilation, testErrors, TestUnit, testMiddleware)
+	mg.SerialDeps(TestTranspilation, TestUnit, TestMiddleware, testErrors)
 	fmt.Println()
 	fmt.Println("🎉 All tests completed successfully!")
 	return nil
 }
 
 // testTranspilation runs transpilation tests with fixtures
-func testTranspilation() error {
+func TestTranspilation() error {
 	fmt.Println("🧪 Running transpilation tests...")
 	err := sh.RunV("go", "test", "-v", "-run", "TestTranspilation$", "./test/integration")
 	if err != nil {
@@ -56,7 +56,7 @@ func TestUnit() error {
 }
 
 // testMiddleware runs only middleware tests
-func testMiddleware() error {
+func TestMiddleware() error {
 	fmt.Println("⚙️ Running middleware tests...")
 	return sh.RunV("go", "test", "-v", "-run", "TestMiddleware", "./test/integration")
 }
