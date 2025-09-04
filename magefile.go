@@ -15,7 +15,7 @@ func Test() error {
 	fmt.Println("🚀 Starting XJS Test Suite")
 	fmt.Println("==========================")
 	fmt.Println()
-	mg.SerialDeps(testTranspilation, testInline, testErrors, testUnit, testMiddleware)
+	mg.SerialDeps(testTranspilation, testInline, testErrors, TestUnit, testMiddleware)
 	fmt.Println()
 	fmt.Println("🎉 All tests completed successfully!")
 	return nil
@@ -63,10 +63,10 @@ func testErrors() error {
 	return nil
 }
 
-// testUnit runs only unit tests (without tags)
-func testUnit() error {
+// testUnit runs only unit tests (excluding integration tests)
+func TestUnit() error {
 	fmt.Println("🧪 Running unit tests...")
-	return sh.RunV("go", "test", "-v", "./...")
+	return sh.RunV("go", "test", "-v", "./ast", "./internal", "./lexer", "./parser", "./token")
 }
 
 // testMiddleware runs only middleware tests
