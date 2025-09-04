@@ -1,6 +1,6 @@
 # XJS (eXtensible JavaScript parser)
 
-**XJS** is a highly customizable JavaScript parser and dialect. The idea is to keep the core minimal, excluding redundant or non essential constructs such as `const`, `var`, or `arrow functions`, and allowing users to add their own constructs through the `UseStatementHandler` and `UseExpressionHandler` methods, which follow a "middleware design pattern" similar to Express.js.
+**XJS** is a highly customizable JavaScript parser and dialect. The idea is to keep the core minimal, excluding redundant or non-essential constructs such as `const`, `var`, or `arrow functions`, and allowing users to add their own constructs through the `UseStatementHandler` and `UseExpressionHandler` methods, which follow a "middleware design pattern" similar to Express.js.
 
 Check out [VISION.md](./VISION.md) to learn more.
 
@@ -8,20 +8,20 @@ Check out [VISION.md](./VISION.md) to learn more.
 
 Many JavaScript features are already supported by **XJS**. The following table highlights only the most notable ones:
 
-| Construct                | Supported | Comments / Alternative            |
-|--------------------------|-----------|-----------------------------------|
-| `let`                    | ✅ Yes    | Essential                         |
-| `function`               | ✅ Yes    | Essential                         |
-| `if/else`, `while/for`   | ✅ Yes    | Essential                         |
-| `x++/x--`, `++x/--x`     | ✅ Yes    | Very convenient                   |
-| `==/!=`                  | ✅ Yes    | Translated to `===/!==`           |
-| `===/!==`                | ❌ No     | Use `==/!==`                      |
-| `const`, `var`           | ❌ No     | Use `let`                         |
-| `arrow functions`        | ❌ No     | Use `function`                    |
-| `class`                  | ❌ No     | Use `function(s)`                 |
-| `switch/case`            | ❌ No     | Use `if/else`                     |
-| `try/catch`              | ❌ No     | Use [`try-parser`](https://github.com/xjslang/try-parser) |
-| `async/await`            | ❌ No     | Create your own parser 😊         |
+| Construct                | Supported | Reason                              | Alternative |
+|--------------------------|-----------|-------------------------------------|-------------------|
+| `let`                    | ✅ Yes    | Essential                           |                   |
+| `function`               | ✅ Yes    | Essential                           |                   |
+| `if/else`, `while/for`   | ✅ Yes    | Essential                           |                   |
+| `x++/x--`, `++x/--x`     | ✅ Yes    | Very convenient                     |                   |
+| `==/!=`                  | ✅ Yes    | Essential (translated to `===/!==`) |                   |
+| `===/!==`                | ❌ No     | Confusing                           | Use `==/!=`       |
+| `const`, `var`           | ❌ No     | Redundant                           | Use `let`         |
+| `arrow functions`        | ❌ No     | Redundant                           | Use `function`    |
+| `class`                  | ❌ No     | Non-essential                       | Use `function(s)` |
+| `switch/case`            | ❌ No     | Non-essential                       | Use `if/else`     |
+| `try/catch`              | ❌ No     | Non-essential                       | Use [`try-parser`](https://github.com/xjslang/try-parser) |
+| `async/await`            | ❌ No     | Non-essential                       | Create your own parser 😊 |
 
 ## Installation
 
