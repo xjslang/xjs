@@ -121,42 +121,100 @@ func (l *Lexer) readString(delimiter byte) string {
 				result.WriteByte('x')
 				continue
 			} else if l.ch == 'u' {
-				// Handle Unicode escape sequence \uHHHH
-				hex1 := l.peekChar()
-				if isHexDigit(hex1) {
-					l.readChar() // consume first hex digit
-					hex2 := l.peekChar()
-					if isHexDigit(hex2) {
-						l.readChar() // consume second hex digit
-						hex3 := l.peekChar()
-						if isHexDigit(hex3) {
-							l.readChar() // consume third hex digit
-							hex4 := l.peekChar()
-							if isHexDigit(hex4) {
-								l.readChar() // consume fourth hex digit
-								// Convert 4 hex digits to Unicode value
-								value := hexDigitValue(hex1)*4096 + hexDigitValue(hex2)*256 + hexDigitValue(hex3)*16 + hexDigitValue(hex4)
-								// For now, we'll only handle basic Unicode (0-255) as bytes
-								// Full Unicode support would require UTF-8 encoding
-								if value <= 255 {
-									result.WriteByte(byte(value))
-								} else {
-									// For values > 255, we need to encode as UTF-8
+				// Check if it's extended Unicode \u{...}
+				if l.peekChar() == '{' {
+					// Handle extended Unicode escape sequence \u{H...}
+					l.readChar() // consume the '{'
+					var hexDigits []byte
+					isValid := true
+
+					// Read hex digits until we find '}'
+					for {
+						nextChar := l.peekChar()
+						if nextChar == '}' {
+							l.readChar() // consume the '}'
+							break
+						}
+						if !isHexDigit(nextChar) || len(hexDigits) >= 6 {
+							// Invalid sequence - mark as invalid and break
+							isValid = false
+							break
+						}
+						l.readChar()
+						hexDigits = append(hexDigits, l.ch)
+					}
+
+					// Validate the sequence
+					if !isValid || len(hexDigits) == 0 || len(hexDigits) > 6 {
+						// Treat as literal \u{...
+						result.WriteByte('\\')
+						result.WriteByte('u')
+						result.WriteByte('{')
+						for _, digit := range hexDigits {
+							result.WriteByte(digit)
+						}
+						if isValid {
+							result.WriteByte('}')
+						}
+						continue
+					}
+
+					// Convert hex digits to value
+					value := 0
+					for _, digit := range hexDigits {
+						value = value*16 + hexDigitValue(digit)
+					}
+
+					// Validate Unicode range
+					if value > 0x10FFFF {
+						// Invalid Unicode code point - treat as literal
+						result.WriteByte('\\')
+						result.WriteByte('u')
+						result.WriteByte('{')
+						for _, digit := range hexDigits {
+							result.WriteByte(digit)
+						}
+						result.WriteByte('}')
+						continue
+					}
+
+					// Convert to UTF-8 and add to result
+					utf8Bytes := encodeUTF8(value)
+					for _, b := range utf8Bytes {
+						result.WriteByte(b)
+					}
+					continue
+				} else {
+					// Handle regular Unicode escape sequence \uHHHH
+					hex1 := l.peekChar()
+					if isHexDigit(hex1) {
+						l.readChar() // consume first hex digit
+						hex2 := l.peekChar()
+						if isHexDigit(hex2) {
+							l.readChar() // consume second hex digit
+							hex3 := l.peekChar()
+							if isHexDigit(hex3) {
+								l.readChar() // consume third hex digit
+								hex4 := l.peekChar()
+								if isHexDigit(hex4) {
+									l.readChar() // consume fourth hex digit
+									// Convert 4 hex digits to Unicode value
+									value := hexDigitValue(hex1)*4096 + hexDigitValue(hex2)*256 + hexDigitValue(hex3)*16 + hexDigitValue(hex4)
 									// Convert to UTF-8 and write the bytes
 									utf8Bytes := encodeUTF8(value)
 									for _, b := range utf8Bytes {
 										result.WriteByte(b)
 									}
+									continue
 								}
-								continue
 							}
 						}
 					}
+					// If not a valid Unicode sequence, treat as literal \u
+					result.WriteByte('\\')
+					result.WriteByte('u')
+					continue
 				}
-				// If not a valid Unicode sequence, treat as literal \u
-				result.WriteByte('\\')
-				result.WriteByte('u')
-				continue
 			} else {
 				// Keep escape sequences as-is for valid JavaScript output
 				switch l.ch {

@@ -15,3 +15,8 @@ console.log("@: \x40");
 console.log("A: \u0041");
 console.log("@: \u0040");
 console.log("€: \u20AC");
+
+// Test extended Unicode escape sequences
+console.log("A: \u{41}");
+console.log("€: \u{20AC}");
+console.log("😀: \u{1F600}");
