@@ -91,10 +91,17 @@ func (l *Lexer) readString(delimiter byte) string {
 	position := l.position + 1
 	for {
 		l.readChar()
-		if l.ch == delimiter || l.ch == 0 {
+		if l.ch == 0 {
 			break
 		}
-		// TODO: Handle escape sequences like \"
+		// Handle escape sequences
+		if l.ch == '\\' {
+			l.readChar() // Skip the escaped character
+			continue
+		}
+		if l.ch == delimiter {
+			break
+		}
 	}
 	return l.input[position:l.position]
 }

@@ -1,0 +1,7 @@
+String with "escaped quotes"
+String with 'escaped single quotes'
+Backslash: \
+Tab:	after tab
+Newline:
+after newline
+Mixed: "Hello", she said. It's a \"test\".
