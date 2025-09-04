@@ -185,7 +185,6 @@ func (i *Identifier) WriteTo(b *strings.Builder) {
 
 type IntegerLiteral struct {
 	Token token.Token // the INT token
-	Value int64
 }
 
 func (il *IntegerLiteral) WriteTo(b *strings.Builder) {
@@ -194,7 +193,6 @@ func (il *IntegerLiteral) WriteTo(b *strings.Builder) {
 
 type FloatLiteral struct {
 	Token token.Token // the FLOAT token
-	Value float64
 }
 
 func (fl *FloatLiteral) WriteTo(b *strings.Builder) {

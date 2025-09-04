@@ -181,23 +181,21 @@ func (p *Parser) ParseIdentifier() ast.Expression {
 
 func (p *Parser) ParseIntegerLiteral() ast.Expression {
 	lit := &ast.IntegerLiteral{Token: p.CurrentToken}
-	value, err := strconv.ParseInt(p.CurrentToken.Literal, 0, 64)
+	_, err := strconv.ParseInt(p.CurrentToken.Literal, 0, 64)
 	if err != nil {
 		p.AddError(fmt.Sprintf("could not parse %q as integer", p.CurrentToken.Literal))
 		return nil
 	}
-	lit.Value = value
 	return lit
 }
 
 func (p *Parser) ParseFloatLiteral() ast.Expression {
 	lit := &ast.FloatLiteral{Token: p.CurrentToken}
-	value, err := strconv.ParseFloat(p.CurrentToken.Literal, 64)
+	_, err := strconv.ParseFloat(p.CurrentToken.Literal, 64)
 	if err != nil {
 		p.AddError(fmt.Sprintf("could not parse %q as float", p.CurrentToken.Literal))
 		return nil
 	}
-	lit.Value = value
 	return lit
 }
 
