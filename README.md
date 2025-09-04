@@ -13,8 +13,8 @@ Many JavaScript features are already supported by **XJS**. The following table h
 | `let`                    | ✅ Yes    | Essential                           |                   |
 | `function`               | ✅ Yes    | Essential                           |                   |
 | `if/else`, `while/for`   | ✅ Yes    | Essential                           |                   |
-| `x++/x--`, `++x/--x`     | ✅ Yes    | Very convenient                     |                   |
 | `==/!=`                  | ✅ Yes    | Essential (translated to `===/!==`) |                   |
+| `x++/x--`, `++x/--x`     | ✅ Yes    | Very convenient                     |                   |
 | `===/!==`                | ❌ No     | Confusing                           | Use `==/!=`       |
 | `const`, `var`           | ❌ No     | Redundant                           | Use `let`         |
 | `arrow functions`        | ❌ No     | Redundant                           | Use `function`    |
