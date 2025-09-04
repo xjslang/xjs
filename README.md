@@ -39,43 +39,6 @@ go install github.com/magefile/mage@latest
 mage -l
 ```
 
-## Quick Start
-
-```go
-package main
-
-import (
-    "fmt"
-    "github.com/xjslang/xjs/lexer"
-    "github.com/xjslang/xjs/parser"
-)
-
-func main() {
-    input := `
-        let x = 5
-        function add(a, b) {
-            return a + b
-        }
-    `
-
-    // translates the input to small tokens
-    // and generates the Abstract Syntax Tree (AST)
-    l := lexer.New(input)
-    p := parser.New(l)
-    ast := p.ParseProgram()
-
-    if len(p.Errors()) > 0 {
-        for _, err := range p.Errors() {
-            fmt.Println("Error:", err)
-        }
-        return
-    }
-
-    // prints AST to JavaScript code
-    fmt.Println(ast.String())
-}
-```
-
 ## Create your own parser to extend the XJS syntax
 
 Creating a new parser that extends the **XJS** syntax is very simple. You just need to declare the structures you want to add to the language and intercept statements or expressions. In the following example, we have added the `const` statement and the `PI` constant:
