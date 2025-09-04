@@ -6,7 +6,7 @@ Check out [VISION.md](./VISION.md) to learn more.
 
 ## Supported Language Features
 
-Many JavaScript features are already supported by **XJS**. The following table highlights only the most notable ones:
+Many JavaScript constructs are already supported by **XJS**. The following table highlights only the most notable ones:
 
 | Construct                | Supported | Reason                              | Alternative |
 |--------------------------|-----------|-------------------------------------|-------------------|
