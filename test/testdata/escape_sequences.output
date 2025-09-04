@@ -7,3 +7,5 @@ after newline
 Carriage return:
 before carriage return
 Mixed: "Hello", she said. It's a \"test\".
+A: A
+@: @

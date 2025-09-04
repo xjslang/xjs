@@ -6,3 +6,7 @@ console.log("Tab:\tafter tab");
 console.log("Newline:\nafter newline");
 console.log("Carriage return:\rbefore carriage return");
 console.log("Mixed: \"Hello\", she said. It's a \\\"test\\\".");
+
+// Test hexadecimal escape sequences
+console.log("A: \x41");
+console.log("@: \x40");

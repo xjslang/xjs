@@ -2,7 +2,11 @@
 // It tokenizes source code into a sequence of tokens that can be consumed by the parser.
 package lexer
 
-import "github.com/xjslang/xjs/token"
+import (
+	"strings"
+
+	"github.com/xjslang/xjs/token"
+)
 
 type Lexer struct {
 	input        string
@@ -88,7 +92,8 @@ func (l *Lexer) readNumber() (string, token.Type) {
 
 // readString reads a string literal
 func (l *Lexer) readString(delimiter byte) string {
-	position := l.position + 1
+	var result strings.Builder
+
 	for {
 		l.readChar()
 		if l.ch == 0 {
@@ -96,14 +101,45 @@ func (l *Lexer) readString(delimiter byte) string {
 		}
 		// Handle escape sequences
 		if l.ch == '\\' {
-			l.readChar() // Skip the escaped character
-			continue
+			l.readChar() // Move to the character after backslash
+			if l.ch == 'x' {
+				// Handle hexadecimal escape sequence \xHH
+				hex1 := l.peekChar()
+				if isHexDigit(hex1) {
+					l.readChar() // consume first hex digit
+					hex2 := l.peekChar()
+					if isHexDigit(hex2) {
+						l.readChar() // consume second hex digit
+						// Convert hex digits to byte value
+						value := hexDigitValue(hex1)*16 + hexDigitValue(hex2)
+						result.WriteByte(byte(value))
+						continue
+					}
+				}
+				// If not a valid hex sequence, treat as literal \x
+				result.WriteByte('\\')
+				result.WriteByte('x')
+				continue
+			} else {
+				// Keep escape sequences as-is for valid JavaScript output
+				switch l.ch {
+				case 'n', 't', 'r', '\\', '"', '\'':
+					result.WriteByte('\\')
+					result.WriteByte(l.ch)
+				default:
+					// For any other character, include both \ and the character
+					result.WriteByte('\\')
+					result.WriteByte(l.ch)
+				}
+				continue
+			}
 		}
 		if l.ch == delimiter {
 			break
 		}
+		result.WriteByte(l.ch)
 	}
-	return l.input[position:l.position]
+	return result.String()
 }
 
 func (l *Lexer) NextToken() token.Token {
@@ -267,4 +303,23 @@ func (l *Lexer) skipLineComment() {
 	for l.ch != '\n' && l.ch != 0 {
 		l.readChar()
 	}
+}
+
+// isHexDigit checks if a character is a hexadecimal digit
+func isHexDigit(ch byte) bool {
+	return (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F')
+}
+
+// hexDigitValue returns the numeric value of a hexadecimal digit
+func hexDigitValue(ch byte) int {
+	if ch >= '0' && ch <= '9' {
+		return int(ch - '0')
+	}
+	if ch >= 'a' && ch <= 'f' {
+		return int(ch - 'a' + 10)
+	}
+	if ch >= 'A' && ch <= 'F' {
+		return int(ch - 'A' + 10)
+	}
+	return 0
 }
