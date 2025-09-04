@@ -120,6 +120,43 @@ func (l *Lexer) readString(delimiter byte) string {
 				result.WriteByte('\\')
 				result.WriteByte('x')
 				continue
+			} else if l.ch == 'u' {
+				// Handle Unicode escape sequence \uHHHH
+				hex1 := l.peekChar()
+				if isHexDigit(hex1) {
+					l.readChar() // consume first hex digit
+					hex2 := l.peekChar()
+					if isHexDigit(hex2) {
+						l.readChar() // consume second hex digit
+						hex3 := l.peekChar()
+						if isHexDigit(hex3) {
+							l.readChar() // consume third hex digit
+							hex4 := l.peekChar()
+							if isHexDigit(hex4) {
+								l.readChar() // consume fourth hex digit
+								// Convert 4 hex digits to Unicode value
+								value := hexDigitValue(hex1)*4096 + hexDigitValue(hex2)*256 + hexDigitValue(hex3)*16 + hexDigitValue(hex4)
+								// For now, we'll only handle basic Unicode (0-255) as bytes
+								// Full Unicode support would require UTF-8 encoding
+								if value <= 255 {
+									result.WriteByte(byte(value))
+								} else {
+									// For values > 255, we need to encode as UTF-8
+									// Convert to UTF-8 and write the bytes
+									utf8Bytes := encodeUTF8(value)
+									for _, b := range utf8Bytes {
+										result.WriteByte(b)
+									}
+								}
+								continue
+							}
+						}
+					}
+				}
+				// If not a valid Unicode sequence, treat as literal \u
+				result.WriteByte('\\')
+				result.WriteByte('u')
+				continue
 			} else {
 				// Keep escape sequences as-is for valid JavaScript output
 				switch l.ch {
@@ -322,4 +359,35 @@ func hexDigitValue(ch byte) int {
 		return int(ch - 'A' + 10)
 	}
 	return 0
+}
+
+// encodeUTF8 converts a Unicode code point to UTF-8 byte sequence
+func encodeUTF8(codePoint int) []byte {
+	if codePoint <= 0x7F {
+		// 1-byte sequence (ASCII)
+		return []byte{byte(codePoint)}
+	} else if codePoint <= 0x7FF {
+		// 2-byte sequence
+		return []byte{
+			0xC0 | byte(codePoint>>6),
+			0x80 | byte(codePoint&0x3F),
+		}
+	} else if codePoint <= 0xFFFF {
+		// 3-byte sequence
+		return []byte{
+			0xE0 | byte(codePoint>>12),
+			0x80 | byte((codePoint>>6)&0x3F),
+			0x80 | byte(codePoint&0x3F),
+		}
+	} else if codePoint <= 0x10FFFF {
+		// 4-byte sequence
+		return []byte{
+			0xF0 | byte(codePoint>>18),
+			0x80 | byte((codePoint>>12)&0x3F),
+			0x80 | byte((codePoint>>6)&0x3F),
+			0x80 | byte(codePoint&0x3F),
+		}
+	}
+	// Invalid code point, return replacement character (U+FFFD)
+	return []byte{0xEF, 0xBF, 0xBD}
 }

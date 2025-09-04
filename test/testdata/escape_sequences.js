@@ -10,3 +10,8 @@ console.log("Mixed: \"Hello\", she said. It's a \\\"test\\\".");
 // Test hexadecimal escape sequences
 console.log("A: \x41");
 console.log("@: \x40");
+
+// Test Unicode escape sequences
+console.log("A: \u0041");
+console.log("@: \u0040");
+console.log("€: \u20AC");
