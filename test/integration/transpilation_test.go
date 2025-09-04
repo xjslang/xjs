@@ -118,28 +118,29 @@ func RunTranspilationTest(t *testing.T, test TranspilationTest) {
 
 // TestTranspilation tests the transpilation of XJS code to JavaScript by executing it
 func TestTranspilation(t *testing.T) {
-	// Test cases based on fixture files
-	testCases := []string{
-		"basic",
-		"function",
-		"array_loop",
-		"conditional",
-		"object",
-		"operators",
-		"loops",
-		"data_types",
-		"assignment",
-		"compound_assignment",
-		"function_expressions",
-		"property_access",
-		"complex_conditionals",
-		"complex_expressions",
-		"type_coercion",
-		"strict_equality",
-		"comments",
-		"comments_comprehensive",
-		"increment_decrement",
-		"escape_sequences",
+	// Dynamically discover test cases by reading .js files from testdata directory
+	testDataDir := "../testdata"
+	files, err := os.ReadDir(testDataDir)
+	if err != nil {
+		t.Fatalf("Failed to read testdata directory: %v", err)
+	}
+
+	var testCases []string
+	for _, file := range files {
+		if !file.IsDir() && strings.HasSuffix(file.Name(), ".js") {
+			// Remove .js extension to get the test case name
+			testCaseName := strings.TrimSuffix(file.Name(), ".js")
+
+			// Check if corresponding .output file exists
+			outputFile := filepath.Join(testDataDir, testCaseName+".output")
+			if _, err := os.Stat(outputFile); err == nil {
+				testCases = append(testCases, testCaseName)
+			}
+		}
+	}
+
+	if len(testCases) == 0 {
+		t.Fatal("No test cases found in testdata directory")
 	}
 
 	for _, testCase := range testCases {
