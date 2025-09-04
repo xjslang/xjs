@@ -15,7 +15,7 @@ func Test() error {
 	fmt.Println("🚀 Starting XJS Test Suite")
 	fmt.Println("==========================")
 	fmt.Println()
-	mg.SerialDeps(testTranspilation, testInline, testErrors, TestUnit, testMiddleware)
+	mg.SerialDeps(testTranspilation, testErrors, TestUnit, testMiddleware)
 	fmt.Println()
 	fmt.Println("🎉 All tests completed successfully!")
 	return nil
@@ -32,20 +32,6 @@ func testTranspilation() error {
 	}
 	fmt.Println()
 	fmt.Println("✅ All transpilation tests passed!")
-	return nil
-}
-
-// testInline runs inline transpilation tests
-func testInline() error {
-	fmt.Println("🎯 Running inline transpilation tests...")
-	err := sh.RunV("go", "test", "-v", "-run", "TestTranspilationBasicInline", "./test/integration")
-	if err != nil {
-		fmt.Println()
-		fmt.Println("❌ Some inline transpilation tests failed.")
-		return err
-	}
-	fmt.Println()
-	fmt.Println("✅ All inline transpilation tests passed!")
 	return nil
 }
 

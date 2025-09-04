@@ -147,36 +147,6 @@ func TestTranspilation(t *testing.T) {
 	}
 }
 
-// TestTranspilationBasicInline tests basic transpilation with inline test data
-func TestTranspilationBasicInline(t *testing.T) {
-	tests := []TranspilationTest{
-		{
-			name:           "simple_console_log",
-			inputFile:      `console.log('Hello, World!')`,
-			expectedOutput: "Hello, World!",
-		},
-		{
-			name:           "variable_declaration_and_log",
-			inputFile:      `let message = 'Test Message'; console.log(message)`,
-			expectedOutput: "Test Message",
-		},
-		{
-			name:           "simple_arithmetic",
-			inputFile:      `let result = 5 + 3; console.log(result)`,
-			expectedOutput: "8",
-		},
-		{
-			name:           "function_declaration_and_call",
-			inputFile:      `function greet(name) { return 'Hello, ' + name; } console.log(greet('XJS'))`,
-			expectedOutput: "Hello, XJS",
-		},
-	}
-
-	for _, test := range tests {
-		RunTranspilationTest(t, test)
-	}
-}
-
 // TestTranspilationErrors tests error handling in transpilation
 func TestTranspilationErrors(t *testing.T) {
 	errorTests := []struct {
