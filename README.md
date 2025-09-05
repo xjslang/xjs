@@ -45,7 +45,7 @@ Creating your own **XJS** parser is really simple. Just intercept the statements
 
 ### Create a statement parser
 
-**XJS** doesn't support the `const` keyword, but if you are a "const beliver", you can create your own plugin. For example:
+**XJS** doesn't support the `const` keyword, but if you are a "const believer", you can create your own plugin. For example:
 
 ```go
 // Represents a `const` node
