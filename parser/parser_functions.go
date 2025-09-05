@@ -203,6 +203,10 @@ func (p *Parser) ParseStringLiteral() ast.Expression {
 	return &ast.StringLiteral{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
 }
 
+func (p *Parser) ParseMultiStringLiteral() ast.Expression {
+	return &ast.MultiStringLiteral{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
+}
+
 func (p *Parser) ParseBooleanLiteral() ast.Expression {
 	return &ast.BooleanLiteral{Token: p.CurrentToken, Value: p.CurrentToken.Type == token.TRUE}
 }

@@ -210,6 +210,17 @@ func (sl *StringLiteral) WriteTo(b *strings.Builder) {
 	b.WriteRune('"')
 }
 
+type MultiStringLiteral struct {
+	Token token.Token // the MULTI_STRING token
+	Value string
+}
+
+func (sl *MultiStringLiteral) WriteTo(b *strings.Builder) {
+	b.WriteRune('`')
+	b.WriteString(sl.Value)
+	b.WriteRune('`')
+}
+
 type BooleanLiteral struct {
 	Token token.Token // the TRUE or FALSE token
 	Value bool
