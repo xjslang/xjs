@@ -244,6 +244,15 @@ func (l *Lexer) readRawString() string {
 		if l.ch == 0 {
 			break
 		}
+		// Handle escaped backticks
+		if l.ch == '\\' {
+			nextChar := l.peekChar()
+			if nextChar == '`' {
+				l.readChar() // consume the backtick
+				result.WriteByte('`')
+				continue
+			}
+		}
 		if l.ch == '`' {
 			break
 		}

@@ -15,6 +15,7 @@ func TestRawStrings(t *testing.T) {
 		expected string
 	}{
 		{"basic", "`hello there!`", "hello there!"},
+		{"escaped_backtick", "`hello \\`there\\`!`", "hello `there`!"},
 	}
 
 	for _, tt := range tests {
