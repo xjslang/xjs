@@ -82,6 +82,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.prefixParseFns[token.INT] = p.ParseIntegerLiteral
 	p.prefixParseFns[token.FLOAT] = p.ParseFloatLiteral
 	p.prefixParseFns[token.STRING] = p.ParseStringLiteral
+	p.prefixParseFns[token.RAW_STRING] = p.ParseStringLiteral
 	p.prefixParseFns[token.TRUE] = p.ParseBooleanLiteral
 	p.prefixParseFns[token.FALSE] = p.ParseBooleanLiteral
 	p.prefixParseFns[token.NULL] = p.ParseNullLiteral
