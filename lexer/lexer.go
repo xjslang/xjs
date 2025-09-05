@@ -237,7 +237,7 @@ func (l *Lexer) readString(delimiter byte) string {
 	return result.String()
 }
 
-func (l *Lexer) readTemplateString() string {
+func (l *Lexer) readRawString() string {
 	var result strings.Builder
 	for {
 		l.readChar()
@@ -373,7 +373,7 @@ func (l *Lexer) NextToken() token.Token {
 		tok.Column = column
 	case '`':
 		tok.Type = token.RAW_STRING
-		tok.Literal = l.readTemplateString()
+		tok.Literal = l.readRawString()
 		tok.Line = line
 		tok.Column = column
 	case 0:
