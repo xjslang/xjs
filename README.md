@@ -1,6 +1,6 @@
 # XJS (eXtensible JavaScript parser)
 
-**XJS** is a highly customizable JavaScript parser. The idea is to keep the core minimal, excluding redundant, confusing or non-essential constructs such as `const`, `var`, `strict equality` or `arrow functions`, and allowing users to add their own constructs through the `UseStatementHandler` and `UseExpressionHandler` methods, which follow a "middleware" design pattern.
+**XJS** is a highly customizable JavaScript parser. The idea is to keep the core minimal, excluding redundant, confusing or non-essential constructs, and allowing users to add their own features.
 
 Check out [VISION.md](./VISION.md) to learn more.
 
@@ -39,30 +39,23 @@ go install github.com/magefile/mage@latest
 mage -l
 ```
 
-## Create your own parser to extend the XJS syntax
+## Create your own parser that extend the XJS syntax
 
-Creating a new parser that extends the **XJS** syntax is very simple. You just need to declare the structures you want to add to the language and intercept statements or expressions. In the following example, we have added the `const` statement and the `PI` constant:
+Creating your own **XJS** parser is really simple. Just intercept the statements or expressions with the `UseStatementHandler` or `UseExpressionHandler` methods.
+
+### Create a statement parser
+
+**XJS** doesn't support the `const` keyword, but if you are a "const beliver", you can create your own plugin. For example:
 
 ```go
-package main
-
-import (
-	"fmt"
-	"strings"
-
-	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/lexer"
-	"github.com/xjslang/xjs/parser"
-	"github.com/xjslang/xjs/token"
-)
-
+// Represents a `const` node
 type ConstStatement struct {
 	Token token.Token
 	Name  *ast.Identifier
 	Value ast.Expression
 }
 
-// WriteTo instructs the parser how to write a node
+// Tells the parser how to write a node
 func (ls *ConstStatement) WriteTo(b *strings.Builder) {
 	b.WriteString("const ")
 	ls.Name.WriteTo(b)
@@ -72,15 +65,7 @@ func (ls *ConstStatement) WriteTo(b *strings.Builder) {
 	}
 }
 
-type PiLiteral struct {
-	Token token.Token
-}
-
-func (nl *PiLiteral) WriteTo(b *strings.Builder) {
-	b.WriteString("3.1416")
-}
-
-// Intercepts the statements
+// Intercepts the statements and add your own syntax
 func ConstStatementHandler(p *parser.Parser, next func() ast.Statement) ast.Statement {
 	if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
 		stmt := &ConstStatement{Token: p.CurrentToken}
@@ -99,8 +84,24 @@ func ConstStatementHandler(p *parser.Parser, next func() ast.Statement) ast.Stat
 	// otherwise, next!
 	return next()
 }
+```
 
-// Intercepts the expressions
+See the complete example [here](./parser/parser_examples_test.go)
+
+### Create an expression parser
+
+```go
+// Represents the PI constant
+type PiLiteral struct {
+	Token token.Token
+}
+
+// Tells the parser how to write a node
+func (nl *PiLiteral) WriteTo(b *strings.Builder) {
+	b.WriteString("3.1416")
+}
+
+// Intercepts the expressions and add your own syntax
 func PiExpressionHandler(p *parser.Parser, next func() ast.Expression) ast.Expression {
 	if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "PI" {
 		return &PiLiteral{Token: p.CurrentToken}
@@ -108,43 +109,31 @@ func PiExpressionHandler(p *parser.Parser, next func() ast.Expression) ast.Expre
 	// otherwise, next!
 	return next()
 }
-
-func main() {
-	input := "const pi = PI"
-	l := lexer.New(input)
-	p := parser.New(l)
-
-	// extends the language syntax!
-	p.UseStatementHandler(ConstStatementHandler)
-	p.UseExpressionHandler(PiExpressionHandler)
-
-	ast := p.ParseProgram()
-	if len(p.Errors()) > 0 {
-		for _, err := range p.Errors() {
-			fmt.Println("Error:", err)
-		}
-		return
-	}
-	fmt.Println(ast.String())
-	// Output: const pi=3.1416
-}
 ```
 
-Additionally, we can chain as many parsers as we want:
+See the complete example [here](./parser/parser_examples_test.go)
+
+### Concatenate multiple statement and expressions parsers:
+
+You can concatenate as many parsers as you want, enriching the parser to your own preferences:
 
 ```go
-// ...
-p := New(l)
+l := lexer.New(input)
+p := parser.New(l)
+
+// concatenates multiple parsers that enrich XJS syntax
 p.UseStatementHandler(ConstStatementHandler)
 p.UseStatementHandler(TryCatchStatementHandler)
 p.UseStatementHandler(AwaitStatementHandler)
 p.UseExpressionHandler(JsxExpressionHandler)
 p.UseExpressionHandler(MathExpressionHandler)
 p.UseExpressionHandler(VectorExpressionHandler)
-// ...
+
+ast := p.ParseProgram()
+fmt.Println(ast.String())
 ```
 
-Here you will find numerous parser examples:  
+Here you will find different parsers to inspire you:  
 https://github.com/search?q=org%3Axjslang+-parser&type=repositories
 
 ## Contributing
