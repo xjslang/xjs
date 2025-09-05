@@ -2,6 +2,7 @@ package integration
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -18,6 +19,33 @@ func transpileASTToJS(program *ast.Program) string {
 
 // TestMiddlewareHandlers tests the custom middleware functionality
 func TestMiddlewareHandlers(t *testing.T) {
+	interpolationTests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{"basic", "let fullName = `$name $surname`", "let fullName=`${name} ${surname}`"},
+		{"escaped_dolar_sign", "let fullName = `$name $surname \\$dolar_sign`", "let fullName=`${name} ${surname} $dolar_sign`"},
+	}
+	for _, tt := range interpolationTests {
+		t.Run("interpolation_handler_middleware", func(t *testing.T) {
+			l := lexer.New(tt.input)
+			p := parser.New(l)
+			p.UseExpressionHandler(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
+				if p.CurrentToken.Type == token.RAW_STRING {
+					r := regexp.MustCompile(`\$(\w+)`)
+					p.CurrentToken.Literal = r.ReplaceAllString(p.CurrentToken.Literal, "${$1}")
+				}
+				return next()
+			})
+			program := p.ParseProgram()
+			if program.String() != tt.expected {
+				t.Errorf("Parse(%q) got %q, want %q", tt.input, program.String(), tt.expected)
+				return
+			}
+		})
+	}
+
 	t.Run("expression_handler_middleware", func(t *testing.T) {
 		input := `let x = 5 + 3; console.log(x)`
 		expectedOutput := "8"
