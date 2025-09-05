@@ -46,22 +46,11 @@ func ConstStatementHandler(p *Parser, next func() ast.Statement) ast.Statement {
 	return next()
 }
 
-// Represents the PI constant
-type PiLiteral struct {
-	Token token.Token
-}
-
-// Tells the parser how to write a node
-func (nl *PiLiteral) WriteTo(b *strings.Builder) {
-	b.WriteString("3.1416")
-}
-
 // Intercepts the expressions and add your own syntax
 func PiExpressionHandler(p *Parser, next func() ast.Expression) ast.Expression {
 	if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "PI" {
-		return &PiLiteral{Token: p.CurrentToken}
+		p.CurrentToken.Literal = "Math.PI"
 	}
-	// otherwise, next!
 	return next()
 }
 
@@ -83,7 +72,7 @@ func Example_const() {
 
 // Example_pi demonstrates how to create a custom expression parser for the PI constant.
 func Example_pi() {
-	input := "let pi = PI"
+	input := "let area = PI * r * r"
 
 	l := lexer.New(input)
 	p := New(l)
@@ -94,5 +83,5 @@ func Example_pi() {
 	ast := p.ParseProgram()
 	fmt.Println(ast.String())
 
-	// Output: let pi=3.1416
+	// Output: let area=((Math.PI*r)*r)
 }
