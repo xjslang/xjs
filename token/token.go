@@ -11,10 +11,11 @@ const (
 	EOF
 
 	// Identifiers and literals
-	IDENT  // variables, functions
-	INT    // 123
-	FLOAT  // 123.45
-	STRING // "hello"
+	IDENT      // variables, functions
+	INT        // 123
+	FLOAT      // 123.45
+	STRING     // "hello"
+	RAW_STRING //
 
 	// Operators
 	ASSIGN       // =
@@ -95,6 +96,8 @@ func (tt Type) String() string {
 		return "FLOAT"
 	case STRING:
 		return "STRING"
+	case RAW_STRING:
+		return "RAW_STRING"
 	case ASSIGN:
 		return "ASSIGN"
 	case PLUS_ASSIGN:

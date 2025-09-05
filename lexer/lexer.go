@@ -237,6 +237,21 @@ func (l *Lexer) readString(delimiter byte) string {
 	return result.String()
 }
 
+func (l *Lexer) readTemplateString() string {
+	var result strings.Builder
+	for {
+		l.readChar()
+		if l.ch == 0 {
+			break
+		}
+		if l.ch == '`' {
+			break
+		}
+		result.WriteByte(l.ch)
+	}
+	return result.String()
+}
+
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 	l.skipWhitespace()
@@ -354,6 +369,11 @@ func (l *Lexer) NextToken() token.Token {
 	case '\'':
 		tok.Type = token.STRING
 		tok.Literal = l.readString('\'')
+		tok.Line = line
+		tok.Column = column
+	case '`':
+		tok.Type = token.RAW_STRING
+		tok.Literal = l.readTemplateString()
 		tok.Line = line
 		tok.Column = column
 	case 0:
