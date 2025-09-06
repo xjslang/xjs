@@ -175,6 +175,18 @@ func (p *Parser) ParseExpression() ast.Expression {
 	return p.expressionParseFn(p, LOWEST)
 }
 
+func (p *Parser) ParseInfixExpression(leftExp ast.Expression, precedence int) ast.Expression {
+	for p.PeekToken.Type != token.SEMICOLON && precedence < p.peekPrecedence() {
+		infix := p.infixParseFns[p.PeekToken.Type]
+		if infix == nil {
+			return leftExp
+		}
+		p.NextToken()
+		leftExp = infix(leftExp)
+	}
+	return leftExp
+}
+
 func (p *Parser) ParseIdentifier() ast.Expression {
 	return &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
 }

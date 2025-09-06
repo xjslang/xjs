@@ -46,10 +46,19 @@ func ConstStatementHandler(p *Parser, next func() ast.Statement) ast.Statement {
 	return next()
 }
 
+type PiLiteral struct {
+	Token token.Token
+}
+
+func (pl *PiLiteral) WriteTo(b *strings.Builder) {
+	b.WriteString("Math.PI")
+}
+
 // Intercepts the expressions and add your own syntax
 func PiExpressionHandler(p *Parser, next func() ast.Expression) ast.Expression {
 	if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "PI" {
-		p.CurrentToken.Literal = "Math.PI"
+		p.NextToken()
+		return p.ParseInfixExpression(&PiLiteral{Token: p.CurrentToken}, 0)
 	}
 	return next()
 }
@@ -78,7 +87,12 @@ func Example_pi() {
 	p := New(l)
 
 	// Register the PI expression handler
-	p.UseExpressionHandler(PiExpressionHandler)
+	p.UseExpressionHandler(func(p *Parser, precedence int, next func() ast.Expression) ast.Expression {
+		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "PI" {
+			return p.ParseInfixExpression(&PiLiteral{Token: p.CurrentToken}, precedence)
+		}
+		return next()
+	})
 
 	ast := p.ParseProgram()
 	fmt.Println(ast.String())

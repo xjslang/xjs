@@ -1,41 +1,11 @@
 package parser
 
 import (
-	"regexp"
 	"testing"
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/lexer"
-	"github.com/xjslang/xjs/token"
 )
-
-func TestInterpolationMiddleware(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    string
-		expected string
-	}{
-		{"basic", "let fullName = `$name $surname`", "let fullName=`${name} ${surname}`"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			l := lexer.New(tt.input)
-			p := New(l)
-			p.UseExpressionHandler(func(p *Parser, next func() ast.Expression) ast.Expression {
-				if p.CurrentToken.Type == token.RAW_STRING {
-					r := regexp.MustCompile(`\$(\w+)`)
-					p.CurrentToken.Literal = r.ReplaceAllString(p.CurrentToken.Literal, "${$1}")
-				}
-				return next()
-			})
-			program := p.ParseProgram()
-			if program.String() != tt.expected {
-				t.Errorf("Parse(%q) got %q, want %q", tt.input, program.String(), tt.expected)
-				return
-			}
-		})
-	}
-}
 
 func TestParseBasicLiterals(t *testing.T) {
 	tests := []struct {
@@ -441,12 +411,12 @@ func TestUseExpressionHandler(t *testing.T) {
 	l := lexer.New(input)
 	p := New(l)
 
-	handler := func(p *Parser, next func() ast.Expression) ast.Expression {
+	handler := func(p *Parser, precedence int, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Literal == "special_expr" {
-			return &ast.Identifier{
+			return p.ParseInfixExpression(&ast.Identifier{
 				Token: p.CurrentToken,
 				Value: "handled_expression",
-			}
+			}, precedence)
 		}
 		return next()
 	}

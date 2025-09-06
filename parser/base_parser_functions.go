@@ -34,14 +34,5 @@ func baseParseExpression(p *Parser, precedence int) ast.Expression {
 		p.AddError(fmt.Sprintf("no prefix parse function for %s found", p.CurrentToken.Type))
 		return nil
 	}
-	leftExp := prefix()
-	for p.PeekToken.Type != token.SEMICOLON && precedence < p.peekPrecedence() {
-		infix := p.infixParseFns[p.PeekToken.Type]
-		if infix == nil {
-			return leftExp
-		}
-		p.NextToken()
-		leftExp = infix(leftExp)
-	}
-	return leftExp
+	return p.ParseInfixExpression(prefix(), precedence)
 }
