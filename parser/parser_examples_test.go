@@ -55,10 +55,9 @@ func (pl *PiLiteral) WriteTo(b *strings.Builder) {
 }
 
 // Intercepts the expressions and add your own syntax
-func PiExpressionHandler(p *Parser, next func() ast.Expression) ast.Expression {
+func PiExpressionHandler(p *Parser, precedence int, next func() ast.Expression) ast.Expression {
 	if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "PI" {
-		p.NextToken()
-		return p.ParseInfixExpression(&PiLiteral{Token: p.CurrentToken}, 0)
+		return p.ParseInfixExpression(&PiLiteral{Token: p.CurrentToken}, precedence)
 	}
 	return next()
 }

@@ -91,10 +91,21 @@ See the complete example [here](./parser/parser_examples_test.go)
 ### Create an expression parser
 
 ```go
+// Represents a `const` node
+type PiLiteral struct {
+	Token token.Token
+}
+
+// Tells the parser how to write a node
+func (pl *PiLiteral) WriteTo(b *strings.Builder) {
+	b.WriteString("Math.PI")
+}
+
 // Intercepts the expressions and add your own syntax
-func PiExpressionHandler(p *Parser, next func() ast.Expression) ast.Expression {
+func PiExpressionHandler(p *Parser, precedence int, next func() ast.Expression) ast.Expression {
 	if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "PI" {
-		p.CurrentToken.Literal = "Math.PI"
+		// Continue parsing the rest of the expression
+		return p.ParseInfixExpression(&PiLiteral{Token: p.CurrentToken}, precedence)
 	}
 	return next()
 }
