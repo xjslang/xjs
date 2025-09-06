@@ -16,45 +16,6 @@ func transpileASTToJS(program *ast.Program) string {
 	return program.String()
 }
 
-// processStringInterpolation processes string interpolation while respecting escaped dollar signs
-func processStringInterpolation(input string) string {
-	var result strings.Builder
-	runes := []rune(input)
-
-	for i := 0; i < len(runes); i++ {
-		if runes[i] == '\\' && i+1 < len(runes) && runes[i+1] == '$' {
-			// Escaped dollar sign: remove the backslash and keep the dollar sign as literal
-			result.WriteRune('$')
-			i++ // Skip the next character (the $)
-		} else if runes[i] == '$' && i+1 < len(runes) && isAlpha(runes[i+1]) {
-			// Unescaped dollar sign followed by identifier: convert to ${identifier}
-			result.WriteString("${")
-			i++ // Move to the character after $
-
-			// Collect the identifier
-			for i < len(runes) && (isAlpha(runes[i]) || isDigit(runes[i]) || runes[i] == '_') {
-				result.WriteRune(runes[i])
-				i++
-			}
-			result.WriteRune('}')
-			i-- // Adjust because the for loop will increment
-		} else {
-			result.WriteRune(runes[i])
-		}
-	}
-
-	return result.String()
-}
-
-// Helper functions for character classification
-func isAlpha(r rune) bool {
-	return (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z')
-}
-
-func isDigit(r rune) bool {
-	return r >= '0' && r <= '9'
-}
-
 // TestMiddlewareHandlers tests the custom middleware functionality
 func TestMiddlewareHandlers(t *testing.T) {
 	t.Run("expression_handler_middleware", func(t *testing.T) {
