@@ -48,7 +48,7 @@ Creating your own **XJS** parser is really simple. Just intercept the statements
 **XJS** doesn't support the `const` keyword, but if you are a "const believer", you can create your own plugin. For example:
 
 ```go
-// Represents a `const` node
+
 type ConstStatement struct {
 	Token token.Token
 	Name  *ast.Identifier
@@ -65,24 +65,32 @@ func (ls *ConstStatement) WriteTo(b *strings.Builder) {
 	}
 }
 
-// Intercepts the statements and add your own syntax
-func ConstStatementHandler(p *parser.Parser, next func() ast.Statement) ast.Statement {
-	if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
-		stmt := &ConstStatement{Token: p.CurrentToken}
-		// moves to identifier token
-		p.NextToken()
-		stmt.Name = &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
-		// expects "="
-		if !p.ExpectToken(token.ASSIGN) {
-			return nil
+func Example_const() {
+	input := "const x = 42"
+	l := lexer.New(input)
+	p := New(l)
+	// Intercepts the statements and add your own syntax
+	p.UseStatementHandler(func(p *Parser, next func() ast.Statement) ast.Statement {
+		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
+			stmt := &ConstStatement{Token: p.CurrentToken}
+			// moves to identifier token
+			p.NextToken()
+			stmt.Name = &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
+			// expects "="
+			if !p.ExpectToken(token.ASSIGN) {
+				return nil
+			}
+			// moves to value and parses it
+			p.NextToken()
+			stmt.Value = p.ParseExpression()
+			return stmt
 		}
-		// moves to value and parses it
-		p.NextToken()
-		stmt.Value = p.ParseExpression()
-		return stmt
-	}
-	// otherwise, next!
-	return next()
+		// otherwise, next!
+		return next()
+	})
+	ast := p.ParseProgram()
+	fmt.Println(ast.String())
+	// Output: const x=42
 }
 ```
 
@@ -90,8 +98,10 @@ See the complete example [here](./parser/parser_examples_test.go)
 
 ### Create an expression parser
 
+In the following example we are goind to declare the `PI` literal:
+
 ```go
-// Represents a `const` node
+// Represents a `PI` literal node
 type PiLiteral struct {
 	Token token.Token
 }
@@ -101,13 +111,21 @@ func (pl *PiLiteral) WriteTo(b *strings.Builder) {
 	b.WriteString("Math.PI")
 }
 
-// Intercepts the expressions and add your own syntax
-func PiExpressionHandler(p *Parser, precedence int, next func() ast.Expression) ast.Expression {
-	if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "PI" {
-		// Continue parsing the rest of the expression
-		return p.ParseInfixExpression(&PiLiteral{Token: p.CurrentToken}, precedence)
-	}
-	return next()
+func Example_pi() {
+	input := "let area = PI * r * r"
+	l := lexer.New(input)
+	p := New(l)
+	// Intercepts the expressions and add your own syntax
+	p.UseExpressionHandler(func(p *Parser, precedence int, next func() ast.Expression) ast.Expression {
+		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "PI" {
+			// Continue parsing the rest of the expression
+			return p.ParseInfixExpression(&PiLiteral{Token: p.CurrentToken}, precedence)
+		}
+		return next()
+	})
+	ast := p.ParseProgram()
+	fmt.Println(ast.String())
+	// Output: let area=((Math.PI*r)*r)
 }
 ```
 
