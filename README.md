@@ -6,20 +6,20 @@ Check out the [VISION.md](./VISION.md) to learn more.
 
 ## Supported Language Features
 
-Las siguientes características fueron descartadas por diseño de **XJS**. No obstante, si consideras que alguna característica resulta valiosa, siempre puedes crear tu propio parser 😊
+The following features have been intentionally excluded from **XJS** by design. However, if you find any of these features valuable, you can create your own parser 😊
 
-| Construct              | Reason                              | Alternative                                               |
-| ---------------------- | ----------------------------------- | --------------------------------------------------------- |
-| `===/!==`              | Confusing                           | Use `==/!=` (*)                                           |
-| `const`, `var`         | Redundant                           | Use `let`                                                 |
-| `arrow functions`      | Redundant                           | Use `function`                                            |
-| `class`                | Non-essential                       | Use `function(s)`                                         |
-| `switch/case`          | Non-essential                       | Use `if/else`                                             |
-| `try/catch`            | Non-essential                       | Use [`try-parser`](https://github.com/xjslang/try-parser) |
-| `async/await`          | Non-essential                       | Create your own parser 😊                                 |
-| `spread operator`      | Non-essential                       | Create your own parser 😊                                 |
+| Construct         | Reason        | Alternative                                               |
+| ----------------- | ------------- | --------------------------------------------------------- |
+| `===/!==`         | Confusing     | Use `==/!=` (\*)                                          |
+| `const`, `var`    | Redundant     | Use `let`                                                 |
+| `arrow functions` | Redundant     | Use `function`                                            |
+| `class`           | Non-essential | Use `function(s)`                                         |
+| `switch/case`     | Non-essential | Use `if/else`                                             |
+| `try/catch`       | Non-essential | Use [`try-parser`](https://github.com/xjslang/try-parser) |
+| `async/await`     | Non-essential | Create your own parser 😊                                 |
+| `spread operator` | Non-essential | Create your own parser 😊                                 |
 
-(*) **XJS** traduce `==/!=` a `===/!==`, cerrando así el eterno debate entre igualdad estricta y débil.
+(\*) **XJS** translates `==/!=` to `===/!==`, thus closing the eternal debate between strict and loose equality.
 
 ## Installation
 
@@ -90,6 +90,7 @@ func Example_const() {
 	// Output: const x=42
 }
 ```
+
 </details>
 
 <details>
@@ -125,6 +126,7 @@ func Example_pi() {
 	// Output: let area=((Math.PI*r)*r)
 }
 ```
+
 </details>
 
 <details>
@@ -171,6 +173,7 @@ func Example_pow() {
 	// Output: let y=(x+Math.pow(r,r))
 }
 ```
+
 </details>
 
 <details>
@@ -195,6 +198,7 @@ p.UseRemainingExpressionParser(XORExpressionParser)
 ast := p.ParseProgram()
 fmt.Println(ast.String())
 ```
+
 </details>
 
 Here you will find different parsers to inspire you:  
