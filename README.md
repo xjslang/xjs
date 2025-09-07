@@ -119,7 +119,7 @@ func Example_pi() {
 	p.UseExpressionHandler(func(p *Parser, precedence int, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "PI" {
 			// Continue parsing the rest of the expression
-			return p.ParseInfixExpression(&PiLiteral{Token: p.CurrentToken}, precedence)
+			return p.ParseRemainingExpression(&PiLiteral{Token: p.CurrentToken}, precedence)
 		}
 		return next()
 	})

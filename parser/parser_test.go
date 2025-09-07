@@ -413,7 +413,7 @@ func TestUseExpressionHandler(t *testing.T) {
 
 	handler := func(p *Parser, precedence int, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Literal == "special_expr" {
-			return p.ParseInfixExpression(&ast.Identifier{
+			return p.ParseRemainingExpression(&ast.Identifier{
 				Token: p.CurrentToken,
 				Value: "handled_expression",
 			}, precedence)
