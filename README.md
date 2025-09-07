@@ -8,20 +8,20 @@ Check out [VISION.md](./VISION.md) to learn more.
 
 Many JavaScript features are already supported by **XJS**. The following table highlights only the most notable ones:
 
-| Construct                | Supported | Reason                              | Alternative |
-|--------------------------|-----------|-------------------------------------|-------------------|
-| `let`                    | ✅ Yes    | Essential                           |                   |
-| `function`               | ✅ Yes    | Essential                           |                   |
-| `if/else`, `while/for`   | ✅ Yes    | Essential                           |                   |
-| `==/!=`                  | ✅ Yes    | Essential (translated to `===/!==`) |                   |
-| `x++/x--`, `++x/--x`     | ✅ Yes    | Very convenient                     |                   |
-| `===/!==`                | ❌ No     | Confusing                           | Use `==/!=`       |
-| `const`, `var`           | ❌ No     | Redundant                           | Use `let`         |
-| `arrow functions`        | ❌ No     | Redundant                           | Use `function`    |
-| `class`                  | ❌ No     | Non-essential                       | Use `function(s)` |
-| `switch/case`            | ❌ No     | Non-essential                       | Use `if/else`     |
-| `try/catch`              | ❌ No     | Non-essential                       | Use [`try-parser`](https://github.com/xjslang/try-parser) |
-| `async/await`            | ❌ No     | Non-essential                       | Create your own parser 😊 |
+| Construct              | Supported | Reason                              | Alternative                                               |
+| ---------------------- | --------- | ----------------------------------- | --------------------------------------------------------- |
+| `let`                  | ✅ Yes    | Essential                           |                                                           |
+| `function`             | ✅ Yes    | Essential                           |                                                           |
+| `if/else`, `while/for` | ✅ Yes    | Essential                           |                                                           |
+| `==/!=`                | ✅ Yes    | Essential (translated to `===/!==`) |                                                           |
+| `x++/x--`, `++x/--x`   | ✅ Yes    | Very convenient                     |                                                           |
+| `===/!==`              | ❌ No     | Confusing                           | Use `==/!=`                                               |
+| `const`, `var`         | ❌ No     | Redundant                           | Use `let`                                                 |
+| `arrow functions`      | ❌ No     | Redundant                           | Use `function`                                            |
+| `class`                | ❌ No     | Non-essential                       | Use `function(s)`                                         |
+| `switch/case`          | ❌ No     | Non-essential                       | Use `if/else`                                             |
+| `try/catch`            | ❌ No     | Non-essential                       | Use [`try-parser`](https://github.com/xjslang/try-parser) |
+| `async/await`          | ❌ No     | Non-essential                       | Create your own parser 😊                                 |
 
 ## Installation
 
@@ -30,6 +30,7 @@ go get github.com/xjslang/xjs
 ```
 
 This package uses [Mage](https://magefile.org/) as a taks manager:
+
 ```bash
 # install mage if not already installed
 go install github.com/magefile/mage@latest
@@ -69,27 +70,22 @@ func Example_const() {
 	input := "const x = 42"
 	l := lexer.New(input)
 	p := New(l)
-
 	// Intercepts the statements and add your own syntax
 	p.UseStatementParser(func(p *Parser, next func() ast.Statement) ast.Statement {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
 			stmt := &ConstStatement{Token: p.CurrentToken}
-			// moves to identifier token
-			p.NextToken()
+			p.NextToken() // moves to identifier token
 			stmt.Name = &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
-			// expects "="
-			if !p.ExpectToken(token.ASSIGN) {
+			if !p.ExpectToken(token.ASSIGN) { // expects "="
 				return nil
 			}
-			// moves to value and parses it
-			p.NextToken()
+			p.NextToken() // moves to value and parses it
 			stmt.Value = p.ParseExpression()
 			return stmt
 		}
 		// otherwise, next!
 		return next()
 	})
-
 	ast := p.ParseProgram()
 	fmt.Println(ast.String())
 	// Output: const x=42
@@ -117,16 +113,14 @@ func Example_pi() {
 	input := "let area = PI * r * r"
 	l := lexer.New(input)
 	p := New(l)
-
 	// Intercepts the expressions and add your own syntax
 	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "PI" {
-			// Continue parsing the rest of the expression
+			// uses the new node and continues parsing the rest of the expression
 			return p.ParseRemainingExpression(&PiLiteral{Token: p.CurrentToken})
 		}
 		return next()
 	})
-
 	ast := p.ParseProgram()
 	fmt.Println(ast.String())
 	// Output: let area=((Math.PI*r)*r)
