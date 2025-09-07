@@ -6,22 +6,20 @@ Check out the [VISION.md](./VISION.md) to learn more.
 
 ## Supported Language Features
 
-Many JavaScript features are already supported by **XJS**. The following table highlights only the most notable ones:
+Las siguientes características fueron descartadas por diseño de **XJS**. No obstante, si consideras que alguna característica resulta valiosa, siempre puedes crear tu propio parser 😊
 
-| Construct              | Supported | Reason                              | Alternative                                               |
-| ---------------------- | --------- | ----------------------------------- | --------------------------------------------------------- |
-| `let`                  | ✅ Yes    | Essential                           |                                                           |
-| `function`             | ✅ Yes    | Essential                           |                                                           |
-| `if/else`, `while/for` | ✅ Yes    | Essential                           |                                                           |
-| `==/!=`                | ✅ Yes    | Essential (translated to `===/!==`) |                                                           |
-| `x++/x--`, `++x/--x`   | ✅ Yes    | Very convenient                     |                                                           |
-| `===/!==`              | ❌ No     | Confusing                           | Use `==/!=`                                               |
-| `const`, `var`         | ❌ No     | Redundant                           | Use `let`                                                 |
-| `arrow functions`      | ❌ No     | Redundant                           | Use `function`                                            |
-| `class`                | ❌ No     | Non-essential                       | Use `function(s)`                                         |
-| `switch/case`          | ❌ No     | Non-essential                       | Use `if/else`                                             |
-| `try/catch`            | ❌ No     | Non-essential                       | Use [`try-parser`](https://github.com/xjslang/try-parser) |
-| `async/await`          | ❌ No     | Non-essential                       | Create your own parser 😊                                 |
+| Construct              | Reason                              | Alternative                                               |
+| ---------------------- | ----------------------------------- | --------------------------------------------------------- |
+| `===/!==`              | Confusing                           | Use `==/!=` (*)                                           |
+| `const`, `var`         | Redundant                           | Use `let`                                                 |
+| `arrow functions`      | Redundant                           | Use `function`                                            |
+| `class`                | Non-essential                       | Use `function(s)`                                         |
+| `switch/case`          | Non-essential                       | Use `if/else`                                             |
+| `try/catch`            | Non-essential                       | Use [`try-parser`](https://github.com/xjslang/try-parser) |
+| `async/await`          | Non-essential                       | Create your own parser 😊                                 |
+| `spread operator`      | Non-essential                       | Create your own parser 😊                                 |
+
+(*) **XJS** traduce `==/!=` a `===/!==`, cerrando así el eterno debate entre igualdad estricta y débil.
 
 ## Installation
 
