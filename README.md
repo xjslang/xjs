@@ -119,12 +119,12 @@ func Example_pi() {
 	p := New(l)
 
 	// Intercepts the expressions and add your own syntax
-	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
+	p.UseExpressionParser(func(p *Parser, precedence int, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "PI" {
 			// Continue parsing the rest of the expression
-			return next(&PiLiteral{Token: p.CurrentToken})
+			return p.ParseRemainingExpression(&PiLiteral{Token: p.CurrentToken}, precedence)
 		}
-		return next(nil)
+		return next()
 	})
 
 	ast := p.ParseProgram()
