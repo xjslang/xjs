@@ -69,6 +69,7 @@ func Example_const() {
 	input := "const x = 42"
 	l := lexer.New(input)
 	p := New(l)
+
 	// Intercepts the statements and add your own syntax
 	p.UseStatementHandler(func(p *Parser, next func() ast.Statement) ast.Statement {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
@@ -88,6 +89,7 @@ func Example_const() {
 		// otherwise, next!
 		return next()
 	})
+
 	ast := p.ParseProgram()
 	fmt.Println(ast.String())
 	// Output: const x=42
@@ -115,6 +117,7 @@ func Example_pi() {
 	input := "let area = PI * r * r"
 	l := lexer.New(input)
 	p := New(l)
+
 	// Intercepts the expressions and add your own syntax
 	p.UseExpressionHandler(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "PI" {
@@ -123,6 +126,7 @@ func Example_pi() {
 		}
 		return next(nil)
 	})
+
 	ast := p.ParseProgram()
 	fmt.Println(ast.String())
 	// Output: let area=((Math.PI*r)*r)
