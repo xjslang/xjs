@@ -42,13 +42,14 @@ mage -l
 
 ## Create your own parser that extends the XJS syntax
 
-Creating your own **XJS** parser is really simple. Just intercept the statements or expressions with the `UseStatementParser` or `UseExpressionParser` methods.
+Creating your own **XJS** parser is really simple. Just intercept the statements or expressions with the `UseStatementParser`, `UseExpressionParser` and `UseRemainingExpressionParser` methods.
 
-### Create a statement parser
-
-**XJS** doesn't support the `const` keyword, but if you are a "const believer", you can create your own plugin. For example:
+<details>
+	<summary>Example 1: Create a statement parser</summary>
 
 ```go
+// XJS doesn't support the `const` keyword, but if you are a "const believer", you can create your own plugin.
+
 // Represents a `const` node
 type ConstStatement struct {
 	Token token.Token
@@ -91,12 +92,14 @@ func Example_const() {
 	// Output: const x=42
 }
 ```
+</details>
 
-### Create an expression parser
-
-In the following example we are going to declare the `PI` literal:
+<details>
+	<summary>Example 2: Create an expression parser</summary>
 
 ```go
+// In the following example we are going to declare the `PI` literal
+
 // Represents a `PI` literal node
 type PiLiteral struct {
 	Token token.Token
@@ -124,18 +127,22 @@ func Example_pi() {
 	// Output: let area=((Math.PI*r)*r)
 }
 ```
+</details>
 
-### Create an operator parser
-
-In the following example we are going to create a mathematical pow example:
+<details>
+	<summary>Example 3: Create an operator parser</summary>
 
 ```go
+// In the following example we are going to create a mathematical pow example:
+
+// Represents a Power expression
 type PowExpression struct {
 	Token token.Token
 	Left  ast.Expression
 	Right ast.Expression
 }
 
+// Tells the parser how to write a node
 func (pe *PowExpression) WriteTo(b *strings.Builder) {
 	b.WriteString("Math.pow(")
 	pe.Left.WriteTo(b)
@@ -166,12 +173,14 @@ func Example_pow() {
 	// Output: let y=(x+Math.pow(r,r))
 }
 ```
+</details>
 
-### Concatenate multiple statement and expressions parsers:
-
-You can concatenate as many parsers as you want, enriching the parser to your own preferences:
+<details>
+	<summary>Example 4: Concatenate multiple parsers</summary>
 
 ```go
+// You can concatenate as many parsers as you want, enriching the parser to your own preferences:
+
 l := lexer.New(input)
 p := parser.New(l)
 
@@ -182,10 +191,13 @@ p.UseStatementParser(AwaitStatementParser)
 p.UseExpressionParser(JsxExpressionParser)
 p.UseExpressionParser(MathExpressionParser)
 p.UseExpressionParser(VectorExpressionParser)
+p.UseRemainingExpressionParser(PowExpressionParser)
+p.UseRemainingExpressionParser(XORExpressionParser)
 
 ast := p.ParseProgram()
 fmt.Println(ast.String())
 ```
+</details>
 
 Here you will find different parsers to inspire you:  
 https://github.com/search?q=org%3Axjslang+-parser&type=repositories
