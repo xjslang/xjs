@@ -28,11 +28,11 @@ func TestMiddlewareHandlers(t *testing.T) {
 
 		// Add middleware that logs when processing numbers
 		var processedNumbers []string
-		p.UseExpressionHandler(func(p *parser.Parser, precedence int, next func() ast.Expression) ast.Expression {
+		p.UseExpressionHandler(func(p *parser.Parser, next func(left ast.Expression) ast.Expression) ast.Expression {
 			if p.CurrentToken.Type == token.INT {
 				processedNumbers = append(processedNumbers, p.CurrentToken.Literal)
 			}
-			return next()
+			return next(nil)
 		})
 
 		program := p.ParseProgram()
@@ -70,19 +70,19 @@ func TestMiddlewareHandlers(t *testing.T) {
 		var identifierCount int
 
 		// First middleware - count strings
-		p.UseExpressionHandler(func(p *parser.Parser, precedence int, next func() ast.Expression) ast.Expression {
+		p.UseExpressionHandler(func(p *parser.Parser, next func(left ast.Expression) ast.Expression) ast.Expression {
 			if p.CurrentToken.Type == token.STRING {
 				stringCount++
 			}
-			return next()
+			return next(nil)
 		})
 
 		// Second middleware - count identifiers
-		p.UseExpressionHandler(func(p *parser.Parser, precedence int, next func() ast.Expression) ast.Expression {
+		p.UseExpressionHandler(func(p *parser.Parser, next func(left ast.Expression) ast.Expression) ast.Expression {
 			if p.CurrentToken.Type == token.IDENT {
 				identifierCount++
 			}
-			return next()
+			return next(nil)
 		})
 
 		program := p.ParseProgram()
@@ -124,10 +124,10 @@ func TestCustomLanguageFeatures(t *testing.T) {
 		var logMessages []string
 
 		// Middleware that logs parsing progress
-		p.UseExpressionHandler(func(p *parser.Parser, precedence int, next func() ast.Expression) ast.Expression {
+		p.UseExpressionHandler(func(p *parser.Parser, next func(left ast.Expression) ast.Expression) ast.Expression {
 			currentTokenType := p.CurrentToken.Type.String()
 			logMessages = append(logMessages, fmt.Sprintf("Processing: %s", currentTokenType))
-			return next()
+			return next(nil)
 		})
 
 		program := p.ParseProgram()

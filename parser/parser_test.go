@@ -411,14 +411,14 @@ func TestUseExpressionHandler(t *testing.T) {
 	l := lexer.New(input)
 	p := New(l)
 
-	handler := func(p *Parser, precedence int, next func() ast.Expression) ast.Expression {
+	handler := func(p *Parser, next func(left ast.Expression) ast.Expression) ast.Expression {
 		if p.CurrentToken.Literal == "special_expr" {
-			return p.ParseRemainingExpression(&ast.Identifier{
+			return next(&ast.Identifier{
 				Token: p.CurrentToken,
 				Value: "handled_expression",
-			}, precedence)
+			})
 		}
-		return next()
+		return next(nil)
 	}
 
 	p.UseExpressionHandler(handler)
