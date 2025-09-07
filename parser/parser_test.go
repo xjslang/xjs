@@ -387,7 +387,7 @@ func TestUseStatementHandler(t *testing.T) {
 		return next()
 	}
 
-	p.UseStatementHandler(handler)
+	p.UseStatementParser(handler)
 	program := p.ParseProgram()
 
 	if len(p.Errors()) != 0 {

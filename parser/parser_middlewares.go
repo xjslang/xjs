@@ -5,7 +5,7 @@ import (
 )
 
 // TODO: rename to UsseStatementParser(parser...) and update the README.md file
-func (p *Parser) UseStatementHandler(handler func(p *Parser, next func() ast.Statement) ast.Statement) {
+func (p *Parser) UseStatementParser(handler func(p *Parser, next func() ast.Statement) ast.Statement) {
 	next := p.statementParseFn
 	p.statementParseFn = func(p *Parser) ast.Statement {
 		return handler(p, func() ast.Statement {

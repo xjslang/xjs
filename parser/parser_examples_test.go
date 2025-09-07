@@ -31,7 +31,7 @@ func Example_const() {
 	l := lexer.New(input)
 	p := New(l)
 	// Intercepts the statements and add your own syntax
-	p.UseStatementHandler(func(p *Parser, next func() ast.Statement) ast.Statement {
+	p.UseStatementParser(func(p *Parser, next func() ast.Statement) ast.Statement {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
 			stmt := &ConstStatement{Token: p.CurrentToken}
 			// moves to identifier token
