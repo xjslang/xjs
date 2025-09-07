@@ -4,7 +4,7 @@
 
 Check out the [VISION.md](./VISION.md) to learn more.
 
-## Supported Language Features
+## Excluded JavaScript Features
 
 The following features have been intentionally excluded from **XJS** by design. However, if you find any of these features valuable, you can create your own parser 😊
 
