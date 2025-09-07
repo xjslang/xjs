@@ -48,7 +48,7 @@ Creating your own **XJS** parser is really simple. Just intercept the statements
 **XJS** doesn't support the `const` keyword, but if you are a "const believer", you can create your own plugin. For example:
 
 ```go
-
+// Represents a `const` node
 type ConstStatement struct {
 	Token token.Token
 	Name  *ast.Identifier
