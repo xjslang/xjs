@@ -66,7 +66,7 @@ go test -v ./...
 
 # Run specific test groups
 go test -v -run TestTranspilation
-go test -v -run TestMiddlewareHandlers
+go test -v -run TestMiddlewareParsers
 go test -v -run TestComplexTranspilation
 
 # Run with the convenience script
@@ -90,11 +90,11 @@ Programmatic tests with inline test data:
 - Basic arithmetic
 - Function calls
 
-### 3. Middleware Tests (`TestMiddlewareHandlers`)
+### 3. Middleware Tests (`TestMiddlewareParsers`)
 
 Tests for XJS's custom middleware system:
-- Expression handlers
-- Statement handlers
+- Expression parsers
+- Statement parsers
 - Multiple middleware chains
 - Custom language features
 
@@ -148,7 +148,7 @@ Add a new test case to the `tests` slice in `TestTranspilationBasicInline`:
 
 ### Adding Middleware Tests
 
-Create new test functions in `middleware_test.go` that use custom expression or statement handlers.
+Create new test functions in `middleware_test.go` that use custom expression or statement parsers.
 
 ## Best Practices
 

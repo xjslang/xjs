@@ -144,12 +144,12 @@ l := lexer.New(input)
 p := parser.New(l)
 
 // concatenates multiple parsers that enrich XJS syntax
-p.UseStatementParser(ConstStatementHandler)
-p.UseStatementParser(TryCatchStatementHandler)
-p.UseStatementParser(AwaitStatementHandler)
-p.UseExpressionParser(JsxExpressionHandler)
-p.UseExpressionParser(MathExpressionHandler)
-p.UseExpressionParser(VectorExpressionHandler)
+p.UseStatementParser(ConstStatementParser)
+p.UseStatementParser(TryCatchStatementParser)
+p.UseStatementParser(AwaitStatementParser)
+p.UseExpressionParser(JsxExpressionParser)
+p.UseExpressionParser(MathExpressionParser)
+p.UseExpressionParser(VectorExpressionParser)
 
 ast := p.ParseProgram()
 fmt.Println(ast.String())

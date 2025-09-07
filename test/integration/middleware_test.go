@@ -16,13 +16,13 @@ func transpileASTToJS(program *ast.Program) string {
 	return program.String()
 }
 
-// TestMiddlewareHandlers tests the custom middleware functionality
-func TestMiddlewareHandlers(t *testing.T) {
-	t.Run("expression_handler_middleware", func(t *testing.T) {
+// TestMiddlewareParsers tests the custom middleware functionality
+func TestMiddlewareParsers(t *testing.T) {
+	t.Run("expression_parser_middleware", func(t *testing.T) {
 		input := `let x = 5 + 3; console.log(x)`
 		expectedOutput := "8"
 
-		// Create parser with custom expression handler
+		// Create parser with custom expression parser
 		l := lexer.New(input)
 		p := parser.New(l)
 
@@ -59,7 +59,7 @@ func TestMiddlewareHandlers(t *testing.T) {
 		}
 	})
 
-	t.Run("multiple_expression_handlers", func(t *testing.T) {
+	t.Run("multiple_expression_parsers", func(t *testing.T) {
 		input := `let message = 'Hello' + ' ' + 'World'; console.log(message)`
 		expectedOutput := "Hello World"
 

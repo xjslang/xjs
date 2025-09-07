@@ -369,13 +369,13 @@ func TestParseMemberExpressions(t *testing.T) {
 	}
 }
 
-func TestUseStatementHandler(t *testing.T) {
+func TestUseStatementParser(t *testing.T) {
 	input := "custom_statement"
 
 	l := lexer.New(input)
 	p := New(l)
 
-	handler := func(p *Parser, next func() ast.Statement) ast.Statement {
+	p.UseStatementParser(func(p *Parser, next func() ast.Statement) ast.Statement {
 		if p.CurrentToken.Literal == "custom_statement" {
 			return &ast.ExpressionStatement{
 				Expression: &ast.Identifier{
@@ -385,13 +385,11 @@ func TestUseStatementHandler(t *testing.T) {
 			}
 		}
 		return next()
-	}
-
-	p.UseStatementParser(handler)
+	})
 	program := p.ParseProgram()
 
 	if len(p.Errors()) != 0 {
-		t.Errorf("Parse with custom handler errors = %v", p.Errors())
+		t.Errorf("Parse with custom parser errors = %v", p.Errors())
 		return
 	}
 
@@ -401,7 +399,7 @@ func TestUseStatementHandler(t *testing.T) {
 	}
 
 	if program.String() != "handled_statement" {
-		t.Errorf("Expected custom handler result, got %v", program.String())
+		t.Errorf("Expected custom parser result, got %v", program.String())
 	}
 }
 
@@ -411,7 +409,7 @@ func TestUseExpressionHandler(t *testing.T) {
 	l := lexer.New(input)
 	p := New(l)
 
-	handler := func(p *Parser, next func(left ast.Expression) ast.Expression) ast.Expression {
+	p.UseExpressionParser(func(p *Parser, next func(left ast.Expression) ast.Expression) ast.Expression {
 		if p.CurrentToken.Literal == "special_expr" {
 			return next(&ast.Identifier{
 				Token: p.CurrentToken,
@@ -419,13 +417,11 @@ func TestUseExpressionHandler(t *testing.T) {
 			})
 		}
 		return next(nil)
-	}
-
-	p.UseExpressionParser(handler)
+	})
 	program := p.ParseProgram()
 
 	if len(p.Errors()) != 0 {
-		t.Errorf("Parse with custom expression handler errors = %v", p.Errors())
+		t.Errorf("Parse with custom expression parser errors = %v", p.Errors())
 		return
 	}
 
