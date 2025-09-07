@@ -66,6 +66,8 @@ type Parser struct {
 
 	// Context stack for tracking parsing state
 	contextStack []ContextType
+	// Current expression precedence during parsing
+	currentExpressionPrecedence int
 }
 
 func New(l *lexer.Lexer) *Parser {

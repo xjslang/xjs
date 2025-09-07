@@ -13,10 +13,15 @@ func (p *Parser) UseStatementParser(parseFn func(p *Parser, next func() ast.Stat
 	}
 }
 
-func (p *Parser) UseExpressionParser(parseFn func(p *Parser, precedence int, next func() ast.Expression) ast.Expression) {
+func (p *Parser) UseExpressionParser(parseFn func(p *Parser, next func() ast.Expression) ast.Expression) {
 	next := p.expressionParseFn
 	p.expressionParseFn = func(p *Parser, precedence int) ast.Expression {
-		return parseFn(p, precedence, func() ast.Expression {
+		oldPrecedence := p.currentExpressionPrecedence
+		p.currentExpressionPrecedence = precedence
+		defer func() {
+			p.currentExpressionPrecedence = oldPrecedence
+		}()
+		return parseFn(p, func() ast.Expression {
 			return next(p, precedence)
 		})
 	}
