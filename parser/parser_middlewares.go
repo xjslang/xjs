@@ -21,7 +21,7 @@ func (p *Parser) UseExpressionHandler(handler func(p *Parser, next func(left ast
 	p.expressionParseFn = func(p *Parser, precedence int) ast.Expression {
 		return handler(p, func(left ast.Expression) ast.Expression {
 			if left != nil {
-				return p.ParseRemainingExpression(left, precedence)
+				return p.parseRemainingExpression(left, precedence)
 			}
 			return originalExpressionParseFn(p, precedence)
 		})

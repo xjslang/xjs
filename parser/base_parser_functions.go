@@ -34,5 +34,5 @@ func baseParseExpression(p *Parser, precedence int) ast.Expression {
 		p.AddError(fmt.Sprintf("no prefix parse function for %s found", p.CurrentToken.Type))
 		return nil
 	}
-	return p.ParseRemainingExpression(prefix(), precedence)
+	return p.parseRemainingExpression(prefix(), precedence)
 }

@@ -116,12 +116,12 @@ func Example_pi() {
 	l := lexer.New(input)
 	p := New(l)
 	// Intercepts the expressions and add your own syntax
-	p.UseExpressionHandler(func(p *Parser, precedence int, next func() ast.Expression) ast.Expression {
+	p.UseExpressionHandler(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "PI" {
 			// Continue parsing the rest of the expression
-			return p.ParseRemainingExpression(&PiLiteral{Token: p.CurrentToken}, precedence)
+			return next(&PiLiteral{Token: p.CurrentToken})
 		}
-		return next()
+		return next(nil)
 	})
 	ast := p.ParseProgram()
 	fmt.Println(ast.String())
