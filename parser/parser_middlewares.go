@@ -4,7 +4,6 @@ import (
 	"github.com/xjslang/xjs/ast"
 )
 
-// TODO: rename to UsseStatementParser(parser...) and update the README.md file
 func (p *Parser) UseStatementParser(handler func(p *Parser, next func() ast.Statement) ast.Statement) {
 	next := p.statementParseFn
 	p.statementParseFn = func(p *Parser) ast.Statement {
@@ -14,8 +13,7 @@ func (p *Parser) UseStatementParser(handler func(p *Parser, next func() ast.Stat
 	}
 }
 
-// TODO: rename to UseExpressionParser(parser...) and update the README.md file
-func (p *Parser) UseExpressionHandler(handler func(p *Parser, next func(left ast.Expression) ast.Expression) ast.Expression) {
+func (p *Parser) UseExpressionParser(handler func(p *Parser, next func(left ast.Expression) ast.Expression) ast.Expression) {
 	originalExpressionParseFn := p.expressionParseFn
 
 	p.expressionParseFn = func(p *Parser, precedence int) ast.Expression {

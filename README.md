@@ -41,7 +41,7 @@ mage -l
 
 ## Create your own parser that extend the XJS syntax
 
-Creating your own **XJS** parser is really simple. Just intercept the statements or expressions with the `UseStatementParser` or `UseExpressionHandler` methods.
+Creating your own **XJS** parser is really simple. Just intercept the statements or expressions with the `UseStatementParser` or `UseExpressionParser` methods.
 
 ### Create a statement parser
 
@@ -119,7 +119,7 @@ func Example_pi() {
 	p := New(l)
 
 	// Intercepts the expressions and add your own syntax
-	p.UseExpressionHandler(func(p *Parser, next func() ast.Expression) ast.Expression {
+	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "PI" {
 			// Continue parsing the rest of the expression
 			return next(&PiLiteral{Token: p.CurrentToken})
@@ -147,9 +147,9 @@ p := parser.New(l)
 p.UseStatementParser(ConstStatementHandler)
 p.UseStatementParser(TryCatchStatementHandler)
 p.UseStatementParser(AwaitStatementHandler)
-p.UseExpressionHandler(JsxExpressionHandler)
-p.UseExpressionHandler(MathExpressionHandler)
-p.UseExpressionHandler(VectorExpressionHandler)
+p.UseExpressionParser(JsxExpressionHandler)
+p.UseExpressionParser(MathExpressionHandler)
+p.UseExpressionParser(VectorExpressionHandler)
 
 ast := p.ParseProgram()
 fmt.Println(ast.String())

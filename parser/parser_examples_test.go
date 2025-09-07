@@ -69,7 +69,7 @@ func Example_pi() {
 	l := lexer.New(input)
 	p := New(l)
 	// Intercepts the expressions and add your own syntax
-	p.UseExpressionHandler(func(p *Parser, next func(left ast.Expression) ast.Expression) ast.Expression {
+	p.UseExpressionParser(func(p *Parser, next func(left ast.Expression) ast.Expression) ast.Expression {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "PI" {
 			// Continue parsing the rest of the expression
 			return next(&PiLiteral{Token: p.CurrentToken})

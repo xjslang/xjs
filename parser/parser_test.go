@@ -421,7 +421,7 @@ func TestUseExpressionHandler(t *testing.T) {
 		return next(nil)
 	}
 
-	p.UseExpressionHandler(handler)
+	p.UseExpressionParser(handler)
 	program := p.ParseProgram()
 
 	if len(p.Errors()) != 0 {
