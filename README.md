@@ -92,8 +92,6 @@ func Example_const() {
 }
 ```
 
-See the complete example [here](./parser/parser_examples_test.go)
-
 ### Create an expression parser
 
 In the following example we are going to declare the `PI` literal:
@@ -126,8 +124,6 @@ func Example_pi() {
 	// Output: let area=((Math.PI*r)*r)
 }
 ```
-
-See the complete example [here](./parser/parser_examples_test.go)
 
 ### Concatenate multiple statement and expressions parsers:
 
