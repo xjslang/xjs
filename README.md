@@ -39,7 +39,7 @@ go install github.com/magefile/mage@latest
 mage -l
 ```
 
-## Create your own parser that extend the XJS syntax
+## Create your own parser that extends the XJS syntax
 
 Creating your own **XJS** parser is really simple. Just intercept the statements or expressions with the `UseStatementParser` or `UseExpressionParser` methods.
 
