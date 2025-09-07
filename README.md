@@ -2,7 +2,7 @@
 
 **XJS** is a highly customizable JavaScript parser. The idea is to keep the core minimal, excluding redundant, confusing or non-essential constructs, and allowing users to add their own features.
 
-Check out [VISION.md](./VISION.md) to learn more.
+Check out the [VISION.md](./VISION.md) to learn more.
 
 ## Supported Language Features
 
@@ -122,6 +122,48 @@ func Example_pi() {
 	ast := p.ParseProgram()
 	fmt.Println(ast.String())
 	// Output: let area=((Math.PI*r)*r)
+}
+```
+
+### Create an operator parser
+
+In the following example we are going to create a mathematical pow example:
+
+```go
+type PowExpression struct {
+	Token token.Token
+	Left  ast.Expression
+	Right ast.Expression
+}
+
+func (pe *PowExpression) WriteTo(b *strings.Builder) {
+	b.WriteString("Math.pow(")
+	pe.Left.WriteTo(b)
+	b.WriteRune(',')
+	pe.Right.WriteTo(b)
+	b.WriteRune(')')
+}
+
+func Example_pow() {
+	input := "let y = x + r ^ r"
+	l := lexer.New(input)
+	p := New(l)
+	p.UseRemainingExpressionParser(func(p *Parser, left ast.Expression, next func() ast.Expression) ast.Expression {
+		if p.PeekToken.Type == token.ILLEGAL && p.PeekToken.Literal == "^" {
+			p.NextToken() // consume the ^ token
+			p.NextToken() // move to the right operand
+			exp := &PowExpression{
+				Token: p.CurrentToken,
+				Left:  left,
+				Right: p.ParseExpression(),
+			}
+			return exp
+		}
+		return next()
+	})
+	ast := p.ParseProgram()
+	fmt.Println(ast.String())
+	// Output: let y=(x+Math.pow(r,r))
 }
 ```
 
