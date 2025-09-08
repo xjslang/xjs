@@ -189,6 +189,21 @@ func (p *Parser) ParseInfixExpression(left ast.Expression) ast.Expression {
 	return infix(left)
 }
 
+func (p *Parser) RegisterInfixOperator(operatorToken string, precedence int, createExpr func(left, right ast.Expression, operatorToken token.Token) ast.Expression) {
+	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
+		if p.PeekToken.Literal != operatorToken {
+			return next()
+		}
+		left := p.ParsePrefixExpression()
+		p.NextToken() // consume operator
+		operatorTokenValue := p.CurrentToken
+		p.NextToken() // move to right expression
+		right := p.ParseExpressionWithPrecedence(precedence)
+		expr := createExpr(left, right, operatorTokenValue)
+		return p.ParseRemainingExpression(expr)
+	})
+}
+
 func (p *Parser) ParseExpression() ast.Expression {
 	return p.expressionParseFn(p, LOWEST)
 }
