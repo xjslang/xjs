@@ -175,6 +175,10 @@ func (p *Parser) ParseExpression() ast.Expression {
 	return p.expressionParseFn(p, LOWEST)
 }
 
+func (p *Parser) ParseExpressionWithPrecedence(precedence int) ast.Expression {
+	return p.expressionParseFn(p, precedence)
+}
+
 func (p *Parser) parseRemainingExpressionWithPrecedence(leftExp ast.Expression, precedence int) ast.Expression {
 	for p.PeekToken.Type != token.SEMICOLON && precedence < p.peekPrecedence() {
 		infix := p.infixParseFns[p.PeekToken.Type]
