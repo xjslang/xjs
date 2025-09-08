@@ -171,6 +171,24 @@ func (p *Parser) ParseExpressionStatement() *ast.ExpressionStatement {
 	return stmt
 }
 
+func (p *Parser) ParsePrefixExpression() ast.Expression {
+	prefix := p.prefixParseFns[p.CurrentToken.Type]
+	if prefix == nil {
+		p.AddError(fmt.Sprintf("no prefix parse function for %s found", p.CurrentToken.Type))
+		return nil
+	}
+	return prefix()
+}
+
+func (p *Parser) ParseInfixExpression(left ast.Expression) ast.Expression {
+	infix := p.infixParseFns[p.PeekToken.Type]
+	if infix == nil {
+		return left
+	}
+	p.NextToken()
+	return infix(left)
+}
+
 func (p *Parser) ParseExpression() ast.Expression {
 	return p.expressionParseFn(p, LOWEST)
 }
@@ -179,20 +197,15 @@ func (p *Parser) ParseExpressionWithPrecedence(precedence int) ast.Expression {
 	return p.expressionParseFn(p, precedence)
 }
 
-func (p *Parser) parseRemainingExpressionWithPrecedence(leftExp ast.Expression, precedence int) ast.Expression {
+func (p *Parser) ParseRemainingExpressionWithPrecedence(left ast.Expression, precedence int) ast.Expression {
 	for p.PeekToken.Type != token.SEMICOLON && precedence < p.peekPrecedence() {
-		infix := p.infixParseFns[p.PeekToken.Type]
-		if infix == nil {
-			return leftExp
-		}
-		p.NextToken()
-		leftExp = infix(leftExp)
+		left = p.ParseInfixExpression(left)
 	}
-	return leftExp
+	return left
 }
 
-func (p *Parser) ParseRemainingExpression(leftExp ast.Expression) ast.Expression {
-	return p.parseRemainingExpressionWithPrecedence(leftExp, p.currentExpressionPrecedence)
+func (p *Parser) ParseRemainingExpression(left ast.Expression) ast.Expression {
+	return p.ParseRemainingExpressionWithPrecedence(left, p.currentExpressionPrecedence)
 }
 
 func (p *Parser) ParseIdentifier() ast.Expression {

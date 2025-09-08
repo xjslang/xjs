@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"fmt"
-
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/token"
 )
@@ -29,10 +27,8 @@ func baseParseStatement(p *Parser) ast.Statement {
 }
 
 func baseParseExpression(p *Parser, precedence int) ast.Expression {
-	prefix := p.prefixParseFns[p.CurrentToken.Type]
-	if prefix == nil {
-		p.AddError(fmt.Sprintf("no prefix parse function for %s found", p.CurrentToken.Type))
-		return nil
-	}
-	return p.parseRemainingExpressionWithPrecedence(prefix(), precedence)
+	return p.ParseRemainingExpressionWithPrecedence(
+		p.ParsePrefixExpression(),
+		precedence,
+	)
 }
