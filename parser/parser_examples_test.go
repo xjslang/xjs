@@ -64,12 +64,9 @@ func Example_pi() {
 	input := "let area = PI * r * r"
 	l := lexer.New(input)
 	p := New(l)
-	// Intercepts the expressions and add your own syntax
-	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
-		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "PI" {
-			return p.ParseRemainingExpression(&PiLiteral{Token: p.CurrentToken})
-		}
-		return next()
+	// adds support for the PI constant!
+	p.RegisterOperand("PI", func() ast.Expression {
+		return &PiLiteral{Token: p.CurrentToken}
 	})
 	ast := p.ParseProgram()
 	fmt.Println(ast.String())

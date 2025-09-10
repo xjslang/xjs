@@ -59,7 +59,7 @@ func (ls *ConstStatement) WriteTo(b *strings.Builder) {
 	}
 }
 
-func Example_const() {
+func main() {
 	input := "const x = 42"
 	l := lexer.New(input)
 	p := New(l)
@@ -113,7 +113,26 @@ func Example_const() {
 	<summary>RegisterOperand example</summary>
 
 ```go
-// ...
+import (
+	"fmt"
+	"strings"
+
+	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/lexer"
+)
+
+func main() {
+	input := "let area = PI * r * r"
+	l := lexer.New(input)
+	p := New(l)
+	// adds support for the PI constant!
+	p.RegisterOperand("PI", func() ast.Expression {
+		return &PiLiteral{Token: p.CurrentToken}
+	})
+	ast := p.ParseProgram()
+	fmt.Println(ast.String())
+	// Output: let area=((Math.PI*r)*r)
+}
 ```
 </details>
 
