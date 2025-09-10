@@ -119,7 +119,18 @@ import (
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/token"
 )
+
+// Represents a `PI` literal node
+type PiLiteral struct {
+	Token token.Token
+}
+
+// Tells the parser how to write a node
+func (pl *PiLiteral) WriteTo(b *strings.Builder) {
+	b.WriteString("Math.PI")
+}
 
 func main() {
 	input := "let area = PI * r * r"
