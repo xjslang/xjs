@@ -234,16 +234,19 @@ func main() {
 	<summary>RegisterOperand example</summary>
 
 ```go
+package main
+
 import (
 	"fmt"
 	"strings"
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/token"
 )
 
-// Represents a `PI` literal node
+// Represents PI
 type PiLiteral struct {
 	Token token.Token
 }
@@ -256,7 +259,7 @@ func (pl *PiLiteral) WriteTo(b *strings.Builder) {
 func main() {
 	input := "let area = PI * r * r"
 	l := lexer.New(input)
-	p := New(l)
+	p := parser.New(l)
 	// adds support for the PI constant!
 	p.RegisterOperand("PI", func() ast.Expression {
 		return &PiLiteral{Token: p.CurrentToken}
