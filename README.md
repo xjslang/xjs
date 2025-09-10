@@ -97,7 +97,41 @@ func main() {
 	<summary>RegisterPrefixOperator example</summary>
 
 ```go
-// ...
+import (
+	"fmt"
+	"strings"
+
+	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/token"
+)
+
+type TypeofExpression struct {
+	Token token.Token
+	Right ast.Expression
+}
+
+func (te *TypeofExpression) WriteTo(b *strings.Builder) {
+	b.WriteString("(typeof ")
+	te.Right.WriteTo(b)
+	b.WriteRune(')')
+}
+
+func Example_prefixOperator() {
+	input := "if (typeof x == 'string') { console.log('x is a string') }"
+	l := lexer.New(input)
+	p := New(l)
+	// adds support for the PI constant!
+	p.RegisterPrefixOperator("typeof", func(right func() ast.Expression) ast.Expression {
+		return &TypeofExpression{
+			Token: p.CurrentToken,
+			Right: right(),
+		}
+	})
+	ast := p.ParseProgram()
+	fmt.Println(ast.String())
+	// Output: if ((typeof (x==="string"))){console.log("x is a string")}
+}
 ```
 </details>
 

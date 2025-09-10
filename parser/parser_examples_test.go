@@ -50,6 +50,33 @@ func Example_const() {
 	// Output: const x=42
 }
 
+type TypeofExpression struct {
+	Token token.Token
+	Right ast.Expression
+}
+
+func (te *TypeofExpression) WriteTo(b *strings.Builder) {
+	b.WriteString("(typeof ")
+	te.Right.WriteTo(b)
+	b.WriteRune(')')
+}
+
+func Example_prefixOperator() {
+	input := "if (typeof x == 'string') { console.log('x is a string') }"
+	l := lexer.New(input)
+	p := New(l)
+	// adds support for the PI constant!
+	p.RegisterPrefixOperator("typeof", func(right func() ast.Expression) ast.Expression {
+		return &TypeofExpression{
+			Token: p.CurrentToken,
+			Right: right(),
+		}
+	})
+	ast := p.ParseProgram()
+	fmt.Println(ast.String())
+	// Output: if ((typeof (x==="string"))){console.log("x is a string")}
+}
+
 // Represents a `PI` literal node
 type PiLiteral struct {
 	Token token.Token
@@ -60,7 +87,7 @@ func (pl *PiLiteral) WriteTo(b *strings.Builder) {
 	b.WriteString("Math.PI")
 }
 
-func Example_pi() {
+func Example_operand() {
 	input := "let area = PI * r * r"
 	l := lexer.New(input)
 	p := New(l)
