@@ -183,21 +183,26 @@ func main() {
 	<summary>RegisterInfixOperator example</summary>
 
 ```go
+package main
+
 import (
 	"fmt"
 	"strings"
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/token"
 )
 
+// Represents Math.pow
 type PowExpression struct {
 	Token token.Token
 	Left  ast.Expression
 	Right ast.Expression
 }
 
+// Tells the parser how to write a node
 func (pe *PowExpression) WriteTo(b *strings.Builder) {
 	b.WriteString("Math.pow(")
 	pe.Left.WriteTo(b)
@@ -206,12 +211,12 @@ func (pe *PowExpression) WriteTo(b *strings.Builder) {
 	b.WriteRune(')')
 }
 
-func Example_infixOperator() {
+func main() {
 	input := "let squareArea = r^2"
 	l := lexer.New(input)
-	p := New(l)
+	p := parser.New(l)
 	// adds support for the ^ operator!
-	p.RegisterInfixOperator("^", PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
+	p.RegisterInfixOperator("^", parser.PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{
 			Token: p.CurrentToken,
 			Left:  left,
