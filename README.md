@@ -92,12 +92,15 @@ func main() {
 	<summary>UseExpressionParser example</summary>
 
 ```go
+package main
+
 import (
 	"fmt"
 	"strings"
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/token"
 )
 
@@ -111,12 +114,12 @@ func (re *RandomExpression) WriteTo(b *strings.Builder) {
 	b.WriteString("Math.random()")
 }
 
-func Example_expressionParser() {
+func main() {
 	input := "let randomValue = RANDOM + 10"
 	l := lexer.New(input)
-	p := New(l)
+	p := parser.New(l)
 	// intercepts expression parsing to handle RANDOM as a special expression!
-	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
+	p.UseExpressionParser(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "RANDOM" {
 			return p.ParseRemainingExpression(&RandomExpression{Token: p.CurrentToken})
 		}
