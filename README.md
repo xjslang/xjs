@@ -33,7 +33,55 @@ Additionally, you can concatenate different parsers, further enriching the synta
 	<summary>UseStatementParser example</summary>
 
 ```go
-// ...
+import (
+	"fmt"
+	"strings"
+
+	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/token"
+)
+
+// Represents a `const` node
+type ConstStatement struct {
+	Token token.Token
+	Name  *ast.Identifier
+	Value ast.Expression
+}
+
+// Tells the parser how to write a node
+func (ls *ConstStatement) WriteTo(b *strings.Builder) {
+	b.WriteString("const ")
+	ls.Name.WriteTo(b)
+	if ls.Value != nil {
+		b.WriteRune('=')
+		ls.Value.WriteTo(b)
+	}
+}
+
+func Example_const() {
+	input := "const x = 42"
+	l := lexer.New(input)
+	p := New(l)
+	// adds support for the `const` keyword!
+	p.UseStatementParser(func(p *Parser, next func() ast.Statement) ast.Statement {
+		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
+			stmt := &ConstStatement{Token: p.CurrentToken}
+			p.NextToken() // moves to identifier token
+			stmt.Name = &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
+			if !p.ExpectToken(token.ASSIGN) { // expects "="
+				return nil
+			}
+			p.NextToken() // moves to value expression
+			stmt.Value = p.ParseExpression()
+			return stmt
+		}
+		return next() // otherwise, next!
+	})
+	ast := p.ParseProgram()
+	fmt.Println(ast.String())
+	// Output: const x=42
+}
 ```
 </details>
 
