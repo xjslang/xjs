@@ -19,7 +19,7 @@ Rather than accumulating features over time, **XJS** starts with a carefully cur
 - **No weak equality** - The `==/!=` operators are automatically translated to `===/!==`
 - **No redundant syntactic sugar** - Focus on core functionality
 
-This approach ensures that every included feature has demonstrated genuine utility and necessity over the years.
+This approach ensures that every included feature has demonstrated genuine utility and necessity over the years. However, you can always create a plugin to implement any of the discarded features!
 
 ## Extensible Architecture
 
