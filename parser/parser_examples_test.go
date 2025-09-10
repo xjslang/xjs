@@ -43,7 +43,10 @@ func Example_statement() {
 		}
 		return next() // otherwise, next!
 	})
-	ast := p.ParseProgram()
+	ast, err := p.ParseProgram()
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println(ast.String())
 	// Output: const x=42
 }
@@ -70,7 +73,10 @@ func Example_prefixOperator() {
 			Right: right(),
 		}
 	})
-	ast := p.ParseProgram()
+	ast, err := p.ParseProgram()
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println(ast.String())
 	// Output: if ((typeof (x==="string"))){console.log("x is a string")}
 }
@@ -101,7 +107,10 @@ func Example_infixOperator() {
 			Right: right(),
 		}
 	})
-	ast := p.ParseProgram()
+	ast, err := p.ParseProgram()
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println(ast.String())
 	// Output: let squareArea=Math.pow(r,2)
 }
@@ -123,7 +132,10 @@ func Example_operand() {
 	p.RegisterOperand("PI", func() ast.Expression {
 		return &PiLiteral{Token: p.CurrentToken}
 	})
-	ast := p.ParseProgram()
+	ast, err := p.ParseProgram()
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println(ast.String())
 	// Output: let area=((Math.PI*r)*r)
 }
@@ -147,7 +159,10 @@ func Example_expressionParser() {
 		}
 		return next()
 	})
-	ast := p.ParseProgram()
+	ast, err := p.ParseProgram()
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println(ast.String())
 	// Output: let randomValue=(Math.random()+10)
 }
@@ -190,7 +205,10 @@ func Example_combined() {
 		}
 		return next()
 	})
-	ast := p.ParseProgram()
+	ast, err := p.ParseProgram()
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println(ast.String())
 	// Output: const circleArea=(Math.PI*Math.pow(r,2));if ((typeof (radius==="string"))){let randomRadius=(Math.random()*10)}
 }

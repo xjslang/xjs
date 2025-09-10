@@ -25,7 +25,11 @@ func TestParseBasicLiterals(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			l := lexer.New(tt.input)
 			p := New(l)
-			program := p.ParseProgram()
+			program, err := p.ParseProgram()
+			if err != nil {
+				t.Errorf("ParseProgram(%q) error = %v", tt.input, err)
+				return
+			}
 
 			if len(p.Errors()) != 0 {
 				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
@@ -70,7 +74,11 @@ func TestParseBinaryExpressions(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			l := lexer.New(tt.input)
 			p := New(l)
-			program := p.ParseProgram()
+			program, err := p.ParseProgram()
+			if err != nil {
+				t.Errorf("ParseProgram(%q) error = %v", tt.input, err)
+				return
+			}
 
 			if len(p.Errors()) != 0 {
 				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
@@ -107,7 +115,11 @@ func TestParseUnaryExpressions(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			l := lexer.New(tt.input)
 			p := New(l)
-			program := p.ParseProgram()
+			program, err := p.ParseProgram()
+			if err != nil {
+				t.Errorf("ParseProgram error = %v", err)
+				return
+			}
 
 			if len(p.Errors()) != 0 {
 				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
@@ -142,7 +154,11 @@ func TestParseIdentifiers(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			l := lexer.New(tt.input)
 			p := New(l)
-			program := p.ParseProgram()
+			program, err := p.ParseProgram()
+			if err != nil {
+				t.Errorf("ParseProgram error = %v", err)
+				return
+			}
 
 			if len(p.Errors()) != 0 {
 				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
@@ -176,7 +192,11 @@ func TestParseLetStatements(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			l := lexer.New(tt.input)
 			p := New(l)
-			program := p.ParseProgram()
+			program, err := p.ParseProgram()
+			if err != nil {
+				t.Errorf("ParseProgram error = %v", err)
+				return
+			}
 
 			if len(p.Errors()) != 0 {
 				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
@@ -210,7 +230,11 @@ func TestParseFunctionDeclarations(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			l := lexer.New(tt.input)
 			p := New(l)
-			program := p.ParseProgram()
+			program, err := p.ParseProgram()
+			if err != nil {
+				t.Errorf("ParseProgram error = %v", err)
+				return
+			}
 
 			if len(p.Errors()) != 0 {
 				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
@@ -245,7 +269,11 @@ func TestParseArrayLiterals(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			l := lexer.New(tt.input)
 			p := New(l)
-			program := p.ParseProgram()
+			program, err := p.ParseProgram()
+			if err != nil {
+				t.Errorf("ParseProgram error = %v", err)
+				return
+			}
 
 			if len(p.Errors()) != 0 {
 				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
@@ -280,7 +308,11 @@ func TestParseAssignmentExpressions(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			l := lexer.New(tt.input)
 			p := New(l)
-			program := p.ParseProgram()
+			program, err := p.ParseProgram()
+			if err != nil {
+				t.Errorf("ParseProgram error = %v", err)
+				return
+			}
 
 			if len(p.Errors()) != 0 {
 				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
@@ -315,7 +347,11 @@ func TestParseCallExpressions(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			l := lexer.New(tt.input)
 			p := New(l)
-			program := p.ParseProgram()
+			program, err := p.ParseProgram()
+			if err != nil {
+				t.Errorf("ParseProgram error = %v", err)
+				return
+			}
 
 			if len(p.Errors()) != 0 {
 				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
@@ -350,7 +386,11 @@ func TestParseMemberExpressions(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			l := lexer.New(tt.input)
 			p := New(l)
-			program := p.ParseProgram()
+			program, err := p.ParseProgram()
+			if err != nil {
+				t.Errorf("ParseProgram error = %v", err)
+				return
+			}
 
 			if len(p.Errors()) != 0 {
 				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
@@ -386,7 +426,11 @@ func TestUseStatementParser(t *testing.T) {
 		}
 		return next()
 	})
-	program := p.ParseProgram()
+	program, err := p.ParseProgram()
+	if err != nil {
+		t.Errorf("ParseProgram error = %v", err)
+		return
+	}
 
 	if len(p.Errors()) != 0 {
 		t.Errorf("Parse with custom parser errors = %v", p.Errors())
@@ -418,7 +462,11 @@ func TestUseExpressionHandler(t *testing.T) {
 		}
 		return next()
 	})
-	program := p.ParseProgram()
+	program, err := p.ParseProgram()
+	if err != nil {
+		t.Errorf("ParseProgram error = %v", err)
+		return
+	}
 
 	if len(p.Errors()) != 0 {
 		t.Errorf("Parse with custom expression parser errors = %v", p.Errors())
@@ -442,7 +490,11 @@ func TestParseMultipleStatements(t *testing.T) {
 
 	l := lexer.New(input)
 	p := New(l)
-	program := p.ParseProgram()
+	program, err := p.ParseProgram()
+	if err != nil {
+		t.Errorf("ParseProgram error = %v", err)
+		return
+	}
 
 	if len(p.Errors()) != 0 {
 		t.Errorf("Parse errors = %v", p.Errors())
@@ -465,7 +517,11 @@ func TestParserErrors(t *testing.T) {
 
 	l := lexer.New(input)
 	p := New(l)
-	p.ParseProgram()
+	_, err := p.ParseProgram()
+	if err != nil {
+		t.Errorf("ParseProgram error = %v", err)
+		return
+	}
 
 	if len(p.Errors()) != 0 {
 		t.Errorf("Expected no errors for valid input, got %v", p.Errors())

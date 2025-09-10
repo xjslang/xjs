@@ -55,7 +55,10 @@ func executeJavaScript(code string) (string, error) {
 func transpileXJSCode(input string) (string, error) {
 	l := lexer.New(input)
 	p := parser.New(l)
-	program := p.ParseProgram()
+	program, err := p.ParseProgram()
+	if err != nil {
+		return "", fmt.Errorf("ParseProgram error: %v", err)
+	}
 
 	errors := p.Errors()
 	if len(errors) > 0 {

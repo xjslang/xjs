@@ -32,7 +32,11 @@ func Example_general() {
 	`
 	l := lexer.New(input)
 	p := parser.New(l)
-	program := p.ParseProgram()
+	program, err := p.ParseProgram()
+	if err != nil {
+		fmt.Printf("ParseProgram error = %v\n", err)
+		return
+	}
 
 	if len(p.Errors()) > 0 {
 		fmt.Println("Parser errors:")

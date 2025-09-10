@@ -35,7 +35,10 @@ func TestMiddlewareParsers(t *testing.T) {
 			return next()
 		})
 
-		program := p.ParseProgram()
+		program, err := p.ParseProgram()
+		if err != nil {
+			t.Fatalf("ParseProgram error = %v", err)
+		}
 		if len(p.Errors()) > 0 {
 			t.Fatalf("Parser errors: %v", p.Errors())
 		}
@@ -85,7 +88,10 @@ func TestMiddlewareParsers(t *testing.T) {
 			return next()
 		})
 
-		program := p.ParseProgram()
+		program, err := p.ParseProgram()
+		if err != nil {
+			t.Fatalf("ParseProgram error = %v", err)
+		}
 		if len(p.Errors()) > 0 {
 			t.Fatalf("Parser errors: %v", p.Errors())
 		}
@@ -130,7 +136,10 @@ func TestCustomLanguageFeatures(t *testing.T) {
 			return next()
 		})
 
-		program := p.ParseProgram()
+		program, err := p.ParseProgram()
+		if err != nil {
+			t.Fatalf("ParseProgram error = %v", err)
+		}
 		if len(p.Errors()) > 0 {
 			t.Fatalf("Parser errors: %v", p.Errors())
 		}

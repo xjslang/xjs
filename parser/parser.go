@@ -127,10 +127,9 @@ func New(l *lexer.Lexer) *Parser {
 	return p
 }
 
-func (p *Parser) ParseProgram() *ast.Program {
+func (p *Parser) ParseProgram() (*ast.Program, error) {
 	program := &ast.Program{}
 	program.Statements = []ast.Statement{}
-
 	for p.CurrentToken.Type != token.EOF {
 		stmt := p.statementParseFn(p)
 		if stmt != nil {
@@ -138,8 +137,11 @@ func (p *Parser) ParseProgram() *ast.Program {
 		}
 		p.NextToken()
 	}
-
-	return program
+	if len(p.errors) > 0 {
+		return program, fmt.Errorf("parsing failed with %d errors: %s",
+			len(p.errors), p.errors[0])
+	}
+	return program, nil
 }
 
 func (p *Parser) NextToken() {
