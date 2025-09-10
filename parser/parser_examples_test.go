@@ -9,14 +9,12 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-// Represents a `const` node
 type ConstStatement struct {
 	Token token.Token
 	Name  *ast.Identifier
 	Value ast.Expression
 }
 
-// Tells the parser how to write a node
 func (ls *ConstStatement) WriteTo(b *strings.Builder) {
 	b.WriteString("const ")
 	ls.Name.WriteTo(b)
@@ -108,7 +106,6 @@ func Example_infixOperator() {
 	// Output: let squareArea=Math.pow(r,2)
 }
 
-// Represents a `PI` literal node
 type PiLiteral struct {
 	Token token.Token
 }
@@ -131,12 +128,10 @@ func Example_operand() {
 	// Output: let area=((Math.PI*r)*r)
 }
 
-// Represents a `random()` expression node
 type RandomExpression struct {
 	Token token.Token
 }
 
-// Tells the parser how to write a node
 func (re *RandomExpression) WriteTo(b *strings.Builder) {
 	b.WriteString("Math.random()")
 }

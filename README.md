@@ -275,25 +275,84 @@ func main() {
 	<summary>Concatenate multiple parsers</summary>
 
 ```go
+package main
+
 import (
 	"fmt"
 	"strings"
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/token"
 )
 
-func Example_combined() {
+type ConstStatement struct {
+	Token token.Token
+	Name  *ast.Identifier
+	Value ast.Expression
+}
+
+func (ls *ConstStatement) WriteTo(b *strings.Builder) {
+	b.WriteString("const ")
+	ls.Name.WriteTo(b)
+	if ls.Value != nil {
+		b.WriteRune('=')
+		ls.Value.WriteTo(b)
+	}
+}
+
+type TypeofExpression struct {
+	Token token.Token
+	Right ast.Expression
+}
+
+func (te *TypeofExpression) WriteTo(b *strings.Builder) {
+	b.WriteString("(typeof ")
+	te.Right.WriteTo(b)
+	b.WriteRune(')')
+}
+
+type PowExpression struct {
+	Token token.Token
+	Left  ast.Expression
+	Right ast.Expression
+}
+
+func (pe *PowExpression) WriteTo(b *strings.Builder) {
+	b.WriteString("Math.pow(")
+	pe.Left.WriteTo(b)
+	b.WriteRune(',')
+	pe.Right.WriteTo(b)
+	b.WriteRune(')')
+}
+
+type PiLiteral struct {
+	Token token.Token
+}
+
+func (pl *PiLiteral) WriteTo(b *strings.Builder) {
+	b.WriteString("Math.PI")
+}
+
+type RandomExpression struct {
+	Token token.Token
+}
+
+func (re *RandomExpression) WriteTo(b *strings.Builder) {
+	b.WriteString("Math.random()")
+}
+
+func main() {
 	input := `
 	const circleArea = PI * r^2
 	if (typeof radius == 'string') {
 		let randomRadius = RANDOM * 10
 	}`
 	l := lexer.New(input)
-	p := New(l)
+	p := parser.New(l)
 	// combines all previous examples!
-	p.UseStatementParser(func(p *Parser, next func() ast.Statement) ast.Statement {
+	p.UseStatementParser(func(p *parser.Parser, next func() ast.Statement) ast.Statement {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
 			stmt := &ConstStatement{Token: p.CurrentToken}
 			p.NextToken()
@@ -310,13 +369,13 @@ func Example_combined() {
 	p.RegisterPrefixOperator("typeof", func(right func() ast.Expression) ast.Expression {
 		return &TypeofExpression{Token: p.CurrentToken, Right: right()}
 	})
-	p.RegisterInfixOperator("^", PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
+	p.RegisterInfixOperator("^", parser.PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{Token: p.CurrentToken, Left: left, Right: right()}
 	})
 	p.RegisterOperand("PI", func() ast.Expression {
 		return &PiLiteral{Token: p.CurrentToken}
 	})
-	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
+	p.UseExpressionParser(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "RANDOM" {
 			return p.ParseRemainingExpression(&RandomExpression{Token: p.CurrentToken})
 		}
