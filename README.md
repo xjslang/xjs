@@ -89,7 +89,40 @@ func main() {
 	<summary>UseExpressionParser example</summary>
 
 ```go
-// ...
+import (
+	"fmt"
+	"strings"
+
+	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/token"
+)
+
+// Represents a `random()` expression node
+type RandomExpression struct {
+	Token token.Token
+}
+
+// Tells the parser how to write a node
+func (re *RandomExpression) WriteTo(b *strings.Builder) {
+	b.WriteString("Math.random()")
+}
+
+func Example_expressionParser() {
+	input := "let randomValue = RANDOM + 10"
+	l := lexer.New(input)
+	p := New(l)
+	// intercepts expression parsing to handle RANDOM as a special expression!
+	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
+		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "RANDOM" {
+			return p.ParseRemainingExpression(&RandomExpression{Token: p.CurrentToken})
+		}
+		return next()
+	})
+	ast := p.ParseProgram()
+	fmt.Println(ast.String())
+	// Output: let randomValue=(Math.random()+10)
+}
 ```
 </details>
 
