@@ -30,24 +30,20 @@ func Example_const() {
 	input := "const x = 42"
 	l := lexer.New(input)
 	p := New(l)
-	// Intercepts the statements and add your own syntax
+	// adds support for the `const` keyword!
 	p.UseStatementParser(func(p *Parser, next func() ast.Statement) ast.Statement {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
 			stmt := &ConstStatement{Token: p.CurrentToken}
-			// moves to identifier token
-			p.NextToken()
+			p.NextToken() // moves to identifier token
 			stmt.Name = &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
-			// expects "="
-			if !p.ExpectToken(token.ASSIGN) {
+			if !p.ExpectToken(token.ASSIGN) { // expects "="
 				return nil
 			}
-			// moves to value and parses it
-			p.NextToken()
+			p.NextToken() // moves to value expression
 			stmt.Value = p.ParseExpression()
 			return stmt
 		}
-		// otherwise, next!
-		return next()
+		return next() // otherwise, next!
 	})
 	ast := p.ParseProgram()
 	fmt.Println(ast.String())
