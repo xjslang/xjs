@@ -22,11 +22,11 @@ This approach ensures that every included feature has demonstrated genuine utili
 
 ## Extensible Architecture
 
-Todo gira en torno a los middlewares `UseStatementParser` y `UseExpressionParser`. Mediante estos dos métodos podemos personalizar la sintaxis a nuestro gusto, añadiendo nuevas características al lenguage o modificando características existentes.
+Everything revolves around the middlewares `UseStatementParser` and `UseExpressionParser`. With these two methods, you can customize the syntax as you wish, adding new features to the language or modifying existing ones.
 
-No obstante, y por conveniencia, hemos añadido los métodos `RegisterPrefixOperator`, `RegisterInfixOperator` y `RegisterOperand`, que internamente utilizan los middlewares anteriores.
+For convenience, we have also included the methods `RegisterPrefixOperator`, `RegisterInfixOperator`, and `RegisterOperand`, which internally use the middlewares mentioned above.
 
-Además, podemos concatenar diferentes parsers, enriqueciendo de esta forma la sintaxis a nuestras preferencias. Los parsers se ejecutan siguiendo el orden LIFO (Last-In, First-Out).
+Additionally, you can concatenate different parsers, further enriching the syntax to suit your preferences. Parsers are executed in LIFO order (Last-In, First-Out).
 
 <details>
 	<summary>UseStatementParser example</summary>
