@@ -1,8 +1,6 @@
 # XJS (eXtensible JavaScript parser)
 
-**XJS** is a highly customizable JavaScript parser. The idea is to keep the core minimal, excluding redundant, confusing or non-essential constructs, and allowing users to add their own features.
-
-Check out the [VISION.md](./VISION.md) to learn more.
+**XJS** is a highly customizable JavaScript parser. Our goal is to create a JavaScript compiler that includes only the essential, proven features while enabling users to extend the language through dynamic plugins.
 
 ## Excluded JavaScript Features
 
