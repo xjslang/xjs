@@ -256,7 +256,57 @@ func main() {
 	<summary>Concatenate multiple parsers</summary>
 
 ```go
-// ...
+import (
+	"fmt"
+	"strings"
+
+	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/token"
+)
+
+func Example_combined() {
+	input := `
+	const circleArea = PI * r^2
+	if (typeof radius == 'string') {
+		let randomRadius = RANDOM * 10
+	}`
+	l := lexer.New(input)
+	p := New(l)
+	// combines all previous examples!
+	p.UseStatementParser(func(p *Parser, next func() ast.Statement) ast.Statement {
+		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
+			stmt := &ConstStatement{Token: p.CurrentToken}
+			p.NextToken()
+			stmt.Name = &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
+			if !p.ExpectToken(token.ASSIGN) {
+				return nil
+			}
+			p.NextToken()
+			stmt.Value = p.ParseExpression()
+			return stmt
+		}
+		return next()
+	})
+	p.RegisterPrefixOperator("typeof", func(right func() ast.Expression) ast.Expression {
+		return &TypeofExpression{Token: p.CurrentToken, Right: right()}
+	})
+	p.RegisterInfixOperator("^", PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
+		return &PowExpression{Token: p.CurrentToken, Left: left, Right: right()}
+	})
+	p.RegisterOperand("PI", func() ast.Expression {
+		return &PiLiteral{Token: p.CurrentToken}
+	})
+	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
+		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "RANDOM" {
+			return p.ParseRemainingExpression(&RandomExpression{Token: p.CurrentToken})
+		}
+		return next()
+	})
+	ast := p.ParseProgram()
+	fmt.Println(ast.String())
+	// Output: const circleArea=(Math.PI*Math.pow(r,2));if ((typeof (radius==="string"))){let randomRadius=(Math.random()*10)}
+}
 ```
 </details>
 
