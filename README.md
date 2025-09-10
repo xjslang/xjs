@@ -2,38 +2,22 @@
 
 **XJS** is a highly customizable JavaScript parser. Our goal is to create a JavaScript compiler that includes only the essential, proven features while enabling users to extend the language through dynamic plugins.
 
-## Excluded JavaScript Features
+## Minimalism and Sufficiency
 
-The following features have been intentionally excluded from **XJS** by design. However, if you find any of these features valuable, you can create your own parser 😊
+Rather than accumulating features over time, **XJS** starts with a carefully curated set of **necessary and sufficient** language constructs. We have deliberately excluded redundant features:
 
-| Construct         | Reason        | Alternative                                               |
-| ----------------- | ------------- | --------------------------------------------------------- |
-| `===/!==`         | Confusing     | Use `==/!=` (\*)                                          |
-| `const`, `var`    | Redundant     | Use `let`                                                 |
-| `arrow functions` | Redundant     | Use `function`                                            |
-| `class`           | Non-essential | Use `function(s)`                                         |
-| `switch/case`     | Non-essential | Use `if/else`                                             |
-| `try/catch`       | Non-essential | Use [`try-parser`](https://github.com/xjslang/try-parser) |
-| `async/await`     | Non-essential | Create your own parser 😊                                 |
-| `spread operator` | Non-essential | Create your own parser 😊                                 |
+- **No classes** - Functions provide sufficient abstraction capabilities
+- **No arrow functions** - Regular function syntax is adequate
+- **No `const/var`** - A single variable declaration mechanism suffices
+- **No `try/catch`** - Alternative error handling patterns are preferred
+- **No redundant syntactic sugar** - Focus on core functionality
 
-(\*) **XJS** translates `==/!=` to `===/!==`, thus closing the eternal debate between strict and loose equality.
+This approach ensures that every included feature has demonstrated genuine utility and necessity over the years.
 
 ## Installation
 
 ```bash
-go get github.com/xjslang/xjs
-```
-
-This package uses [Mage](https://magefile.org/) as a taks manager:
-
-```bash
-# install mage if not already installed
-go install github.com/magefile/mage@latest
-
-# execute the following command from
-# the package directory to view available tasks
-mage -l
+go get github.com/xjslang/xjs@latest
 ```
 
 ## Create your own parser that extends the XJS syntax
