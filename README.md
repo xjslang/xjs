@@ -33,12 +33,15 @@ Additionally, you can concatenate different parsers, further enriching the synta
 	<summary>UseStatementParser example</summary>
 
 ```go
+package main
+
 import (
 	"fmt"
 	"strings"
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/token"
 )
 
@@ -62,9 +65,9 @@ func (ls *ConstStatement) WriteTo(b *strings.Builder) {
 func main() {
 	input := "const x = 42"
 	l := lexer.New(input)
-	p := New(l)
+	p := parser.New(l)
 	// adds support for the `const` keyword!
-	p.UseStatementParser(func(p *Parser, next func() ast.Statement) ast.Statement {
+	p.UseStatementParser(func(p *parser.Parser, next func() ast.Statement) ast.Statement {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
 			stmt := &ConstStatement{Token: p.CurrentToken}
 			p.NextToken() // moves to identifier token
