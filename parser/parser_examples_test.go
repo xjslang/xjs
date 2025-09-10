@@ -26,7 +26,7 @@ func (ls *ConstStatement) WriteTo(b *strings.Builder) {
 	}
 }
 
-func Example_const() {
+func Example_statement() {
 	input := "const x = 42"
 	l := lexer.New(input)
 	p := New(l)
@@ -65,7 +65,7 @@ func Example_prefixOperator() {
 	input := "if (typeof x == 'string') { console.log('x is a string') }"
 	l := lexer.New(input)
 	p := New(l)
-	// adds support for the PI constant!
+	// adds support for the typeof keyword!
 	p.RegisterPrefixOperator("typeof", func(right func() ast.Expression) ast.Expression {
 		return &TypeofExpression{
 			Token: p.CurrentToken,
@@ -75,6 +75,37 @@ func Example_prefixOperator() {
 	ast := p.ParseProgram()
 	fmt.Println(ast.String())
 	// Output: if ((typeof (x==="string"))){console.log("x is a string")}
+}
+
+type PowExpression struct {
+	Token token.Token
+	Left  ast.Expression
+	Right ast.Expression
+}
+
+func (pe *PowExpression) WriteTo(b *strings.Builder) {
+	b.WriteString("Math.pow(")
+	pe.Left.WriteTo(b)
+	b.WriteRune(',')
+	pe.Right.WriteTo(b)
+	b.WriteRune(')')
+}
+
+func Example_infixOperator() {
+	input := "let squareArea = r^2"
+	l := lexer.New(input)
+	p := New(l)
+	// adds support for the typeof keyword!
+	p.RegisterInfixOperator("^", PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
+		return &PowExpression{
+			Token: p.CurrentToken,
+			Left:  left,
+			Right: right(),
+		}
+	})
+	ast := p.ParseProgram()
+	fmt.Println(ast.String())
+	// Output: let squareArea=Math.pow(r,2)
 }
 
 // Represents a `PI` literal node

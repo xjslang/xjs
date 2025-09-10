@@ -139,7 +139,45 @@ func Example_prefixOperator() {
 	<summary>RegisterInfixOperator example</summary>
 
 ```go
-// ...
+import (
+	"fmt"
+	"strings"
+
+	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/token"
+)
+
+type PowExpression struct {
+	Token token.Token
+	Left  ast.Expression
+	Right ast.Expression
+}
+
+func (pe *PowExpression) WriteTo(b *strings.Builder) {
+	b.WriteString("Math.pow(")
+	pe.Left.WriteTo(b)
+	b.WriteRune(',')
+	pe.Right.WriteTo(b)
+	b.WriteRune(')')
+}
+
+func Example_infixOperator() {
+	input := "let squareArea = r^2"
+	l := lexer.New(input)
+	p := New(l)
+	// adds support for the typeof keyword!
+	p.RegisterInfixOperator("^", PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
+		return &PowExpression{
+			Token: p.CurrentToken,
+			Left:  left,
+			Right: right(),
+		}
+	})
+	ast := p.ParseProgram()
+	fmt.Println(ast.String())
+	// Output: let squareArea=Math.pow(r,2)
+}
 ```
 </details>
 
