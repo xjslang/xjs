@@ -136,30 +136,35 @@ func main() {
 	<summary>RegisterPrefixOperator example</summary>
 
 ```go
+package main
+
 import (
 	"fmt"
 	"strings"
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/token"
 )
 
+// Represents a typeof node
 type TypeofExpression struct {
 	Token token.Token
 	Right ast.Expression
 }
 
+// Tells the parser how to write a node
 func (te *TypeofExpression) WriteTo(b *strings.Builder) {
 	b.WriteString("(typeof ")
 	te.Right.WriteTo(b)
 	b.WriteRune(')')
 }
 
-func Example_prefixOperator() {
+func main() {
 	input := "if (typeof x == 'string') { console.log('x is a string') }"
 	l := lexer.New(input)
-	p := New(l)
+	p := parser.New(l)
 	// adds support for the typeof keyword!
 	p.RegisterPrefixOperator("typeof", func(right func() ast.Expression) ast.Expression {
 		return &TypeofExpression{
