@@ -10,12 +10,13 @@ go get github.com/xjslang/xjs@latest
 
 ## Minimalism and Sufficiency
 
-Rather than accumulating features over time, **XJS** starts with a carefully curated set of **necessary and sufficient** language constructs. We have deliberately excluded redundant features:
+Rather than accumulating features over time, **XJS** starts with a carefully curated set of **necessary and sufficient** language constructs. We have deliberately excluded redundant and confusing features:
 
 - **No classes** - Functions provide sufficient abstraction capabilities
 - **No arrow functions** - Regular function syntax is adequate
 - **No `const/var`** - A single variable declaration mechanism suffices
 - **No `try/catch`** - Alternative error handling patterns are preferred
+- **No weak equality** - The `==/!=` operators are automatically translated to `===/!==`
 - **No redundant syntactic sugar** - Focus on core functionality
 
 This approach ensures that every included feature has demonstrated genuine utility and necessity over the years.
