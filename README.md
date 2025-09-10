@@ -388,6 +388,8 @@ func main() {
 ```
 </details>
 
+You can also check out [other plugins](https://github.com/search?q=org%3Axjslang+-parser&type=repositories) for inspiration!
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
