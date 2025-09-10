@@ -95,7 +95,7 @@ func Example_infixOperator() {
 	input := "let squareArea = r^2"
 	l := lexer.New(input)
 	p := New(l)
-	// adds support for the typeof keyword!
+	// adds support for the ^ operator!
 	p.RegisterInfixOperator("^", PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{
 			Token: p.CurrentToken,

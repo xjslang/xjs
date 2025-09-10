@@ -121,7 +121,7 @@ func Example_prefixOperator() {
 	input := "if (typeof x == 'string') { console.log('x is a string') }"
 	l := lexer.New(input)
 	p := New(l)
-	// adds support for the PI constant!
+	// adds support for the typeof keyword!
 	p.RegisterPrefixOperator("typeof", func(right func() ast.Expression) ast.Expression {
 		return &TypeofExpression{
 			Token: p.CurrentToken,
@@ -166,7 +166,7 @@ func Example_infixOperator() {
 	input := "let squareArea = r^2"
 	l := lexer.New(input)
 	p := New(l)
-	// adds support for the typeof keyword!
+	// adds support for the ^ operator!
 	p.RegisterInfixOperator("^", PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{
 			Token: p.CurrentToken,
