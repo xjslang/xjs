@@ -66,29 +66,27 @@ Parses the entire program and returns the AST.
 
 **Returns:**
 - `*ast.Program` - Root node of the AST
-- `error` - Parse error if any
+- `error` - `ParserErrors` containing all parsing errors, or `nil` if successful
 
 **Example:**
 ```go
 program, err := p.ParseProgram()
 if err != nil {
-    log.Fatal(err)
-}
-```
-
-### `(*Parser) Errors() []ParserError`
-
-Returns all parsing errors encountered.
-
-**Returns:** Slice of `ParserError` with position and message information
-
-**Example:**
-```go
-if errors := p.Errors(); len(errors) > 0 {
-    for _, err := range errors {
-        fmt.Printf("Line %d: %s\n", err.Position.Line, err.Message)
+    if parserErrors, ok := err.(parser.ParserErrors); ok {
+        // Handle multiple parsing errors
+        for _, e := range parserErrors.Errors {
+            fmt.Printf("Line %d: %s\n", e.Position.Line, e.Message)
+        }
+        // Get JSON representation
+        jsonData, _ := parserErrors.ToJSON()
+    } else {
+        // Handle other types of errors
+        log.Fatal(err)
     }
+    return
 }
+// Parsing successful, use program
+fmt.Println(program.String())
 ```
 
 ### Extension Methods

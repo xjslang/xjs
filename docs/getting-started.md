@@ -42,15 +42,6 @@ func main() {
 		return
 	}
 	
-	// Check for parsing errors
-	if len(p.Errors()) > 0 {
-		fmt.Println("Parser errors:")
-		for _, err := range p.Errors() {
-			fmt.Printf("  %s\n", err.Message)
-		}
-		return
-	}
-	
 	// Print the parsed result
 	fmt.Println("Parsed successfully!")
 	fmt.Println("Output:", program.String())
@@ -94,7 +85,7 @@ XJS supports a curated set of JavaScript features:
 
 ## Error Handling
 
-XJS provides detailed error information:
+XJS provides detailed error information through the `ParseProgram()` return value:
 
 ```go
 // Example with syntax error
@@ -107,17 +98,22 @@ program, err := p.ParseProgram()
 if err != nil {
 	fmt.Printf("Parse error: %v\n", err)
 	// Output: Parse error: parse error at line 1, column 11: unexpected token EOF
+	
+	// For detailed error information, you can cast to ParserErrors
+	if parserErrors, ok := err.(parser.ParserErrors); ok {
+		for _, e := range parserErrors.Errors {
+			fmt.Printf("Line %d, Col %d: %s\n", 
+				e.Position.Line, 
+				e.Position.Column, 
+				e.Message)
+		}
+	}
+	return
 }
 
-// Multiple errors are collected
-if len(p.Errors()) > 0 {
-	for _, err := range p.Errors() {
-		fmt.Printf("Line %d, Col %d: %s\n", 
-			err.Position.Line, 
-			err.Position.Column, 
-			err.Message)
-	}
-}
+// If we get here, parsing was successful
+fmt.Println("Parsing successful!")
+fmt.Println("Output:", program.String())
 ```
 
 ## Next Steps

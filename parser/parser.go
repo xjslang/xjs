@@ -62,7 +62,7 @@ type Parser struct {
 	prefixParseFns    map[token.Type]func() ast.Expression
 	infixParseFns     map[token.Type]func(ast.Expression) ast.Expression
 
-	errors []ParserError
+	parseErrors []ParserError
 
 	// Context stack for tracking parsing state
 	contextStack []ContextType
@@ -73,7 +73,7 @@ type Parser struct {
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
 		lexer:             l,
-		errors:            []ParserError{},
+		parseErrors:       []ParserError{},
 		statementParseFn:  baseParseStatement,
 		expressionParseFn: baseParseExpression,
 		contextStack:      []ContextType{GlobalContext}, // Initialize with global context
@@ -137,9 +137,11 @@ func (p *Parser) ParseProgram() (*ast.Program, error) {
 		}
 		p.NextToken()
 	}
-	if len(p.errors) > 0 {
-		return program, fmt.Errorf("parsing failed with %d errors: %v",
-			len(p.errors), p.errors[0])
+	if len(p.parseErrors) > 0 {
+		return program, ParserErrors{
+			Errors: p.parseErrors,
+			Source: "", // Could be set if we track input source
+		}
 	}
 	return program, nil
 }
@@ -147,10 +149,6 @@ func (p *Parser) ParseProgram() (*ast.Program, error) {
 func (p *Parser) NextToken() {
 	p.CurrentToken = p.PeekToken
 	p.PeekToken = p.lexer.NextToken()
-}
-
-func (p *Parser) Errors() []ParserError {
-	return p.errors
 }
 
 func (p *Parser) AddError(message string) {
@@ -163,7 +161,7 @@ func (p *Parser) AddError(message string) {
 		Position: pos,
 		Code:     "SYNTAX_ERROR",
 	}
-	p.errors = append(p.errors, err)
+	p.parseErrors = append(p.parseErrors, err)
 }
 
 func (p *Parser) ExpectToken(t token.Type) bool {

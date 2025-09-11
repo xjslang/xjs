@@ -177,19 +177,23 @@ func parseWithErrorHandling(input string) {
 	
 	if err != nil {
 		fmt.Printf("Parse error: %v\n", err)
-		return
-	}
-	
-	// Check for parser errors
-	if errors := p.Errors(); len(errors) > 0 {
-		fmt.Println("Parser errors found:")
-		for _, e := range errors {
-			fmt.Printf("  Line %d, Column %d: %s\n", 
-				e.Position.Line, e.Position.Column, e.Message)
+		
+		// For detailed error information, you can cast to ParserErrors
+		if parserErrors, ok := err.(parser.ParserErrors); ok {
+			for _, e := range parserErrors.Errors {
+				fmt.Printf("  Line %d, Col %d: %s\n", 
+					e.Position.Line, e.Position.Column, e.Message)
+			}
+			
+			// You can also get JSON representation for tooling
+			if jsonData, jsonErr := parserErrors.ToJSON(); jsonErr == nil {
+				fmt.Printf("  JSON: %s\n", string(jsonData))
+			}
 		}
 		return
 	}
 	
+	// If we get here, parsing was successful
 	fmt.Println("Success:", program.String())
 }
 
@@ -201,6 +205,7 @@ func main() {
 	// Invalid input
 	parseWithErrorHandling(`let x = 5 +`)
 	// Output: Parse error: parse error at line 1, column 11: unexpected token EOF
+	//         Line 1, Col 11: unexpected token EOF
 }
 ```
 
