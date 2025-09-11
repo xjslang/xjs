@@ -8,6 +8,31 @@
 go get github.com/xjslang/xjs@latest
 ```
 
+## Quick Start
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/parser"
+)
+
+func main() {
+	input := `let r = 45; let area = r * r * Math.PI`
+	l := lexer.New(input)
+	p := parser.New(l)
+	ast, err := p.ParseProgram()
+	if err != nil {
+		panic(fmt.Sprintf("ParseProgram() error: %v\n", err))
+	}
+	fmt.Println(ast.String())
+	// Output: let r=45;let area=((r*r)*Math.PI)
+}
+```
+
 ## Minimalism and Sufficiency
 
 Rather than accumulating features over time, **XJS** starts with a carefully curated set of **necessary and sufficient** language constructs. We have deliberately excluded redundant and confusing features:
