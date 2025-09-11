@@ -41,7 +41,7 @@ func Example_general() {
 	if len(p.Errors()) > 0 {
 		fmt.Println("Parser errors:")
 		for _, err := range p.Errors() {
-			fmt.Println("\t" + err)
+			fmt.Println("\t" + err.Message)
 		}
 		return
 	}
