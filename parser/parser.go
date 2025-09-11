@@ -175,6 +175,15 @@ func (p *Parser) ExpectToken(t token.Type) bool {
 	return false
 }
 
+func (p *Parser) ExpectLiteral(literal string) bool {
+	if p.PeekToken.Literal == literal {
+		p.NextToken()
+		return true
+	}
+	p.AddError(fmt.Sprintf("output %s, got %s", literal, p.PeekToken.Type))
+	return false
+}
+
 func (p *Parser) peekPrecedence() int {
 	if p, ok := precedences[p.PeekToken.Type]; ok {
 		return p
