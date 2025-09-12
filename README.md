@@ -53,12 +53,18 @@ Rather than accumulating features over time, **XJS** starts with a carefully cur
 | Excluded | Reason | Alternative |
 |----------|--------|-------------|
 | **Classes** | Functions provide sufficient abstraction | Use functions and closures |
-| **Arrow functions** | Regular function syntax is adequate | `function() {}` |
 | **`const/var`** | Single variable declaration is sufficient | Use `let` only |
-| **`try/catch`** | Alternative error handling preferred | Return error values |
 | **Weak equality** | `==` automatically becomes `===` | Strict equality only |
+| **Arrow functions** | Non-essential | `function() {}` |
+| **`try/catch`** | Non-essential | Return error values |
+| **`import/export`** | Non-essential | Use `require()` |
+| **`async/await`** | Non-essential | Use `.then(onSuccess, onRejected)` |
+| **Template literals** | Non-essential | Use `"string " + variable` |
+| **Destructuring** | Non-essential | Use dot notation and indexing |
+| **Spread operator** | Non-essential | Use `Array.concat()` and `Object.assign()` |
+| **Rest parameters** | Non-essential | Use `arguments` keyword |
 
-> 💡 **Note**: You can always create a plugin to implement any excluded features!
+> 💡 **Note**: You can always create a plugin to implement any excluded features! For example, you might want to create a plugin to support `import/export` statements.
 
 ## 🔧 Extensible Architecture
 
