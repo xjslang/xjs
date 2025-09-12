@@ -6,15 +6,13 @@
 
 **XJS** is a highly customizable JavaScript parser written in Go. Our goal is to create a JavaScript compiler that includes only the essential, proven features while enabling users to extend the language through dynamic plugins.
 
-## ✨ Key Features
+## Key Features
 
 - **🎯 Minimalist Design**: Only essential JavaScript features, no bloat
 - **🔧 Extensible Architecture**: Add custom syntax through middlewares
 - **⚡ High Performance**: Written in Go for speed and efficiency  
-- **🛠️ Plugin System**: Easy to create and share language extensions
-- **📝 Great Documentation**: Comprehensive guides and examples
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Installation
 
@@ -34,7 +32,9 @@ import (
 )
 
 func main() {
-	input := `let r = 45; let area = r * r * Math.PI`
+	input := `
+	let r = 45
+	let area = r * r * Math.PI`
 	l := lexer.New(input)
 	p := parser.New(l)
 	ast, err := p.ParseProgram()
@@ -86,6 +86,9 @@ p.RegisterInfixOperator("^", parser.PRODUCT+1, func(left ast.Expression, right f
 
 // Input: let result = 2^3
 // Output: let result=Math.pow(2,3)
+
+// See the complete example here:
+// ./parser/parser_examples_test.go
 ```
 
 ## 📚 Documentation
