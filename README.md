@@ -103,7 +103,6 @@ Check out these community plugins:
 
 - **[Try-Parser](https://github.com/xjslang/try-parser)** - Adds `try/catch` support
 - **[JSX-Parser](https://github.com/xjslang/jsx-parser)** - JSX syntax support
-- **[Spread-Parser](https://github.com/xjslang/spread-parser)** - Spread operator support
 - **[Defer-Parser](https://github.com/xjslang/defer-parser)** - Go-style defer statements
 
 > 🔍 [Explore all plugins](https://github.com/search?q=org%3Axjslang+-parser&type=repositories)
