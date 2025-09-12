@@ -86,7 +86,6 @@ p.RegisterInfixOperator("^", parser.PRODUCT+1, func(left ast.Expression, right f
 
 // Input: let result = 2^3
 // Output: let result=Math.pow(2,3)
-
 // Complete example: ./parser/parser_examples_test.go
 ```
 
