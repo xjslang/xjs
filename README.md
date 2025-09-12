@@ -33,8 +33,9 @@ import (
 
 func main() {
 	input := `
-	let r = 45
-	let area = r * r * Math.PI`
+		let r = 45
+		let area = r * r * Math.PI
+	`
 	l := lexer.New(input)
 	p := parser.New(l)
 	ast, err := p.ParseProgram()
