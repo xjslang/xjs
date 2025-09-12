@@ -46,7 +46,7 @@ func main() {
 }
 ```
 
-## 🎯 Philosophy: Minimalism and Sufficiency
+## Philosophy: Minimalism and Sufficiency
 
 Rather than accumulating features over time, **XJS** starts with a carefully curated set of **necessary and sufficient** language constructs. We have deliberately excluded redundant and confusing features:
 
@@ -66,7 +66,7 @@ Rather than accumulating features over time, **XJS** starts with a carefully cur
 
 > 💡 **Note**: You can always create a plugin to implement any excluded features! For example, you might want to create a plugin to support `import/export` statements.
 
-## 🔧 Extensible Architecture
+## Extensible Architecture
 
 XJS provides several ways to extend the language:
 
@@ -87,8 +87,7 @@ p.RegisterInfixOperator("^", parser.PRODUCT+1, func(left ast.Expression, right f
 // Input: let result = 2^3
 // Output: let result=Math.pow(2,3)
 
-// See the complete example here:
-// ./parser/parser_examples_test.go
+// Complete example: ./parser/parser_examples_test.go
 ```
 
 ## Documentation
