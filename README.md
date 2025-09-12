@@ -91,7 +91,7 @@ p.RegisterInfixOperator("^", parser.PRODUCT+1, func(left ast.Expression, right f
 // ./parser/parser_examples_test.go
 ```
 
-## 📚 Documentation
+## Documentation
 
 - **[Getting Started Guide](docs/getting-started.md)** - Step-by-step tutorial
 - **[Extension Examples](docs/examples/)** - Complete code examples
@@ -99,7 +99,7 @@ p.RegisterInfixOperator("^", parser.PRODUCT+1, func(left ast.Expression, right f
 - **[Plugin Development](docs/plugin-development.md)** - Build your own extensions
 - **[Architecture Overview](docs/architecture.md)** - Understanding XJS internals
 
-## 🌟 Ecosystem
+## Ecosystem
 
 Check out these community plugins:
 
@@ -110,7 +110,7 @@ Check out these community plugins:
 
 > 🔍 [Explore all plugins](https://github.com/search?q=org%3Axjslang+-parser&type=repositories)
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
@@ -120,11 +120,11 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Inspired by the principles of simplicity and extensibility
 - Built with ❤️ by the XJS community
