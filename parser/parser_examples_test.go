@@ -65,9 +65,19 @@ func (te *TypeofExpression) WriteTo(b *strings.Builder) {
 func Example_prefixOperator() {
 	input := "if (typeof x == 'string') { console.log('x is a string') }"
 	l := lexer.New(input)
+	// registers typeof keyword
+	typeofType := l.RegisterTokenType("typeof")
+	l.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
+		ret := next()
+		if ret.Type == token.IDENT && ret.Literal == "typeof" {
+			ret.Type = typeofType
+		}
+		return ret
+	})
+
 	p := New(l)
 	// adds support for the typeof keyword!
-	p.RegisterPrefixOperator("typeof", func(right func() ast.Expression) ast.Expression {
+	p.RegisterPrefixOperator(typeofType, func(right func() ast.Expression) ast.Expression {
 		return &TypeofExpression{
 			Token: p.CurrentToken,
 			Right: right(),
@@ -98,9 +108,17 @@ func (pe *PowExpression) WriteTo(b *strings.Builder) {
 func Example_infixOperator() {
 	input := "let squareArea = r^2"
 	l := lexer.New(input)
+	powType := l.RegisterTokenType("pow")
+	l.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
+		if l.CurrentChar == '^' {
+			return token.Token{Type: powType, Literal: "^", Line: l.Line, Column: l.Column}
+		}
+		return next()
+	})
+
 	p := New(l)
 	// adds support for the ^ operator!
-	p.RegisterInfixOperator("^", PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
+	p.RegisterInfixOperator(powType, PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{
 			Token: p.CurrentToken,
 			Left:  left,
@@ -174,6 +192,25 @@ func Example_combined() {
 		let randomRadius = RANDOM * 10
 	}`
 	l := lexer.New(input)
+	// regists infix `^`
+	powType := l.RegisterTokenType("pow")
+	l.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
+		if l.CurrentChar == '^' {
+			l.ReadChar() // consume ^
+			return token.Token{Type: powType, Literal: "^", Line: l.Line, Column: l.Column}
+		}
+		return next()
+	})
+	// registers prefix `typeof`
+	typeofType := l.RegisterTokenType("typeof")
+	l.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
+		ret := next()
+		if ret.Type == token.IDENT && ret.Literal == "typeof" {
+			ret.Type = typeofType
+		}
+		return ret
+	})
+
 	p := New(l)
 	// combines all previous examples!
 	p.UseStatementParser(func(p *Parser, next func() ast.Statement) ast.Statement {
@@ -190,10 +227,10 @@ func Example_combined() {
 		}
 		return next()
 	})
-	p.RegisterPrefixOperator("typeof", func(right func() ast.Expression) ast.Expression {
+	p.RegisterPrefixOperator(typeofType, func(right func() ast.Expression) ast.Expression {
 		return &TypeofExpression{Token: p.CurrentToken, Right: right()}
 	})
-	p.RegisterInfixOperator("^", PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
+	p.RegisterInfixOperator(powType, PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{Token: p.CurrentToken, Left: left, Right: right()}
 	})
 	p.RegisterOperand("PI", func() ast.Expression {

@@ -1,10 +1,13 @@
 package parser
 
-import "github.com/xjslang/xjs/ast"
+import (
+	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/token"
+)
 
-func (p *Parser) RegisterPrefixOperator(literal string, createExpr func(right func() ast.Expression) ast.Expression) {
+func (p *Parser) RegisterPrefixOperator(tokenType token.Type, createExpr func(right func() ast.Expression) ast.Expression) {
 	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
-		if p.CurrentToken.Literal == literal {
+		if p.CurrentToken.Type == tokenType {
 			right := func() ast.Expression {
 				p.NextToken()
 				return p.ParseExpression()
@@ -15,9 +18,9 @@ func (p *Parser) RegisterPrefixOperator(literal string, createExpr func(right fu
 	})
 }
 
-func (p *Parser) RegisterInfixOperator(literal string, precedence int, createExpr func(left ast.Expression, right func() ast.Expression) ast.Expression) {
+func (p *Parser) RegisterInfixOperator(tokenType token.Type, precedence int, createExpr func(left ast.Expression, right func() ast.Expression) ast.Expression) {
 	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
-		if p.PeekToken.Literal != literal {
+		if p.PeekToken.Type != tokenType {
 			return next()
 		}
 		left := p.ParsePrefixExpression()
