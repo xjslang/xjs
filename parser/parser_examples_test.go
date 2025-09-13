@@ -111,6 +111,7 @@ func Example_infixOperator() {
 	powType := l.RegisterTokenType("pow")
 	l.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
 		if l.CurrentChar == '^' {
+			l.ReadChar()
 			return token.Token{Type: powType, Literal: "^", Line: l.Line, Column: l.Column}
 		}
 		return next()
