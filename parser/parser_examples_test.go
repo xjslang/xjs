@@ -145,9 +145,19 @@ func (pl *PiLiteral) WriteTo(b *strings.Builder) {
 func Example_operand() {
 	input := "let area = PI * r * r"
 	l := lexer.New(input)
+	// registers PI keyword
+	piType := l.RegisterTokenType("PI")
+	l.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
+		ret := next()
+		if ret.Type == token.IDENT && ret.Literal == "PI" {
+			ret.Type = piType
+		}
+		return ret
+	})
+
 	p := New(l)
 	// adds support for the PI constant!
-	p.RegisterOperand("PI", func() ast.Expression {
+	p.RegisterOperand(piType, func() ast.Expression {
 		return &PiLiteral{Token: p.CurrentToken}
 	})
 	ast, err := p.ParseProgram()
@@ -192,6 +202,15 @@ func Example_combined() {
 		let randomRadius = RANDOM * 10
 	}`
 	l := lexer.New(input)
+	// registers PI keyword
+	piType := l.RegisterTokenType("PI")
+	l.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
+		ret := next()
+		if ret.Type == token.IDENT && ret.Literal == "PI" {
+			ret.Type = piType
+		}
+		return ret
+	})
 	// regists infix `^`
 	powType := l.RegisterTokenType("pow")
 	l.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
@@ -233,7 +252,7 @@ func Example_combined() {
 	p.RegisterInfixOperator(powType, PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{Token: p.CurrentToken, Left: left, Right: right()}
 	})
-	p.RegisterOperand("PI", func() ast.Expression {
+	p.RegisterOperand(piType, func() ast.Expression {
 		return &PiLiteral{Token: p.CurrentToken}
 	})
 	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
