@@ -52,7 +52,7 @@ var precedences = map[token.Type]int{
 }
 
 type Parser struct {
-	lexer *lexer.Lexer
+	Lexer *lexer.Lexer
 
 	CurrentToken token.Token
 	PeekToken    token.Token
@@ -72,7 +72,7 @@ type Parser struct {
 
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
-		lexer:             l,
+		Lexer:             l,
 		errors:            []ParserError{},
 		statementParseFn:  baseParseStatement,
 		expressionParseFn: baseParseExpression,
@@ -146,7 +146,7 @@ func (p *Parser) ParseProgram() (*ast.Program, error) {
 
 func (p *Parser) NextToken() {
 	p.CurrentToken = p.PeekToken
-	p.PeekToken = p.lexer.NextToken()
+	p.PeekToken = p.Lexer.NextToken()
 }
 
 func (p *Parser) Errors() []ParserError {
