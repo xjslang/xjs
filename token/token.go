@@ -68,6 +68,9 @@ const (
 	TRUE
 	FALSE
 	NULL
+
+	// Custom tokens
+	DYNAMIC_TOKENS_START = 1000
 )
 
 type Token struct {
