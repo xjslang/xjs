@@ -88,7 +88,7 @@ func Example_prefixOperator() {
 		panic(err)
 	}
 	fmt.Println(ast.String())
-	// Output: if ((typeof (x==="string"))){console.log("x is a string")}
+	// Output: if (((typeof x)==="string")){console.log("x is a string")}
 }
 
 type PowExpression struct {
@@ -267,5 +267,5 @@ func Example_combined() {
 		panic(err)
 	}
 	fmt.Println(ast.String())
-	// Output: const circleArea=(Math.PI*Math.pow(r,2));if ((typeof (radius==="string"))){let randomRadius=(Math.random()*10)}
+	// Output: const circleArea=(Math.PI*Math.pow(r,2));if (((typeof radius)==="string")){let randomRadius=(Math.random()*10)}
 }
