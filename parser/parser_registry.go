@@ -7,14 +7,15 @@ import (
 
 func (p *Parser) RegisterPrefixOperator(tokenType token.Type, createExpr func(right func() ast.Expression) ast.Expression) {
 	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
-		if p.CurrentToken.Type == tokenType {
-			right := func() ast.Expression {
-				p.NextToken()
-				return p.ParseExpression()
-			}
-			return createExpr(right)
+		if p.CurrentToken.Type != tokenType {
+			return next()
 		}
-		return next()
+		right := func() ast.Expression {
+			p.NextToken()
+			return p.ParsePrefixExpression()
+		}
+		expr := createExpr(right)
+		return p.ParseRemainingExpression(expr)
 	})
 }
 
