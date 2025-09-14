@@ -1,5 +1,9 @@
 # XJS (eXtensible JavaScript parser)
 
+> [!WARNING]
+> This project is under active development.  
+> The API is subject to change without notice.
+
 **XJS** is a highly customizable JavaScript parser. Our goal is to create a JavaScript compiler that includes only the essential, proven features while enabling users to extend the language through dynamic plugins.
 
 ## Installation
