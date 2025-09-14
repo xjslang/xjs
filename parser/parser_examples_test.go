@@ -119,9 +119,9 @@ func Example_infixOperator() {
 
 	p := New(l)
 	// adds support for the ^ operator!
-	p.RegisterInfixOperator(powType, PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
+	p.RegisterInfixOperator(powType, PRODUCT+1, func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{
-			Token: p.CurrentToken,
+			Token: token,
 			Left:  left,
 			Right: right(),
 		}
@@ -250,8 +250,8 @@ func Example_combined() {
 	p.RegisterPrefixOperator(typeofType, func(right func() ast.Expression) ast.Expression {
 		return &TypeofExpression{Token: p.CurrentToken, Right: right()}
 	})
-	p.RegisterInfixOperator(powType, PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
-		return &PowExpression{Token: p.CurrentToken, Left: left, Right: right()}
+	p.RegisterInfixOperator(powType, PRODUCT+1, func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
+		return &PowExpression{Token: token, Left: left, Right: right()}
 	})
 	p.RegisterOperand(piType, func() ast.Expression {
 		return &PiLiteral{Token: p.CurrentToken}

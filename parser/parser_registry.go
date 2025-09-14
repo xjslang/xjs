@@ -19,7 +19,7 @@ func (p *Parser) RegisterPrefixOperator(tokenType token.Type, createExpr func(ri
 	})
 }
 
-func (p *Parser) RegisterInfixOperator(tokenType token.Type, precedence int, createExpr func(left ast.Expression, right func() ast.Expression) ast.Expression) {
+func (p *Parser) RegisterInfixOperator(tokenType token.Type, precedence int, createExpr func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression) {
 	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.PeekToken.Type != tokenType {
 			return next()
@@ -30,7 +30,7 @@ func (p *Parser) RegisterInfixOperator(tokenType token.Type, precedence int, cre
 			p.NextToken() // move to right expression
 			return p.ParseExpressionWithPrecedence(precedence)
 		}
-		expr := createExpr(left, right)
+		expr := createExpr(p.CurrentToken, left, right)
 		return p.ParseRemainingExpression(expr)
 	})
 }
