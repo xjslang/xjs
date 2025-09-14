@@ -180,7 +180,7 @@ func (tt Type) String() string {
 	case NULL:
 		return "NULL"
 	default:
-		return "UNKNOWN"
+		return fmt.Sprintf("UNKNOWN(%d)", tt)
 	}
 }
 
