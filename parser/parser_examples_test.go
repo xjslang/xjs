@@ -247,8 +247,8 @@ func Example_combined() {
 		}
 		return next()
 	})
-	p.RegisterPrefixOperator(typeofType, func(right func() ast.Expression) ast.Expression {
-		return &TypeofExpression{Token: p.CurrentToken, Right: right()}
+	p.RegisterPrefixOperator(typeofType, func(token token.Token, right func() ast.Expression) ast.Expression {
+		return &TypeofExpression{Token: token, Right: right()}
 	})
 	p.RegisterInfixOperator(powType, PRODUCT+1, func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{Token: token, Left: left, Right: right()}

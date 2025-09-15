@@ -5,7 +5,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func (p *Parser) RegisterPrefixOperator(tokenType token.Type, createExpr func(right func() ast.Expression) ast.Expression) {
+func (p *Parser) RegisterPrefixOperator(tokenType token.Type, createExpr func(token token.Token, right func() ast.Expression) ast.Expression) {
 	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Type != tokenType {
 			return next()
@@ -14,7 +14,7 @@ func (p *Parser) RegisterPrefixOperator(tokenType token.Type, createExpr func(ri
 			p.NextToken()
 			return p.ParsePrefixExpression()
 		}
-		expr := createExpr(right)
+		expr := createExpr(p.CurrentToken, right)
 		return p.ParseRemainingExpression(expr)
 	})
 }
