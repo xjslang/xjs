@@ -17,23 +17,19 @@ type Lexer struct {
 	Column       int  // current column
 
 	nextToken func(*Lexer) token.Token
-
-	// user defined tokens
-	dynamicTokens map[string]token.Type
-	nextTokenID   token.Type
 }
 
 // New creates a new lexer instance
-func New(input string) *Lexer {
+func New(input string, middlewares ...func(l *Lexer, next func() token.Token) token.Token) *Lexer {
 	l := &Lexer{
 		input:  input,
 		Line:   1,
 		Column: 0,
 
 		nextToken: baseNextToken,
-
-		dynamicTokens: make(map[string]token.Type),
-		nextTokenID:   token.DYNAMIC_TOKENS_START,
+	}
+	for _, md := range middlewares {
+		l.UseTokenReader(md)
 	}
 	l.ReadChar()
 	return l
@@ -291,15 +287,4 @@ func (l *Lexer) skipLineComment() {
 	for l.CurrentChar != '\n' && l.CurrentChar != 0 {
 		l.ReadChar()
 	}
-}
-
-func (l *Lexer) RegisterTokenType(name string) token.Type {
-	if tokenType, exists := l.dynamicTokens[name]; exists {
-		return tokenType
-	}
-
-	tokenType := l.nextTokenID
-	l.nextTokenID++
-	l.dynamicTokens[name] = tokenType
-	return tokenType
 }
