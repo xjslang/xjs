@@ -41,9 +41,6 @@ func TestMiddlewareParsers(t *testing.T) {
 		if err != nil {
 			t.Fatalf("ParseProgram error = %v", err)
 		}
-		if len(p.Errors()) > 0 {
-			t.Fatalf("Parser errors: %v", p.Errors())
-		}
 
 		// Verify the middleware was called for the numbers
 		expectedNumbers := []string{"5", "3"}
@@ -97,9 +94,6 @@ func TestMiddlewareParsers(t *testing.T) {
 		if err != nil {
 			t.Fatalf("ParseProgram error = %v", err)
 		}
-		if len(p.Errors()) > 0 {
-			t.Fatalf("Parser errors: %v", p.Errors())
-		}
 
 		// Execute the transpiled code
 		transpiledJS := transpileASTToJS(program)
@@ -146,9 +140,6 @@ func TestCustomLanguageFeatures(t *testing.T) {
 		program, err := p.ParseProgram()
 		if err != nil {
 			t.Fatalf("ParseProgram error = %v", err)
-		}
-		if len(p.Errors()) > 0 {
-			t.Fatalf("Parser errors: %v", p.Errors())
 		}
 
 		// Execute the transpiled code

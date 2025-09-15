@@ -30,22 +30,13 @@ func Example_general() {
 		let numbers = [1, 2, 3, 4, 5]
 		let person = {name: "John", age: 30}
 	`
-	l := lexer.New(input)
-	p := parser.New(l)
+	lb := lexer.NewBuilder()
+	p := parser.NewBuilder(lb).Build(input)
 	program, err := p.ParseProgram()
 	if err != nil {
 		fmt.Printf("ParseProgram error = %v\n", err)
 		return
 	}
-
-	if len(p.Errors()) > 0 {
-		fmt.Println("Parser errors:")
-		for _, err := range p.Errors() {
-			fmt.Println("\t" + err.Message)
-		}
-		return
-	}
-
 	fmt.Println(program.String())
 	// Output: let x=5;let y=10.5;let name="Hello World";let items=[];items.push(function(){console.log("new item")});function add(a,b){return (a+b)};if ((x<y)){console.log("x is less than y")};let numbers=[1,2,3,4,5];let person={age:30,name:"John"}
 }
