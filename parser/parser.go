@@ -70,12 +70,12 @@ type Parser struct {
 	currentExpressionPrecedence int
 }
 
-type ParserOptions struct {
-	StatementInterceptors  []func(p *Parser, next func() ast.Statement) ast.Statement
-	ExpressionInterceptors []func(p *Parser, next func() ast.Expression) ast.Expression
+type parserOptions struct {
+	stmtInterceptors []func(p *Parser, next func() ast.Statement) ast.Statement
+	expInterceptors  []func(p *Parser, next func() ast.Expression) ast.Expression
 }
 
-func NewWithOptions(l *lexer.Lexer, opts ParserOptions) *Parser {
+func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
 	p := &Parser{
 		Lexer:             l,
 		errors:            []ParserError{},
@@ -125,10 +125,10 @@ func NewWithOptions(l *lexer.Lexer, opts ParserOptions) *Parser {
 	p.infixParseFns[token.INCREMENT] = p.ParsePostfixExpression
 	p.infixParseFns[token.DECREMENT] = p.ParsePostfixExpression
 
-	for _, interceptor := range opts.StatementInterceptors {
+	for _, interceptor := range opts.stmtInterceptors {
 		p.useStatementInterceptor(interceptor)
 	}
-	for _, interceptor := range opts.ExpressionInterceptors {
+	for _, interceptor := range opts.expInterceptors {
 		p.useExpressionInterceptor(interceptor)
 	}
 
@@ -140,7 +140,7 @@ func NewWithOptions(l *lexer.Lexer, opts ParserOptions) *Parser {
 }
 
 func New(l *lexer.Lexer) *Parser {
-	return NewWithOptions(l, ParserOptions{})
+	return newWithOptions(l, parserOptions{})
 }
 
 func (p *Parser) ParseProgram() (*ast.Program, error) {

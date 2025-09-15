@@ -73,8 +73,8 @@ func (pb *Builder) RegisterOperand(tokenType token.Type, createExpr func(token t
 
 func (pb *Builder) Build(input string) *Parser {
 	l := pb.LexerBuilder.Build(input)
-	return NewWithOptions(l, ParserOptions{
-		StatementInterceptors:  pb.stmtInterceptors,
-		ExpressionInterceptors: pb.expInterceptors,
+	return newWithOptions(l, parserOptions{
+		stmtInterceptors: pb.stmtInterceptors,
+		expInterceptors:  pb.expInterceptors,
 	})
 }
