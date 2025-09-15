@@ -126,7 +126,7 @@ func NewWithOptions(l *lexer.Lexer, opts ParserOptions) *Parser {
 	p.infixParseFns[token.DECREMENT] = p.ParsePostfixExpression
 
 	for _, interceptor := range opts.StatementInterceptors {
-		p.UseStatementInterceptor(interceptor)
+		p.useStatementInterceptor(interceptor)
 	}
 	for _, interceptor := range opts.ExpressionInterceptors {
 		p.UseExpressionInterceptor(interceptor)

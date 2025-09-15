@@ -26,10 +26,10 @@ func (ls *ConstStatement) WriteTo(b *strings.Builder) {
 
 func Example_statement() {
 	input := "const x = 42"
-	l := lexer.New(input)
-	p := New(l)
+	lb := lexer.NewBuilder()
+	pb := NewBuilder(lb)
 	// adds support for the `const` keyword!
-	p.UseStatementInterceptor(func(p *Parser, next func() ast.Statement) ast.Statement {
+	pb.UseStatementInterceptor(func(p *Parser, next func() ast.Statement) ast.Statement {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
 			stmt := &ConstStatement{Token: p.CurrentToken}
 			p.NextToken() // moves to identifier token
@@ -43,6 +43,7 @@ func Example_statement() {
 		}
 		return next() // otherwise, next!
 	})
+	p := pb.Build(input)
 	ast, err := p.ParseProgram()
 	if err != nil {
 		panic(err)

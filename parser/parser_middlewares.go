@@ -4,7 +4,7 @@ import (
 	"github.com/xjslang/xjs/ast"
 )
 
-func (p *Parser) UseStatementInterceptor(interceptor func(p *Parser, next func() ast.Statement) ast.Statement) {
+func (p *Parser) useStatementInterceptor(interceptor func(p *Parser, next func() ast.Statement) ast.Statement) {
 	next := p.statementParseFn
 	p.statementParseFn = func(p *Parser) ast.Statement {
 		return interceptor(p, func() ast.Statement {

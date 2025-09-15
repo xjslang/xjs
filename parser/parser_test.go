@@ -412,10 +412,10 @@ func TestParseMemberExpressions(t *testing.T) {
 func TestUseStatementParser(t *testing.T) {
 	input := "custom_statement"
 
-	l := lexer.New(input)
-	p := New(l)
+	lb := lexer.NewBuilder()
+	pb := NewBuilder(lb)
 
-	p.UseStatementInterceptor(func(p *Parser, next func() ast.Statement) ast.Statement {
+	pb.UseStatementInterceptor(func(p *Parser, next func() ast.Statement) ast.Statement {
 		if p.CurrentToken.Literal == "custom_statement" {
 			return &ast.ExpressionStatement{
 				Expression: &ast.Identifier{
@@ -426,6 +426,8 @@ func TestUseStatementParser(t *testing.T) {
 		}
 		return next()
 	})
+
+	p := pb.Build(input)
 	program, err := p.ParseProgram()
 	if err != nil {
 		t.Errorf("ParseProgram error = %v", err)
