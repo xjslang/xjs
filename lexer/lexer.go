@@ -13,6 +13,7 @@ type Lexer interface {
 	CurrentChar() byte
 	PeekChar() byte
 	ReadChar()
+	NextToken() token.Token
 	// TODO: replace with newToken(type, literal)
 	Line() int
 	Column() int
