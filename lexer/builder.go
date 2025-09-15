@@ -5,25 +5,25 @@ import (
 )
 
 type Builder struct {
-	middlewares   []func(l *Lexer, next func() token.Token) token.Token
+	readers       []func(l *Lexer, next func() token.Token) token.Token
 	dynamicTokens map[string]token.Type
 	nextTokenID   token.Type
 }
 
 func NewBuilder() *Builder {
 	return &Builder{
-		middlewares:   []func(l *Lexer, next func() token.Token) token.Token{},
+		readers:       []func(l *Lexer, next func() token.Token) token.Token{},
 		dynamicTokens: make(map[string]token.Type),
 		nextTokenID:   token.DYNAMIC_TOKENS_START,
 	}
 }
 
 func (lb *Builder) Build(input string) *Lexer {
-	return newWithOptions(input, lb.middlewares...)
+	return newWithOptions(input, lb.readers...)
 }
 
-func (lb *Builder) UseTokenReader(middleware func(l *Lexer, next func() token.Token) token.Token) *Builder {
-	lb.middlewares = append(lb.middlewares, middleware)
+func (lb *Builder) UseTokenReader(reader func(l *Lexer, next func() token.Token) token.Token) *Builder {
+	lb.readers = append(lb.readers, reader)
 	return lb
 }
 

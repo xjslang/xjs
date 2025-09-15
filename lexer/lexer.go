@@ -20,7 +20,7 @@ type Lexer struct {
 }
 
 // New creates a new lexer instance
-func newWithOptions(input string, middlewares ...func(l *Lexer, next func() token.Token) token.Token) *Lexer {
+func newWithOptions(input string, readers ...func(l *Lexer, next func() token.Token) token.Token) *Lexer {
 	l := &Lexer{
 		input:  input,
 		Line:   1,
@@ -28,8 +28,8 @@ func newWithOptions(input string, middlewares ...func(l *Lexer, next func() toke
 
 		nextToken: baseNextToken,
 	}
-	for _, md := range middlewares {
-		l.UseTokenReader(md)
+	for _, reader := range readers {
+		l.useTokenReader(reader)
 	}
 	l.ReadChar()
 	return l
