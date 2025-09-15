@@ -35,12 +35,8 @@ func (p *Parser) RegisterInfixOperator(tokenType token.Type, precedence int, cre
 	})
 }
 
-func (p *Parser) RegisterOperand(tokenType token.Type, createExpr func() ast.Expression) {
-	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
-		if p.CurrentToken.Type != tokenType {
-			return next()
-		}
-		expr := createExpr()
-		return p.ParseRemainingExpression(expr)
+func (p *Parser) RegisterOperand(tokenType token.Type, createExpr func(token token.Token) ast.Expression) {
+	p.RegisterPrefixOperator(tokenType, func(token token.Token, right func() ast.Expression) ast.Expression {
+		return createExpr(token)
 	})
 }

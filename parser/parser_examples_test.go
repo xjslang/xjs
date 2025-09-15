@@ -158,8 +158,8 @@ func Example_operand() {
 
 	p := NewBuilder(lb).Build(input)
 	// adds support for the PI constant!
-	p.RegisterOperand(piType, func() ast.Expression {
-		return &PiLiteral{Token: p.CurrentToken}
+	p.RegisterOperand(piType, func(token token.Token) ast.Expression {
+		return &PiLiteral{Token: token}
 	})
 	ast, err := p.ParseProgram()
 	if err != nil {
@@ -253,8 +253,8 @@ func Example_combined() {
 	p.RegisterInfixOperator(powType, PRODUCT+1, func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{Token: token, Left: left, Right: right()}
 	})
-	p.RegisterOperand(piType, func() ast.Expression {
-		return &PiLiteral{Token: p.CurrentToken}
+	p.RegisterOperand(piType, func(token token.Token) ast.Expression {
+		return &PiLiteral{Token: token}
 	})
 	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "RANDOM" {
