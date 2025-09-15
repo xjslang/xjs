@@ -51,7 +51,7 @@ func (pb *Builder) RegisterPrefixOperator(tokenType token.Type, createExpr func(
 
 func (pb *Builder) RegisterInfixOperator(tokenType token.Type, precedence int, createExpr func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression) {
 	pb.UseExpressionInterceptor(func(p *XJSParser, next func() ast.Expression) ast.Expression {
-		if p.PeekToken.Type != tokenType {
+		if p.peekToken.Type != tokenType {
 			return next()
 		}
 		left := p.ParsePrefixExpression()

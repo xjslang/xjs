@@ -546,8 +546,8 @@ func TestNextToken(t *testing.T) {
 		t.Errorf("Expected current token 'let', got %q", p.currentToken.Literal)
 	}
 
-	if p.PeekToken.Literal != "x" {
-		t.Errorf("Expected peek token 'x', got %q", p.PeekToken.Literal)
+	if p.peekToken.Literal != "x" {
+		t.Errorf("Expected peek token 'x', got %q", p.peekToken.Literal)
 	}
 
 	p.NextToken()

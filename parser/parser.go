@@ -53,13 +53,14 @@ var precedences = map[token.Type]int{
 
 type Parser interface {
 	CurrentToken() token.Token
+	PeekToken() token.Token
 }
 
 type XJSParser struct {
 	Lexer *lexer.XJSLexer
 
 	currentToken token.Token
-	PeekToken    token.Token
+	peekToken    token.Token
 
 	statementParseFn  func(*XJSParser) ast.Statement
 	expressionParseFn func(*XJSParser, int) ast.Expression
@@ -105,8 +106,8 @@ func (p *XJSParser) CurrentToken() token.Token {
 }
 
 func (p *XJSParser) NextToken() {
-	p.currentToken = p.PeekToken
-	p.PeekToken = p.Lexer.NextToken()
+	p.currentToken = p.peekToken
+	p.peekToken = p.Lexer.NextToken()
 }
 
 func (p *XJSParser) Errors() []ParserError {
@@ -127,25 +128,25 @@ func (p *XJSParser) AddError(message string) {
 }
 
 func (p *XJSParser) ExpectToken(t token.Type) bool {
-	if p.PeekToken.Type == t {
+	if p.peekToken.Type == t {
 		p.NextToken()
 		return true
 	}
-	p.AddError(fmt.Sprintf("output %s, got %s", t, p.PeekToken.Type))
+	p.AddError(fmt.Sprintf("output %s, got %s", t, p.peekToken.Type))
 	return false
 }
 
 func (p *XJSParser) ExpectLiteral(literal string) bool {
-	if p.PeekToken.Literal == literal {
+	if p.peekToken.Literal == literal {
 		p.NextToken()
 		return true
 	}
-	p.AddError(fmt.Sprintf("output %s, got %s", literal, p.PeekToken.Type))
+	p.AddError(fmt.Sprintf("output %s, got %s", literal, p.peekToken.Type))
 	return false
 }
 
 func (p *XJSParser) peekPrecedence() int {
-	if p, ok := precedences[p.PeekToken.Type]; ok {
+	if p, ok := precedences[p.peekToken.Type]; ok {
 		return p
 	}
 	return LOWEST
