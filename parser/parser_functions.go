@@ -8,7 +8,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func (p *Parser) ParseLetStatement() *ast.LetStatement {
+func (p *XJSParser) ParseLetStatement() *ast.LetStatement {
 	stmt := &ast.LetStatement{Token: p.CurrentToken}
 	if !p.ExpectToken(token.IDENT) {
 		return nil
@@ -25,7 +25,7 @@ func (p *Parser) ParseLetStatement() *ast.LetStatement {
 	return stmt
 }
 
-func (p *Parser) ParseFunctionStatement() *ast.FunctionDeclaration {
+func (p *XJSParser) ParseFunctionStatement() *ast.FunctionDeclaration {
 	stmt := &ast.FunctionDeclaration{Token: p.CurrentToken}
 	if !p.ExpectToken(token.IDENT) {
 		return nil
@@ -44,7 +44,7 @@ func (p *Parser) ParseFunctionStatement() *ast.FunctionDeclaration {
 	return stmt
 }
 
-func (p *Parser) ParseFunctionParameters() []*ast.Identifier {
+func (p *XJSParser) ParseFunctionParameters() []*ast.Identifier {
 	identifiers := []*ast.Identifier{}
 	if p.PeekToken.Type == token.RPAREN {
 		p.NextToken()
@@ -65,7 +65,7 @@ func (p *Parser) ParseFunctionParameters() []*ast.Identifier {
 	return identifiers
 }
 
-func (p *Parser) ParseReturnStatement() *ast.ReturnStatement {
+func (p *XJSParser) ParseReturnStatement() *ast.ReturnStatement {
 	stmt := &ast.ReturnStatement{Token: p.CurrentToken}
 	if p.PeekToken.Type != token.SEMICOLON && p.PeekToken.Type != token.EOF {
 		p.NextToken()
@@ -77,7 +77,7 @@ func (p *Parser) ParseReturnStatement() *ast.ReturnStatement {
 	return stmt
 }
 
-func (p *Parser) ParseIfStatement() *ast.IfStatement {
+func (p *XJSParser) ParseIfStatement() *ast.IfStatement {
 	stmt := &ast.IfStatement{Token: p.CurrentToken}
 	if !p.ExpectToken(token.LPAREN) {
 		return nil
@@ -97,7 +97,7 @@ func (p *Parser) ParseIfStatement() *ast.IfStatement {
 	return stmt
 }
 
-func (p *Parser) ParseWhileStatement() *ast.WhileStatement {
+func (p *XJSParser) ParseWhileStatement() *ast.WhileStatement {
 	stmt := &ast.WhileStatement{Token: p.CurrentToken}
 	if !p.ExpectToken(token.LPAREN) {
 		return nil
@@ -112,7 +112,7 @@ func (p *Parser) ParseWhileStatement() *ast.WhileStatement {
 	return stmt
 }
 
-func (p *Parser) ParseForStatement() *ast.ForStatement {
+func (p *XJSParser) ParseForStatement() *ast.ForStatement {
 	stmt := &ast.ForStatement{Token: p.CurrentToken}
 	if !p.ExpectToken(token.LPAREN) {
 		return nil
@@ -142,7 +142,7 @@ func (p *Parser) ParseForStatement() *ast.ForStatement {
 	return stmt
 }
 
-func (p *Parser) ParseBlockStatement() *ast.BlockStatement {
+func (p *XJSParser) ParseBlockStatement() *ast.BlockStatement {
 	block := &ast.BlockStatement{Token: p.CurrentToken}
 	block.Statements = []ast.Statement{}
 	p.PushContext(BlockContext)
@@ -158,11 +158,11 @@ func (p *Parser) ParseBlockStatement() *ast.BlockStatement {
 	return block
 }
 
-func (p *Parser) ParseStatement() ast.Statement {
+func (p *XJSParser) ParseStatement() ast.Statement {
 	return p.statementParseFn(p)
 }
 
-func (p *Parser) ParseExpressionStatement() *ast.ExpressionStatement {
+func (p *XJSParser) ParseExpressionStatement() *ast.ExpressionStatement {
 	stmt := &ast.ExpressionStatement{Token: p.CurrentToken}
 	stmt.Expression = p.ParseExpression()
 	if p.PeekToken.Type == token.SEMICOLON {
@@ -171,7 +171,7 @@ func (p *Parser) ParseExpressionStatement() *ast.ExpressionStatement {
 	return stmt
 }
 
-func (p *Parser) ParsePrefixExpression() ast.Expression {
+func (p *XJSParser) ParsePrefixExpression() ast.Expression {
 	prefix := p.prefixParseFns[p.CurrentToken.Type]
 	if prefix == nil {
 		p.AddError(fmt.Sprintf("no prefix parse function for %s found", p.CurrentToken.Type))
@@ -180,7 +180,7 @@ func (p *Parser) ParsePrefixExpression() ast.Expression {
 	return prefix()
 }
 
-func (p *Parser) ParseInfixExpression(left ast.Expression) ast.Expression {
+func (p *XJSParser) ParseInfixExpression(left ast.Expression) ast.Expression {
 	infix := p.infixParseFns[p.PeekToken.Type]
 	if infix == nil {
 		return left
@@ -189,30 +189,30 @@ func (p *Parser) ParseInfixExpression(left ast.Expression) ast.Expression {
 	return infix(left)
 }
 
-func (p *Parser) ParseExpression() ast.Expression {
+func (p *XJSParser) ParseExpression() ast.Expression {
 	return p.expressionParseFn(p, LOWEST)
 }
 
-func (p *Parser) ParseExpressionWithPrecedence(precedence int) ast.Expression {
+func (p *XJSParser) ParseExpressionWithPrecedence(precedence int) ast.Expression {
 	return p.expressionParseFn(p, precedence)
 }
 
-func (p *Parser) ParseRemainingExpressionWithPrecedence(left ast.Expression, precedence int) ast.Expression {
+func (p *XJSParser) ParseRemainingExpressionWithPrecedence(left ast.Expression, precedence int) ast.Expression {
 	for p.PeekToken.Type != token.SEMICOLON && precedence < p.peekPrecedence() {
 		left = p.ParseInfixExpression(left)
 	}
 	return left
 }
 
-func (p *Parser) ParseRemainingExpression(left ast.Expression) ast.Expression {
+func (p *XJSParser) ParseRemainingExpression(left ast.Expression) ast.Expression {
 	return p.ParseRemainingExpressionWithPrecedence(left, p.currentExpressionPrecedence)
 }
 
-func (p *Parser) ParseIdentifier() ast.Expression {
+func (p *XJSParser) ParseIdentifier() ast.Expression {
 	return &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
 }
 
-func (p *Parser) ParseIntegerLiteral() ast.Expression {
+func (p *XJSParser) ParseIntegerLiteral() ast.Expression {
 	lit := &ast.IntegerLiteral{Token: p.CurrentToken}
 	_, err := strconv.ParseInt(p.CurrentToken.Literal, 0, 64)
 	if err != nil {
@@ -222,7 +222,7 @@ func (p *Parser) ParseIntegerLiteral() ast.Expression {
 	return lit
 }
 
-func (p *Parser) ParseFloatLiteral() ast.Expression {
+func (p *XJSParser) ParseFloatLiteral() ast.Expression {
 	lit := &ast.FloatLiteral{Token: p.CurrentToken}
 	_, err := strconv.ParseFloat(p.CurrentToken.Literal, 64)
 	if err != nil {
@@ -232,23 +232,23 @@ func (p *Parser) ParseFloatLiteral() ast.Expression {
 	return lit
 }
 
-func (p *Parser) ParseStringLiteral() ast.Expression {
+func (p *XJSParser) ParseStringLiteral() ast.Expression {
 	return &ast.StringLiteral{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
 }
 
-func (p *Parser) ParseMultiStringLiteral() ast.Expression {
+func (p *XJSParser) ParseMultiStringLiteral() ast.Expression {
 	return &ast.MultiStringLiteral{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
 }
 
-func (p *Parser) ParseBooleanLiteral() ast.Expression {
+func (p *XJSParser) ParseBooleanLiteral() ast.Expression {
 	return &ast.BooleanLiteral{Token: p.CurrentToken, Value: p.CurrentToken.Type == token.TRUE}
 }
 
-func (p *Parser) ParseNullLiteral() ast.Expression {
+func (p *XJSParser) ParseNullLiteral() ast.Expression {
 	return &ast.NullLiteral{Token: p.CurrentToken}
 }
 
-func (p *Parser) ParseUnaryExpression() ast.Expression {
+func (p *XJSParser) ParseUnaryExpression() ast.Expression {
 	expression := &ast.UnaryExpression{
 		Token:    p.CurrentToken,
 		Operator: p.CurrentToken.Literal,
@@ -258,7 +258,7 @@ func (p *Parser) ParseUnaryExpression() ast.Expression {
 	return expression
 }
 
-func (p *Parser) ParsePostfixExpression(left ast.Expression) ast.Expression {
+func (p *XJSParser) ParsePostfixExpression(left ast.Expression) ast.Expression {
 	expression := &ast.PostfixExpression{
 		Token:    p.CurrentToken,
 		Left:     left,
@@ -267,7 +267,7 @@ func (p *Parser) ParsePostfixExpression(left ast.Expression) ast.Expression {
 	return expression
 }
 
-func (p *Parser) ParseGroupedExpression() ast.Expression {
+func (p *XJSParser) ParseGroupedExpression() ast.Expression {
 	p.NextToken()
 	exp := p.ParseExpression()
 	if !p.ExpectToken(token.RPAREN) {
@@ -276,13 +276,13 @@ func (p *Parser) ParseGroupedExpression() ast.Expression {
 	return exp
 }
 
-func (p *Parser) ParseArrayLiteral() ast.Expression {
+func (p *XJSParser) ParseArrayLiteral() ast.Expression {
 	array := &ast.ArrayLiteral{Token: p.CurrentToken}
 	array.Elements = p.ParseExpressionList(token.RBRACKET)
 	return array
 }
 
-func (p *Parser) ParseObjectLiteral() ast.Expression {
+func (p *XJSParser) ParseObjectLiteral() ast.Expression {
 	obj := &ast.ObjectLiteral{Token: p.CurrentToken}
 	obj.Properties = make(map[ast.Expression]ast.Expression)
 	if p.PeekToken.Type == token.RBRACE {
@@ -310,7 +310,7 @@ func (p *Parser) ParseObjectLiteral() ast.Expression {
 	return obj
 }
 
-func (p *Parser) ParseFunctionExpression() ast.Expression {
+func (p *XJSParser) ParseFunctionExpression() ast.Expression {
 	fe := &ast.FunctionExpression{Token: p.CurrentToken}
 	if !p.ExpectToken(token.LPAREN) {
 		return nil
@@ -325,7 +325,7 @@ func (p *Parser) ParseFunctionExpression() ast.Expression {
 	return fe
 }
 
-func (p *Parser) ParseBinaryExpression(left ast.Expression) ast.Expression {
+func (p *XJSParser) ParseBinaryExpression(left ast.Expression) ast.Expression {
 	expression := &ast.BinaryExpression{
 		Token:    p.CurrentToken,
 		Left:     left,
@@ -337,7 +337,7 @@ func (p *Parser) ParseBinaryExpression(left ast.Expression) ast.Expression {
 	return expression
 }
 
-func (p *Parser) ParseAssignmentExpression(left ast.Expression) ast.Expression {
+func (p *XJSParser) ParseAssignmentExpression(left ast.Expression) ast.Expression {
 	expression := &ast.AssignmentExpression{
 		Token: p.CurrentToken,
 		Left:  left,
@@ -347,7 +347,7 @@ func (p *Parser) ParseAssignmentExpression(left ast.Expression) ast.Expression {
 	return expression
 }
 
-func (p *Parser) ParseCompoundAssignmentExpression(left ast.Expression) ast.Expression {
+func (p *XJSParser) ParseCompoundAssignmentExpression(left ast.Expression) ast.Expression {
 	expression := &ast.CompoundAssignmentExpression{
 		Token: p.CurrentToken,
 		Left:  left,
@@ -363,13 +363,13 @@ func (p *Parser) ParseCompoundAssignmentExpression(left ast.Expression) ast.Expr
 	return expression
 }
 
-func (p *Parser) ParseCallExpression(fn ast.Expression) ast.Expression {
+func (p *XJSParser) ParseCallExpression(fn ast.Expression) ast.Expression {
 	exp := &ast.CallExpression{Token: p.CurrentToken, Function: fn}
 	exp.Arguments = p.ParseExpressionList(token.RPAREN)
 	return exp
 }
 
-func (p *Parser) ParseMemberExpression(left ast.Expression) ast.Expression {
+func (p *XJSParser) ParseMemberExpression(left ast.Expression) ast.Expression {
 	exp := &ast.MemberExpression{
 		Token:    p.CurrentToken,
 		Object:   left,
@@ -380,7 +380,7 @@ func (p *Parser) ParseMemberExpression(left ast.Expression) ast.Expression {
 	return exp
 }
 
-func (p *Parser) ParseComputedMemberExpression(left ast.Expression) ast.Expression {
+func (p *XJSParser) ParseComputedMemberExpression(left ast.Expression) ast.Expression {
 	exp := &ast.MemberExpression{
 		Token:    p.CurrentToken,
 		Object:   left,
@@ -394,7 +394,7 @@ func (p *Parser) ParseComputedMemberExpression(left ast.Expression) ast.Expressi
 	return exp
 }
 
-func (p *Parser) ParseExpressionList(end token.Type) []ast.Expression {
+func (p *XJSParser) ParseExpressionList(end token.Type) []ast.Expression {
 	args := []ast.Expression{}
 	if p.PeekToken.Type == end {
 		p.NextToken()

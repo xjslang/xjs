@@ -415,7 +415,7 @@ func TestUseStatementParser(t *testing.T) {
 	lb := lexer.NewBuilder()
 	pb := NewBuilder(lb)
 
-	pb.UseStatementInterceptor(func(p *Parser, next func() ast.Statement) ast.Statement {
+	pb.UseStatementInterceptor(func(p *XJSParser, next func() ast.Statement) ast.Statement {
 		if p.CurrentToken.Literal == "custom_statement" {
 			return &ast.ExpressionStatement{
 				Expression: &ast.Identifier{
@@ -454,7 +454,7 @@ func TestUseExpressionHandler(t *testing.T) {
 	lb := lexer.NewBuilder()
 	pb := NewBuilder(lb)
 
-	pb.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
+	pb.UseExpressionInterceptor(func(p *XJSParser, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Literal == "special_expr" {
 			return p.ParseRemainingExpression(&ast.Identifier{
 				Token: p.CurrentToken,
