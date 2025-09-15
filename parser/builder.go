@@ -37,14 +37,14 @@ func (pb *Builder) UseExpressionInterceptor(interceptor func(p *XJSParser, next 
 
 func (pb *Builder) RegisterPrefixOperator(tokenType token.Type, createExpr func(token token.Token, right func() ast.Expression) ast.Expression) {
 	pb.UseExpressionInterceptor(func(p *XJSParser, next func() ast.Expression) ast.Expression {
-		if p.CurrentToken.Type != tokenType {
+		if p.currentToken.Type != tokenType {
 			return next()
 		}
 		right := func() ast.Expression {
 			p.NextToken()
 			return p.ParsePrefixExpression()
 		}
-		expr := createExpr(p.CurrentToken, right)
+		expr := createExpr(p.currentToken, right)
 		return p.ParseRemainingExpression(expr)
 	})
 }
@@ -60,7 +60,7 @@ func (pb *Builder) RegisterInfixOperator(tokenType token.Type, precedence int, c
 			p.NextToken() // move to right expression
 			return p.ParseExpressionWithPrecedence(precedence)
 		}
-		expr := createExpr(p.CurrentToken, left, right)
+		expr := createExpr(p.currentToken, left, right)
 		return p.ParseRemainingExpression(expr)
 	})
 }

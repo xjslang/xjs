@@ -51,10 +51,14 @@ var precedences = map[token.Type]int{
 	token.LBRACKET:     MEMBER,
 }
 
+type Parser interface {
+	CurrentToken() token.Token
+}
+
 type XJSParser struct {
 	Lexer *lexer.XJSLexer
 
-	CurrentToken token.Token
+	currentToken token.Token
 	PeekToken    token.Token
 
 	statementParseFn  func(*XJSParser) ast.Statement
@@ -82,7 +86,7 @@ func New(l *lexer.XJSLexer) *XJSParser {
 func (p *XJSParser) ParseProgram() (*ast.Program, error) {
 	program := &ast.Program{}
 	program.Statements = []ast.Statement{}
-	for p.CurrentToken.Type != token.EOF {
+	for p.currentToken.Type != token.EOF {
 		stmt := p.statementParseFn(p)
 		if stmt != nil {
 			program.Statements = append(program.Statements, stmt)
@@ -96,8 +100,12 @@ func (p *XJSParser) ParseProgram() (*ast.Program, error) {
 	return program, nil
 }
 
+func (p *XJSParser) CurrentToken() token.Token {
+	return p.currentToken
+}
+
 func (p *XJSParser) NextToken() {
-	p.CurrentToken = p.PeekToken
+	p.currentToken = p.PeekToken
 	p.PeekToken = p.Lexer.NextToken()
 }
 
@@ -107,8 +115,8 @@ func (p *XJSParser) Errors() []ParserError {
 
 func (p *XJSParser) AddError(message string) {
 	pos := Position{
-		Line:   p.CurrentToken.Line,
-		Column: p.CurrentToken.Column,
+		Line:   p.currentToken.Line,
+		Column: p.currentToken.Column,
 	}
 	err := ParserError{
 		Message:  message,
@@ -144,7 +152,7 @@ func (p *XJSParser) peekPrecedence() int {
 }
 
 func (p *XJSParser) currentPrecedence() int {
-	if p, ok := precedences[p.CurrentToken.Type]; ok {
+	if p, ok := precedences[p.currentToken.Type]; ok {
 		return p
 	}
 	return LOWEST
@@ -207,7 +215,7 @@ func newWithOptions(l *lexer.XJSLexer, opts parserOptions) *XJSParser {
 		p.useExpressionInterceptor(interceptor)
 	}
 
-	// Read two tokens, so CurrentToken and PeekToken are both set
+	// Read two tokens, so currentToken and PeekToken are both set
 	p.NextToken()
 	p.NextToken()
 

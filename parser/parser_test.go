@@ -416,10 +416,10 @@ func TestUseStatementParser(t *testing.T) {
 	pb := NewBuilder(lb)
 
 	pb.UseStatementInterceptor(func(p *XJSParser, next func() ast.Statement) ast.Statement {
-		if p.CurrentToken.Literal == "custom_statement" {
+		if p.currentToken.Literal == "custom_statement" {
 			return &ast.ExpressionStatement{
 				Expression: &ast.Identifier{
-					Token: p.CurrentToken,
+					Token: p.currentToken,
 					Value: "handled_statement",
 				},
 			}
@@ -455,9 +455,9 @@ func TestUseExpressionHandler(t *testing.T) {
 	pb := NewBuilder(lb)
 
 	pb.UseExpressionInterceptor(func(p *XJSParser, next func() ast.Expression) ast.Expression {
-		if p.CurrentToken.Literal == "special_expr" {
+		if p.currentToken.Literal == "special_expr" {
 			return p.ParseRemainingExpression(&ast.Identifier{
-				Token: p.CurrentToken,
+				Token: p.currentToken,
 				Value: "handled_expression",
 			})
 		}
@@ -542,8 +542,8 @@ func TestNextToken(t *testing.T) {
 	l := lexer.New(input)
 	p := New(l)
 
-	if p.CurrentToken.Literal != "let" {
-		t.Errorf("Expected current token 'let', got %q", p.CurrentToken.Literal)
+	if p.currentToken.Literal != "let" {
+		t.Errorf("Expected current token 'let', got %q", p.currentToken.Literal)
 	}
 
 	if p.PeekToken.Literal != "x" {
@@ -552,7 +552,7 @@ func TestNextToken(t *testing.T) {
 
 	p.NextToken()
 
-	if p.CurrentToken.Literal != "x" {
-		t.Errorf("After NextToken, expected current token 'x', got %q", p.CurrentToken.Literal)
+	if p.currentToken.Literal != "x" {
+		t.Errorf("After NextToken, expected current token 'x', got %q", p.currentToken.Literal)
 	}
 }

@@ -6,7 +6,7 @@ import (
 )
 
 func baseParseStatement(p *XJSParser) ast.Statement {
-	switch p.CurrentToken.Type {
+	switch p.currentToken.Type {
 	case token.LET:
 		return p.ParseLetStatement()
 	case token.FUNCTION:
