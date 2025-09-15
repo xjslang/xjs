@@ -70,7 +70,12 @@ type Parser struct {
 	currentExpressionPrecedence int
 }
 
-func New(l *lexer.Lexer) *Parser {
+type ParserOptions struct {
+	StatementMiddlewares  []func(p *Parser, next func() ast.Statement) ast.Statement
+	ExpressionMiddlewares []func(p *Parser, next func() ast.Expression) ast.Expression
+}
+
+func NewWithOptions(l *lexer.Lexer, opts ParserOptions) *Parser {
 	p := &Parser{
 		Lexer:             l,
 		errors:            []ParserError{},
@@ -120,11 +125,22 @@ func New(l *lexer.Lexer) *Parser {
 	p.infixParseFns[token.INCREMENT] = p.ParsePostfixExpression
 	p.infixParseFns[token.DECREMENT] = p.ParsePostfixExpression
 
+	for _, md := range opts.StatementMiddlewares {
+		p.UseStatementParser(md)
+	}
+	for _, md := range opts.ExpressionMiddlewares {
+		p.UseExpressionParser(md)
+	}
+
 	// Read two tokens, so CurrentToken and PeekToken are both set
 	p.NextToken()
 	p.NextToken()
 
 	return p
+}
+
+func New(l *lexer.Lexer) *Parser {
+	return NewWithOptions(l, ParserOptions{})
 }
 
 func (p *Parser) ParseProgram() (*ast.Program, error) {

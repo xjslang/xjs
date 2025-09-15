@@ -64,25 +64,25 @@ func (te *TypeofExpression) WriteTo(b *strings.Builder) {
 
 func Example_prefixOperator() {
 	input := "if (typeof x == 'string') { console.log('x is a string') }"
-	l := lexer.New(input)
+	lb := lexer.NewBuilder()
 	// registers typeof keyword
-	typeofType := l.RegisterTokenType("typeof")
-	l.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
+	typeofType := lb.RegisterTokenType("typeof")
+	lb.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
 		ret := next()
 		if ret.Type == token.IDENT && ret.Literal == "typeof" {
 			ret.Type = typeofType
 		}
 		return ret
 	})
-
-	p := New(l)
 	// adds support for the typeof keyword!
-	p.RegisterPrefixOperator(typeofType, func(right func() ast.Expression) ast.Expression {
+	pb := NewBuilder(lb)
+	pb.RegisterPrefixOperator(typeofType, func(right func() ast.Expression) ast.Expression {
 		return &TypeofExpression{
-			Token: p.CurrentToken,
+			Token: token.Token{},
 			Right: right(),
 		}
 	})
+	p := pb.Build(input)
 	ast, err := p.ParseProgram()
 	if err != nil {
 		panic(err)
@@ -107,9 +107,9 @@ func (pe *PowExpression) WriteTo(b *strings.Builder) {
 
 func Example_infixOperator() {
 	input := "let squareArea = r^2"
-	l := lexer.New(input)
-	powType := l.RegisterTokenType("pow")
-	l.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
+	lb := lexer.NewBuilder()
+	powType := lb.RegisterTokenType("pow")
+	lb.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
 		if l.CurrentChar == '^' {
 			l.ReadChar()
 			return token.Token{Type: powType, Literal: "^", Line: l.Line, Column: l.Column}
@@ -117,7 +117,7 @@ func Example_infixOperator() {
 		return next()
 	})
 
-	p := New(l)
+	p := NewBuilder(lb).Build(input)
 	// adds support for the ^ operator!
 	p.RegisterInfixOperator(powType, PRODUCT+1, func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{
@@ -145,10 +145,10 @@ func (pl *PiLiteral) WriteTo(b *strings.Builder) {
 
 func Example_operand() {
 	input := "let area = PI * r * r"
-	l := lexer.New(input)
+	lb := lexer.NewBuilder()
 	// registers PI keyword
-	piType := l.RegisterTokenType("PI")
-	l.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
+	piType := lb.RegisterTokenType("PI")
+	lb.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
 		ret := next()
 		if ret.Type == token.IDENT && ret.Literal == "PI" {
 			ret.Type = piType
@@ -156,7 +156,7 @@ func Example_operand() {
 		return ret
 	})
 
-	p := New(l)
+	p := NewBuilder(lb).Build(input)
 	// adds support for the PI constant!
 	p.RegisterOperand(piType, func() ast.Expression {
 		return &PiLiteral{Token: p.CurrentToken}
@@ -202,10 +202,10 @@ func Example_combined() {
 	if (typeof radius == 'string') {
 		let randomRadius = RANDOM * 10
 	}`
-	l := lexer.New(input)
+	lb := lexer.NewBuilder()
 	// registers PI keyword
-	piType := l.RegisterTokenType("PI")
-	l.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
+	piType := lb.RegisterTokenType("PI")
+	lb.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
 		ret := next()
 		if ret.Type == token.IDENT && ret.Literal == "PI" {
 			ret.Type = piType
@@ -213,8 +213,8 @@ func Example_combined() {
 		return ret
 	})
 	// regists infix `^`
-	powType := l.RegisterTokenType("pow")
-	l.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
+	powType := lb.RegisterTokenType("pow")
+	lb.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
 		if l.CurrentChar == '^' {
 			l.ReadChar() // consume ^
 			return token.Token{Type: powType, Literal: "^", Line: l.Line, Column: l.Column}
@@ -222,8 +222,8 @@ func Example_combined() {
 		return next()
 	})
 	// registers prefix `typeof`
-	typeofType := l.RegisterTokenType("typeof")
-	l.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
+	typeofType := lb.RegisterTokenType("typeof")
+	lb.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
 		ret := next()
 		if ret.Type == token.IDENT && ret.Literal == "typeof" {
 			ret.Type = typeofType
@@ -231,7 +231,7 @@ func Example_combined() {
 		return ret
 	})
 
-	p := New(l)
+	p := NewBuilder(lb).Build(input)
 	// combines all previous examples!
 	p.UseStatementParser(func(p *Parser, next func() ast.Statement) ast.Statement {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
