@@ -29,7 +29,7 @@ func Example_statement() {
 	l := lexer.New(input)
 	p := New(l)
 	// adds support for the `const` keyword!
-	p.UseStatementParser(func(p *Parser, next func() ast.Statement) ast.Statement {
+	p.UseStatementInterceptor(func(p *Parser, next func() ast.Statement) ast.Statement {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
 			stmt := &ConstStatement{Token: p.CurrentToken}
 			p.NextToken() // moves to identifier token
@@ -186,7 +186,7 @@ func Example_expressionParser() {
 	l := lexer.New(input)
 	p := New(l)
 	// intercepts expression parsing to handle RANDOM as a special expression!
-	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
+	p.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "RANDOM" {
 			return p.ParseRemainingExpression(&RandomExpression{Token: p.CurrentToken})
 		}

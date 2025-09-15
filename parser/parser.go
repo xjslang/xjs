@@ -125,11 +125,11 @@ func NewWithOptions(l *lexer.Lexer, opts ParserOptions) *Parser {
 	p.infixParseFns[token.INCREMENT] = p.ParsePostfixExpression
 	p.infixParseFns[token.DECREMENT] = p.ParsePostfixExpression
 
-	for _, md := range opts.StatementInterceptors {
-		p.UseStatementParser(md)
+	for _, interceptor := range opts.StatementInterceptors {
+		p.UseStatementInterceptor(interceptor)
 	}
-	for _, md := range opts.ExpressionInterceptors {
-		p.UseExpressionParser(md)
+	for _, interceptor := range opts.ExpressionInterceptors {
+		p.UseExpressionInterceptor(interceptor)
 	}
 
 	// Read two tokens, so CurrentToken and PeekToken are both set
