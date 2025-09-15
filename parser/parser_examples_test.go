@@ -68,7 +68,7 @@ func Example_prefixOperator() {
 	lb := lexer.NewBuilder()
 	// registers typeof keyword
 	typeofType := lb.RegisterTokenType("typeof")
-	lb.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
+	lb.UseTokenReader(func(l lexer.Lexer, next func() token.Token) token.Token {
 		ret := next()
 		if ret.Type == token.IDENT && ret.Literal == "typeof" {
 			ret.Type = typeofType
@@ -111,10 +111,10 @@ func Example_infixOperator() {
 	lb := lexer.NewBuilder()
 	pb := NewBuilder(lb)
 	powType := lb.RegisterTokenType("pow")
-	lb.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
-		if l.CurrentChar == '^' {
+	lb.UseTokenReader(func(l lexer.Lexer, next func() token.Token) token.Token {
+		if l.CurrentChar() == '^' {
 			l.ReadChar()
-			return token.Token{Type: powType, Literal: "^", Line: l.Line, Column: l.Column}
+			return token.Token{Type: powType, Literal: "^", Line: l.Line(), Column: l.Column()}
 		}
 		return next()
 	})
@@ -152,7 +152,7 @@ func Example_operand() {
 	pb := NewBuilder(lb)
 	// registers PI keyword
 	piType := lb.RegisterTokenType("PI")
-	lb.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
+	lb.UseTokenReader(func(l lexer.Lexer, next func() token.Token) token.Token {
 		ret := next()
 		if ret.Type == token.IDENT && ret.Literal == "PI" {
 			ret.Type = piType
@@ -212,7 +212,7 @@ func Example_combined() {
 	pb := NewBuilder(lb)
 	// registers PI keyword
 	piType := lb.RegisterTokenType("PI")
-	lb.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
+	lb.UseTokenReader(func(l lexer.Lexer, next func() token.Token) token.Token {
 		ret := next()
 		if ret.Type == token.IDENT && ret.Literal == "PI" {
 			ret.Type = piType
@@ -221,16 +221,16 @@ func Example_combined() {
 	})
 	// regists infix `^`
 	powType := lb.RegisterTokenType("pow")
-	lb.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
-		if l.CurrentChar == '^' {
+	lb.UseTokenReader(func(l lexer.Lexer, next func() token.Token) token.Token {
+		if l.CurrentChar() == '^' {
 			l.ReadChar() // consume ^
-			return token.Token{Type: powType, Literal: "^", Line: l.Line, Column: l.Column}
+			return token.Token{Type: powType, Literal: "^", Line: l.Line(), Column: l.Column()}
 		}
 		return next()
 	})
 	// registers prefix `typeof`
 	typeofType := lb.RegisterTokenType("typeof")
-	lb.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
+	lb.UseTokenReader(func(l lexer.Lexer, next func() token.Token) token.Token {
 		ret := next()
 		if ret.Type == token.IDENT && ret.Literal == "typeof" {
 			ret.Type = typeofType

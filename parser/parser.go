@@ -52,7 +52,7 @@ var precedences = map[token.Type]int{
 }
 
 type Parser struct {
-	Lexer *lexer.Lexer
+	Lexer *lexer.XJSLexer
 
 	CurrentToken token.Token
 	PeekToken    token.Token
@@ -75,7 +75,7 @@ type parserOptions struct {
 	expInterceptors  []func(p *Parser, next func() ast.Expression) ast.Expression
 }
 
-func New(l *lexer.Lexer) *Parser {
+func New(l *lexer.XJSLexer) *Parser {
 	return newWithOptions(l, parserOptions{})
 }
 
@@ -150,7 +150,7 @@ func (p *Parser) currentPrecedence() int {
 	return LOWEST
 }
 
-func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
+func newWithOptions(l *lexer.XJSLexer, opts parserOptions) *Parser {
 	p := &Parser{
 		Lexer:             l,
 		errors:            []ParserError{},

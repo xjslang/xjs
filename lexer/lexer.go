@@ -8,40 +8,62 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-type Lexer struct {
+// TODO: too much methods for an interface
+type Lexer interface {
+	CurrentChar() byte
+	PeekChar() byte
+	ReadChar()
+	// TODO: replace with newToken(type, literal)
+	Line() int
+	Column() int
+}
+
+type XJSLexer struct {
 	input        string
 	position     int  // current position in input (points to current char)
 	readPosition int  // current reading position in input (after current char)
-	CurrentChar  byte // current char under examination
-	Line         int  // current line
-	Column       int  // current column
+	ch           byte // current char under examination
+	line         int  // current line
+	column       int  // current column
 
-	nextToken func(*Lexer) token.Token
+	nextToken func(*XJSLexer) token.Token
 }
 
-func New(input string) *Lexer {
+func New(input string) *XJSLexer {
 	return newWithOptions(input)
 }
 
+func (l *XJSLexer) CurrentChar() byte {
+	return l.ch
+}
+
+func (l *XJSLexer) Line() int {
+	return l.line
+}
+
+func (l *XJSLexer) Column() int {
+	return l.column
+}
+
 // ReadChar reads the next character and advances position in the input
-func (l *Lexer) ReadChar() {
+func (l *XJSLexer) ReadChar() {
 	if l.readPosition >= len(l.input) {
-		l.CurrentChar = 0 // ASCII NUL character represents "EOF"
+		l.ch = 0 // ASCII NUL character represents "EOF"
 	} else {
-		l.CurrentChar = l.input[l.readPosition]
+		l.ch = l.input[l.readPosition]
 	}
 	l.position = l.readPosition
 	l.readPosition++
 
-	if l.CurrentChar == '\n' {
-		l.Line++
-		l.Column = 0
+	if l.ch == '\n' {
+		l.line++
+		l.column = 0
 	} else {
-		l.Column++
+		l.column++
 	}
 }
 
-func (l *Lexer) PeekChar() byte {
+func (l *XJSLexer) PeekChar() byte {
 	if l.readPosition >= len(l.input) {
 		return 0
 	}
@@ -49,35 +71,35 @@ func (l *Lexer) PeekChar() byte {
 }
 
 // skipWhitespace skips whitespace characters
-func (l *Lexer) skipWhitespace() {
-	for l.CurrentChar == ' ' || l.CurrentChar == '\t' || l.CurrentChar == '\n' || l.CurrentChar == '\r' {
+func (l *XJSLexer) skipWhitespace() {
+	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
 		l.ReadChar()
 	}
 }
 
 // readIdentifier reads an identifier or keyword
-func (l *Lexer) readIdentifier() string {
+func (l *XJSLexer) readIdentifier() string {
 	position := l.position
-	for isLetter(l.CurrentChar) || isDigit(l.CurrentChar) {
+	for isLetter(l.ch) || isDigit(l.ch) {
 		l.ReadChar()
 	}
 	return l.input[position:l.position]
 }
 
 // readNumber reads a number (integer or decimal)
-func (l *Lexer) readNumber() (string, token.Type) {
+func (l *XJSLexer) readNumber() (string, token.Type) {
 	position := l.position
 	tokenType := token.INT
 
-	for isDigit(l.CurrentChar) {
+	for isDigit(l.ch) {
 		l.ReadChar()
 	}
 
 	// Check if it's a decimal number
-	if l.CurrentChar == '.' && isDigit(l.PeekChar()) {
+	if l.ch == '.' && isDigit(l.PeekChar()) {
 		tokenType = token.FLOAT
 		l.ReadChar() // consume the '.'
-		for isDigit(l.CurrentChar) {
+		for isDigit(l.ch) {
 			l.ReadChar()
 		}
 	}
@@ -86,18 +108,18 @@ func (l *Lexer) readNumber() (string, token.Type) {
 }
 
 // readString reads a string literal
-func (l *Lexer) readString(delimiter byte) string {
+func (l *XJSLexer) readString(delimiter byte) string {
 	var result strings.Builder
 
 	for {
 		l.ReadChar()
-		if l.CurrentChar == 0 {
+		if l.ch == 0 {
 			break
 		}
 		// Handle escape sequences
-		if l.CurrentChar == '\\' {
+		if l.ch == '\\' {
 			l.ReadChar() // Move to the character after backslash
-			if l.CurrentChar == 'x' {
+			if l.ch == 'x' {
 				// Handle hexadecimal escape sequence \xHH
 				hex1 := l.PeekChar()
 				if isHexDigit(hex1) {
@@ -115,7 +137,7 @@ func (l *Lexer) readString(delimiter byte) string {
 				result.WriteByte('\\')
 				result.WriteByte('x')
 				continue
-			} else if l.CurrentChar == 'u' {
+			} else if l.ch == 'u' {
 				// Check if it's extended Unicode \u{...}
 				if l.PeekChar() == '{' {
 					// Handle extended Unicode escape sequence \u{H...}
@@ -136,7 +158,7 @@ func (l *Lexer) readString(delimiter byte) string {
 							break
 						}
 						l.ReadChar()
-						hexDigits = append(hexDigits, l.CurrentChar)
+						hexDigits = append(hexDigits, l.ch)
 					}
 
 					// Validate the sequence
@@ -212,35 +234,35 @@ func (l *Lexer) readString(delimiter byte) string {
 				}
 			} else {
 				// Keep escape sequences as-is for valid JavaScript output
-				switch l.CurrentChar {
+				switch l.ch {
 				case 'n', 't', 'r', '\\', '"', '\'':
 					result.WriteByte('\\')
-					result.WriteByte(l.CurrentChar)
+					result.WriteByte(l.ch)
 				default:
 					// For any other character, include both \ and the character
 					result.WriteByte('\\')
-					result.WriteByte(l.CurrentChar)
+					result.WriteByte(l.ch)
 				}
 				continue
 			}
 		}
-		if l.CurrentChar == delimiter {
+		if l.ch == delimiter {
 			break
 		}
-		result.WriteByte(l.CurrentChar)
+		result.WriteByte(l.ch)
 	}
 	return result.String()
 }
 
-func (l *Lexer) readRawString() string {
+func (l *XJSLexer) readRawString() string {
 	var result strings.Builder
 	for {
 		l.ReadChar()
-		if l.CurrentChar == 0 {
+		if l.ch == 0 {
 			break
 		}
 		// Handle escaped backticks
-		if l.CurrentChar == '\\' {
+		if l.ch == '\\' {
 			nextChar := l.PeekChar()
 			if nextChar == '`' {
 				l.ReadChar() // consume the backtick
@@ -248,15 +270,15 @@ func (l *Lexer) readRawString() string {
 				continue
 			}
 		}
-		if l.CurrentChar == '`' {
+		if l.ch == '`' {
 			break
 		}
-		result.WriteByte(l.CurrentChar)
+		result.WriteByte(l.ch)
 	}
 	return result.String()
 }
 
-func (l *Lexer) NextToken() token.Token {
+func (l *XJSLexer) NextToken() token.Token {
 	return l.nextToken(l)
 }
 
@@ -271,17 +293,17 @@ func isDigit(ch byte) bool {
 }
 
 // skipLineComment skips characters until the end of line for line comments (//)
-func (l *Lexer) skipLineComment() {
-	for l.CurrentChar != '\n' && l.CurrentChar != 0 {
+func (l *XJSLexer) skipLineComment() {
+	for l.ch != '\n' && l.ch != 0 {
 		l.ReadChar()
 	}
 }
 
-func newWithOptions(input string, readers ...func(l *Lexer, next func() token.Token) token.Token) *Lexer {
-	l := &Lexer{
+func newWithOptions(input string, readers ...func(l Lexer, next func() token.Token) token.Token) *XJSLexer {
+	l := &XJSLexer{
 		input:  input,
-		Line:   1,
-		Column: 0,
+		line:   1,
+		column: 0,
 
 		nextToken: baseNextToken,
 	}
@@ -292,9 +314,9 @@ func newWithOptions(input string, readers ...func(l *Lexer, next func() token.To
 	return l
 }
 
-func (l *Lexer) useTokenReader(reader func(l *Lexer, next func() token.Token) token.Token) {
+func (l *XJSLexer) useTokenReader(reader func(l Lexer, next func() token.Token) token.Token) {
 	next := l.nextToken
-	l.nextToken = func(l *Lexer) token.Token {
+	l.nextToken = func(l *XJSLexer) token.Token {
 		l.skipWhitespace()
 		return reader(l, func() token.Token {
 			return next(l)
