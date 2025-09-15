@@ -19,22 +19,6 @@ type Lexer struct {
 	nextToken func(*Lexer) token.Token
 }
 
-// New creates a new lexer instance
-func newWithOptions(input string, readers ...func(l *Lexer, next func() token.Token) token.Token) *Lexer {
-	l := &Lexer{
-		input:  input,
-		Line:   1,
-		Column: 0,
-
-		nextToken: baseNextToken,
-	}
-	for _, reader := range readers {
-		l.useTokenReader(reader)
-	}
-	l.ReadChar()
-	return l
-}
-
 func New(input string) *Lexer {
 	return newWithOptions(input)
 }
@@ -290,5 +274,30 @@ func isDigit(ch byte) bool {
 func (l *Lexer) skipLineComment() {
 	for l.CurrentChar != '\n' && l.CurrentChar != 0 {
 		l.ReadChar()
+	}
+}
+
+func newWithOptions(input string, readers ...func(l *Lexer, next func() token.Token) token.Token) *Lexer {
+	l := &Lexer{
+		input:  input,
+		Line:   1,
+		Column: 0,
+
+		nextToken: baseNextToken,
+	}
+	for _, reader := range readers {
+		l.useTokenReader(reader)
+	}
+	l.ReadChar()
+	return l
+}
+
+func (l *Lexer) useTokenReader(reader func(l *Lexer, next func() token.Token) token.Token) {
+	next := l.nextToken
+	l.nextToken = func(l *Lexer) token.Token {
+		l.skipWhitespace()
+		return reader(l, func() token.Token {
+			return next(l)
+		})
 	}
 }
