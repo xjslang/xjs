@@ -19,7 +19,7 @@ func NewBuilder() *Builder {
 }
 
 func (lb *Builder) Build(input string) *Lexer {
-	return New(input, lb.middlewares...)
+	return newWithOptions(input, lb.middlewares...)
 }
 
 func (lb *Builder) UseTokenReader(middleware func(l *Lexer, next func() token.Token) token.Token) *Builder {

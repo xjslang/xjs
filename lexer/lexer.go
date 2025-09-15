@@ -20,7 +20,7 @@ type Lexer struct {
 }
 
 // New creates a new lexer instance
-func New(input string, middlewares ...func(l *Lexer, next func() token.Token) token.Token) *Lexer {
+func newWithOptions(input string, middlewares ...func(l *Lexer, next func() token.Token) token.Token) *Lexer {
 	l := &Lexer{
 		input:  input,
 		Line:   1,
@@ -33,6 +33,10 @@ func New(input string, middlewares ...func(l *Lexer, next func() token.Token) to
 	}
 	l.ReadChar()
 	return l
+}
+
+func New(input string) *Lexer {
+	return newWithOptions(input)
 }
 
 // ReadChar reads the next character and advances position in the input
