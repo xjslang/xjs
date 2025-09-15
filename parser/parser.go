@@ -75,70 +75,6 @@ type parserOptions struct {
 	expInterceptors  []func(p *Parser, next func() ast.Expression) ast.Expression
 }
 
-func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
-	p := &Parser{
-		Lexer:             l,
-		errors:            []ParserError{},
-		statementParseFn:  baseParseStatement,
-		expressionParseFn: baseParseExpression,
-		contextStack:      []ContextType{GlobalContext}, // Initialize with global context
-	}
-
-	p.prefixParseFns = make(map[token.Type]func() ast.Expression)
-	p.prefixParseFns[token.IDENT] = p.ParseIdentifier
-	p.prefixParseFns[token.INT] = p.ParseIntegerLiteral
-	p.prefixParseFns[token.FLOAT] = p.ParseFloatLiteral
-	p.prefixParseFns[token.STRING] = p.ParseStringLiteral
-	p.prefixParseFns[token.RAW_STRING] = p.ParseMultiStringLiteral
-	p.prefixParseFns[token.TRUE] = p.ParseBooleanLiteral
-	p.prefixParseFns[token.FALSE] = p.ParseBooleanLiteral
-	p.prefixParseFns[token.NULL] = p.ParseNullLiteral
-	p.prefixParseFns[token.NOT] = p.ParseUnaryExpression
-	p.prefixParseFns[token.MINUS] = p.ParseUnaryExpression
-	p.prefixParseFns[token.INCREMENT] = p.ParseUnaryExpression
-	p.prefixParseFns[token.DECREMENT] = p.ParseUnaryExpression
-	p.prefixParseFns[token.LPAREN] = p.ParseGroupedExpression
-	p.prefixParseFns[token.LBRACKET] = p.ParseArrayLiteral
-	p.prefixParseFns[token.LBRACE] = p.ParseObjectLiteral
-	p.prefixParseFns[token.FUNCTION] = p.ParseFunctionExpression
-
-	p.infixParseFns = make(map[token.Type]func(ast.Expression) ast.Expression)
-	p.infixParseFns[token.PLUS] = p.ParseBinaryExpression
-	p.infixParseFns[token.MINUS] = p.ParseBinaryExpression
-	p.infixParseFns[token.MULTIPLY] = p.ParseBinaryExpression
-	p.infixParseFns[token.DIVIDE] = p.ParseBinaryExpression
-	p.infixParseFns[token.MODULO] = p.ParseBinaryExpression
-	p.infixParseFns[token.EQ] = p.ParseBinaryExpression
-	p.infixParseFns[token.NOT_EQ] = p.ParseBinaryExpression
-	p.infixParseFns[token.LT] = p.ParseBinaryExpression
-	p.infixParseFns[token.GT] = p.ParseBinaryExpression
-	p.infixParseFns[token.LTE] = p.ParseBinaryExpression
-	p.infixParseFns[token.GTE] = p.ParseBinaryExpression
-	p.infixParseFns[token.AND] = p.ParseBinaryExpression
-	p.infixParseFns[token.OR] = p.ParseBinaryExpression
-	p.infixParseFns[token.ASSIGN] = p.ParseAssignmentExpression
-	p.infixParseFns[token.PLUS_ASSIGN] = p.ParseCompoundAssignmentExpression
-	p.infixParseFns[token.MINUS_ASSIGN] = p.ParseCompoundAssignmentExpression
-	p.infixParseFns[token.LPAREN] = p.ParseCallExpression
-	p.infixParseFns[token.DOT] = p.ParseMemberExpression
-	p.infixParseFns[token.LBRACKET] = p.ParseComputedMemberExpression
-	p.infixParseFns[token.INCREMENT] = p.ParsePostfixExpression
-	p.infixParseFns[token.DECREMENT] = p.ParsePostfixExpression
-
-	for _, interceptor := range opts.stmtInterceptors {
-		p.useStatementInterceptor(interceptor)
-	}
-	for _, interceptor := range opts.expInterceptors {
-		p.useExpressionInterceptor(interceptor)
-	}
-
-	// Read two tokens, so CurrentToken and PeekToken are both set
-	p.NextToken()
-	p.NextToken()
-
-	return p
-}
-
 func New(l *lexer.Lexer) *Parser {
 	return newWithOptions(l, parserOptions{})
 }
@@ -212,4 +148,91 @@ func (p *Parser) currentPrecedence() int {
 		return p
 	}
 	return LOWEST
+}
+
+func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
+	p := &Parser{
+		Lexer:             l,
+		errors:            []ParserError{},
+		statementParseFn:  baseParseStatement,
+		expressionParseFn: baseParseExpression,
+		contextStack:      []ContextType{GlobalContext}, // Initialize with global context
+	}
+
+	p.prefixParseFns = make(map[token.Type]func() ast.Expression)
+	p.prefixParseFns[token.IDENT] = p.ParseIdentifier
+	p.prefixParseFns[token.INT] = p.ParseIntegerLiteral
+	p.prefixParseFns[token.FLOAT] = p.ParseFloatLiteral
+	p.prefixParseFns[token.STRING] = p.ParseStringLiteral
+	p.prefixParseFns[token.RAW_STRING] = p.ParseMultiStringLiteral
+	p.prefixParseFns[token.TRUE] = p.ParseBooleanLiteral
+	p.prefixParseFns[token.FALSE] = p.ParseBooleanLiteral
+	p.prefixParseFns[token.NULL] = p.ParseNullLiteral
+	p.prefixParseFns[token.NOT] = p.ParseUnaryExpression
+	p.prefixParseFns[token.MINUS] = p.ParseUnaryExpression
+	p.prefixParseFns[token.INCREMENT] = p.ParseUnaryExpression
+	p.prefixParseFns[token.DECREMENT] = p.ParseUnaryExpression
+	p.prefixParseFns[token.LPAREN] = p.ParseGroupedExpression
+	p.prefixParseFns[token.LBRACKET] = p.ParseArrayLiteral
+	p.prefixParseFns[token.LBRACE] = p.ParseObjectLiteral
+	p.prefixParseFns[token.FUNCTION] = p.ParseFunctionExpression
+
+	p.infixParseFns = make(map[token.Type]func(ast.Expression) ast.Expression)
+	p.infixParseFns[token.PLUS] = p.ParseBinaryExpression
+	p.infixParseFns[token.MINUS] = p.ParseBinaryExpression
+	p.infixParseFns[token.MULTIPLY] = p.ParseBinaryExpression
+	p.infixParseFns[token.DIVIDE] = p.ParseBinaryExpression
+	p.infixParseFns[token.MODULO] = p.ParseBinaryExpression
+	p.infixParseFns[token.EQ] = p.ParseBinaryExpression
+	p.infixParseFns[token.NOT_EQ] = p.ParseBinaryExpression
+	p.infixParseFns[token.LT] = p.ParseBinaryExpression
+	p.infixParseFns[token.GT] = p.ParseBinaryExpression
+	p.infixParseFns[token.LTE] = p.ParseBinaryExpression
+	p.infixParseFns[token.GTE] = p.ParseBinaryExpression
+	p.infixParseFns[token.AND] = p.ParseBinaryExpression
+	p.infixParseFns[token.OR] = p.ParseBinaryExpression
+	p.infixParseFns[token.ASSIGN] = p.ParseAssignmentExpression
+	p.infixParseFns[token.PLUS_ASSIGN] = p.ParseCompoundAssignmentExpression
+	p.infixParseFns[token.MINUS_ASSIGN] = p.ParseCompoundAssignmentExpression
+	p.infixParseFns[token.LPAREN] = p.ParseCallExpression
+	p.infixParseFns[token.DOT] = p.ParseMemberExpression
+	p.infixParseFns[token.LBRACKET] = p.ParseComputedMemberExpression
+	p.infixParseFns[token.INCREMENT] = p.ParsePostfixExpression
+	p.infixParseFns[token.DECREMENT] = p.ParsePostfixExpression
+
+	for _, interceptor := range opts.stmtInterceptors {
+		p.useStatementInterceptor(interceptor)
+	}
+	for _, interceptor := range opts.expInterceptors {
+		p.useExpressionInterceptor(interceptor)
+	}
+
+	// Read two tokens, so CurrentToken and PeekToken are both set
+	p.NextToken()
+	p.NextToken()
+
+	return p
+}
+
+func (p *Parser) useStatementInterceptor(interceptor func(p *Parser, next func() ast.Statement) ast.Statement) {
+	next := p.statementParseFn
+	p.statementParseFn = func(p *Parser) ast.Statement {
+		return interceptor(p, func() ast.Statement {
+			return next(p)
+		})
+	}
+}
+
+func (p *Parser) useExpressionInterceptor(interceptor func(p *Parser, next func() ast.Expression) ast.Expression) {
+	next := p.expressionParseFn
+	p.expressionParseFn = func(p *Parser, precedence int) ast.Expression {
+		oldPrecedence := p.currentExpressionPrecedence
+		p.currentExpressionPrecedence = precedence
+		defer func() {
+			p.currentExpressionPrecedence = oldPrecedence
+		}()
+		return interceptor(p, func() ast.Expression {
+			return next(p, precedence)
+		})
+	}
 }
