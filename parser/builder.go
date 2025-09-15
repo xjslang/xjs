@@ -35,7 +35,7 @@ func (pb *Builder) UseExpressionParser(middleware func(p *Parser, next func() as
 	return pb
 }
 
-func (pb *Builder) RegisterPrefixOperator(tokenType token.Type, createExpr func(right func() ast.Expression) ast.Expression) {
+func (pb *Builder) RegisterPrefixOperator(tokenType token.Type, createExpr func(token token.Token, right func() ast.Expression) ast.Expression) {
 	pb.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Type != tokenType {
 			return next()
@@ -44,7 +44,7 @@ func (pb *Builder) RegisterPrefixOperator(tokenType token.Type, createExpr func(
 			p.NextToken()
 			return p.ParsePrefixExpression()
 		}
-		expr := createExpr(right)
+		expr := createExpr(p.CurrentToken, right)
 		return p.ParseRemainingExpression(expr)
 	})
 }
@@ -65,13 +65,9 @@ func (pb *Builder) RegisterInfixOperator(tokenType token.Type, precedence int, c
 	})
 }
 
-func (pb *Builder) RegisterOperand(tokenType token.Type, createExpr func() ast.Expression) {
-	pb.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
-		if p.CurrentToken.Type != tokenType {
-			return next()
-		}
-		expr := createExpr()
-		return p.ParseRemainingExpression(expr)
+func (pb *Builder) RegisterOperand(tokenType token.Type, createExpr func(token token.Token) ast.Expression) {
+	pb.RegisterPrefixOperator(tokenType, func(token token.Token, right func() ast.Expression) ast.Expression {
+		return createExpr(token)
 	})
 }
 

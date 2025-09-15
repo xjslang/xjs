@@ -76,9 +76,9 @@ func Example_prefixOperator() {
 	})
 	// adds support for the typeof keyword!
 	pb := NewBuilder(lb)
-	pb.RegisterPrefixOperator(typeofType, func(right func() ast.Expression) ast.Expression {
+	pb.RegisterPrefixOperator(typeofType, func(token token.Token, right func() ast.Expression) ast.Expression {
 		return &TypeofExpression{
-			Token: token.Token{},
+			Token: token,
 			Right: right(),
 		}
 	})
@@ -108,6 +108,7 @@ func (pe *PowExpression) WriteTo(b *strings.Builder) {
 func Example_infixOperator() {
 	input := "let squareArea = r^2"
 	lb := lexer.NewBuilder()
+	pb := NewBuilder(lb)
 	powType := lb.RegisterTokenType("pow")
 	lb.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
 		if l.CurrentChar == '^' {
@@ -117,15 +118,16 @@ func Example_infixOperator() {
 		return next()
 	})
 
-	p := NewBuilder(lb).Build(input)
 	// adds support for the ^ operator!
-	p.RegisterInfixOperator(powType, PRODUCT+1, func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
+	pb.RegisterInfixOperator(powType, PRODUCT+1, func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{
 			Token: token,
 			Left:  left,
 			Right: right(),
 		}
 	})
+
+	p := pb.Build(input)
 	ast, err := p.ParseProgram()
 	if err != nil {
 		panic(err)
@@ -146,6 +148,7 @@ func (pl *PiLiteral) WriteTo(b *strings.Builder) {
 func Example_operand() {
 	input := "let area = PI * r * r"
 	lb := lexer.NewBuilder()
+	pb := NewBuilder(lb)
 	// registers PI keyword
 	piType := lb.RegisterTokenType("PI")
 	lb.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
@@ -156,11 +159,12 @@ func Example_operand() {
 		return ret
 	})
 
-	p := NewBuilder(lb).Build(input)
 	// adds support for the PI constant!
-	p.RegisterOperand(piType, func(token token.Token) ast.Expression {
+	pb.RegisterOperand(piType, func(token token.Token) ast.Expression {
 		return &PiLiteral{Token: token}
 	})
+
+	p := pb.Build(input)
 	ast, err := p.ParseProgram()
 	if err != nil {
 		panic(err)
@@ -203,6 +207,7 @@ func Example_combined() {
 		let randomRadius = RANDOM * 10
 	}`
 	lb := lexer.NewBuilder()
+	pb := NewBuilder(lb)
 	// registers PI keyword
 	piType := lb.RegisterTokenType("PI")
 	lb.UseTokenReader(func(l *lexer.Lexer, next func() token.Token) token.Token {
@@ -231,9 +236,8 @@ func Example_combined() {
 		return ret
 	})
 
-	p := NewBuilder(lb).Build(input)
 	// combines all previous examples!
-	p.UseStatementParser(func(p *Parser, next func() ast.Statement) ast.Statement {
+	pb.UseStatementParser(func(p *Parser, next func() ast.Statement) ast.Statement {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
 			stmt := &ConstStatement{Token: p.CurrentToken}
 			p.NextToken()
@@ -247,21 +251,22 @@ func Example_combined() {
 		}
 		return next()
 	})
-	p.RegisterPrefixOperator(typeofType, func(token token.Token, right func() ast.Expression) ast.Expression {
+	pb.RegisterPrefixOperator(typeofType, func(token token.Token, right func() ast.Expression) ast.Expression {
 		return &TypeofExpression{Token: token, Right: right()}
 	})
-	p.RegisterInfixOperator(powType, PRODUCT+1, func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
+	pb.RegisterInfixOperator(powType, PRODUCT+1, func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{Token: token, Left: left, Right: right()}
 	})
-	p.RegisterOperand(piType, func(token token.Token) ast.Expression {
+	pb.RegisterOperand(piType, func(token token.Token) ast.Expression {
 		return &PiLiteral{Token: token}
 	})
-	p.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
+	pb.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "RANDOM" {
 			return p.ParseRemainingExpression(&RandomExpression{Token: p.CurrentToken})
 		}
 		return next()
 	})
+	p := pb.Build(input)
 	ast, err := p.ParseProgram()
 	if err != nil {
 		panic(err)
