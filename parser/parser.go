@@ -71,8 +71,8 @@ type Parser struct {
 }
 
 type ParserOptions struct {
-	StatementMiddlewares  []func(p *Parser, next func() ast.Statement) ast.Statement
-	ExpressionMiddlewares []func(p *Parser, next func() ast.Expression) ast.Expression
+	StatementInterceptors  []func(p *Parser, next func() ast.Statement) ast.Statement
+	ExpressionInterceptors []func(p *Parser, next func() ast.Expression) ast.Expression
 }
 
 func NewWithOptions(l *lexer.Lexer, opts ParserOptions) *Parser {
@@ -125,10 +125,10 @@ func NewWithOptions(l *lexer.Lexer, opts ParserOptions) *Parser {
 	p.infixParseFns[token.INCREMENT] = p.ParsePostfixExpression
 	p.infixParseFns[token.DECREMENT] = p.ParsePostfixExpression
 
-	for _, md := range opts.StatementMiddlewares {
+	for _, md := range opts.StatementInterceptors {
 		p.UseStatementParser(md)
 	}
-	for _, md := range opts.ExpressionMiddlewares {
+	for _, md := range opts.ExpressionInterceptors {
 		p.UseExpressionParser(md)
 	}
 

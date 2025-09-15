@@ -7,16 +7,16 @@ import (
 )
 
 type Builder struct {
-	LexerBuilder   *lexer.Builder
-	stmMiddlewares []func(p *Parser, next func() ast.Statement) ast.Statement
-	expMiddlewares []func(p *Parser, next func() ast.Expression) ast.Expression
+	LexerBuilder     *lexer.Builder
+	stmtInterceptors []func(p *Parser, next func() ast.Statement) ast.Statement
+	expInterceptors  []func(p *Parser, next func() ast.Expression) ast.Expression
 }
 
 func NewBuilder(lb *lexer.Builder) *Builder {
 	return &Builder{
-		LexerBuilder:   lb,
-		stmMiddlewares: []func(p *Parser, next func() ast.Statement) ast.Statement{},
-		expMiddlewares: []func(p *Parser, next func() ast.Expression) ast.Expression{},
+		LexerBuilder:     lb,
+		stmtInterceptors: []func(p *Parser, next func() ast.Statement) ast.Statement{},
+		expInterceptors:  []func(p *Parser, next func() ast.Expression) ast.Expression{},
 	}
 }
 
@@ -25,18 +25,18 @@ func (pb *Builder) Install(plugin func(*Builder)) *Builder {
 	return pb
 }
 
-func (pb *Builder) UseStatementParser(middleware func(p *Parser, next func() ast.Statement) ast.Statement) *Builder {
-	pb.stmMiddlewares = append(pb.stmMiddlewares, middleware)
+func (pb *Builder) UseStatementInterceptor(interceptor func(p *Parser, next func() ast.Statement) ast.Statement) *Builder {
+	pb.stmtInterceptors = append(pb.stmtInterceptors, interceptor)
 	return pb
 }
 
-func (pb *Builder) UseExpressionParser(middleware func(p *Parser, next func() ast.Expression) ast.Expression) *Builder {
-	pb.expMiddlewares = append(pb.expMiddlewares, middleware)
+func (pb *Builder) UseExpressionInterceptor(interceptor func(p *Parser, next func() ast.Expression) ast.Expression) *Builder {
+	pb.expInterceptors = append(pb.expInterceptors, interceptor)
 	return pb
 }
 
 func (pb *Builder) RegisterPrefixOperator(tokenType token.Type, createExpr func(token token.Token, right func() ast.Expression) ast.Expression) {
-	pb.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
+	pb.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Type != tokenType {
 			return next()
 		}
@@ -50,7 +50,7 @@ func (pb *Builder) RegisterPrefixOperator(tokenType token.Type, createExpr func(
 }
 
 func (pb *Builder) RegisterInfixOperator(tokenType token.Type, precedence int, createExpr func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression) {
-	pb.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
+	pb.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.PeekToken.Type != tokenType {
 			return next()
 		}
@@ -74,7 +74,7 @@ func (pb *Builder) RegisterOperand(tokenType token.Type, createExpr func(token t
 func (pb *Builder) Build(input string) *Parser {
 	l := pb.LexerBuilder.Build(input)
 	return NewWithOptions(l, ParserOptions{
-		StatementMiddlewares:  pb.stmMiddlewares,
-		ExpressionMiddlewares: pb.expMiddlewares,
+		StatementInterceptors:  pb.stmtInterceptors,
+		ExpressionInterceptors: pb.expInterceptors,
 	})
 }

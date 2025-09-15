@@ -237,7 +237,7 @@ func Example_combined() {
 	})
 
 	// combines all previous examples!
-	pb.UseStatementParser(func(p *Parser, next func() ast.Statement) ast.Statement {
+	pb.UseStatementInterceptor(func(p *Parser, next func() ast.Statement) ast.Statement {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
 			stmt := &ConstStatement{Token: p.CurrentToken}
 			p.NextToken()
@@ -260,7 +260,7 @@ func Example_combined() {
 	pb.RegisterOperand(piType, func(token token.Token) ast.Expression {
 		return &PiLiteral{Token: token}
 	})
-	pb.UseExpressionParser(func(p *Parser, next func() ast.Expression) ast.Expression {
+	pb.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "RANDOM" {
 			return p.ParseRemainingExpression(&RandomExpression{Token: p.CurrentToken})
 		}
