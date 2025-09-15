@@ -23,18 +23,19 @@ func TestMiddlewareParsers(t *testing.T) {
 		expectedOutput := "8"
 
 		// Create parser with custom expression parser
-		l := lexer.New(input)
-		p := parser.New(l)
+		lb := lexer.NewBuilder()
+		pb := parser.NewBuilder(lb)
 
 		// Add middleware that logs when processing numbers
 		var processedNumbers []string
-		p.UseExpressionInterceptor(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
+		pb.UseExpressionInterceptor(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
 			if p.CurrentToken.Type == token.INT {
 				processedNumbers = append(processedNumbers, p.CurrentToken.Literal)
 			}
 			return next()
 		})
 
+		p := pb.Build(input)
 		program, err := p.ParseProgram()
 		if err != nil {
 			t.Fatalf("ParseProgram error = %v", err)
@@ -66,14 +67,14 @@ func TestMiddlewareParsers(t *testing.T) {
 		input := `let message = 'Hello' + ' ' + 'World'; console.log(message)`
 		expectedOutput := "Hello World"
 
-		l := lexer.New(input)
-		p := parser.New(l)
+		lb := lexer.NewBuilder()
+		pb := parser.NewBuilder(lb)
 
 		var stringCount int
 		var identifierCount int
 
 		// First middleware - count strings
-		p.UseExpressionInterceptor(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
+		pb.UseExpressionInterceptor(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
 			if p.CurrentToken.Type == token.STRING {
 				stringCount++
 			}
@@ -81,13 +82,14 @@ func TestMiddlewareParsers(t *testing.T) {
 		})
 
 		// Second middleware - count identifiers
-		p.UseExpressionInterceptor(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
+		pb.UseExpressionInterceptor(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
 			if p.CurrentToken.Type == token.IDENT {
 				identifierCount++
 			}
 			return next()
 		})
 
+		p := pb.Build(input)
 		program, err := p.ParseProgram()
 		if err != nil {
 			t.Fatalf("ParseProgram error = %v", err)
@@ -124,18 +126,19 @@ func TestCustomLanguageFeatures(t *testing.T) {
 		input := `function test() { let x = 42; return x; } console.log(test())`
 		expectedOutput := "42"
 
-		l := lexer.New(input)
-		p := parser.New(l)
+		lb := lexer.NewBuilder()
+		pb := parser.NewBuilder(lb)
 
 		var logMessages []string
 
 		// Middleware that logs parsing progress
-		p.UseExpressionInterceptor(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
+		pb.UseExpressionInterceptor(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
 			currentTokenType := p.CurrentToken.Type.String()
 			logMessages = append(logMessages, fmt.Sprintf("Processing: %s", currentTokenType))
 			return next()
 		})
 
+		p := pb.Build(input)
 		program, err := p.ParseProgram()
 		if err != nil {
 			t.Fatalf("ParseProgram error = %v", err)

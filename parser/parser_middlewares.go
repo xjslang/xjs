@@ -13,7 +13,7 @@ func (p *Parser) useStatementInterceptor(interceptor func(p *Parser, next func()
 	}
 }
 
-func (p *Parser) UseExpressionInterceptor(interceptor func(p *Parser, next func() ast.Expression) ast.Expression) {
+func (p *Parser) useExpressionInterceptor(interceptor func(p *Parser, next func() ast.Expression) ast.Expression) {
 	next := p.expressionParseFn
 	p.expressionParseFn = func(p *Parser, precedence int) ast.Expression {
 		oldPrecedence := p.currentExpressionPrecedence

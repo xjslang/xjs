@@ -129,7 +129,7 @@ func NewWithOptions(l *lexer.Lexer, opts ParserOptions) *Parser {
 		p.useStatementInterceptor(interceptor)
 	}
 	for _, interceptor := range opts.ExpressionInterceptors {
-		p.UseExpressionInterceptor(interceptor)
+		p.useExpressionInterceptor(interceptor)
 	}
 
 	// Read two tokens, so CurrentToken and PeekToken are both set

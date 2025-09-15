@@ -451,11 +451,10 @@ func TestUseStatementParser(t *testing.T) {
 
 func TestUseExpressionHandler(t *testing.T) {
 	input := "special_expr"
+	lb := lexer.NewBuilder()
+	pb := NewBuilder(lb)
 
-	l := lexer.New(input)
-	p := New(l)
-
-	p.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
+	pb.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Literal == "special_expr" {
 			return p.ParseRemainingExpression(&ast.Identifier{
 				Token: p.CurrentToken,
@@ -464,6 +463,8 @@ func TestUseExpressionHandler(t *testing.T) {
 		}
 		return next()
 	})
+
+	p := pb.Build(input)
 	program, err := p.ParseProgram()
 	if err != nil {
 		t.Errorf("ParseProgram error = %v", err)

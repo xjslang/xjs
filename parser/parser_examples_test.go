@@ -184,15 +184,16 @@ func (re *RandomExpression) WriteTo(b *strings.Builder) {
 
 func Example_expressionParser() {
 	input := "let randomValue = RANDOM + 10"
-	l := lexer.New(input)
-	p := New(l)
+	lb := lexer.NewBuilder()
+	pb := NewBuilder(lb)
 	// intercepts expression parsing to handle RANDOM as a special expression!
-	p.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
+	pb.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "RANDOM" {
 			return p.ParseRemainingExpression(&RandomExpression{Token: p.CurrentToken})
 		}
 		return next()
 	})
+	p := pb.Build(input)
 	ast, err := p.ParseProgram()
 	if err != nil {
 		panic(err)
