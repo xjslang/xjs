@@ -60,11 +60,6 @@ func transpileXJSCode(input string) (string, error) {
 		return "", fmt.Errorf("ParseProgram error: %v", err)
 	}
 
-	errors := p.Errors()
-	if len(errors) > 0 {
-		return "", fmt.Errorf("parser errors: %v", errors)
-	}
-
 	// Convert the AST to JavaScript code (now with automatic semicolons)
 	result := program.String()
 

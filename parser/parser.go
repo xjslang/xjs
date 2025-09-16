@@ -109,10 +109,6 @@ func (p *Parser) NextToken() {
 	p.peekToken = p.lexer.NextToken()
 }
 
-func (p *Parser) Errors() []ParserError {
-	return p.errors
-}
-
 func (p *Parser) AddError(message string) {
 	pos := Position{
 		Line:   p.currentToken.Line,

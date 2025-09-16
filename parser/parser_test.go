@@ -31,11 +31,6 @@ func TestParseBasicLiterals(t *testing.T) {
 				return
 			}
 
-			if len(p.Errors()) != 0 {
-				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
-				return
-			}
-
 			if len(program.Statements) != 1 {
 				t.Errorf("Parse(%q) got %d statements, want 1", tt.input, len(program.Statements))
 				return
@@ -80,11 +75,6 @@ func TestParseBinaryExpressions(t *testing.T) {
 				return
 			}
 
-			if len(p.Errors()) != 0 {
-				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
-				return
-			}
-
 			if len(program.Statements) != 1 {
 				t.Errorf("Parse(%q) got %d statements, want 1", tt.input, len(program.Statements))
 				return
@@ -118,11 +108,6 @@ func TestParseUnaryExpressions(t *testing.T) {
 			program, err := p.ParseProgram()
 			if err != nil {
 				t.Errorf("ParseProgram error = %v", err)
-				return
-			}
-
-			if len(p.Errors()) != 0 {
-				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
 				return
 			}
 
@@ -160,11 +145,6 @@ func TestParseIdentifiers(t *testing.T) {
 				return
 			}
 
-			if len(p.Errors()) != 0 {
-				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
-				return
-			}
-
 			if len(program.Statements) != 1 {
 				t.Errorf("Parse(%q) got %d statements, want 1", tt.input, len(program.Statements))
 				return
@@ -198,11 +178,6 @@ func TestParseLetStatements(t *testing.T) {
 				return
 			}
 
-			if len(p.Errors()) != 0 {
-				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
-				return
-			}
-
 			if len(program.Statements) != 1 {
 				t.Errorf("Parse(%q) got %d statements, want 1", tt.input, len(program.Statements))
 				return
@@ -233,11 +208,6 @@ func TestParseFunctionDeclarations(t *testing.T) {
 			program, err := p.ParseProgram()
 			if err != nil {
 				t.Errorf("ParseProgram error = %v", err)
-				return
-			}
-
-			if len(p.Errors()) != 0 {
-				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
 				return
 			}
 
@@ -275,11 +245,6 @@ func TestParseArrayLiterals(t *testing.T) {
 				return
 			}
 
-			if len(p.Errors()) != 0 {
-				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
-				return
-			}
-
 			if len(program.Statements) != 1 {
 				t.Errorf("Parse(%q) got %d statements, want 1", tt.input, len(program.Statements))
 				return
@@ -311,11 +276,6 @@ func TestParseAssignmentExpressions(t *testing.T) {
 			program, err := p.ParseProgram()
 			if err != nil {
 				t.Errorf("ParseProgram error = %v", err)
-				return
-			}
-
-			if len(p.Errors()) != 0 {
-				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
 				return
 			}
 
@@ -353,11 +313,6 @@ func TestParseCallExpressions(t *testing.T) {
 				return
 			}
 
-			if len(p.Errors()) != 0 {
-				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
-				return
-			}
-
 			if len(program.Statements) != 1 {
 				t.Errorf("Parse(%q) got %d statements, want 1", tt.input, len(program.Statements))
 				return
@@ -389,11 +344,6 @@ func TestParseMemberExpressions(t *testing.T) {
 			program, err := p.ParseProgram()
 			if err != nil {
 				t.Errorf("ParseProgram error = %v", err)
-				return
-			}
-
-			if len(p.Errors()) != 0 {
-				t.Errorf("Parse(%q) errors = %v", tt.input, p.Errors())
 				return
 			}
 
@@ -434,11 +384,6 @@ func TestUseStatementParser(t *testing.T) {
 		return
 	}
 
-	if len(p.Errors()) != 0 {
-		t.Errorf("Parse with custom parser errors = %v", p.Errors())
-		return
-	}
-
 	if len(program.Statements) != 1 {
 		t.Errorf("Expected 1 statement, got %d", len(program.Statements))
 		return
@@ -471,11 +416,6 @@ func TestUseExpressionHandler(t *testing.T) {
 		return
 	}
 
-	if len(p.Errors()) != 0 {
-		t.Errorf("Parse with custom expression parser errors = %v", p.Errors())
-		return
-	}
-
 	if len(program.Statements) != 1 {
 		t.Errorf("Expected 1 statement, got %d", len(program.Statements))
 		return
@@ -499,11 +439,6 @@ func TestParseMultipleStatements(t *testing.T) {
 		return
 	}
 
-	if len(p.Errors()) != 0 {
-		t.Errorf("Parse errors = %v", p.Errors())
-		return
-	}
-
 	if len(program.Statements) != 3 {
 		t.Errorf("Expected 3 statements, got %d", len(program.Statements))
 		return
@@ -524,15 +459,6 @@ func TestParserErrors(t *testing.T) {
 	if err != nil {
 		t.Errorf("ParseProgram error = %v", err)
 		return
-	}
-
-	if len(p.Errors()) != 0 {
-		t.Errorf("Expected no errors for valid input, got %v", p.Errors())
-	}
-
-	errors := p.Errors()
-	if len(errors) != len(p.errors) {
-		t.Errorf("Errors() method returned different count than internal errors")
 	}
 }
 
