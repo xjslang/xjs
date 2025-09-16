@@ -8,10 +8,10 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-type Reader func(l *Lexer, next func() token.Token) token.Token
+type Interceptor func(l *Lexer, next func() token.Token) token.Token
 
 type Builder struct {
-	readers       []Reader
+	interceptors  []Interceptor
 	dynamicTokens map[string]token.Type
 	nextTokenID   token.Type
 }
@@ -297,7 +297,7 @@ func (l *Lexer) skipLineComment() {
 	}
 }
 
-func newWithOptions(input string, readers ...Reader) *Lexer {
+func newWithOptions(input string, interceptors ...Interceptor) *Lexer {
 	l := &Lexer{
 		input:  input,
 		line:   1,
@@ -305,18 +305,18 @@ func newWithOptions(input string, readers ...Reader) *Lexer {
 
 		nextToken: baseNextToken,
 	}
-	for _, reader := range readers {
+	for _, reader := range interceptors {
 		l.useTokenReader(reader)
 	}
 	l.ReadChar()
 	return l
 }
 
-func (l *Lexer) useTokenReader(reader Reader) {
+func (l *Lexer) useTokenReader(interceptor Interceptor) {
 	next := l.nextToken
 	l.nextToken = func(l *Lexer) token.Token {
 		l.skipWhitespace()
-		return reader(l, func() token.Token {
+		return interceptor(l, func() token.Token {
 			return next(l)
 		})
 	}

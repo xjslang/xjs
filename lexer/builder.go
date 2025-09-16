@@ -6,18 +6,18 @@ import (
 
 func NewBuilder() *Builder {
 	return &Builder{
-		readers:       []Reader{},
+		interceptors:  []Interceptor{},
 		dynamicTokens: make(map[string]token.Type),
 		nextTokenID:   token.DYNAMIC_TOKENS_START,
 	}
 }
 
 func (lb *Builder) Build(input string) *Lexer {
-	return newWithOptions(input, lb.readers...)
+	return newWithOptions(input, lb.interceptors...)
 }
 
-func (lb *Builder) UseTokenReader(reader Reader) *Builder {
-	lb.readers = append(lb.readers, reader)
+func (lb *Builder) UseTokenInterceptor(reader Interceptor) *Builder {
+	lb.interceptors = append(lb.interceptors, reader)
 	return lb
 }
 
