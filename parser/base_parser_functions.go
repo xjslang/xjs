@@ -5,7 +5,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func baseParseStatement(p *XJSParser) ast.Statement {
+func baseParseStatement(p *Parser) ast.Statement {
 	switch p.currentToken.Type {
 	case token.LET:
 		return p.ParseLetStatement()
@@ -26,7 +26,7 @@ func baseParseStatement(p *XJSParser) ast.Statement {
 	}
 }
 
-func baseParseExpression(p *XJSParser, precedence int) ast.Expression {
+func baseParseExpression(p *Parser, precedence int) ast.Expression {
 	return p.ParseRemainingExpressionWithPrecedence(
 		p.ParsePrefixExpression(),
 		precedence,

@@ -28,7 +28,7 @@ func TestMiddlewareParsers(t *testing.T) {
 
 		// Add middleware that logs when processing numbers
 		var processedNumbers []string
-		pb.UseExpressionInterceptor(func(p *parser.XJSParser, next func() ast.Expression) ast.Expression {
+		pb.UseExpressionInterceptor(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
 			tok := p.CurrentToken()
 			if tok.Type == token.INT {
 				processedNumbers = append(processedNumbers, tok.Literal)
@@ -72,7 +72,7 @@ func TestMiddlewareParsers(t *testing.T) {
 		var identifierCount int
 
 		// First middleware - count strings
-		pb.UseExpressionInterceptor(func(p *parser.XJSParser, next func() ast.Expression) ast.Expression {
+		pb.UseExpressionInterceptor(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
 			tok := p.CurrentToken()
 			if tok.Type == token.STRING {
 				stringCount++
@@ -81,7 +81,7 @@ func TestMiddlewareParsers(t *testing.T) {
 		})
 
 		// Second middleware - count identifiers
-		pb.UseExpressionInterceptor(func(p *parser.XJSParser, next func() ast.Expression) ast.Expression {
+		pb.UseExpressionInterceptor(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
 			tok := p.CurrentToken()
 			if tok.Type == token.IDENT {
 				identifierCount++
@@ -129,7 +129,7 @@ func TestCustomLanguageFeatures(t *testing.T) {
 		var logMessages []string
 
 		// Middleware that logs parsing progress
-		pb.UseExpressionInterceptor(func(p *parser.XJSParser, next func() ast.Expression) ast.Expression {
+		pb.UseExpressionInterceptor(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
 			tok := p.CurrentToken()
 			currentTokenType := tok.Type.String()
 			logMessages = append(logMessages, fmt.Sprintf("Processing: %s", currentTokenType))

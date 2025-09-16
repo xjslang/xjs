@@ -29,7 +29,7 @@ func Example_statement() {
 	lb := lexer.NewBuilder()
 	pb := NewBuilder(lb)
 	// adds support for the `const` keyword!
-	pb.UseStatementInterceptor(func(p *XJSParser, next func() ast.Statement) ast.Statement {
+	pb.UseStatementInterceptor(func(p *Parser, next func() ast.Statement) ast.Statement {
 		if p.currentToken.Type == token.IDENT && p.currentToken.Literal == "const" {
 			stmt := &ConstStatement{Token: p.currentToken}
 			p.NextToken() // moves to identifier token
@@ -187,7 +187,7 @@ func Example_expressionParser() {
 	lb := lexer.NewBuilder()
 	pb := NewBuilder(lb)
 	// intercepts expression parsing to handle RANDOM as a special expression!
-	pb.UseExpressionInterceptor(func(p *XJSParser, next func() ast.Expression) ast.Expression {
+	pb.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.currentToken.Type == token.IDENT && p.currentToken.Literal == "RANDOM" {
 			return p.ParseRemainingExpression(&RandomExpression{Token: p.currentToken})
 		}
@@ -239,7 +239,7 @@ func Example_combined() {
 	})
 
 	// combines all previous examples!
-	pb.UseStatementInterceptor(func(p *XJSParser, next func() ast.Statement) ast.Statement {
+	pb.UseStatementInterceptor(func(p *Parser, next func() ast.Statement) ast.Statement {
 		if p.currentToken.Type == token.IDENT && p.currentToken.Literal == "const" {
 			stmt := &ConstStatement{Token: p.currentToken}
 			p.NextToken()
@@ -262,7 +262,7 @@ func Example_combined() {
 	pb.RegisterOperand(piType, func(token token.Token) ast.Expression {
 		return &PiLiteral{Token: token}
 	})
-	pb.UseExpressionInterceptor(func(p *XJSParser, next func() ast.Expression) ast.Expression {
+	pb.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.currentToken.Type == token.IDENT && p.currentToken.Literal == "RANDOM" {
 			return p.ParseRemainingExpression(&RandomExpression{Token: p.currentToken})
 		}

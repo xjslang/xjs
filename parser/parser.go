@@ -51,14 +51,14 @@ var precedences = map[token.Type]int{
 	token.LBRACKET:     MEMBER,
 }
 
-type XJSParser struct {
+type Parser struct {
 	lexer *lexer.Lexer
 
 	currentToken token.Token
 	peekToken    token.Token
 
-	statementParseFn  func(*XJSParser) ast.Statement
-	expressionParseFn func(*XJSParser, int) ast.Expression
+	statementParseFn  func(*Parser) ast.Statement
+	expressionParseFn func(*Parser, int) ast.Expression
 	prefixParseFns    map[token.Type]func() ast.Expression
 	infixParseFns     map[token.Type]func(ast.Expression) ast.Expression
 
@@ -71,15 +71,15 @@ type XJSParser struct {
 }
 
 type parserOptions struct {
-	stmtInterceptors []func(p *XJSParser, next func() ast.Statement) ast.Statement
-	expInterceptors  []func(p *XJSParser, next func() ast.Expression) ast.Expression
+	stmtInterceptors []func(p *Parser, next func() ast.Statement) ast.Statement
+	expInterceptors  []func(p *Parser, next func() ast.Expression) ast.Expression
 }
 
-func New(l *lexer.Lexer) *XJSParser {
+func New(l *lexer.Lexer) *Parser {
 	return newWithOptions(l, parserOptions{})
 }
 
-func (p *XJSParser) ParseProgram() (*ast.Program, error) {
+func (p *Parser) ParseProgram() (*ast.Program, error) {
 	program := &ast.Program{}
 	program.Statements = []ast.Statement{}
 	for p.currentToken.Type != token.EOF {
@@ -96,24 +96,24 @@ func (p *XJSParser) ParseProgram() (*ast.Program, error) {
 	return program, nil
 }
 
-func (p *XJSParser) CurrentToken() token.Token {
+func (p *Parser) CurrentToken() token.Token {
 	return p.currentToken
 }
 
-func (p *XJSParser) PeekToken() token.Token {
+func (p *Parser) PeekToken() token.Token {
 	return p.peekToken
 }
 
-func (p *XJSParser) NextToken() {
+func (p *Parser) NextToken() {
 	p.currentToken = p.peekToken
 	p.peekToken = p.lexer.NextToken()
 }
 
-func (p *XJSParser) Errors() []ParserError {
+func (p *Parser) Errors() []ParserError {
 	return p.errors
 }
 
-func (p *XJSParser) AddError(message string) {
+func (p *Parser) AddError(message string) {
 	pos := Position{
 		Line:   p.currentToken.Line,
 		Column: p.currentToken.Column,
@@ -126,7 +126,7 @@ func (p *XJSParser) AddError(message string) {
 	p.errors = append(p.errors, err)
 }
 
-func (p *XJSParser) ExpectToken(t token.Type) bool {
+func (p *Parser) ExpectToken(t token.Type) bool {
 	if p.peekToken.Type == t {
 		p.NextToken()
 		return true
@@ -135,7 +135,7 @@ func (p *XJSParser) ExpectToken(t token.Type) bool {
 	return false
 }
 
-func (p *XJSParser) ExpectLiteral(literal string) bool {
+func (p *Parser) ExpectLiteral(literal string) bool {
 	if p.peekToken.Literal == literal {
 		p.NextToken()
 		return true
@@ -144,22 +144,22 @@ func (p *XJSParser) ExpectLiteral(literal string) bool {
 	return false
 }
 
-func (p *XJSParser) peekPrecedence() int {
+func (p *Parser) peekPrecedence() int {
 	if p, ok := precedences[p.peekToken.Type]; ok {
 		return p
 	}
 	return LOWEST
 }
 
-func (p *XJSParser) currentPrecedence() int {
+func (p *Parser) currentPrecedence() int {
 	if p, ok := precedences[p.currentToken.Type]; ok {
 		return p
 	}
 	return LOWEST
 }
 
-func newWithOptions(l *lexer.Lexer, opts parserOptions) *XJSParser {
-	p := &XJSParser{
+func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
+	p := &Parser{
 		lexer:             l,
 		errors:            []ParserError{},
 		statementParseFn:  baseParseStatement,
@@ -222,18 +222,18 @@ func newWithOptions(l *lexer.Lexer, opts parserOptions) *XJSParser {
 	return p
 }
 
-func (p *XJSParser) useStatementInterceptor(interceptor func(p *XJSParser, next func() ast.Statement) ast.Statement) {
+func (p *Parser) useStatementInterceptor(interceptor func(p *Parser, next func() ast.Statement) ast.Statement) {
 	next := p.statementParseFn
-	p.statementParseFn = func(p *XJSParser) ast.Statement {
+	p.statementParseFn = func(p *Parser) ast.Statement {
 		return interceptor(p, func() ast.Statement {
 			return next(p)
 		})
 	}
 }
 
-func (p *XJSParser) useExpressionInterceptor(interceptor func(p *XJSParser, next func() ast.Expression) ast.Expression) {
+func (p *Parser) useExpressionInterceptor(interceptor func(p *Parser, next func() ast.Expression) ast.Expression) {
 	next := p.expressionParseFn
-	p.expressionParseFn = func(p *XJSParser, precedence int) ast.Expression {
+	p.expressionParseFn = func(p *Parser, precedence int) ast.Expression {
 		oldPrecedence := p.currentExpressionPrecedence
 		p.currentExpressionPrecedence = precedence
 		defer func() {
