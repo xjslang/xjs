@@ -4,30 +4,30 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-type Builder struct {
+type XJSBuilder struct {
 	readers       []func(l Lexer, next func() token.Token) token.Token
 	dynamicTokens map[string]token.Type
 	nextTokenID   token.Type
 }
 
-func NewBuilder() *Builder {
-	return &Builder{
+func NewBuilder() *XJSBuilder {
+	return &XJSBuilder{
 		readers:       []func(l Lexer, next func() token.Token) token.Token{},
 		dynamicTokens: make(map[string]token.Type),
 		nextTokenID:   token.DYNAMIC_TOKENS_START,
 	}
 }
 
-func (lb *Builder) Build(input string) *XJSLexer {
+func (lb *XJSBuilder) Build(input string) *XJSLexer {
 	return newWithOptions(input, lb.readers...)
 }
 
-func (lb *Builder) UseTokenReader(reader func(l Lexer, next func() token.Token) token.Token) *Builder {
+func (lb *XJSBuilder) UseTokenReader(reader func(l Lexer, next func() token.Token) token.Token) *XJSBuilder {
 	lb.readers = append(lb.readers, reader)
 	return lb
 }
 
-func (lb *Builder) RegisterTokenType(name string) token.Type {
+func (lb *XJSBuilder) RegisterTokenType(name string) token.Type {
 	if tokenType, exists := lb.dynamicTokens[name]; exists {
 		return tokenType
 	}

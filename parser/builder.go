@@ -7,12 +7,12 @@ import (
 )
 
 type XJSBuilder struct {
-	LexerBuilder     *lexer.Builder
+	LexerBuilder     *lexer.XJSBuilder
 	stmtInterceptors []func(p *XJSParser, next func() ast.Statement) ast.Statement
 	expInterceptors  []func(p *XJSParser, next func() ast.Expression) ast.Expression
 }
 
-func NewBuilder(lb *lexer.Builder) *XJSBuilder {
+func NewBuilder(lb *lexer.XJSBuilder) *XJSBuilder {
 	return &XJSBuilder{
 		LexerBuilder:     lb,
 		stmtInterceptors: []func(p *XJSParser, next func() ast.Statement) ast.Statement{},
