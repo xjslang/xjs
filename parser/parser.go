@@ -60,7 +60,7 @@ type Parser interface {
 }
 
 type XJSParser struct {
-	lexer lexer.Lexer
+	lexer *lexer.XJSLexer
 
 	currentToken token.Token
 	peekToken    token.Token
@@ -83,7 +83,7 @@ type parserOptions struct {
 	expInterceptors  []func(p *XJSParser, next func() ast.Expression) ast.Expression
 }
 
-func New(l lexer.Lexer) *XJSParser {
+func New(l *lexer.XJSLexer) *XJSParser {
 	return newWithOptions(l, parserOptions{})
 }
 
@@ -166,7 +166,7 @@ func (p *XJSParser) currentPrecedence() int {
 	return LOWEST
 }
 
-func newWithOptions(l lexer.Lexer, opts parserOptions) *XJSParser {
+func newWithOptions(l *lexer.XJSLexer, opts parserOptions) *XJSParser {
 	p := &XJSParser{
 		lexer:             l,
 		errors:            []ParserError{},

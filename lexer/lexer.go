@@ -8,17 +8,6 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-// TODO: too much methods for an interface
-type Lexer interface {
-	CurrentChar() byte
-	PeekChar() byte
-	ReadChar()
-	NextToken() token.Token
-	// TODO: replace with newToken(type, literal)
-	Line() int
-	Column() int
-}
-
 type XJSLexer struct {
 	input        string
 	position     int  // current position in input (points to current char)
@@ -300,7 +289,7 @@ func (l *XJSLexer) skipLineComment() {
 	}
 }
 
-func newWithOptions(input string, readers ...func(l Lexer, next func() token.Token) token.Token) *XJSLexer {
+func newWithOptions(input string, readers ...func(l *XJSLexer, next func() token.Token) token.Token) *XJSLexer {
 	l := &XJSLexer{
 		input:  input,
 		line:   1,
@@ -315,7 +304,7 @@ func newWithOptions(input string, readers ...func(l Lexer, next func() token.Tok
 	return l
 }
 
-func (l *XJSLexer) useTokenReader(reader func(l Lexer, next func() token.Token) token.Token) {
+func (l *XJSLexer) useTokenReader(reader func(l *XJSLexer, next func() token.Token) token.Token) {
 	next := l.nextToken
 	l.nextToken = func(l *XJSLexer) token.Token {
 		l.skipWhitespace()

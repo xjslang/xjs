@@ -5,14 +5,14 @@ import (
 )
 
 type XJSBuilder struct {
-	readers       []func(l Lexer, next func() token.Token) token.Token
+	readers       []func(l *XJSLexer, next func() token.Token) token.Token
 	dynamicTokens map[string]token.Type
 	nextTokenID   token.Type
 }
 
 func NewBuilder() *XJSBuilder {
 	return &XJSBuilder{
-		readers:       []func(l Lexer, next func() token.Token) token.Token{},
+		readers:       []func(l *XJSLexer, next func() token.Token) token.Token{},
 		dynamicTokens: make(map[string]token.Type),
 		nextTokenID:   token.DYNAMIC_TOKENS_START,
 	}
@@ -22,7 +22,7 @@ func (lb *XJSBuilder) Build(input string) *XJSLexer {
 	return newWithOptions(input, lb.readers...)
 }
 
-func (lb *XJSBuilder) UseTokenReader(reader func(l Lexer, next func() token.Token) token.Token) *XJSBuilder {
+func (lb *XJSBuilder) UseTokenReader(reader func(l *XJSLexer, next func() token.Token) token.Token) *XJSBuilder {
 	lb.readers = append(lb.readers, reader)
 	return lb
 }
