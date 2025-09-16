@@ -6,36 +6,36 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-type XJSBuilder struct {
-	LexerBuilder     *lexer.XJSBuilder
+type Builder struct {
+	LexerBuilder     *lexer.Builder
 	stmtInterceptors []func(p *XJSParser, next func() ast.Statement) ast.Statement
 	expInterceptors  []func(p *XJSParser, next func() ast.Expression) ast.Expression
 }
 
-func NewBuilder(lb *lexer.XJSBuilder) *XJSBuilder {
-	return &XJSBuilder{
+func NewBuilder(lb *lexer.Builder) *Builder {
+	return &Builder{
 		LexerBuilder:     lb,
 		stmtInterceptors: []func(p *XJSParser, next func() ast.Statement) ast.Statement{},
 		expInterceptors:  []func(p *XJSParser, next func() ast.Expression) ast.Expression{},
 	}
 }
 
-func (pb *XJSBuilder) Install(plugin func(*XJSBuilder)) *XJSBuilder {
+func (pb *Builder) Install(plugin func(*Builder)) *Builder {
 	plugin(pb)
 	return pb
 }
 
-func (pb *XJSBuilder) UseStatementInterceptor(interceptor func(p *XJSParser, next func() ast.Statement) ast.Statement) *XJSBuilder {
+func (pb *Builder) UseStatementInterceptor(interceptor func(p *XJSParser, next func() ast.Statement) ast.Statement) *Builder {
 	pb.stmtInterceptors = append(pb.stmtInterceptors, interceptor)
 	return pb
 }
 
-func (pb *XJSBuilder) UseExpressionInterceptor(interceptor func(p *XJSParser, next func() ast.Expression) ast.Expression) *XJSBuilder {
+func (pb *Builder) UseExpressionInterceptor(interceptor func(p *XJSParser, next func() ast.Expression) ast.Expression) *Builder {
 	pb.expInterceptors = append(pb.expInterceptors, interceptor)
 	return pb
 }
 
-func (pb *XJSBuilder) RegisterPrefixOperator(tokenType token.Type, createExpr func(token token.Token, right func() ast.Expression) ast.Expression) {
+func (pb *Builder) RegisterPrefixOperator(tokenType token.Type, createExpr func(token token.Token, right func() ast.Expression) ast.Expression) {
 	pb.UseExpressionInterceptor(func(p *XJSParser, next func() ast.Expression) ast.Expression {
 		if p.currentToken.Type != tokenType {
 			return next()
@@ -49,7 +49,7 @@ func (pb *XJSBuilder) RegisterPrefixOperator(tokenType token.Type, createExpr fu
 	})
 }
 
-func (pb *XJSBuilder) RegisterInfixOperator(tokenType token.Type, precedence int, createExpr func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression) {
+func (pb *Builder) RegisterInfixOperator(tokenType token.Type, precedence int, createExpr func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression) {
 	pb.UseExpressionInterceptor(func(p *XJSParser, next func() ast.Expression) ast.Expression {
 		if p.peekToken.Type != tokenType {
 			return next()
@@ -65,13 +65,13 @@ func (pb *XJSBuilder) RegisterInfixOperator(tokenType token.Type, precedence int
 	})
 }
 
-func (pb *XJSBuilder) RegisterOperand(tokenType token.Type, createExpr func(token token.Token) ast.Expression) {
+func (pb *Builder) RegisterOperand(tokenType token.Type, createExpr func(token token.Token) ast.Expression) {
 	pb.RegisterPrefixOperator(tokenType, func(token token.Token, right func() ast.Expression) ast.Expression {
 		return createExpr(token)
 	})
 }
 
-func (pb *XJSBuilder) Build(input string) *XJSParser {
+func (pb *Builder) Build(input string) *XJSParser {
 	l := pb.LexerBuilder.Build(input)
 	return newWithOptions(l, parserOptions{
 		stmtInterceptors: pb.stmtInterceptors,
