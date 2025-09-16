@@ -51,14 +51,6 @@ var precedences = map[token.Type]int{
 	token.LBRACKET:     MEMBER,
 }
 
-type Parser interface {
-	CurrentToken() token.Token
-	PeekToken() token.Token
-	NextToken()
-	ExpectToken(t token.Type) bool
-	AddError(message string)
-}
-
 type XJSParser struct {
 	lexer *lexer.XJSLexer
 
