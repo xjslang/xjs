@@ -8,7 +8,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-type XJSLexer struct {
+type Lexer struct {
 	input        string
 	position     int  // current position in input (points to current char)
 	readPosition int  // current reading position in input (after current char)
@@ -16,27 +16,27 @@ type XJSLexer struct {
 	line         int  // current line
 	column       int  // current column
 
-	nextToken func(*XJSLexer) token.Token
+	nextToken func(*Lexer) token.Token
 }
 
-func New(input string) *XJSLexer {
+func New(input string) *Lexer {
 	return newWithOptions(input)
 }
 
-func (l *XJSLexer) CurrentChar() byte {
+func (l *Lexer) CurrentChar() byte {
 	return l.ch
 }
 
-func (l *XJSLexer) Line() int {
+func (l *Lexer) Line() int {
 	return l.line
 }
 
-func (l *XJSLexer) Column() int {
+func (l *Lexer) Column() int {
 	return l.column
 }
 
 // ReadChar reads the next character and advances position in the input
-func (l *XJSLexer) ReadChar() {
+func (l *Lexer) ReadChar() {
 	if l.readPosition >= len(l.input) {
 		l.ch = 0 // ASCII NUL character represents "EOF"
 	} else {
@@ -53,7 +53,7 @@ func (l *XJSLexer) ReadChar() {
 	}
 }
 
-func (l *XJSLexer) PeekChar() byte {
+func (l *Lexer) PeekChar() byte {
 	if l.readPosition >= len(l.input) {
 		return 0
 	}
@@ -61,14 +61,14 @@ func (l *XJSLexer) PeekChar() byte {
 }
 
 // skipWhitespace skips whitespace characters
-func (l *XJSLexer) skipWhitespace() {
+func (l *Lexer) skipWhitespace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
 		l.ReadChar()
 	}
 }
 
 // readIdentifier reads an identifier or keyword
-func (l *XJSLexer) readIdentifier() string {
+func (l *Lexer) readIdentifier() string {
 	position := l.position
 	for isLetter(l.ch) || isDigit(l.ch) {
 		l.ReadChar()
@@ -77,7 +77,7 @@ func (l *XJSLexer) readIdentifier() string {
 }
 
 // readNumber reads a number (integer or decimal)
-func (l *XJSLexer) readNumber() (string, token.Type) {
+func (l *Lexer) readNumber() (string, token.Type) {
 	position := l.position
 	tokenType := token.INT
 
@@ -98,7 +98,7 @@ func (l *XJSLexer) readNumber() (string, token.Type) {
 }
 
 // readString reads a string literal
-func (l *XJSLexer) readString(delimiter byte) string {
+func (l *Lexer) readString(delimiter byte) string {
 	var result strings.Builder
 
 	for {
@@ -244,7 +244,7 @@ func (l *XJSLexer) readString(delimiter byte) string {
 	return result.String()
 }
 
-func (l *XJSLexer) readRawString() string {
+func (l *Lexer) readRawString() string {
 	var result strings.Builder
 	for {
 		l.ReadChar()
@@ -268,7 +268,7 @@ func (l *XJSLexer) readRawString() string {
 	return result.String()
 }
 
-func (l *XJSLexer) NextToken() token.Token {
+func (l *Lexer) NextToken() token.Token {
 	return l.nextToken(l)
 }
 
@@ -283,14 +283,14 @@ func isDigit(ch byte) bool {
 }
 
 // skipLineComment skips characters until the end of line for line comments (//)
-func (l *XJSLexer) skipLineComment() {
+func (l *Lexer) skipLineComment() {
 	for l.ch != '\n' && l.ch != 0 {
 		l.ReadChar()
 	}
 }
 
-func newWithOptions(input string, readers ...func(l *XJSLexer, next func() token.Token) token.Token) *XJSLexer {
-	l := &XJSLexer{
+func newWithOptions(input string, readers ...func(l *Lexer, next func() token.Token) token.Token) *Lexer {
+	l := &Lexer{
 		input:  input,
 		line:   1,
 		column: 0,
@@ -304,9 +304,9 @@ func newWithOptions(input string, readers ...func(l *XJSLexer, next func() token
 	return l
 }
 
-func (l *XJSLexer) useTokenReader(reader func(l *XJSLexer, next func() token.Token) token.Token) {
+func (l *Lexer) useTokenReader(reader func(l *Lexer, next func() token.Token) token.Token) {
 	next := l.nextToken
-	l.nextToken = func(l *XJSLexer) token.Token {
+	l.nextToken = func(l *Lexer) token.Token {
 		l.skipWhitespace()
 		return reader(l, func() token.Token {
 			return next(l)

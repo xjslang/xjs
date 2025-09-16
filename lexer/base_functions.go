@@ -2,7 +2,7 @@ package lexer
 
 import "github.com/xjslang/xjs/token"
 
-func baseNextToken(l *XJSLexer) token.Token {
+func baseNextToken(l *Lexer) token.Token {
 	var tok token.Token
 	l.skipWhitespace()
 	Line := l.line
