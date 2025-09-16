@@ -54,6 +54,9 @@ var precedences = map[token.Type]int{
 type Parser interface {
 	CurrentToken() token.Token
 	PeekToken() token.Token
+	NextToken()
+	ExpectToken(t token.Type) bool
+	AddError(message string)
 }
 
 type XJSParser struct {
@@ -103,6 +106,10 @@ func (p *XJSParser) ParseProgram() (*ast.Program, error) {
 
 func (p *XJSParser) CurrentToken() token.Token {
 	return p.currentToken
+}
+
+func (p *XJSParser) PeekToken() token.Token {
+	return p.peekToken
 }
 
 func (p *XJSParser) NextToken() {
