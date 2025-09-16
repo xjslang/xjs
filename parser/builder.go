@@ -6,17 +6,11 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-type Builder struct {
-	LexerBuilder     *lexer.Builder
-	stmtInterceptors []func(p *Parser, next func() ast.Statement) ast.Statement
-	expInterceptors  []func(p *Parser, next func() ast.Expression) ast.Expression
-}
-
 func NewBuilder(lb *lexer.Builder) *Builder {
 	return &Builder{
 		LexerBuilder:     lb,
-		stmtInterceptors: []func(p *Parser, next func() ast.Statement) ast.Statement{},
-		expInterceptors:  []func(p *Parser, next func() ast.Expression) ast.Expression{},
+		stmtInterceptors: []Interceptor[ast.Statement]{},
+		expInterceptors:  []Interceptor[ast.Expression]{},
 	}
 }
 
@@ -25,12 +19,12 @@ func (pb *Builder) Install(plugin func(*Builder)) *Builder {
 	return pb
 }
 
-func (pb *Builder) UseStatementInterceptor(interceptor func(p *Parser, next func() ast.Statement) ast.Statement) *Builder {
+func (pb *Builder) UseStatementInterceptor(interceptor Interceptor[ast.Statement]) *Builder {
 	pb.stmtInterceptors = append(pb.stmtInterceptors, interceptor)
 	return pb
 }
 
-func (pb *Builder) UseExpressionInterceptor(interceptor func(p *Parser, next func() ast.Expression) ast.Expression) *Builder {
+func (pb *Builder) UseExpressionInterceptor(interceptor Interceptor[ast.Expression]) *Builder {
 	pb.expInterceptors = append(pb.expInterceptors, interceptor)
 	return pb
 }

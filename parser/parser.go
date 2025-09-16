@@ -51,6 +51,14 @@ var precedences = map[token.Type]int{
 	token.LBRACKET:     MEMBER,
 }
 
+type Interceptor[T ast.Node] func(p *Parser, next func() T) T
+
+type Builder struct {
+	LexerBuilder     *lexer.Builder
+	stmtInterceptors []Interceptor[ast.Statement]
+	expInterceptors  []Interceptor[ast.Expression]
+}
+
 type Parser struct {
 	lexer *lexer.Lexer
 
@@ -71,8 +79,8 @@ type Parser struct {
 }
 
 type parserOptions struct {
-	stmtInterceptors []func(p *Parser, next func() ast.Statement) ast.Statement
-	expInterceptors  []func(p *Parser, next func() ast.Expression) ast.Expression
+	stmtInterceptors []Interceptor[ast.Statement]
+	expInterceptors  []Interceptor[ast.Expression]
 }
 
 func New(l *lexer.Lexer) *Parser {
@@ -218,7 +226,7 @@ func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
 	return p
 }
 
-func (p *Parser) useStatementInterceptor(interceptor func(p *Parser, next func() ast.Statement) ast.Statement) {
+func (p *Parser) useStatementInterceptor(interceptor Interceptor[ast.Statement]) {
 	next := p.statementParseFn
 	p.statementParseFn = func(p *Parser) ast.Statement {
 		return interceptor(p, func() ast.Statement {
@@ -227,7 +235,7 @@ func (p *Parser) useStatementInterceptor(interceptor func(p *Parser, next func()
 	}
 }
 
-func (p *Parser) useExpressionInterceptor(interceptor func(p *Parser, next func() ast.Expression) ast.Expression) {
+func (p *Parser) useExpressionInterceptor(interceptor Interceptor[ast.Expression]) {
 	next := p.expressionParseFn
 	p.expressionParseFn = func(p *Parser, precedence int) ast.Expression {
 		oldPrecedence := p.currentExpressionPrecedence
