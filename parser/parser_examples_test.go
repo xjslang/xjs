@@ -112,9 +112,9 @@ func Example_infixOperator() {
 	pb := NewBuilder(lb)
 	powType := lb.RegisterTokenType("pow")
 	lb.UseTokenInterceptor(func(l *lexer.Lexer, next func() token.Token) token.Token {
-		if l.CurrentChar() == '^' {
+		if l.CurrentChar == '^' {
 			l.ReadChar()
-			return token.Token{Type: powType, Literal: "^", Line: l.Line(), Column: l.Column()}
+			return token.Token{Type: powType, Literal: "^", Line: l.Line, Column: l.Column}
 		}
 		return next()
 	})
@@ -222,9 +222,9 @@ func Example_combined() {
 	// regists infix `^`
 	powType := lb.RegisterTokenType("pow")
 	lb.UseTokenInterceptor(func(l *lexer.Lexer, next func() token.Token) token.Token {
-		if l.CurrentChar() == '^' {
+		if l.CurrentChar == '^' {
 			l.ReadChar() // consume ^
-			return token.Token{Type: powType, Literal: "^", Line: l.Line(), Column: l.Column()}
+			return token.Token{Type: powType, Literal: "^", Line: l.Line, Column: l.Column}
 		}
 		return next()
 	})

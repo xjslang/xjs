@@ -20,9 +20,9 @@ type Lexer struct {
 	input        string
 	position     int  // current position in input (points to current char)
 	readPosition int  // current reading position in input (after current char)
-	ch           byte // current char under examination
-	line         int  // current line
-	column       int  // current column
+	CurrentChar  byte // current char under examination
+	Line         int  // current line
+	Column       int  // current column
 
 	nextToken func(*Lexer) token.Token
 }
@@ -31,33 +31,21 @@ func New(input string) *Lexer {
 	return newWithOptions(input)
 }
 
-func (l *Lexer) CurrentChar() byte {
-	return l.ch
-}
-
-func (l *Lexer) Line() int {
-	return l.line
-}
-
-func (l *Lexer) Column() int {
-	return l.column
-}
-
 // ReadChar reads the next character and advances position in the input
 func (l *Lexer) ReadChar() {
 	if l.readPosition >= len(l.input) {
-		l.ch = 0 // ASCII NUL character represents "EOF"
+		l.CurrentChar = 0 // ASCII NUL character represents "EOF"
 	} else {
-		l.ch = l.input[l.readPosition]
+		l.CurrentChar = l.input[l.readPosition]
 	}
 	l.position = l.readPosition
 	l.readPosition++
 
-	if l.ch == '\n' {
-		l.line++
-		l.column = 0
+	if l.CurrentChar == '\n' {
+		l.Line++
+		l.Column = 0
 	} else {
-		l.column++
+		l.Column++
 	}
 }
 
@@ -70,7 +58,7 @@ func (l *Lexer) PeekChar() byte {
 
 // skipWhitespace skips whitespace characters
 func (l *Lexer) skipWhitespace() {
-	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
+	for l.CurrentChar == ' ' || l.CurrentChar == '\t' || l.CurrentChar == '\n' || l.CurrentChar == '\r' {
 		l.ReadChar()
 	}
 }
@@ -78,7 +66,7 @@ func (l *Lexer) skipWhitespace() {
 // readIdentifier reads an identifier or keyword
 func (l *Lexer) readIdentifier() string {
 	position := l.position
-	for isLetter(l.ch) || isDigit(l.ch) {
+	for isLetter(l.CurrentChar) || isDigit(l.CurrentChar) {
 		l.ReadChar()
 	}
 	return l.input[position:l.position]
@@ -89,15 +77,15 @@ func (l *Lexer) readNumber() (string, token.Type) {
 	position := l.position
 	tokenType := token.INT
 
-	for isDigit(l.ch) {
+	for isDigit(l.CurrentChar) {
 		l.ReadChar()
 	}
 
 	// Check if it's a decimal number
-	if l.ch == '.' && isDigit(l.PeekChar()) {
+	if l.CurrentChar == '.' && isDigit(l.PeekChar()) {
 		tokenType = token.FLOAT
 		l.ReadChar() // consume the '.'
-		for isDigit(l.ch) {
+		for isDigit(l.CurrentChar) {
 			l.ReadChar()
 		}
 	}
@@ -111,13 +99,13 @@ func (l *Lexer) readString(delimiter byte) string {
 
 	for {
 		l.ReadChar()
-		if l.ch == 0 {
+		if l.CurrentChar == 0 {
 			break
 		}
 		// Handle escape sequences
-		if l.ch == '\\' {
+		if l.CurrentChar == '\\' {
 			l.ReadChar() // Move to the character after backslash
-			if l.ch == 'x' {
+			if l.CurrentChar == 'x' {
 				// Handle hexadecimal escape sequence \xHH
 				hex1 := l.PeekChar()
 				if isHexDigit(hex1) {
@@ -135,7 +123,7 @@ func (l *Lexer) readString(delimiter byte) string {
 				result.WriteByte('\\')
 				result.WriteByte('x')
 				continue
-			} else if l.ch == 'u' {
+			} else if l.CurrentChar == 'u' {
 				// Check if it's extended Unicode \u{...}
 				if l.PeekChar() == '{' {
 					// Handle extended Unicode escape sequence \u{H...}
@@ -156,7 +144,7 @@ func (l *Lexer) readString(delimiter byte) string {
 							break
 						}
 						l.ReadChar()
-						hexDigits = append(hexDigits, l.ch)
+						hexDigits = append(hexDigits, l.CurrentChar)
 					}
 
 					// Validate the sequence
@@ -232,22 +220,22 @@ func (l *Lexer) readString(delimiter byte) string {
 				}
 			} else {
 				// Keep escape sequences as-is for valid JavaScript output
-				switch l.ch {
+				switch l.CurrentChar {
 				case 'n', 't', 'r', '\\', '"', '\'':
 					result.WriteByte('\\')
-					result.WriteByte(l.ch)
+					result.WriteByte(l.CurrentChar)
 				default:
 					// For any other character, include both \ and the character
 					result.WriteByte('\\')
-					result.WriteByte(l.ch)
+					result.WriteByte(l.CurrentChar)
 				}
 				continue
 			}
 		}
-		if l.ch == delimiter {
+		if l.CurrentChar == delimiter {
 			break
 		}
-		result.WriteByte(l.ch)
+		result.WriteByte(l.CurrentChar)
 	}
 	return result.String()
 }
@@ -256,11 +244,11 @@ func (l *Lexer) readRawString() string {
 	var result strings.Builder
 	for {
 		l.ReadChar()
-		if l.ch == 0 {
+		if l.CurrentChar == 0 {
 			break
 		}
 		// Handle escaped backticks
-		if l.ch == '\\' {
+		if l.CurrentChar == '\\' {
 			nextChar := l.PeekChar()
 			if nextChar == '`' {
 				l.ReadChar() // consume the backtick
@@ -268,10 +256,10 @@ func (l *Lexer) readRawString() string {
 				continue
 			}
 		}
-		if l.ch == '`' {
+		if l.CurrentChar == '`' {
 			break
 		}
-		result.WriteByte(l.ch)
+		result.WriteByte(l.CurrentChar)
 	}
 	return result.String()
 }
@@ -292,7 +280,7 @@ func isDigit(ch byte) bool {
 
 // skipLineComment skips characters until the end of line for line comments (//)
 func (l *Lexer) skipLineComment() {
-	for l.ch != '\n' && l.ch != 0 {
+	for l.CurrentChar != '\n' && l.CurrentChar != 0 {
 		l.ReadChar()
 	}
 }
@@ -300,8 +288,8 @@ func (l *Lexer) skipLineComment() {
 func newWithOptions(input string, interceptors ...Interceptor) *Lexer {
 	l := &Lexer{
 		input:  input,
-		line:   1,
-		column: 0,
+		Line:   1,
+		Column: 0,
 
 		nextToken: baseNextToken,
 	}
