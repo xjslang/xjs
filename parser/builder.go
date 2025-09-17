@@ -31,21 +31,21 @@ func (pb *Builder) UseExpressionInterceptor(interceptor Interceptor[ast.Expressi
 
 func (pb *Builder) RegisterPrefixOperator(tokenType token.Type, createExpr func(token token.Token, right func() ast.Expression) ast.Expression) {
 	pb.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
-		if p.currentToken.Type != tokenType {
+		if p.CurrentToken.Type != tokenType {
 			return next()
 		}
 		right := func() ast.Expression {
 			p.NextToken()
 			return p.ParsePrefixExpression()
 		}
-		expr := createExpr(p.currentToken, right)
+		expr := createExpr(p.CurrentToken, right)
 		return p.ParseRemainingExpression(expr)
 	})
 }
 
 func (pb *Builder) RegisterInfixOperator(tokenType token.Type, precedence int, createExpr func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression) {
 	pb.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
-		if p.peekToken.Type != tokenType {
+		if p.PeekToken.Type != tokenType {
 			return next()
 		}
 		left := p.ParsePrefixExpression()
@@ -54,7 +54,7 @@ func (pb *Builder) RegisterInfixOperator(tokenType token.Type, precedence int, c
 			p.NextToken() // move to right expression
 			return p.ParseExpressionWithPrecedence(precedence)
 		}
-		expr := createExpr(p.currentToken, left, right)
+		expr := createExpr(p.CurrentToken, left, right)
 		return p.ParseRemainingExpression(expr)
 	})
 }

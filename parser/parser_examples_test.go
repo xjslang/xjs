@@ -30,10 +30,10 @@ func Example_statement() {
 	pb := NewBuilder(lb)
 	// adds support for the `const` keyword!
 	pb.UseStatementInterceptor(func(p *Parser, next func() ast.Statement) ast.Statement {
-		if p.currentToken.Type == token.IDENT && p.currentToken.Literal == "const" {
-			stmt := &ConstStatement{Token: p.currentToken}
+		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
+			stmt := &ConstStatement{Token: p.CurrentToken}
 			p.NextToken() // moves to identifier token
-			stmt.Name = &ast.Identifier{Token: p.currentToken, Value: p.currentToken.Literal}
+			stmt.Name = &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
 			if !p.ExpectToken(token.ASSIGN) { // expects "="
 				return nil
 			}
@@ -188,8 +188,8 @@ func Example_expressionParser() {
 	pb := NewBuilder(lb)
 	// intercepts expression parsing to handle RANDOM as a special expression!
 	pb.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
-		if p.currentToken.Type == token.IDENT && p.currentToken.Literal == "RANDOM" {
-			return p.ParseRemainingExpression(&RandomExpression{Token: p.currentToken})
+		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "RANDOM" {
+			return p.ParseRemainingExpression(&RandomExpression{Token: p.CurrentToken})
 		}
 		return next()
 	})
@@ -240,10 +240,10 @@ func Example_combined() {
 
 	// combines all previous examples!
 	pb.UseStatementInterceptor(func(p *Parser, next func() ast.Statement) ast.Statement {
-		if p.currentToken.Type == token.IDENT && p.currentToken.Literal == "const" {
-			stmt := &ConstStatement{Token: p.currentToken}
+		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
+			stmt := &ConstStatement{Token: p.CurrentToken}
 			p.NextToken()
-			stmt.Name = &ast.Identifier{Token: p.currentToken, Value: p.currentToken.Literal}
+			stmt.Name = &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
 			if !p.ExpectToken(token.ASSIGN) {
 				return nil
 			}
@@ -263,8 +263,8 @@ func Example_combined() {
 		return &PiLiteral{Token: token}
 	})
 	pb.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
-		if p.currentToken.Type == token.IDENT && p.currentToken.Literal == "RANDOM" {
-			return p.ParseRemainingExpression(&RandomExpression{Token: p.currentToken})
+		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "RANDOM" {
+			return p.ParseRemainingExpression(&RandomExpression{Token: p.CurrentToken})
 		}
 		return next()
 	})

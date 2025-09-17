@@ -62,8 +62,8 @@ type Builder struct {
 type Parser struct {
 	lexer *lexer.Lexer
 
-	currentToken token.Token
-	peekToken    token.Token
+	CurrentToken token.Token
+	PeekToken    token.Token
 
 	statementParseFn  func(*Parser) ast.Statement
 	expressionParseFn func(*Parser, int) ast.Expression
@@ -90,7 +90,7 @@ func New(l *lexer.Lexer) *Parser {
 func (p *Parser) ParseProgram() (*ast.Program, error) {
 	program := &ast.Program{}
 	program.Statements = []ast.Statement{}
-	for p.currentToken.Type != token.EOF {
+	for p.CurrentToken.Type != token.EOF {
 		stmt := p.statementParseFn(p)
 		if stmt != nil {
 			program.Statements = append(program.Statements, stmt)
@@ -104,23 +104,15 @@ func (p *Parser) ParseProgram() (*ast.Program, error) {
 	return program, nil
 }
 
-func (p *Parser) CurrentToken() token.Token {
-	return p.currentToken
-}
-
-func (p *Parser) PeekToken() token.Token {
-	return p.peekToken
-}
-
 func (p *Parser) NextToken() {
-	p.currentToken = p.peekToken
-	p.peekToken = p.lexer.NextToken()
+	p.CurrentToken = p.PeekToken
+	p.PeekToken = p.lexer.NextToken()
 }
 
 func (p *Parser) AddError(message string) {
 	pos := Position{
-		Line:   p.currentToken.Line,
-		Column: p.currentToken.Column,
+		Line:   p.CurrentToken.Line,
+		Column: p.CurrentToken.Column,
 	}
 	err := ParserError{
 		Message:  message,
@@ -131,32 +123,32 @@ func (p *Parser) AddError(message string) {
 }
 
 func (p *Parser) ExpectToken(t token.Type) bool {
-	if p.peekToken.Type == t {
+	if p.PeekToken.Type == t {
 		p.NextToken()
 		return true
 	}
-	p.AddError(fmt.Sprintf("output %s, got %s", t, p.peekToken.Type))
+	p.AddError(fmt.Sprintf("output %s, got %s", t, p.PeekToken.Type))
 	return false
 }
 
 func (p *Parser) ExpectLiteral(literal string) bool {
-	if p.peekToken.Literal == literal {
+	if p.PeekToken.Literal == literal {
 		p.NextToken()
 		return true
 	}
-	p.AddError(fmt.Sprintf("output %s, got %s", literal, p.peekToken.Type))
+	p.AddError(fmt.Sprintf("output %s, got %s", literal, p.PeekToken.Type))
 	return false
 }
 
 func (p *Parser) peekPrecedence() int {
-	if p, ok := precedences[p.peekToken.Type]; ok {
+	if p, ok := precedences[p.PeekToken.Type]; ok {
 		return p
 	}
 	return LOWEST
 }
 
 func (p *Parser) currentPrecedence() int {
-	if p, ok := precedences[p.currentToken.Type]; ok {
+	if p, ok := precedences[p.CurrentToken.Type]; ok {
 		return p
 	}
 	return LOWEST
@@ -219,7 +211,7 @@ func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
 		p.useExpressionInterceptor(interceptor)
 	}
 
-	// Read two tokens, so currentToken and PeekToken are both set
+	// Read two tokens, so CurrentToken and PeekToken are both set
 	p.NextToken()
 	p.NextToken()
 
