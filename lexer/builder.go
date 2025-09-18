@@ -16,8 +16,8 @@ func (lb *Builder) Build(input string) *Lexer {
 	return newWithOptions(input, lb.interceptors...)
 }
 
-func (lb *Builder) UseTokenInterceptor(reader Interceptor) *Builder {
-	lb.interceptors = append(lb.interceptors, reader)
+func (lb *Builder) UseInterceptor(interceptor Interceptor) *Builder {
+	lb.interceptors = append(lb.interceptors, interceptor)
 	return lb
 }
 

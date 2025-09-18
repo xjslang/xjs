@@ -294,13 +294,13 @@ func newWithOptions(input string, interceptors ...Interceptor) *Lexer {
 		nextToken: baseNextToken,
 	}
 	for _, reader := range interceptors {
-		l.useTokenReader(reader)
+		l.useInterceptor(reader)
 	}
 	l.ReadChar()
 	return l
 }
 
-func (l *Lexer) useTokenReader(interceptor Interceptor) {
+func (l *Lexer) useInterceptor(interceptor Interceptor) {
 	next := l.nextToken
 	l.nextToken = func(l *Lexer) token.Token {
 		l.skipWhitespace()
