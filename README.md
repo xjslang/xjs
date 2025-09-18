@@ -54,7 +54,7 @@ This approach ensures that every included feature has demonstrated genuine utili
 
 Everything revolves around the middlewares `UseStatementParser` and `UseExpressionParser`. With these two methods, you can customize the syntax as you wish, adding new features to the language or modifying existing ones.
 
-For convenience, we have also included the methods `RegisterPrefixOperator`, `RegisterInfixOperator`, and `RegisterOperand`, which internally use the middlewares mentioned above.
+For convenience, we have also included the methods `UsePrefixOperator`, `UseInfixOperator`, and `UseOperand`, which internally use the middlewares mentioned above.
 
 Additionally, you can concatenate different parsers, further enriching the syntax to suit your preferences. Parsers are executed in LIFO order (Last-In, First-Out).
 
@@ -168,7 +168,7 @@ func main() {
 </details>
 
 <details>
-	<summary>RegisterPrefixOperator example</summary>
+	<summary>UsePrefixOperator example</summary>
 
 ```go
 package main
@@ -201,7 +201,7 @@ func main() {
 	l := lexer.New(input)
 	p := parser.New(l)
 	// adds support for the typeof keyword!
-	p.RegisterPrefixOperator("typeof", func(right func() ast.Expression) ast.Expression {
+	p.UsePrefixOperator("typeof", func(right func() ast.Expression) ast.Expression {
 		return &TypeofExpression{
 			Token: p.CurrentToken,
 			Right: right(),
@@ -218,7 +218,7 @@ func main() {
 </details>
 
 <details>
-	<summary>RegisterInfixOperator example</summary>
+	<summary>UseInfixOperator example</summary>
 
 ```go
 package main
@@ -254,7 +254,7 @@ func main() {
 	l := lexer.New(input)
 	p := parser.New(l)
 	// adds support for the ^ operator!
-	p.RegisterInfixOperator("^", parser.PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
+	p.UseInfixOperator("^", parser.PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{
 			Token: p.CurrentToken,
 			Left:  left,
@@ -272,7 +272,7 @@ func main() {
 </details>
 
 <details>
-	<summary>RegisterOperand example</summary>
+	<summary>UseOperand example</summary>
 
 ```go
 package main
@@ -302,7 +302,7 @@ func main() {
 	l := lexer.New(input)
 	p := parser.New(l)
 	// adds support for the PI constant!
-	p.RegisterOperand("PI", func() ast.Expression {
+	p.UseOperand("PI", func() ast.Expression {
 		return &PiLiteral{Token: p.CurrentToken}
 	})
 	ast, err := p.ParseProgram()
@@ -410,13 +410,13 @@ func main() {
 		}
 		return next()
 	})
-	p.RegisterPrefixOperator("typeof", func(right func() ast.Expression) ast.Expression {
+	p.UsePrefixOperator("typeof", func(right func() ast.Expression) ast.Expression {
 		return &TypeofExpression{Token: p.CurrentToken, Right: right()}
 	})
-	p.RegisterInfixOperator("^", parser.PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
+	p.UseInfixOperator("^", parser.PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{Token: p.CurrentToken, Left: left, Right: right()}
 	})
-	p.RegisterOperand("PI", func() ast.Expression {
+	p.UseOperand("PI", func() ast.Expression {
 		return &PiLiteral{Token: p.CurrentToken}
 	})
 	p.UseExpressionParser(func(p *parser.Parser, next func() ast.Expression) ast.Expression {

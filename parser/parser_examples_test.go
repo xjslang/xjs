@@ -77,7 +77,7 @@ func Example_prefixOperator() {
 	})
 	// adds support for the typeof keyword!
 	pb := NewBuilder(lb)
-	pb.RegisterPrefixOperator(typeofType, func(token token.Token, right func() ast.Expression) ast.Expression {
+	pb.UsePrefixOperator(typeofType, func(token token.Token, right func() ast.Expression) ast.Expression {
 		return &TypeofExpression{
 			Token: token,
 			Right: right(),
@@ -120,7 +120,7 @@ func Example_infixOperator() {
 	})
 
 	// adds support for the ^ operator!
-	pb.RegisterInfixOperator(powType, PRODUCT+1, func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
+	pb.UseInfixOperator(powType, PRODUCT+1, func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{
 			Token: token,
 			Left:  left,
@@ -161,7 +161,7 @@ func Example_operand() {
 	})
 
 	// adds support for the PI constant!
-	pb.RegisterOperand(piType, func(token token.Token) ast.Expression {
+	pb.UseOperand(piType, func(token token.Token) ast.Expression {
 		return &PiLiteral{Token: token}
 	})
 
@@ -253,13 +253,13 @@ func Example_combined() {
 		}
 		return next()
 	})
-	pb.RegisterPrefixOperator(typeofType, func(token token.Token, right func() ast.Expression) ast.Expression {
+	pb.UsePrefixOperator(typeofType, func(token token.Token, right func() ast.Expression) ast.Expression {
 		return &TypeofExpression{Token: token, Right: right()}
 	})
-	pb.RegisterInfixOperator(powType, PRODUCT+1, func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
+	pb.UseInfixOperator(powType, PRODUCT+1, func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{Token: token, Left: left, Right: right()}
 	})
-	pb.RegisterOperand(piType, func(token token.Token) ast.Expression {
+	pb.UseOperand(piType, func(token token.Token) ast.Expression {
 		return &PiLiteral{Token: token}
 	})
 	pb.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {

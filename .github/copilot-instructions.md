@@ -81,26 +81,26 @@ p.UseExpressionParser(func(p *Parser, next func() Expression) Expression {
 })
 ```
 
-### 3. RegisterPrefixOperator
+### 3. UsePrefixOperator
 Add custom prefix operators (like `typeof`, `!`, `-`):
 ```go
-p.RegisterPrefixOperator("typeof", func(right func() Expression) Expression {
+p.UsePrefixOperator("typeof", func(right func() Expression) Expression {
     // Return custom expression node
 })
 ```
 
-### 4. RegisterInfixOperator
+### 4. UseInfixOperator
 Add custom infix operators with precedence:
 ```go
-p.RegisterInfixOperator("^", PRODUCT+1, func(left Expression, right func() Expression) Expression {
+p.UseInfixOperator("^", PRODUCT+1, func(left Expression, right func() Expression) Expression {
     // Return custom expression node
 })
 ```
 
-### 5. RegisterOperand
+### 5. UseOperand
 Add custom operands/literals:
 ```go
-p.RegisterOperand("PI", func() Expression {
+p.UseOperand("PI", func() Expression {
     // Return custom expression node
 })
 ```

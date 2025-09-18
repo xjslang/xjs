@@ -30,7 +30,7 @@ func (pb *Builder) UseExpressionInterceptor(interceptor Interceptor[ast.Expressi
 	return pb
 }
 
-func (pb *Builder) RegisterPrefixOperator(tokenType token.Type, createExpr func(token token.Token, right func() ast.Expression) ast.Expression) {
+func (pb *Builder) UsePrefixOperator(tokenType token.Type, createExpr func(token token.Token, right func() ast.Expression) ast.Expression) {
 	pb.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Type != tokenType {
 			return next()
@@ -44,7 +44,7 @@ func (pb *Builder) RegisterPrefixOperator(tokenType token.Type, createExpr func(
 	})
 }
 
-func (pb *Builder) RegisterInfixOperator(tokenType token.Type, precedence int, createExpr func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression) {
+func (pb *Builder) UseInfixOperator(tokenType token.Type, precedence int, createExpr func(token token.Token, left ast.Expression, right func() ast.Expression) ast.Expression) {
 	pb.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.PeekToken.Type != tokenType {
 			return next()
@@ -60,13 +60,13 @@ func (pb *Builder) RegisterInfixOperator(tokenType token.Type, precedence int, c
 	})
 }
 
-func (pb *Builder) RegisterOperand(tokenType token.Type, createExpr func(token token.Token) ast.Expression) {
-	pb.RegisterPrefixOperator(tokenType, func(token token.Token, right func() ast.Expression) ast.Expression {
+func (pb *Builder) UseOperand(tokenType token.Type, createExpr func(token token.Token) ast.Expression) {
+	pb.UsePrefixOperator(tokenType, func(token token.Token, right func() ast.Expression) ast.Expression {
 		return createExpr(token)
 	})
 }
 
-func (pb *Builder) AddProgramTransformer(transformer Transformer) {
+func (pb *Builder) UseProgramTransformer(transformer Transformer) {
 	pb.programTransformers = append(pb.programTransformers, transformer)
 }
 
