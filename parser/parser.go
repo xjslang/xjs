@@ -52,11 +52,13 @@ var precedences = map[token.Type]int{
 }
 
 type Interceptor[T ast.Node] func(p *Parser, next func() T) T
+type Transformer func(*ast.Program) *ast.Program
 
 type Builder struct {
-	LexerBuilder     *lexer.Builder
-	stmtInterceptors []Interceptor[ast.Statement]
-	expInterceptors  []Interceptor[ast.Expression]
+	LexerBuilder        *lexer.Builder
+	stmtInterceptors    []Interceptor[ast.Statement]
+	expInterceptors     []Interceptor[ast.Expression]
+	programTransformers []Transformer
 }
 
 type Parser struct {
@@ -65,10 +67,11 @@ type Parser struct {
 	CurrentToken token.Token
 	PeekToken    token.Token
 
-	statementParseFn  func(*Parser) ast.Statement
-	expressionParseFn func(*Parser, int) ast.Expression
-	prefixParseFns    map[token.Type]func() ast.Expression
-	infixParseFns     map[token.Type]func(ast.Expression) ast.Expression
+	statementParseFn   func(*Parser) ast.Statement
+	expressionParseFn  func(*Parser, int) ast.Expression
+	transformProgramFn func(*ast.Program) *ast.Program
+	prefixParseFns     map[token.Type]func() ast.Expression
+	infixParseFns      map[token.Type]func(ast.Expression) ast.Expression
 
 	errors []ParserError
 
@@ -79,8 +82,9 @@ type Parser struct {
 }
 
 type parserOptions struct {
-	stmtInterceptors []Interceptor[ast.Statement]
-	expInterceptors  []Interceptor[ast.Expression]
+	stmtInterceptors    []Interceptor[ast.Statement]
+	expInterceptors     []Interceptor[ast.Expression]
+	programTransformers []Transformer
 }
 
 func New(l *lexer.Lexer) *Parser {
@@ -96,6 +100,9 @@ func (p *Parser) ParseProgram() (*ast.Program, error) {
 			program.Statements = append(program.Statements, stmt)
 		}
 		p.NextToken()
+	}
+	if p.transformProgramFn != nil {
+		program = p.transformProgramFn(program)
 	}
 	if len(p.errors) > 0 {
 		return program, fmt.Errorf("parsing failed with %d errors: %v",
@@ -131,15 +138,6 @@ func (p *Parser) ExpectToken(t token.Type) bool {
 	return false
 }
 
-func (p *Parser) ExpectLiteral(literal string) bool {
-	if p.PeekToken.Literal == literal {
-		p.NextToken()
-		return true
-	}
-	p.AddError(fmt.Sprintf("output %s, got %s", literal, p.PeekToken.Type))
-	return false
-}
-
 func (p *Parser) peekPrecedence() int {
 	if p, ok := precedences[p.PeekToken.Type]; ok {
 		return p
@@ -156,11 +154,12 @@ func (p *Parser) currentPrecedence() int {
 
 func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
 	p := &Parser{
-		lexer:             l,
-		errors:            []ParserError{},
-		statementParseFn:  baseParseStatement,
-		expressionParseFn: baseParseExpression,
-		contextStack:      []ContextType{GlobalContext}, // Initialize with global context
+		lexer:              l,
+		errors:             []ParserError{},
+		statementParseFn:   baseParseStatement,
+		expressionParseFn:  baseParseExpression,
+		transformProgramFn: nil,
+		contextStack:       []ContextType{GlobalContext}, // Initialize with global context
 	}
 
 	p.prefixParseFns = make(map[token.Type]func() ast.Expression)
@@ -204,11 +203,15 @@ func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
 	p.infixParseFns[token.INCREMENT] = p.ParsePostfixExpression
 	p.infixParseFns[token.DECREMENT] = p.ParsePostfixExpression
 
+	// uses middlewares
 	for _, interceptor := range opts.stmtInterceptors {
 		p.useStatementInterceptor(interceptor)
 	}
 	for _, interceptor := range opts.expInterceptors {
 		p.useExpressionInterceptor(interceptor)
+	}
+	for _, transformer := range opts.programTransformers {
+		p.useProgramTransformer(transformer)
 	}
 
 	// Read two tokens, so CurrentToken and PeekToken are both set
@@ -238,5 +241,16 @@ func (p *Parser) useExpressionInterceptor(interceptor Interceptor[ast.Expression
 		return interceptor(p, func() ast.Expression {
 			return next(p, precedence)
 		})
+	}
+}
+
+func (p *Parser) useProgramTransformer(transformer Transformer) {
+	next := p.transformProgramFn
+	p.transformProgramFn = func(program *ast.Program) *ast.Program {
+		program = transformer(program)
+		if next == nil {
+			return program
+		}
+		return next(program)
 	}
 }

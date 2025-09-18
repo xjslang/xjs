@@ -8,9 +8,10 @@ import (
 
 func NewBuilder(lb *lexer.Builder) *Builder {
 	return &Builder{
-		LexerBuilder:     lb,
-		stmtInterceptors: []Interceptor[ast.Statement]{},
-		expInterceptors:  []Interceptor[ast.Expression]{},
+		LexerBuilder:        lb,
+		stmtInterceptors:    []Interceptor[ast.Statement]{},
+		expInterceptors:     []Interceptor[ast.Expression]{},
+		programTransformers: []Transformer{},
 	}
 }
 
@@ -65,10 +66,15 @@ func (pb *Builder) RegisterOperand(tokenType token.Type, createExpr func(token t
 	})
 }
 
+func (pb *Builder) AddProgramTransformer(transformer Transformer) {
+	pb.programTransformers = append(pb.programTransformers, transformer)
+}
+
 func (pb *Builder) Build(input string) *Parser {
 	l := pb.LexerBuilder.Build(input)
 	return newWithOptions(l, parserOptions{
-		stmtInterceptors: pb.stmtInterceptors,
-		expInterceptors:  pb.expInterceptors,
+		stmtInterceptors:    pb.stmtInterceptors,
+		expInterceptors:     pb.expInterceptors,
+		programTransformers: pb.programTransformers,
 	})
 }
