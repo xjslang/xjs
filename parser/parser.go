@@ -87,71 +87,6 @@ type parserOptions struct {
 	programTransformers []Transformer
 }
 
-func New(l *lexer.Lexer) *Parser {
-	return newWithOptions(l, parserOptions{})
-}
-
-func (p *Parser) ParseProgram() (*ast.Program, error) {
-	program := &ast.Program{}
-	program.Statements = []ast.Statement{}
-	for p.CurrentToken.Type != token.EOF {
-		stmt := p.statementParseFn(p)
-		if stmt != nil {
-			program.Statements = append(program.Statements, stmt)
-		}
-		p.NextToken()
-	}
-	if p.transformProgramFn != nil {
-		program = p.transformProgramFn(program)
-	}
-	if len(p.errors) > 0 {
-		return program, fmt.Errorf("parsing failed with %d errors: %v",
-			len(p.errors), p.errors[0])
-	}
-	return program, nil
-}
-
-func (p *Parser) NextToken() {
-	p.CurrentToken = p.PeekToken
-	p.PeekToken = p.lexer.NextToken()
-}
-
-func (p *Parser) AddError(message string) {
-	pos := Position{
-		Line:   p.CurrentToken.Line,
-		Column: p.CurrentToken.Column,
-	}
-	err := ParserError{
-		Message:  message,
-		Position: pos,
-		Code:     "SYNTAX_ERROR",
-	}
-	p.errors = append(p.errors, err)
-}
-
-func (p *Parser) ExpectToken(t token.Type) bool {
-	if p.PeekToken.Type == t {
-		p.NextToken()
-		return true
-	}
-	p.AddError(fmt.Sprintf("output %s, got %s", t, p.PeekToken.Type))
-	return false
-}
-
-func (p *Parser) peekPrecedence() int {
-	if p, ok := precedences[p.PeekToken.Type]; ok {
-		return p
-	}
-	return LOWEST
-}
-
-func (p *Parser) currentPrecedence() int {
-	if p, ok := precedences[p.CurrentToken.Type]; ok {
-		return p
-	}
-	return LOWEST
-}
-
 func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
 	p := &Parser{
 		lexer:              l,
@@ -219,6 +154,71 @@ func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
 	p.NextToken()
 
 	return p
+}
+
+func New(l *lexer.Lexer) *Parser {
+	return newWithOptions(l, parserOptions{})
+}
+
+func (p *Parser) ParseProgram() (*ast.Program, error) {
+	program := &ast.Program{}
+	program.Statements = []ast.Statement{}
+	for p.CurrentToken.Type != token.EOF {
+		stmt := p.statementParseFn(p)
+		if stmt != nil {
+			program.Statements = append(program.Statements, stmt)
+		}
+		p.NextToken()
+	}
+	if p.transformProgramFn != nil {
+		program = p.transformProgramFn(program)
+	}
+	if len(p.errors) > 0 {
+		return program, fmt.Errorf("parsing failed with %d errors: %v",
+			len(p.errors), p.errors[0])
+	}
+	return program, nil
+}
+
+func (p *Parser) NextToken() {
+	p.CurrentToken = p.PeekToken
+	p.PeekToken = p.lexer.NextToken()
+}
+
+func (p *Parser) AddError(message string) {
+	pos := Position{
+		Line:   p.CurrentToken.Line,
+		Column: p.CurrentToken.Column,
+	}
+	err := ParserError{
+		Message:  message,
+		Position: pos,
+		Code:     "SYNTAX_ERROR",
+	}
+	p.errors = append(p.errors, err)
+}
+
+func (p *Parser) ExpectToken(t token.Type) bool {
+	if p.PeekToken.Type == t {
+		p.NextToken()
+		return true
+	}
+	p.AddError(fmt.Sprintf("output %s, got %s", t, p.PeekToken.Type))
+	return false
+}
+
+func (p *Parser) peekPrecedence() int {
+	if p, ok := precedences[p.PeekToken.Type]; ok {
+		return p
+	}
+	return LOWEST
+}
+
+func (p *Parser) currentPrecedence() int {
+	if p, ok := precedences[p.CurrentToken.Type]; ok {
+		return p
+	}
+	return LOWEST
 }
 
 func (p *Parser) useStatementInterceptor(interceptor Interceptor[ast.Statement]) {
