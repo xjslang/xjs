@@ -19,8 +19,14 @@ func TestToString(t *testing.T) {
 			l := lexer.New(tt.input)
 			p := parser.New(l)
 			stmt := p.ParseStatement()
-			if ToString(stmt) != tt.expected {
-				t.Errorf("ParseStatement() got %q, want %q", ToString(stmt), tt.expected)
+			if stmt == nil {
+				t.Fatalf("ParseStatement() returned nil")
+			}
+			if errors := p.Errors(); len(errors) > 0 {
+				t.Fatalf("Parser errors: %v", errors)
+			}
+			if got := ToString(stmt); got != tt.expected {
+				t.Errorf("ToString() got %q, want %q", got, tt.expected)
 			}
 		})
 	}

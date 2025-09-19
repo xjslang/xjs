@@ -207,6 +207,10 @@ func (p *Parser) ExpectToken(t token.Type) bool {
 	return false
 }
 
+func (p *Parser) Errors() []ParserError {
+	return p.errors
+}
+
 func (p *Parser) peekPrecedence() int {
 	if p, ok := precedences[p.PeekToken.Type]; ok {
 		return p
