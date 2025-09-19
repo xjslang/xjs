@@ -8,7 +8,7 @@ import (
 )
 
 var cfg = &spew.ConfigState{
-	Indent:                  "\t",
+	Indent:                  "   ",
 	DisableMethods:          true,
 	DisablePointerAddresses: true,
 	ContinueOnMethod:        false,

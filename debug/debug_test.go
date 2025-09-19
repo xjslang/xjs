@@ -41,28 +41,28 @@ func ExamplePrint() {
 	Print(stmt)
 	// Output:
 	// (*ast.LetStatement)({
-	//     Token: (token.Token) {
-	//             Type: (token.Type) 0,
-	//             Literal: (string) "",
-	//             Line: (int) 0,
-	//             Column: (int) 0
-	//     },
-	//     Name: (*ast.Identifier)({
-	//             Token: (token.Token) {
-	//                     Type: (token.Type) 0,
-	//                     Literal: (string) "",
-	//                     Line: (int) 0,
-	//                     Column: (int) 0
-	//             },
-	//             Value: (string) (len=1) "x"
-	//     }),
-	//     Value: (*ast.IntegerLiteral)({
-	//             Token: (token.Token) {
-	//                     Type: (token.Type) 0,
-	//                     Literal: (string) (len=1) "5",
-	//                     Line: (int) 0,
-	//                     Column: (int) 0
-	//             }
-	//     })
+	//    Token: (token.Token) {
+	//       Type: (token.Type) 0,
+	//       Literal: (string) "",
+	//       Line: (int) 0,
+	//       Column: (int) 0
+	//    },
+	//    Name: (*ast.Identifier)({
+	//       Token: (token.Token) {
+	//          Type: (token.Type) 0,
+	//          Literal: (string) "",
+	//          Line: (int) 0,
+	//          Column: (int) 0
+	//       },
+	//       Value: (string) (len=1) "x"
+	//    }),
+	//    Value: (*ast.IntegerLiteral)({
+	//       Token: (token.Token) {
+	//          Type: (token.Type) 0,
+	//          Literal: (string) (len=1) "5",
+	//          Line: (int) 0,
+	//          Column: (int) 0
+	//       }
+	//    })
 	// })
 }
