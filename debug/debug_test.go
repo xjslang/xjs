@@ -1,35 +1,29 @@
 package debug
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/token"
 )
 
-func TestDebugToString(t *testing.T) {
-	stmt := &ast.LetStatement{
-		Name:  &ast.Identifier{Value: "x"},
-		Value: &ast.IntegerLiteral{Token: token.Token{Literal: "5"}},
+func TestToString(t *testing.T) {
+	tests := []struct{ name, input, expected string }{
+		{"LetStatement", "let x = 5", "let x=5"},
+		{"FunctionDeclaration", "function add(a, b){ return a+b }", "function add(a,b){return (a+b)}"},
 	}
-
-	result := ToString(stmt)
-	expected := "let x=5"
-
-	if result != expected {
-		t.Errorf("Expected %q, got %q", expected, result)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := lexer.New(tt.input)
+			p := parser.New(l)
+			stmt := p.ParseStatement()
+			if ToString(stmt) != tt.expected {
+				t.Errorf("ParseStatement() got %q, want %q", ToString(stmt), tt.expected)
+			}
+		})
 	}
-}
-
-func ExampleToString() {
-	stmt := &ast.LetStatement{
-		Name:  &ast.Identifier{Value: "x"},
-		Value: &ast.IntegerLiteral{Token: token.Token{Literal: "5"}},
-	}
-
-	fmt.Println(ToString(stmt))
-	// Output: let x=5
 }
 
 func ExamplePrint() {
