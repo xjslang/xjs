@@ -4,10 +4,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/xjslang/xjs)](https://goreportcard.com/report/github.com/xjslang/xjs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> [!CAUTION]
-> This project is under active development.  
-> The API is subject to change without notice.
-
 **XJS** is a highly customizable JavaScript parser written in Go. Our goal is to create a JavaScript compiler that includes only the essential, proven features while enabling users to extend the language through dynamic plugins.
 
 ## Key Features
