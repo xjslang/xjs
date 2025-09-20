@@ -87,13 +87,13 @@ Rather than accumulating features over time, **XJS** starts with a carefully cur
 
 XJS provides several ways to extend the language:
 
-- **`lexer.Builder.UseInterceptor`** - Add a lexer interceptor
-- **`parser.Builder.UseStatementInterceptor`** - Add custom statement types
-- **`parser.Builder.UseExpressionInterceptor`** - Add custom expression types  
-- **`parser.Builder.UsePrefixOperator`** - Add prefix operators (like `typeof`)
-- **`parser.Builder.UseInfixOperator`** - Add infix operators (like `^` for power)
-- **`parser.Builder.UseOperand`** - Add custom literals/constants
-- **`parser.Builder.UseProgramTransformer`** - Addd a program transformer
+- **`lexer.Builder.UseInterceptor`** - Intercept and modify token lexing flow
+- **`parser.Builder.UseStatementInterceptor`** - Intercept and modify statement parsing flow
+- **`parser.Builder.UseExpressionInterceptor`** - Intercept and modify expression parsing flow  
+- **`parser.Builder.UsePrefixOperator`** - Register prefix operators (like `typeof`)
+- **`parser.Builder.UseInfixOperator`** - Register infix operators (like `^` for power)
+- **`parser.Builder.UseOperand`** - Register custom literals/constants
+- **`parser.Builder.UseProgramTransformer`** - Transform the generated AST
 
 ### Simple Extension Example
 
