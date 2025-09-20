@@ -27,7 +27,9 @@ package example
 
 import (
 	"fmt"
+	"strings"
 
+	interpparser "github.com/xjslang/interp-parser"
 	weakeqparser "github.com/xjslang/weakeq-parser"
 	"github.com/xjslang/xjs/lexer"
 	"github.com/xjslang/xjs/parser"
@@ -35,21 +37,28 @@ import (
 
 func main() {
 	input := `
-	// weakeq-parser extends the language
-	// by adding the operators '~~' and '!~'
+	// weakeq-parser enhances the language
+	// by adding support for weak equality ('~~' and '!~')
 	if (a ~~ b) { console.log('equal') }
-	if (a !~ b) { console.log('not equal') }`
+	if (a !~ b) { console.log('not equal') }
+	
+	// interp-parser enhances the language
+	// by allowing string interpolation
+	console.log('Hello ${name} ${surname}!')`
 	lb := lexer.NewBuilder()
 	p := parser.NewBuilder(lb).
-		Install(weakeqparser.Plugin). // install the plugin
+		Install(weakeqparser.Plugin). // install a plugin
+		Install(interpparser.Plugin). // install another plugin
 		Build(input)
 	program, err := p.ParseProgram()
 	if err != nil {
 		panic(fmt.Sprintf("ParseProgram() error: %v\n", err))
 	}
-	fmt.Println(program)
+	fmt.Println(strings.ReplaceAll(program.String(), ";", ";\n"))
 	// Output:
-	// if ((a==b)){console.log("equal")};if ((a!=b)){console.log("not equal")}
+	// if ((a==b)){console.log("equal")};
+	// if ((a!=b)){console.log("not equal")};
+	// console.log("Hello ${name} ${surname}!")
 }
 ```
 
