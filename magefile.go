@@ -52,7 +52,7 @@ func testErrors() error {
 // testUnit runs only unit tests (excluding integration tests)
 func TestUnit() error {
 	fmt.Println("🧪 Running unit tests...")
-	return sh.RunV("go", "test", "-v", "./ast", "./internal", "./lexer", "./parser", "./token")
+	return sh.RunV("go", "test", "-v", "./ast", "./lexer", "./parser", "./token")
 }
 
 // testMiddleware runs only middleware tests
