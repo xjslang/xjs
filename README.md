@@ -91,7 +91,7 @@ Rather than accumulating features over time, **XJS** starts with a carefully cur
 
 XJS provides several ways to extend the language:
 
-- **`lexer.Builder.UseInterceptor`** - Intercept and modify token lexing flow
+- **`lexer.Builder.UseTokenInterceptor`** - Intercept and modify token lexing flow
 - **`parser.Builder.UseStatementInterceptor`** - Intercept and modify statement parsing flow
 - **`parser.Builder.UseExpressionInterceptor`** - Intercept and modify expression parsing flow  
 - **`parser.Builder.UsePrefixOperator`** - Register prefix operators (like `typeof`)

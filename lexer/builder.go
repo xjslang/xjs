@@ -18,8 +18,8 @@ func (lb *Builder) Build(input string) *Lexer {
 	return newWithOptions(input, lb.interceptors...)
 }
 
-// UseInterceptor adds a middleware interceptor to the lexer pipeline.
-func (lb *Builder) UseInterceptor(interceptor Interceptor) *Builder {
+// UseTokenInterceptor adds a middleware interceptor to the lexer pipeline.
+func (lb *Builder) UseTokenInterceptor(interceptor Interceptor) *Builder {
 	lb.interceptors = append(lb.interceptors, interceptor)
 	return lb
 }
