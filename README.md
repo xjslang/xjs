@@ -23,27 +23,33 @@ go get github.com/xjslang/xjs@latest
 ### Basic Usage
 
 ```go
-package main
+package example
 
 import (
 	"fmt"
+
+	weakeqparser "github.com/xjslang/weakeq-parser"
 	"github.com/xjslang/xjs/lexer"
 	"github.com/xjslang/xjs/parser"
 )
 
 func main() {
 	input := `
-		let r = 45
-		let area = r * r * Math.PI
-	`
-	l := lexer.New(input)
-	p := parser.New(l)
-	ast, err := p.ParseProgram()
+	// weakeq-parser extends the language
+	// by adding the operators '~~' and '!~'
+	if (a ~~ b) { console.log('equal') }
+	if (a !~ b) { console.log('not equal') }`
+	lb := lexer.NewBuilder()
+	p := parser.NewBuilder(lb).
+		Install(weakeqparser.Plugin). // install the plugin
+		Build(input)
+	program, err := p.ParseProgram()
 	if err != nil {
 		panic(fmt.Sprintf("ParseProgram() error: %v\n", err))
 	}
-	fmt.Println(ast.String())
-	// Output: let r=45;let area=((r*r)*Math.PI)
+	fmt.Println(program)
+	// Output:
+	// if ((a==b)){console.log("equal")};if ((a!=b)){console.log("not equal")}
 }
 ```
 
