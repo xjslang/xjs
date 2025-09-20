@@ -102,6 +102,32 @@ func Lint() error {
 	return sh.RunV("golangci-lint", "run")
 }
 
+// Docs starts a local documentation server and opens it in browser
+func Docs() error {
+	fmt.Println("📚 Starting documentation server...")
+
+	// Check if pkgsite is installed
+	if !commandExists("pkgsite") {
+		fmt.Println("📦 Installing pkgsite...")
+		if err := sh.RunV("go", "install", "golang.org/x/pkgsite/cmd/pkgsite@latest"); err != nil {
+			return fmt.Errorf("failed to install pkgsite: %w", err)
+		}
+	}
+
+	// Start pkgsite server in background
+	fmt.Println("🌐 Starting pkgsite server on http://localhost:8080")
+	cmd := exec.Command("pkgsite", "-http=localhost:8080")
+
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("failed to start pkgsite: %w", err)
+	}
+
+	fmt.Println("💡 Press Ctrl+C to stop the documentation server")
+
+	// Wait for the process (pkgsite will keep running until user stops it)
+	return cmd.Wait()
+}
+
 // Release prepares a complete release
 func Release() error {
 	fmt.Println("🚢 Preparing release...")
