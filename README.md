@@ -121,9 +121,16 @@ pb.UseInfixOperator(powTokenType, parser.PRODUCT+1, func(left ast.Expression, ri
 
 Check out these community plugins:
 
-- **[Try-Parser](https://github.com/xjslang/try-parser)** - Adds `try/catch` support
-- **[JSX-Parser](https://github.com/xjslang/jsx-parser)** - JSX syntax support
-- **[Defer-Parser](https://github.com/xjslang/defer-parser)** - Go-style defer statements
+| Plugin | Description |
+|--------|-------------|
+| **[Defer-Parser](../plugins/defer-parser)** | Adds support for Go-style `defer` statements |
+| **[Interp-Parser](../plugins/interp-parser)** | Simplified template literal syntax with variable interpolation |
+| **[JSX-Parser](../plugins/jsx-parser)** | JSX syntax support with React.createElement transformation |
+| **[Pow-Parser](../plugins/pow-parser)** | Adds support for the `**` power operator |
+| **[Spread-Parser](../plugins/spread-parser)** | Object spread syntax using `..` operator (transpiles to Object.assign) |
+| **[Switch-Parser](../plugins/switch-parser)** | Adds support for `switch/case` statements |
+| **[Try-Parser](../plugins/try-parser)** | Adds `try/catch/finally` error handling support |
+| **[Weakeq-Parser](../plugins/weakeq-parser)** | Weak equality operators (`~~` and `!~`) for loose comparisons |
 
 > 🔍 [Explore all plugins](https://github.com/search?q=org%3Axjslang+-parser&type=repositories)
 
