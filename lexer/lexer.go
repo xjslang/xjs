@@ -8,14 +8,17 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
+// Interceptor allows middleware-style interception of token generation.
 type Interceptor func(l *Lexer, next func() token.Token) token.Token
 
+// Builder provides a fluent interface for constructing lexers with interceptors and dynamic tokens.
 type Builder struct {
 	interceptors  []Interceptor
 	dynamicTokens map[string]token.Type
 	nextTokenID   token.Type
 }
 
+// Lexer performs lexical analysis on XJS source code, converting it into a stream of tokens.
 type Lexer struct {
 	input        string
 	position     int  // current position in input (points to current char)
@@ -27,11 +30,12 @@ type Lexer struct {
 	nextToken func(*Lexer) token.Token
 }
 
+// New creates a new Lexer instance for the given input string.
 func New(input string) *Lexer {
 	return newWithOptions(input)
 }
 
-// ReadChar reads the next character and advances position in the input
+// ReadChar advances the lexer to the next character in the input.
 func (l *Lexer) ReadChar() {
 	if l.readPosition >= len(l.input) {
 		l.CurrentChar = 0 // ASCII NUL character represents "EOF"
@@ -49,6 +53,7 @@ func (l *Lexer) ReadChar() {
 	}
 }
 
+// PeekChar returns the next character without advancing the lexer position.
 func (l *Lexer) PeekChar() byte {
 	if l.readPosition >= len(l.input) {
 		return 0
@@ -264,6 +269,7 @@ func (l *Lexer) readRawString() string {
 	return result.String()
 }
 
+// NextToken generates and returns the next token from the input stream.
 func (l *Lexer) NextToken() token.Token {
 	return l.nextToken(l)
 }

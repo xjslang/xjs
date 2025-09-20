@@ -14,14 +14,14 @@ var cfg = &spew.ConfigState{
 	ContinueOnMethod:        false,
 }
 
-// ToString returns the textual representation of a node.
+// ToString converts an AST node to its string representation.
 func ToString(node ast.Node) string {
 	var b strings.Builder
 	node.WriteTo(&b)
 	return b.String()
 }
 
-// Print prints a formatted representation of a node.
+// Print outputs a detailed formatted representation of an AST node for debugging.
 func Print(node ast.Node) {
 	cfg.Dump(node)
 }
