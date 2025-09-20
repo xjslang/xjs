@@ -94,13 +94,13 @@ pb.UseInfixOperator(powTokenType, parser.PRODUCT+1, func(left ast.Expression, ri
 // Complete example: ./parser/parser_examples_test.go
 ```
 
-## Documentation
+<!-- ## Documentation
 
 - **[Getting Started Guide](docs/getting-started.md)** - Step-by-step tutorial
 - **[Extension Examples](docs/examples/)** - Complete code examples
 - **[API Reference](docs/api-reference.md)** - Detailed API documentation
 - **[Plugin Development](docs/plugin-development.md)** - Build your own extensions
-- **[Architecture Overview](docs/architecture.md)** - Understanding XJS internals
+- **[Architecture Overview](docs/architecture.md)** - Understanding XJS internals -->
 
 ## Ecosystem
 
