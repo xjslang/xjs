@@ -1,31 +1,41 @@
 # XJS (eXtensible JavaScript parser)
 
-> [!WARNING]
-> This project is under active development.  
-> The API is subject to change without notice.
+[![Go Reference](https://pkg.go.dev/badge/github.com/xjslang/xjs.svg)](https://pkg.go.dev/github.com/xjslang/xjs)
+[![Go Report Card](https://goreportcard.com/badge/github.com/xjslang/xjs)](https://goreportcard.com/report/github.com/xjslang/xjs)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**XJS** is a highly customizable JavaScript parser. Our goal is to create a JavaScript compiler that includes only the essential, proven features while enabling users to extend the language through dynamic plugins.
+**XJS** is a highly customizable JavaScript parser written in Go. Our goal is to create a JavaScript compiler that includes only the essential, proven features while enabling users to extend the language through dynamic plugins.
 
-## Installation
+## Key Features
+
+- **🎯 Minimalist Design**: Only essential JavaScript features, no bloat
+- **🔧 Extensible Architecture**: Add custom syntax through middlewares
+- **⚡ High Performance**: Written in Go for speed and efficiency  
+
+## Quick Start
+
+### Installation
 
 ```bash
 go get github.com/xjslang/xjs@latest
 ```
 
-## Quick Start
+### Basic Usage
 
 ```go
 package main
 
 import (
 	"fmt"
-
 	"github.com/xjslang/xjs/lexer"
 	"github.com/xjslang/xjs/parser"
 )
 
 func main() {
-	input := `let r = 45; let area = r * r * Math.PI`
+	input := `
+		let r = 45
+		let area = r * r * Math.PI
+	`
 	l := lexer.New(input)
 	p := parser.New(l)
 	ast, err := p.ParseProgram()
@@ -37,410 +47,86 @@ func main() {
 }
 ```
 
-## Minimalism and Sufficiency
+## Philosophy: Minimalism and Sufficiency
 
 Rather than accumulating features over time, **XJS** starts with a carefully curated set of **necessary and sufficient** language constructs. We have deliberately excluded redundant and confusing features:
 
-- **No classes** - Functions provide sufficient abstraction capabilities
-- **No arrow functions** - Regular function syntax is adequate
-- **No `const/var`** - A single variable declaration mechanism suffices
-- **No `try/catch`** - Alternative error handling patterns are preferred
-- **No weak equality** - The `==/!=` operators are automatically translated to `===/!==`
-- **No redundant syntactic sugar** - Focus on core functionality
+| Excluded | Reason | Alternative |
+|----------|--------|-------------|
+| **Classes** | Functions provide sufficient abstraction | Use functions and closures |
+| **`const/var`** | Single variable declaration is sufficient | Use `let` only |
+| **Weak equality** | `==` automatically becomes `===` | Strict equality only |
+| **Arrow functions** | Non-essential | `function() {}` |
+| **`try/catch`** | Non-essential | Return error values |
+| **`import/export`** | Non-essential | Use `require()` |
+| **`async/await`** | Non-essential | Use `.then(onSuccess, onRejected)` |
+| **Template literals** | Non-essential | Use `"string " + variable` |
+| **Destructuring** | Non-essential | Use dot notation and indexing |
+| **Spread operator** | Non-essential | Use `Array.concat()` and `Object.assign()` |
+| **Rest parameters** | Non-essential | Use `arguments` keyword |
 
-This approach ensures that every included feature has demonstrated genuine utility and necessity over the years. However, you can always create a plugin to implement any of the discarded features!
+> [!NOTE]
+> You can always create a plugin to implement any excluded features! For example, you might want to create a plugin to support `import/export` statements.
 
 ## Extensible Architecture
 
-Everything revolves around the middlewares `UseStatementParser` and `UseExpressionParser`. With these two methods, you can customize the syntax as you wish, adding new features to the language or modifying existing ones.
+XJS provides several ways to extend the language:
 
-For convenience, we have also included the methods `UsePrefixOperator`, `UseInfixOperator`, and `UseOperand`, which internally use the middlewares mentioned above.
+- **`lexer.Builder.UseInterceptor`** - Add a lexer interceptor
+- **`parser.Builder.UseStatementInterceptor`** - Add custom statement types
+- **`parser.Builder.UseExpressionInterceptor`** - Add custom expression types  
+- **`parser.Builder.UsePrefixOperator`** - Add prefix operators (like `typeof`)
+- **`parser.Builder.UseInfixOperator`** - Add infix operators (like `^` for power)
+- **`parser.Builder.UseOperand`** - Add custom literals/constants
+- **`parser.Builder.UseProgramTransformer`** - Addd a program transformer
 
-Additionally, you can concatenate different parsers, further enriching the syntax to suit your preferences. Parsers are executed in LIFO order (Last-In, First-Out).
-
-<details>
-	<summary>UseStatementParser example</summary>
-
-```go
-package main
-
-import (
-	"fmt"
-	"strings"
-
-	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/lexer"
-	"github.com/xjslang/xjs/parser"
-	"github.com/xjslang/xjs/token"
-)
-
-// Represents a `const` node
-type ConstStatement struct {
-	Token token.Token
-	Name  *ast.Identifier
-	Value ast.Expression
-}
-
-// Tells the parser how to write a node
-func (ls *ConstStatement) WriteTo(b *strings.Builder) {
-	b.WriteString("const ")
-	ls.Name.WriteTo(b)
-	if ls.Value != nil {
-		b.WriteRune('=')
-		ls.Value.WriteTo(b)
-	}
-}
-
-func main() {
-	input := "const x = 42"
-	l := lexer.New(input)
-	p := parser.New(l)
-	// adds support for the `const` keyword!
-	p.UseStatementParser(func(p *parser.Parser, next func() ast.Statement) ast.Statement {
-		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
-			stmt := &ConstStatement{Token: p.CurrentToken}
-			p.NextToken() // moves to identifier token
-			stmt.Name = &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
-			if !p.ExpectToken(token.ASSIGN) { // expects "="
-				return nil
-			}
-			p.NextToken() // moves to value expression
-			stmt.Value = p.ParseExpression()
-			return stmt
-		}
-		return next() // otherwise, next!
-	})
-	ast, err := p.ParseProgram()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(ast.String())
-	// Output: const x=42
-}
-```
-</details>
-
-<details>
-	<summary>UseExpressionParser example</summary>
+### Simple Extension Example
 
 ```go
-package main
+// Add support for the ^ (power) operator
+powTokenType := lb.RegisterTokenType("pow")
+pb.UseInfixOperator(powTokenType, parser.PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
+    return &PowExpression{Left: left, Right: right()}
+})
 
-import (
-	"fmt"
-	"strings"
-
-	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/lexer"
-	"github.com/xjslang/xjs/parser"
-	"github.com/xjslang/xjs/token"
-)
-
-// Represents a `random()` expression node
-type RandomExpression struct {
-	Token token.Token
-}
-
-// Tells the parser how to write a node
-func (re *RandomExpression) WriteTo(b *strings.Builder) {
-	b.WriteString("Math.random()")
-}
-
-func main() {
-	input := "let randomValue = RANDOM + 10"
-	l := lexer.New(input)
-	p := parser.New(l)
-	// intercepts expression parsing to handle RANDOM as a special expression!
-	p.UseExpressionParser(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
-		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "RANDOM" {
-			return p.ParseRemainingExpression(&RandomExpression{Token: p.CurrentToken})
-		}
-		return next()
-	})
-	ast, err := p.ParseProgram()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(ast.String())
-	// Output: let randomValue=(Math.random()+10)
-}
+// Input: let result = 2^3
+// Output: let result=Math.pow(2,3)
+// Complete example: ./parser/parser_examples_test.go
 ```
-</details>
 
-<details>
-	<summary>UsePrefixOperator example</summary>
+## Documentation
 
-```go
-package main
+- **[Getting Started Guide](docs/getting-started.md)** - Step-by-step tutorial
+- **[Extension Examples](docs/examples/)** - Complete code examples
+- **[API Reference](docs/api-reference.md)** - Detailed API documentation
+- **[Plugin Development](docs/plugin-development.md)** - Build your own extensions
+- **[Architecture Overview](docs/architecture.md)** - Understanding XJS internals
 
-import (
-	"fmt"
-	"strings"
+## Ecosystem
 
-	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/lexer"
-	"github.com/xjslang/xjs/parser"
-	"github.com/xjslang/xjs/token"
-)
+Check out these community plugins:
 
-// Represents a typeof node
-type TypeofExpression struct {
-	Token token.Token
-	Right ast.Expression
-}
+- **[Try-Parser](https://github.com/xjslang/try-parser)** - Adds `try/catch` support
+- **[JSX-Parser](https://github.com/xjslang/jsx-parser)** - JSX syntax support
+- **[Defer-Parser](https://github.com/xjslang/defer-parser)** - Go-style defer statements
 
-// Tells the parser how to write a node
-func (te *TypeofExpression) WriteTo(b *strings.Builder) {
-	b.WriteString("(typeof ")
-	te.Right.WriteTo(b)
-	b.WriteRune(')')
-}
-
-func main() {
-	input := "if (typeof x == 'string') { console.log('x is a string') }"
-	l := lexer.New(input)
-	p := parser.New(l)
-	// adds support for the typeof keyword!
-	p.UsePrefixOperator("typeof", func(right func() ast.Expression) ast.Expression {
-		return &TypeofExpression{
-			Token: p.CurrentToken,
-			Right: right(),
-		}
-	})
-	ast, err := p.ParseProgram()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(ast.String())
-	// Output: if ((typeof (x==="string"))){console.log("x is a string")}
-}
-```
-</details>
-
-<details>
-	<summary>UseInfixOperator example</summary>
-
-```go
-package main
-
-import (
-	"fmt"
-	"strings"
-
-	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/lexer"
-	"github.com/xjslang/xjs/parser"
-	"github.com/xjslang/xjs/token"
-)
-
-// Represents Math.pow
-type PowExpression struct {
-	Token token.Token
-	Left  ast.Expression
-	Right ast.Expression
-}
-
-// Tells the parser how to write a node
-func (pe *PowExpression) WriteTo(b *strings.Builder) {
-	b.WriteString("Math.pow(")
-	pe.Left.WriteTo(b)
-	b.WriteRune(',')
-	pe.Right.WriteTo(b)
-	b.WriteRune(')')
-}
-
-func main() {
-	input := "let squareArea = r^2"
-	l := lexer.New(input)
-	p := parser.New(l)
-	// adds support for the ^ operator!
-	p.UseInfixOperator("^", parser.PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
-		return &PowExpression{
-			Token: p.CurrentToken,
-			Left:  left,
-			Right: right(),
-		}
-	})
-	ast, err := p.ParseProgram()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(ast.String())
-	// Output: let squareArea=Math.pow(r,2)
-}
-```
-</details>
-
-<details>
-	<summary>UseOperand example</summary>
-
-```go
-package main
-
-import (
-	"fmt"
-	"strings"
-
-	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/lexer"
-	"github.com/xjslang/xjs/parser"
-	"github.com/xjslang/xjs/token"
-)
-
-// Represents PI
-type PiLiteral struct {
-	Token token.Token
-}
-
-// Tells the parser how to write a node
-func (pl *PiLiteral) WriteTo(b *strings.Builder) {
-	b.WriteString("Math.PI")
-}
-
-func main() {
-	input := "let area = PI * r * r"
-	l := lexer.New(input)
-	p := parser.New(l)
-	// adds support for the PI constant!
-	p.UseOperand("PI", func() ast.Expression {
-		return &PiLiteral{Token: p.CurrentToken}
-	})
-	ast, err := p.ParseProgram()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(ast.String())
-	// Output: let area=((Math.PI*r)*r)
-}
-```
-</details>
-
-<details>
-	<summary>Concatenate multiple parsers</summary>
-
-```go
-package main
-
-import (
-	"fmt"
-	"strings"
-
-	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/lexer"
-	"github.com/xjslang/xjs/parser"
-	"github.com/xjslang/xjs/token"
-)
-
-type ConstStatement struct {
-	Token token.Token
-	Name  *ast.Identifier
-	Value ast.Expression
-}
-
-func (ls *ConstStatement) WriteTo(b *strings.Builder) {
-	b.WriteString("const ")
-	ls.Name.WriteTo(b)
-	if ls.Value != nil {
-		b.WriteRune('=')
-		ls.Value.WriteTo(b)
-	}
-}
-
-type TypeofExpression struct {
-	Token token.Token
-	Right ast.Expression
-}
-
-func (te *TypeofExpression) WriteTo(b *strings.Builder) {
-	b.WriteString("(typeof ")
-	te.Right.WriteTo(b)
-	b.WriteRune(')')
-}
-
-type PowExpression struct {
-	Token token.Token
-	Left  ast.Expression
-	Right ast.Expression
-}
-
-func (pe *PowExpression) WriteTo(b *strings.Builder) {
-	b.WriteString("Math.pow(")
-	pe.Left.WriteTo(b)
-	b.WriteRune(',')
-	pe.Right.WriteTo(b)
-	b.WriteRune(')')
-}
-
-type PiLiteral struct {
-	Token token.Token
-}
-
-func (pl *PiLiteral) WriteTo(b *strings.Builder) {
-	b.WriteString("Math.PI")
-}
-
-type RandomExpression struct {
-	Token token.Token
-}
-
-func (re *RandomExpression) WriteTo(b *strings.Builder) {
-	b.WriteString("Math.random()")
-}
-
-func main() {
-	input := `
-	const circleArea = PI * r^2
-	if (typeof radius == 'string') {
-		let randomRadius = RANDOM * 10
-	}`
-	l := lexer.New(input)
-	p := parser.New(l)
-	// combines all previous examples!
-	p.UseStatementParser(func(p *parser.Parser, next func() ast.Statement) ast.Statement {
-		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "const" {
-			stmt := &ConstStatement{Token: p.CurrentToken}
-			p.NextToken()
-			stmt.Name = &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
-			if !p.ExpectToken(token.ASSIGN) {
-				return nil
-			}
-			p.NextToken()
-			stmt.Value = p.ParseExpression()
-			return stmt
-		}
-		return next()
-	})
-	p.UsePrefixOperator("typeof", func(right func() ast.Expression) ast.Expression {
-		return &TypeofExpression{Token: p.CurrentToken, Right: right()}
-	})
-	p.UseInfixOperator("^", parser.PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
-		return &PowExpression{Token: p.CurrentToken, Left: left, Right: right()}
-	})
-	p.UseOperand("PI", func() ast.Expression {
-		return &PiLiteral{Token: p.CurrentToken}
-	})
-	p.UseExpressionParser(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
-		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "RANDOM" {
-			return p.ParseRemainingExpression(&RandomExpression{Token: p.CurrentToken})
-		}
-		return next()
-	})
-	ast, err := p.ParseProgram()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(ast.String())
-	// Output: const circleArea=(Math.PI*Math.pow(r,2));if ((typeof (radius==="string"))){let randomRadius=(Math.random()*10)}
-}
-```
-</details>
-
-You can also check out [other plugins](https://github.com/search?q=org%3Axjslang+-parser&type=repositories) for inspiration!
+> 🔍 [Explore all plugins](https://github.com/search?q=org%3Axjslang+-parser&type=repositories)
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Inspired by the principles of simplicity and extensibility
+- Built with ❤️ by the XJS community
