@@ -123,14 +123,14 @@ Check out these community plugins:
 
 | Plugin | Description |
 |--------|-------------|
-| **[Defer-Parser](../plugins/defer-parser)** | Adds support for Go-style `defer` statements |
-| **[Interp-Parser](../plugins/interp-parser)** | Simplified template literal syntax with variable interpolation |
-| **[JSX-Parser](../plugins/jsx-parser)** | JSX syntax support with React.createElement transformation |
-| **[Pow-Parser](../plugins/pow-parser)** | Adds support for the `**` power operator |
-| **[Spread-Parser](../plugins/spread-parser)** | Object spread syntax using `..` operator (transpiles to Object.assign) |
-| **[Switch-Parser](../plugins/switch-parser)** | Adds support for `switch/case` statements |
-| **[Try-Parser](../plugins/try-parser)** | Adds `try/catch/finally` error handling support |
-| **[Weakeq-Parser](../plugins/weakeq-parser)** | Weak equality operators (`~~` and `!~`) for loose comparisons |
+| **[Defer-Parser](https://github.com/xjslang/defer-parser)** | Adds support for Go-style `defer` statements |
+| **[Interp-Parser](https://github.com/xjslang/interp-parser)** | Simplified template literal syntax with variable interpolation |
+| **[JSX-Parser](https://github.com/xjslang/jsx-parser)** | JSX syntax support with React.createElement transformation |
+| **[Pow-Parser](https://github.com/xjslang/pow-parser)** | Adds support for the `**` power operator |
+| **[Spread-Parser](https://github.com/xjslang/spread-parser)** | Object spread syntax using `..` operator (transpiles to Object.assign) |
+| **[Switch-Parser](https://github.com/xjslang/switch-parser)** | Adds support for `switch/case` statements |
+| **[Try-Parser](https://github.com/xjslang/try-parser)** | Adds `try/catch/finally` error handling support |
+| **[Weakeq-Parser](https://github.com/xjslang/weakeq-parser)** | Weak equality operators (`~~` and `!~`) for loose comparisons |
 
 > 🔍 [Explore all plugins](https://github.com/search?q=org%3Axjslang+-parser&type=repositories)
 
