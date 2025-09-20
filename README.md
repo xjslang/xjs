@@ -1,6 +1,6 @@
 # XJS (eXtensible JavaScript parser)
 
-> [!WARNING]
+> [!CAUTION]
 > This project is under active development.  
 > The API is subject to change without notice.
 
