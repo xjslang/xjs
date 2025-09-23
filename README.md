@@ -10,7 +10,7 @@ A "pluggable" JavaScript parser.
 
 The question then becomes: **why would anyone want to use a subset of JavaScript without all those cool features that have accumulated over time?** And there are multiple reasons:
 
-1. Some of those features are questionable, such as `with` which was discouraged by the JavaScript committee itself.
+1. Some of those features are questionable, such as `with` which was discouraged by JavaScript itself.
 2. Some people prefer a clean language, without unnecessary, confusing, or redundant constructs.
 3. Maintaining the base code would be much simpler, as we wouldn't have to maintain those additional and questionable features.
 
