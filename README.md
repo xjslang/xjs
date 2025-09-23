@@ -6,7 +6,7 @@
 
 A "pluggable" JavaScript parser.
 
-**XJS** is not a new language; it's just a simplified version of JavaScript without unnecessary, confusing, redundant or deprecated constructs, such as `async/await`, `classes` `arrow functions`, `with` etc.
+**XJS** is not a new language; it's just a simplified version of JavaScript without unnecessary, confusing, redundant or deprecated constructs, such as `async/await`, `classes`, `arrow functions`, `with` etc.
 
 The question then becomes: **why would anyone want to use a subset of JavaScript without all those cool features that have accumulated over time?** And there are multiple reasons:
 
