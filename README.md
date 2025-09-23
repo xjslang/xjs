@@ -4,7 +4,33 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/xjslang/xjs)](https://goreportcard.com/report/github.com/xjslang/xjs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**XJS** is a highly customizable JavaScript parser written in Go. Our goal is to create a JavaScript compiler that includes only the essential, proven features while enabling users to extend the language through dynamic plugins.
+A "pluggable" JavaScript parser.
+
+**XJS** is not a new language; it's just a simplified version of JavaScript without unnecessary, confusing, redundant or deprecated constructs, such as `async/await`, `classes` `arrow functions`, `with` etc.
+
+The question then becomes: **why would anyone want to use a subset of JavaScript without all those cool features that have accumulated over time?** And there are multiple reasons:
+
+1. Some of those features are questionable, such as `with` which was discouraged by the JavaScript committee itself.
+2. Some people prefer a clean language, without unnecessary, confusing, or redundant constructs.
+3. Maintaining the base code would be much simpler, as we wouldn't have to maintain those additional and questionable features.
+
+> **But the most important reason is to provide an extensible (or pluggable) parser.**
+
+For example, you might want to use [jsx-parser](https://github.com/xjslang/jsx-parser) to parse JSX syntax, or [defer-parser](https://github.com/xjslang/defer-parser), etc. Installing plugins is very simple (Go):
+
+```go
+lb := lexer.NewBuilder()
+parser := parser.NewBuilder(lb).
+  Install(jsxparser.Plugin).   // adds support for JSX syntax
+  Install(deferparser.Plugin). // adds support for "defer" syntax
+  // ... more plugins ...
+  Build(input)
+
+// the parser "understands" now the JSX and "defer" sintax
+// and can translate your custom JavaScript code into standard JavaScript
+program, _ := parser.ParseProgram()
+fmt.Println(program.String())
+```
 
 ## Key Features
 
@@ -80,7 +106,6 @@ Rather than accumulating features over time, **XJS** starts with a carefully cur
 | **Spread operator** | Non-essential | Use `Array.concat()` and `Object.assign()` |
 | **Rest parameters** | Non-essential | Use `arguments` keyword |
 
-> [!NOTE]
 > You can always create a plugin to implement any excluded features! For example, you might want to create a plugin to support `import/export` statements.
 
 ## Extensible Architecture
