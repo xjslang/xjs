@@ -26,7 +26,7 @@ parser := parser.NewBuilder(lb).
   // ... more plugins ...
   Build(input)
 
-// the parser "understands" now the JSX and "defer" sintax
+// the parser now "understands" now the JSX and "defer" syntax
 // and can translate your custom JavaScript code into standard JavaScript
 program, _ := parser.ParseProgram()
 fmt.Println(program.String())
