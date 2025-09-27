@@ -64,10 +64,9 @@ type Transformer func(*ast.Program) *ast.Program
 // and transformations. It allows composition of lexer options, statement interceptors,
 // expression interceptors, and program transformers.
 type Builder struct {
-	LexerBuilder        *lexer.Builder
-	stmtInterceptors    []Interceptor[ast.Statement]
-	expInterceptors     []Interceptor[ast.Expression]
-	programTransformers []Transformer
+	LexerBuilder     *lexer.Builder
+	stmtInterceptors []Interceptor[ast.Statement]
+	expInterceptors  []Interceptor[ast.Expression]
 }
 
 // Parser is the main structure responsible for syntactic analysis of XJS source code.
@@ -89,8 +88,6 @@ type Parser struct {
 	statementParseFn func(*Parser) ast.Statement
 	// expressionParseFn is the current expression parsing function (can be intercepted)
 	expressionParseFn func(*Parser, int) ast.Expression
-	// transformProgramFn is applied to the entire program after parsing
-	transformProgramFn func(*ast.Program) *ast.Program
 	// prefixParseFns maps token types to their prefix parsing functions
 	prefixParseFns map[token.Type]func() ast.Expression
 	// infixParseFns maps token types to their infix parsing functions
@@ -106,9 +103,8 @@ type Parser struct {
 }
 
 type parserOptions struct {
-	stmtInterceptors    []Interceptor[ast.Statement]
-	expInterceptors     []Interceptor[ast.Expression]
-	programTransformers []Transformer
+	stmtInterceptors []Interceptor[ast.Statement]
+	expInterceptors  []Interceptor[ast.Expression]
 }
 
 // newWithOptions creates a new Parser instance with the specified lexer and parser options.
@@ -123,12 +119,11 @@ type parserOptions struct {
 // Returns a fully initialized Parser ready to parse source code.
 func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
 	p := &Parser{
-		lexer:              l,
-		errors:             []ParserError{},
-		statementParseFn:   baseParseStatement,
-		expressionParseFn:  baseParseExpression,
-		transformProgramFn: nil,
-		contextStack:       []ContextType{GlobalContext}, // Initialize with global context
+		lexer:             l,
+		errors:            []ParserError{},
+		statementParseFn:  baseParseStatement,
+		expressionParseFn: baseParseExpression,
+		contextStack:      []ContextType{GlobalContext}, // Initialize with global context
 	}
 
 	p.prefixParseFns = make(map[token.Type]func() ast.Expression)
@@ -179,9 +174,6 @@ func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
 	for _, interceptor := range opts.expInterceptors {
 		p.useExpressionInterceptor(interceptor)
 	}
-	for _, transformer := range opts.programTransformers {
-		p.useProgramTransformer(transformer)
-	}
 
 	// Read two tokens, so CurrentToken and PeekToken are both set
 	p.NextToken()
@@ -208,9 +200,6 @@ func (p *Parser) ParseProgram() (*ast.Program, error) {
 			program.Statements = append(program.Statements, stmt)
 		}
 		p.NextToken()
-	}
-	if p.transformProgramFn != nil {
-		program = p.transformProgramFn(program)
 	}
 	if len(p.errors) > 0 {
 		return program, fmt.Errorf("parsing failed with %d errors: %v",
@@ -308,19 +297,5 @@ func (p *Parser) useExpressionInterceptor(interceptor Interceptor[ast.Expression
 		return interceptor(p, func() ast.Expression {
 			return next(p, precedence)
 		})
-	}
-}
-
-// useProgramTransformer applies a transformer function to the final parsed program.
-// Transformers are applied after the entire program has been parsed, allowing
-// for post-processing modifications of the complete AST.
-func (p *Parser) useProgramTransformer(transformer Transformer) {
-	next := p.transformProgramFn
-	p.transformProgramFn = func(program *ast.Program) *ast.Program {
-		program = transformer(program)
-		if next == nil {
-			return program
-		}
-		return next(program)
 	}
 }
