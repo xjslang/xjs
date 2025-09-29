@@ -183,6 +183,11 @@ func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
 		p.useExpressionInterceptor(interceptor)
 	}
 
+	// registers custom infix operators
+	for _, infixOp := range opts.infixOperators {
+		p.registerInfixOperator(infixOp.tokenType, infixOp.precedence, infixOp.createExpr)
+	}
+
 	// Read two tokens, so CurrentToken and PeekToken are both set
 	p.NextToken()
 	p.NextToken()
@@ -309,4 +314,18 @@ func (p *Parser) useExpressionInterceptor(interceptor Interceptor[ast.Expression
 }
 
 func (p *Parser) registerInfixOperator(tokenType token.Type, precedence int, createExpr func(*Parser, ast.Expression, func() ast.Expression) ast.Expression) {
+	// Add the token type and its precedence to the precedences map
+	precedences[tokenType] = precedence
+
+	// Create an infix parser function that uses the provided createExpr function
+	p.infixParseFns[tokenType] = func(left ast.Expression) ast.Expression {
+		// Create a function that parses the right side of the expression
+		rightParser := func() ast.Expression {
+			precedence := p.currentPrecedence()
+			p.NextToken()
+			return p.expressionParseFn(p, precedence)
+		}
+
+		return createExpr(p, left, rightParser)
+	}
 }
