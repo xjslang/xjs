@@ -4,6 +4,7 @@ package parser
 
 import (
 	"fmt"
+	"maps"
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/lexer"
@@ -99,6 +100,8 @@ type Parser struct {
 	prefixParseFns map[token.Type]func() ast.Expression
 	// infixParseFns maps token types to their infix parsing functions
 	infixParseFns map[token.Type]func(ast.Expression) ast.Expression
+	// precedences maps token types to their operator precedence (per parser instance)
+	precedences map[token.Type]int
 
 	// errors accumulates parsing errors encountered during parsing
 	errors []ParserError
@@ -174,6 +177,10 @@ func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
 	p.infixParseFns[token.LBRACKET] = p.ParseComputedMemberExpression
 	p.infixParseFns[token.INCREMENT] = p.ParsePostfixExpression
 	p.infixParseFns[token.DECREMENT] = p.ParsePostfixExpression
+
+	// init precedences
+	p.precedences = make(map[token.Type]int)
+	maps.Copy(p.precedences, precedences)
 
 	// uses middlewares
 	for _, interceptor := range opts.stmtInterceptors {
@@ -267,8 +274,8 @@ func (p *Parser) Errors() []ParserError {
 // This is used in the Pratt parser algorithm to determine whether to continue
 // parsing an expression or return to a higher precedence level.
 func (p *Parser) peekPrecedence() int {
-	if p, ok := precedences[p.PeekToken.Type]; ok {
-		return p
+	if prec, ok := p.precedences[p.PeekToken.Type]; ok {
+		return prec
 	}
 	return LOWEST
 }
@@ -277,8 +284,8 @@ func (p *Parser) peekPrecedence() int {
 // This is used in the Pratt parser algorithm for precedence comparison
 // during expression parsing.
 func (p *Parser) currentPrecedence() int {
-	if p, ok := precedences[p.CurrentToken.Type]; ok {
-		return p
+	if prec, ok := p.precedences[p.CurrentToken.Type]; ok {
+		return prec
 	}
 	return LOWEST
 }
@@ -314,8 +321,8 @@ func (p *Parser) useExpressionInterceptor(interceptor Interceptor[ast.Expression
 }
 
 func (p *Parser) registerInfixOperator(tokenType token.Type, precedence int, createExpr func(*Parser, ast.Expression, func() ast.Expression) ast.Expression) {
-	// Add the token type and its precedence to the precedences map
-	precedences[tokenType] = precedence
+	// Add the token type and its precedence to this parser's precedences map
+	p.precedences[tokenType] = precedence
 
 	// Create an infix parser function that uses the provided createExpr function
 	p.infixParseFns[tokenType] = func(left ast.Expression) ast.Expression {
