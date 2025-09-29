@@ -11,6 +11,7 @@ func NewBuilder(lb *lexer.Builder) *Builder {
 		LexerBuilder:     lb,
 		stmtInterceptors: []Interceptor[ast.Statement]{},
 		expInterceptors:  []Interceptor[ast.Expression]{},
+		prefixOperators:  []PrefixOperator{},
 		infixOperators:   []InfixOperator{},
 	}
 }
@@ -72,6 +73,13 @@ func (pb *Builder) UseOperand(tokenType token.Type, createExpr func(token token.
 	})
 }
 
+func (pb *Builder) RegisterPrefixOperator(tokenType token.Type, createExpr func(p *Parser, right func() ast.Expression) ast.Expression) {
+	pb.prefixOperators = append(pb.prefixOperators, PrefixOperator{
+		tokenType:  tokenType,
+		createExpr: createExpr,
+	})
+}
+
 func (pb *Builder) RegisterInfixOperator(tokenType token.Type, precedence int, createExpr func(p *Parser, left ast.Expression, right func() ast.Expression) ast.Expression) {
 	pb.infixOperators = append(pb.infixOperators, InfixOperator{
 		tokenType:  tokenType,
@@ -86,6 +94,7 @@ func (pb *Builder) Build(input string) *Parser {
 	return newWithOptions(l, parserOptions{
 		stmtInterceptors: pb.stmtInterceptors,
 		expInterceptors:  pb.expInterceptors,
+		prefixOperators:  pb.prefixOperators,
 		infixOperators:   pb.infixOperators,
 	})
 }

@@ -57,6 +57,10 @@ var precedences = map[token.Type]int{
 // original parsing logic, enabling extension and modification of parsing behavior.
 type Interceptor[T ast.Node] func(p *Parser, next func() T) T
 
+type PrefixOperator struct {
+	tokenType  token.Type
+	createExpr func(p *Parser, right func() ast.Expression) ast.Expression
+}
 type InfixOperator struct {
 	tokenType  token.Type
 	precedence int
@@ -75,6 +79,7 @@ type Builder struct {
 	stmtInterceptors []Interceptor[ast.Statement]
 	expInterceptors  []Interceptor[ast.Expression]
 	infixOperators   []InfixOperator
+	prefixOperators  []PrefixOperator
 }
 
 // Parser is the main structure responsible for syntactic analysis of XJS source code.
@@ -116,6 +121,7 @@ type parserOptions struct {
 	stmtInterceptors []Interceptor[ast.Statement]
 	expInterceptors  []Interceptor[ast.Expression]
 	infixOperators   []InfixOperator
+	prefixOperators  []PrefixOperator
 }
 
 // newWithOptions creates a new Parser instance with the specified lexer and parser options.
@@ -190,7 +196,10 @@ func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
 		p.useExpressionInterceptor(interceptor)
 	}
 
-	// registers custom infix operators
+	// registers custom operators
+	for _, prefixOp := range opts.prefixOperators {
+		p.registerPrefixOperator(prefixOp.tokenType, prefixOp.createExpr)
+	}
 	for _, infixOp := range opts.infixOperators {
 		p.registerInfixOperator(infixOp.tokenType, infixOp.precedence, infixOp.createExpr)
 	}
@@ -317,6 +326,16 @@ func (p *Parser) useExpressionInterceptor(interceptor Interceptor[ast.Expression
 		return interceptor(p, func() ast.Expression {
 			return next(p, precedence)
 		})
+	}
+}
+
+func (p *Parser) registerPrefixOperator(tokenType token.Type, createExpr func(*Parser, func() ast.Expression) ast.Expression) {
+	p.prefixParseFns[tokenType] = func() ast.Expression {
+		right := func() ast.Expression {
+			p.NextToken()
+			return p.expressionParseFn(p, UNARY)
+		}
+		return createExpr(p, right)
 	}
 }
 
