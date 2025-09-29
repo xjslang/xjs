@@ -321,18 +321,13 @@ func (p *Parser) useExpressionInterceptor(interceptor Interceptor[ast.Expression
 }
 
 func (p *Parser) registerInfixOperator(tokenType token.Type, precedence int, createExpr func(*Parser, ast.Expression, func() ast.Expression) ast.Expression) {
-	// Add the token type and its precedence to this parser's precedences map
 	p.precedences[tokenType] = precedence
-
-	// Create an infix parser function that uses the provided createExpr function
 	p.infixParseFns[tokenType] = func(left ast.Expression) ast.Expression {
-		// Create a function that parses the right side of the expression
-		rightParser := func() ast.Expression {
+		right := func() ast.Expression {
 			precedence := p.currentPrecedence()
 			p.NextToken()
 			return p.expressionParseFn(p, precedence)
 		}
-
-		return createExpr(p, left, rightParser)
+		return createExpr(p, left, right)
 	}
 }
