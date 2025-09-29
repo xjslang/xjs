@@ -57,19 +57,15 @@ var precedences = map[token.Type]int{
 // original parsing logic, enabling extension and modification of parsing behavior.
 type Interceptor[T ast.Node] func(p *Parser, next func() T) T
 
-type PrefixOperator struct {
+type prefixOperator struct {
 	tokenType  token.Type
 	createExpr func(p *Parser, right func() ast.Expression) ast.Expression
 }
-type InfixOperator struct {
+type infixOperator struct {
 	tokenType  token.Type
 	precedence int
 	createExpr func(p *Parser, left ast.Expression, right func() ast.Expression) ast.Expression
 }
-
-// Transformer is a function type that takes an AST Program and returns a modified version.
-// It's used for post-processing the entire parsed program.
-type Transformer func(*ast.Program) *ast.Program
 
 // Builder provides a fluent interface for constructing a Parser with various middleware
 // and transformations. It allows composition of lexer options, statement interceptors,
@@ -78,8 +74,8 @@ type Builder struct {
 	LexerBuilder     *lexer.Builder
 	stmtInterceptors []Interceptor[ast.Statement]
 	expInterceptors  []Interceptor[ast.Expression]
-	infixOperators   []InfixOperator
-	prefixOperators  []PrefixOperator
+	infixOperators   []infixOperator
+	prefixOperators  []prefixOperator
 }
 
 // Parser is the main structure responsible for syntactic analysis of XJS source code.
@@ -120,8 +116,8 @@ type Parser struct {
 type parserOptions struct {
 	stmtInterceptors []Interceptor[ast.Statement]
 	expInterceptors  []Interceptor[ast.Expression]
-	infixOperators   []InfixOperator
-	prefixOperators  []PrefixOperator
+	infixOperators   []infixOperator
+	prefixOperators  []prefixOperator
 }
 
 // newWithOptions creates a new Parser instance with the specified lexer and parser options.
