@@ -1,18 +1,48 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/lexer"
 	"github.com/xjslang/xjs/token"
 )
 
 func NewBuilder(lb *lexer.Builder) *Builder {
+	// initializes maps with existing operators from precedences
+	registeredInfixOps := make(map[token.Type]bool)
+	for tokenType := range precedences {
+		registeredInfixOps[tokenType] = true
+	}
+
+	// initializes map for prefix operators (from parser's default prefix operators)
+	registeredPrefixOps := map[token.Type]bool{
+		token.IDENT:      true,
+		token.INT:        true,
+		token.FLOAT:      true,
+		token.STRING:     true,
+		token.RAW_STRING: true,
+		token.TRUE:       true,
+		token.FALSE:      true,
+		token.NULL:       true,
+		token.NOT:        true,
+		token.MINUS:      true,
+		token.INCREMENT:  true,
+		token.DECREMENT:  true,
+		token.LPAREN:     true,
+		token.LBRACKET:   true,
+		token.LBRACE:     true,
+		token.FUNCTION:   true,
+	}
+
 	return &Builder{
-		LexerBuilder:     lb,
-		stmtInterceptors: []Interceptor[ast.Statement]{},
-		expInterceptors:  []Interceptor[ast.Expression]{},
-		prefixOperators:  []prefixOperator{},
-		infixOperators:   []infixOperator{},
+		LexerBuilder:        lb,
+		stmtInterceptors:    []Interceptor[ast.Statement]{},
+		expInterceptors:     []Interceptor[ast.Expression]{},
+		prefixOperators:     []prefixOperator{},
+		infixOperators:      []infixOperator{},
+		registeredPrefixOps: registeredPrefixOps,
+		registeredInfixOps:  registeredInfixOps,
 	}
 }
 
@@ -73,19 +103,29 @@ func (pb *Builder) UseOperand(tokenType token.Type, createExpr func(token token.
 	})
 }
 
-func (pb *Builder) RegisterPrefixOperator(tokenType token.Type, createExpr func(p *Parser, right func() ast.Expression) ast.Expression) {
+func (pb *Builder) RegisterPrefixOperator(tokenType token.Type, createExpr func(p *Parser, right func() ast.Expression) ast.Expression) error {
+	if pb.registeredPrefixOps[tokenType] {
+		return fmt.Errorf("duplicate prefix operator: %s", tokenType)
+	}
 	pb.prefixOperators = append(pb.prefixOperators, prefixOperator{
 		tokenType:  tokenType,
 		createExpr: createExpr,
 	})
+	pb.registeredPrefixOps[tokenType] = true
+	return nil
 }
 
-func (pb *Builder) RegisterInfixOperator(tokenType token.Type, precedence int, createExpr func(p *Parser, left ast.Expression, right func() ast.Expression) ast.Expression) {
+func (pb *Builder) RegisterInfixOperator(tokenType token.Type, precedence int, createExpr func(p *Parser, left ast.Expression, right func() ast.Expression) ast.Expression) error {
+	if pb.registeredInfixOps[tokenType] {
+		return fmt.Errorf("duplicate infix operator: %s", tokenType)
+	}
 	pb.infixOperators = append(pb.infixOperators, infixOperator{
 		tokenType:  tokenType,
 		precedence: precedence,
 		createExpr: createExpr,
 	})
+	pb.registeredInfixOps[tokenType] = true
+	return nil
 }
 
 // Build creates a new instance of the parser.

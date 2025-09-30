@@ -76,6 +76,9 @@ type Builder struct {
 	expInterceptors  []Interceptor[ast.Expression]
 	infixOperators   []infixOperator
 	prefixOperators  []prefixOperator
+	// maps to track registered operators and detect duplicates
+	registeredPrefixOps map[token.Type]bool
+	registeredInfixOps  map[token.Type]bool
 }
 
 // Parser is the main structure responsible for syntactic analysis of XJS source code.
