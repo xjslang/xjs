@@ -59,12 +59,12 @@ type Interceptor[T ast.Node] func(p *Parser, next func() T) T
 
 type prefixOperator struct {
 	tokenType  token.Type
-	createExpr func(p *Parser, right func() ast.Expression) ast.Expression
+	createExpr func(tok token.Token, right func() ast.Expression) ast.Expression
 }
 type infixOperator struct {
 	tokenType  token.Type
 	precedence int
-	createExpr func(p *Parser, left ast.Expression, right func() ast.Expression) ast.Expression
+	createExpr func(tok token.Token, left ast.Expression, right func() ast.Expression) ast.Expression
 }
 
 // Builder provides a fluent interface for constructing a Parser with various middleware
@@ -328,17 +328,17 @@ func (p *Parser) useExpressionInterceptor(interceptor Interceptor[ast.Expression
 	}
 }
 
-func (p *Parser) registerPrefixOperator(tokenType token.Type, createExpr func(*Parser, func() ast.Expression) ast.Expression) {
+func (p *Parser) registerPrefixOperator(tokenType token.Type, createExpr func(token.Token, func() ast.Expression) ast.Expression) {
 	p.prefixParseFns[tokenType] = func() ast.Expression {
 		right := func() ast.Expression {
 			p.NextToken()
 			return p.expressionParseFn(p, UNARY)
 		}
-		return createExpr(p, right)
+		return createExpr(p.CurrentToken, right)
 	}
 }
 
-func (p *Parser) registerInfixOperator(tokenType token.Type, precedence int, createExpr func(*Parser, ast.Expression, func() ast.Expression) ast.Expression) {
+func (p *Parser) registerInfixOperator(tokenType token.Type, precedence int, createExpr func(token.Token, ast.Expression, func() ast.Expression) ast.Expression) {
 	p.precedences[tokenType] = precedence
 	p.infixParseFns[tokenType] = func(left ast.Expression) ast.Expression {
 		right := func() ast.Expression {
@@ -346,6 +346,6 @@ func (p *Parser) registerInfixOperator(tokenType token.Type, precedence int, cre
 			p.NextToken()
 			return p.expressionParseFn(p, precedence)
 		}
-		return createExpr(p, left, right)
+		return createExpr(p.CurrentToken, left, right)
 	}
 }

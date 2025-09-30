@@ -77,9 +77,9 @@ func Example_prefixOperator() {
 	})
 	// adds support for the typeof keyword!
 	pb := NewBuilder(lb)
-	pb.RegisterPrefixOperator(typeofType, func(p *Parser, right func() ast.Expression) ast.Expression {
+	pb.RegisterPrefixOperator(typeofType, func(tok token.Token, right func() ast.Expression) ast.Expression {
 		return &TypeofExpression{
-			Token: p.CurrentToken,
+			Token: tok,
 			Right: right(),
 		}
 	})
@@ -120,9 +120,9 @@ func Example_infixOperator() {
 	})
 
 	// adds support for the ^ operator!
-	pb.RegisterInfixOperator(powType, PRODUCT+1, func(p *Parser, left ast.Expression, right func() ast.Expression) ast.Expression {
+	pb.RegisterInfixOperator(powType, PRODUCT+1, func(tok token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{
-			Token: p.CurrentToken,
+			Token: tok,
 			Left:  left,
 			Right: right(),
 		}
@@ -161,8 +161,8 @@ func Example_operand() {
 	})
 
 	// adds support for the PI constant!
-	pb.RegisterPrefixOperator(piType, func(p *Parser, right func() ast.Expression) ast.Expression {
-		return &PiLiteral{Token: p.CurrentToken}
+	pb.RegisterPrefixOperator(piType, func(tok token.Token, right func() ast.Expression) ast.Expression {
+		return &PiLiteral{Token: tok}
 	})
 
 	p := pb.Build(input)
@@ -253,14 +253,14 @@ func Example_combined() {
 		}
 		return next()
 	})
-	pb.RegisterPrefixOperator(typeofType, func(p *Parser, right func() ast.Expression) ast.Expression {
-		return &TypeofExpression{Token: p.CurrentToken, Right: right()}
+	pb.RegisterPrefixOperator(typeofType, func(tok token.Token, right func() ast.Expression) ast.Expression {
+		return &TypeofExpression{Token: tok, Right: right()}
 	})
-	pb.RegisterInfixOperator(powType, PRODUCT+1, func(p *Parser, left ast.Expression, right func() ast.Expression) ast.Expression {
-		return &PowExpression{Token: p.CurrentToken, Left: left, Right: right()}
+	pb.RegisterInfixOperator(powType, PRODUCT+1, func(tok token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
+		return &PowExpression{Token: tok, Left: left, Right: right()}
 	})
-	pb.RegisterPrefixOperator(piType, func(p *Parser, right func() ast.Expression) ast.Expression {
-		return &PiLiteral{Token: p.CurrentToken}
+	pb.RegisterPrefixOperator(piType, func(tok token.Token, right func() ast.Expression) ast.Expression {
+		return &PiLiteral{Token: tok}
 	})
 	pb.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "RANDOM" {

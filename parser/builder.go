@@ -65,7 +65,7 @@ func (pb *Builder) UseExpressionInterceptor(interceptor Interceptor[ast.Expressi
 }
 
 // RegisterPrefixOperator allows registering new prefix operators (for example, `typeof`).
-func (pb *Builder) RegisterPrefixOperator(tokenType token.Type, createExpr func(p *Parser, right func() ast.Expression) ast.Expression) error {
+func (pb *Builder) RegisterPrefixOperator(tokenType token.Type, createExpr func(tok token.Token, right func() ast.Expression) ast.Expression) error {
 	if pb.registeredPrefixOps[tokenType] {
 		return fmt.Errorf("duplicate prefix operator: %s", tokenType)
 	}
@@ -78,7 +78,7 @@ func (pb *Builder) RegisterPrefixOperator(tokenType token.Type, createExpr func(
 }
 
 // RegisterInfixOperator allows incorporating new infix operators (for example, `^` for power).
-func (pb *Builder) RegisterInfixOperator(tokenType token.Type, precedence int, createExpr func(p *Parser, left ast.Expression, right func() ast.Expression) ast.Expression) error {
+func (pb *Builder) RegisterInfixOperator(tokenType token.Type, precedence int, createExpr func(tok token.Token, left ast.Expression, right func() ast.Expression) ast.Expression) error {
 	if pb.registeredInfixOps[tokenType] {
 		return fmt.Errorf("duplicate infix operator: %s", tokenType)
 	}
