@@ -67,7 +67,7 @@ func (p *Parser) ParseFunctionParameters() []*ast.Identifier {
 
 func (p *Parser) ParseReturnStatement() *ast.ReturnStatement {
 	stmt := &ast.ReturnStatement{Token: p.CurrentToken}
-	if p.PeekToken.Type != token.SEMICOLON && p.PeekToken.Type != token.EOF {
+	if p.PeekToken.Type != token.SEMICOLON && p.PeekToken.Type != token.EOF && p.PeekToken.Type != token.RBRACE {
 		p.NextToken()
 		stmt.ReturnValue = p.ParseExpression()
 	}
