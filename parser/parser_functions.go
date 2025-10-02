@@ -19,9 +19,7 @@ func (p *Parser) ParseLetStatement() *ast.LetStatement {
 		p.NextToken() // move to value
 		stmt.Value = p.ParseExpression()
 	}
-	if p.PeekToken.Type == token.SEMICOLON {
-		p.NextToken()
-	}
+	p.consumeSemicolonASI()
 	return stmt
 }
 
@@ -71,9 +69,7 @@ func (p *Parser) ParseReturnStatement() *ast.ReturnStatement {
 		p.NextToken()
 		stmt.ReturnValue = p.ParseExpression()
 	}
-	if p.PeekToken.Type == token.SEMICOLON {
-		p.NextToken()
-	}
+	p.consumeSemicolonASI()
 	return stmt
 }
 
@@ -165,9 +161,7 @@ func (p *Parser) ParseStatement() ast.Statement {
 func (p *Parser) ParseExpressionStatement() *ast.ExpressionStatement {
 	stmt := &ast.ExpressionStatement{Token: p.CurrentToken}
 	stmt.Expression = p.ParseExpression()
-	if p.PeekToken.Type == token.SEMICOLON {
-		p.NextToken()
-	}
+	p.consumeSemicolonASI()
 	return stmt
 }
 
@@ -411,4 +405,54 @@ func (p *Parser) ParseExpressionList(end token.Type) []ast.Expression {
 		return nil
 	}
 	return args
+}
+
+// shouldInsertSemicolon determines if ASI (Automatic Semicolon Insertion) should occur
+// based on JavaScript's ASI rules:
+// 1. There is a line terminator between two tokens that cannot be part of the same statement
+// 2. The next token is '}' (closing brace)
+// 3. The next token is EOF
+func (p *Parser) shouldInsertSemicolon() bool {
+	if p.PeekToken.Type == token.EOF {
+		return true
+	}
+	if p.PeekToken.Type == token.RBRACE {
+		return true
+	}
+	if !p.PeekToken.AfterNewline {
+		return false
+	}
+	switch p.PeekToken.Type {
+	case token.DOT: // obj.prop
+	case token.LBRACKET: // obj[prop]
+	case token.LPAREN: // func()
+	case token.PLUS: // + (binary)
+	case token.MINUS: // - (binary)
+	case token.MULTIPLY: // *
+	case token.DIVIDE: // /
+	case token.MODULO: // %
+	case token.LT: // <
+	case token.GT: // >
+	case token.LTE: // <=
+	case token.GTE: // >=
+	case token.EQ: // ==
+	case token.NOT_EQ: // !=
+	case token.AND: // &&
+	case token.OR: // ||
+	case token.ASSIGN: // =
+	case token.PLUS_ASSIGN: // +=
+	case token.MINUS_ASSIGN: // -=
+		return false
+	}
+	return true
+}
+
+// consumeSemicolonASI handles semicolon consumption with ASI support
+func (p *Parser) consumeSemicolonASI() {
+	if p.PeekToken.Type == token.SEMICOLON {
+		p.NextToken() // consume explicit semicolon
+	} else if p.shouldInsertSemicolon() {
+		// ASI: virtual semicolon inserted, no need to consume a token
+		return
+	}
 }

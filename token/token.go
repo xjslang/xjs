@@ -74,10 +74,11 @@ const (
 )
 
 type Token struct {
-	Type    Type
-	Literal string
-	Line    int
-	Column  int
+	Type         Type
+	Literal      string
+	Line         int
+	Column       int
+	AfterNewline bool // true if this token follows a newline character
 }
 
 func (t Token) String() string {

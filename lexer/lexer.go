@@ -20,14 +20,14 @@ type Builder struct {
 
 // Lexer performs lexical analysis on XJS source code, converting it into a stream of tokens.
 type Lexer struct {
-	input        string
-	position     int  // current position in input (points to current char)
-	readPosition int  // current reading position in input (after current char)
-	CurrentChar  byte // current char under examination
-	Line         int  // current line
-	Column       int  // current column
-
-	nextToken func(*Lexer) token.Token
+	input            string
+	position         int  // current position in input (points to current char)
+	readPosition     int  // current reading position in input (after current char)
+	CurrentChar      byte // current char under examination
+	Line             int  // current line
+	Column           int  // current column
+	nextToken        func(*Lexer) token.Token
+	hadNewlineBefore bool // tracks if we just consumed a newline
 }
 
 // New creates a new Lexer instance for the given input string.
@@ -61,9 +61,13 @@ func (l *Lexer) PeekChar() byte {
 	return l.input[l.readPosition]
 }
 
-// skipWhitespace skips whitespace characters
+// skipWhitespace skips whitespace characters and tracks newlines for ASI
 func (l *Lexer) skipWhitespace() {
+	l.hadNewlineBefore = false
 	for l.CurrentChar == ' ' || l.CurrentChar == '\t' || l.CurrentChar == '\n' || l.CurrentChar == '\r' {
+		if l.CurrentChar == '\n' {
+			l.hadNewlineBefore = true
+		}
 		l.ReadChar()
 	}
 }
@@ -293,11 +297,11 @@ func (l *Lexer) skipLineComment() {
 
 func newWithOptions(input string, interceptors ...Interceptor) *Lexer {
 	l := &Lexer{
-		input:  input,
-		Line:   1,
-		Column: 0,
-
-		nextToken: baseNextToken,
+		input:            input,
+		Line:             1,
+		Column:           0,
+		hadNewlineBefore: false,
+		nextToken:        baseNextToken,
 	}
 	for _, reader := range interceptors {
 		l.useInterceptor(reader)
