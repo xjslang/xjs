@@ -2,7 +2,7 @@
 name: Bug report
 about: Create a report to help us improve
 title: ''
-labels: ''
+labels: bug
 assignees: ''
 
 ---
@@ -11,28 +11,16 @@ assignees: ''
 A clear and concise description of what the bug is.
 
 **To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+Provide a self-contained, concise snippet of code that can be used to reproduce the issue. For more complex issues provide a repo with the smallest sample that reproduces the bug.
 
 **Expected behavior**
-A clear and concise description of what you expected to happen.
+What did you expect to happen?
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**Current behavior**
+What actually happened?
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+**Possible Solution**
+Suggest a fix/reason for the bug.
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
-
-**Additional context**
-Add any other context about the problem here.
+**Additional Information/Context**
+Anything else that might be relevant for troubleshooting this bug. Providing context helps us come up with a solution that is most useful in the real world.
