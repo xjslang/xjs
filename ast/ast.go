@@ -248,14 +248,7 @@ type BinaryExpression struct {
 func (be *BinaryExpression) WriteTo(b *strings.Builder) {
 	b.WriteRune('(')
 	be.Left.WriteTo(b)
-	switch be.Operator {
-	case "==":
-		b.WriteString("===")
-	case "!=":
-		b.WriteString("!==")
-	default:
-		b.WriteString(be.Operator)
-	}
+	b.WriteString(be.Operator)
 	be.Right.WriteTo(b)
 	b.WriteRune(')')
 }

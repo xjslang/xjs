@@ -45,14 +45,16 @@ func ExamplePrint() {
 	//       Type: (token.Type) 0,
 	//       Literal: (string) "",
 	//       Line: (int) 0,
-	//       Column: (int) 0
+	//       Column: (int) 0,
+	//       AfterNewline: (bool) false
 	//    },
 	//    Name: (*ast.Identifier)({
 	//       Token: (token.Token) {
 	//          Type: (token.Type) 0,
 	//          Literal: (string) "",
 	//          Line: (int) 0,
-	//          Column: (int) 0
+	//          Column: (int) 0,
+	//          AfterNewline: (bool) false
 	//       },
 	//       Value: (string) (len=1) "x"
 	//    }),
@@ -61,7 +63,8 @@ func ExamplePrint() {
 	//          Type: (token.Type) 0,
 	//          Literal: (string) (len=1) "5",
 	//          Line: (int) 0,
-	//          Column: (int) 0
+	//          Column: (int) 0,
+	//          AfterNewline: (bool) false
 	//       }
 	//    })
 	// })
