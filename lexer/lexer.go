@@ -313,7 +313,6 @@ func newWithOptions(input string, interceptors ...Interceptor) *Lexer {
 func (l *Lexer) useInterceptor(interceptor Interceptor) {
 	next := l.nextToken
 	l.nextToken = func(l *Lexer) token.Token {
-		l.skipWhitespace()
 		return interceptor(l, func() token.Token {
 			return next(l)
 		})

@@ -432,6 +432,7 @@ func (p *Parser) shouldInsertSemicolon() bool {
 	case token.DOT: // obj.prop
 	case token.LBRACKET: // obj[prop]
 	case token.LPAREN: // func()
+	case token.LBRACE: // object literal (e.g., return { ... })
 	case token.PLUS: // + (binary)
 	case token.MINUS: // - (binary)
 	case token.MULTIPLY: // *
