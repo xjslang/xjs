@@ -75,10 +75,6 @@ func (l *Lexer) skipWhitespace() {
 	}
 }
 
-func isWhitespace(ch byte) bool {
-	return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r'
-}
-
 // readIdentifier reads an identifier or keyword
 func (l *Lexer) readIdentifier() string {
 	position := l.position
@@ -285,16 +281,6 @@ func (l *Lexer) NextToken() token.Token {
 	return l.nextToken(l)
 }
 
-// isLetter checks if a character is a letter
-func isLetter(ch byte) bool {
-	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || ch == '$'
-}
-
-// isDigit checks if a character is a digit
-func isDigit(ch byte) bool {
-	return '0' <= ch && ch <= '9'
-}
-
 // skipLineComment skips characters until the end of line for line comments (//)
 func (l *Lexer) skipLineComment() {
 	for l.CurrentChar != '\n' && l.CurrentChar != 0 {
@@ -311,13 +297,13 @@ func newWithOptions(input string, interceptors ...Interceptor) *Lexer {
 		nextToken:        baseNextToken,
 	}
 	for _, reader := range interceptors {
-		l.useInterceptor(reader)
+		l.useTokenInterceptor(reader)
 	}
 	l.ReadChar()
 	return l
 }
 
-func (l *Lexer) useInterceptor(interceptor Interceptor) {
+func (l *Lexer) useTokenInterceptor(interceptor Interceptor) {
 	next := l.nextToken
 	l.nextToken = func(l *Lexer) token.Token {
 		l.skipWhitespace()
