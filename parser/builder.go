@@ -91,6 +91,21 @@ func (pb *Builder) RegisterInfixOperator(tokenType token.Type, precedence int, c
 	return nil
 }
 
+// WithTolerantMode enables tolerant parsing mode, which continues parsing even on syntax errors.
+// This is useful for language servers, formatters, and analysis tools that need to work with
+// incomplete or invalid code. In tolerant mode, the parser will not stop on missing semicolons
+// or other recoverable syntax errors.
+//
+// Example:
+//
+//	parser := parser.NewBuilder(lexer.NewBuilder()).
+//	    WithTolerantMode(true).
+//	    Build(code)
+func (pb *Builder) WithTolerantMode(enabled bool) *Builder {
+	pb.tolerantMode = enabled
+	return pb
+}
+
 // Build creates a new instance of the parser.
 func (pb *Builder) Build(input string) *Parser {
 	l := pb.LexerBuilder.Build(input)
@@ -99,5 +114,6 @@ func (pb *Builder) Build(input string) *Parser {
 		expInterceptors:  pb.expInterceptors,
 		prefixOperators:  pb.prefixOperators,
 		infixOperators:   pb.infixOperators,
+		tolerantMode:     pb.tolerantMode,
 	})
 }

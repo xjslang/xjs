@@ -76,6 +76,7 @@ type Builder struct {
 	expInterceptors  []Interceptor[ast.Expression]
 	infixOperators   []infixOperator
 	prefixOperators  []prefixOperator
+	tolerantMode     bool
 	// maps to track registered operators and detect duplicates
 	registeredPrefixOps map[token.Type]bool
 	registeredInfixOps  map[token.Type]bool
@@ -114,6 +115,10 @@ type Parser struct {
 	contextStack []ContextType
 	// Current expression precedence during parsing
 	currentExpressionPrecedence int
+
+	// tolerantMode enables permissive parsing that continues on syntax errors
+	// Useful for language servers, formatters, and analysis tools
+	tolerantMode bool
 }
 
 type parserOptions struct {
@@ -121,6 +126,7 @@ type parserOptions struct {
 	expInterceptors  []Interceptor[ast.Expression]
 	infixOperators   []infixOperator
 	prefixOperators  []prefixOperator
+	tolerantMode     bool
 }
 
 // newWithOptions creates a new Parser instance with the specified lexer and parser options.
@@ -140,6 +146,7 @@ func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
 		statementParseFn:  baseParseStatement,
 		expressionParseFn: baseParseExpression,
 		contextStack:      []ContextType{GlobalContext}, // Initialize with global context
+		tolerantMode:      opts.tolerantMode,
 	}
 
 	p.prefixParseFns = make(map[token.Type]func() ast.Expression)
@@ -273,6 +280,8 @@ func (p *Parser) ExpectToken(t token.Type) bool {
 }
 
 // ExpectSemicolonASI expects either an explicit semicolon or ASI conditions.
+// In tolerant mode, always returns true to continue parsing even on syntax errors.
+// Returns true if a semicolon (explicit or virtual) is present, false otherwise.
 func (p *Parser) ExpectSemicolonASI() bool {
 	if p.PeekToken.Type == token.SEMICOLON {
 		p.NextToken()
@@ -280,6 +289,10 @@ func (p *Parser) ExpectSemicolonASI() bool {
 	}
 	if p.shouldInsertSemicolon() {
 		// Virtual semicolon inserted (no token consumed)
+		return true
+	}
+	// In tolerant mode, continue parsing without error
+	if p.tolerantMode {
 		return true
 	}
 	p.AddError(fmt.Sprintf("expected semicolon or newline, got %s", p.PeekToken.Type))
