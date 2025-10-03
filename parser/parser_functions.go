@@ -19,7 +19,9 @@ func (p *Parser) ParseLetStatement() *ast.LetStatement {
 		p.NextToken() // move to value
 		stmt.Value = p.ParseExpression()
 	}
-	p.consumeSemicolonASI()
+	if !p.ExpectSemicolonASI() {
+		return nil
+	}
 	return stmt
 }
 
@@ -69,7 +71,9 @@ func (p *Parser) ParseReturnStatement() *ast.ReturnStatement {
 		p.NextToken()
 		stmt.ReturnValue = p.ParseExpression()
 	}
-	p.consumeSemicolonASI()
+	if !p.ExpectSemicolonASI() {
+		return nil
+	}
 	return stmt
 }
 
@@ -161,7 +165,9 @@ func (p *Parser) ParseStatement() ast.Statement {
 func (p *Parser) ParseExpressionStatement() *ast.ExpressionStatement {
 	stmt := &ast.ExpressionStatement{Token: p.CurrentToken}
 	stmt.Expression = p.ParseExpression()
-	p.consumeSemicolonASI()
+	if !p.ExpectSemicolonASI() {
+		return nil
+	}
 	return stmt
 }
 
@@ -445,14 +451,4 @@ func (p *Parser) shouldInsertSemicolon() bool {
 		return false
 	}
 	return true
-}
-
-// consumeSemicolonASI handles semicolon consumption with ASI support
-func (p *Parser) consumeSemicolonASI() {
-	if p.PeekToken.Type == token.SEMICOLON {
-		p.NextToken() // consume explicit semicolon
-	} else if p.shouldInsertSemicolon() {
-		// ASI: virtual semicolon inserted, no need to consume a token
-		return
-	}
 }

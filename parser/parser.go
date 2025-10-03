@@ -272,6 +272,20 @@ func (p *Parser) ExpectToken(t token.Type) bool {
 	return false
 }
 
+// ExpectSemicolonASI expects either an explicit semicolon or ASI conditions.
+func (p *Parser) ExpectSemicolonASI() bool {
+	if p.PeekToken.Type == token.SEMICOLON {
+		p.NextToken()
+		return true
+	}
+	if p.shouldInsertSemicolon() {
+		// Virtual semicolon inserted (no token consumed)
+		return true
+	}
+	p.AddError(fmt.Sprintf("expected semicolon or newline, got %s", p.PeekToken.Type))
+	return false
+}
+
 // Errors returns a copy of all parsing errors encountered during parsing.
 // This allows external code to inspect and handle parsing errors appropriately.
 func (p *Parser) Errors() []ParserError {
