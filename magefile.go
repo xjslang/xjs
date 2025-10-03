@@ -15,7 +15,7 @@ func Test() error {
 	fmt.Println("🚀 Starting XJS Test Suite")
 	fmt.Println("==========================")
 	fmt.Println()
-	mg.SerialDeps(TestTranspilation, TestUnit, TestMiddleware, testErrors)
+	mg.SerialDeps(TestTranspilation, TestUnit, TestMiddleware, TestTolerantMode, testErrors)
 	fmt.Println()
 	fmt.Println("🎉 All tests completed successfully!")
 	return nil
@@ -59,6 +59,12 @@ func TestUnit() error {
 func TestMiddleware() error {
 	fmt.Println("⚙️ Running middleware tests...")
 	return sh.RunV("go", "test", "-v", "-run", "TestMiddleware", "./test/integration")
+}
+
+// testTolerantMode runs only tolerant mode tests
+func TestTolerantMode() error {
+	fmt.Println("🛡️ Running tolerant mode tests...")
+	return sh.RunV("go", "test", "-v", "-run", "TestTolerant", "./test/integration", "./parser")
 }
 
 // Bench runs only benchmarks
