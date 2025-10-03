@@ -56,25 +56,18 @@ import (
 	"strings"
 
 	interpparser "github.com/xjslang/interp-parser"
-	weakeqparser "github.com/xjslang/weakeq-parser"
 	"github.com/xjslang/xjs/lexer"
 	"github.com/xjslang/xjs/parser"
 )
 
 func main() {
 	input := `
-	// weakeq-parser enhances the language
-	// by adding support for weak equality ('~~' and '!~')
-	if (a ~~ b) { console.log('equal') }
-	if (a !~ b) { console.log('not equal') }
-	
 	// interp-parser enhances the language
 	// by allowing string interpolation
 	console.log('Hello ${name} ${surname}!')`
 	lb := lexer.NewBuilder()
 	p := parser.NewBuilder(lb).
-		Install(weakeqparser.Plugin). // install a plugin
-		Install(interpparser.Plugin). // install another plugin
+		Install(interpparser.Plugin).
 		Build(input)
 	program, err := p.ParseProgram()
 	if err != nil {
@@ -82,8 +75,6 @@ func main() {
 	}
 	fmt.Println(strings.ReplaceAll(program.String(), ";", ";\n"))
 	// Output:
-	// if ((a==b)){console.log("equal")};
-	// if ((a!=b)){console.log("not equal")};
 	// console.log("Hello ${name} ${surname}!")
 }
 ```
@@ -147,7 +138,6 @@ Check out these community plugins:
 | **[Spread-Parser](https://github.com/xjslang/spread-parser)** | Object spread syntax using `..` operator (transpiles to Object.assign) |
 | **[Switch-Parser](https://github.com/xjslang/switch-parser)** | Adds support for `switch/case` statements |
 | **[Try-Parser](https://github.com/xjslang/try-parser)** | Adds `try/catch/finally` error handling support |
-| **[Weakeq-Parser](https://github.com/xjslang/weakeq-parser)** | Weak equality operators (`~~` and `!~`) for loose comparisons |
 
 > 🔍 [Explore all plugins](https://github.com/search?q=org%3Axjslang+-parser&type=repositories)
 

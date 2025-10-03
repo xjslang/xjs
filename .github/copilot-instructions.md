@@ -16,7 +16,6 @@ XJS is a highly customizable JavaScript parser written in Go. It's designed arou
 - No arrow functions (use regular functions)
 - No `const/var` (only `let`)
 - No `try/catch` (use alternative error handling)
-- No weak equality (`==` automatically becomes `===`)
 - No redundant syntactic sugar
 
 ## Project Structure
