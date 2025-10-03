@@ -89,7 +89,7 @@ func TestTolerantModeWithBuilder(t *testing.T) {
 			Build(input)
 		program, _ := p.ParseProgram()
 		if program == nil {
-			t.Error("expected program in tolerant mode, got nil")
+			t.Fatal("expected program in tolerant mode, got nil")
 		}
 		if len(program.Statements) == 0 {
 			t.Error("expected statements in tolerant mode, got none")
@@ -164,7 +164,7 @@ func TestTolerantModeForLSPScenarios(t *testing.T) {
 			// In tolerant mode, we should get some program structure
 			// even if the code is incomplete or invalid
 			if program == nil {
-				t.Errorf("%s: expected program despite errors", scenario.description)
+				t.Fatalf("%s: expected program despite errors", scenario.description)
 			}
 
 			t.Logf("%s: parsed %d statements", scenario.description, len(program.Statements))

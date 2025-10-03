@@ -77,7 +77,7 @@ func Example_prefixOperator() {
 	})
 	// adds support for the typeof keyword!
 	pb := NewBuilder(lb)
-	pb.RegisterPrefixOperator(typeofType, func(tok token.Token, right func() ast.Expression) ast.Expression {
+	_ = pb.RegisterPrefixOperator(typeofType, func(tok token.Token, right func() ast.Expression) ast.Expression {
 		return &TypeofExpression{
 			Token: tok,
 			Right: right(),
@@ -120,7 +120,7 @@ func Example_infixOperator() {
 	})
 
 	// adds support for the ^ operator!
-	pb.RegisterInfixOperator(powType, PRODUCT+1, func(tok token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
+	_ = pb.RegisterInfixOperator(powType, PRODUCT+1, func(tok token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{
 			Token: tok,
 			Left:  left,
@@ -161,7 +161,7 @@ func Example_operand() {
 	})
 
 	// adds support for the PI constant!
-	pb.RegisterPrefixOperator(piType, func(tok token.Token, right func() ast.Expression) ast.Expression {
+	_ = pb.RegisterPrefixOperator(piType, func(tok token.Token, right func() ast.Expression) ast.Expression {
 		return &PiLiteral{Token: tok}
 	})
 
@@ -253,13 +253,13 @@ func Example_combined() {
 		}
 		return next()
 	})
-	pb.RegisterPrefixOperator(typeofType, func(tok token.Token, right func() ast.Expression) ast.Expression {
+	_ = pb.RegisterPrefixOperator(typeofType, func(tok token.Token, right func() ast.Expression) ast.Expression {
 		return &TypeofExpression{Token: tok, Right: right()}
 	})
-	pb.RegisterInfixOperator(powType, PRODUCT+1, func(tok token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
+	_ = pb.RegisterInfixOperator(powType, PRODUCT+1, func(tok token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
 		return &PowExpression{Token: tok, Left: left, Right: right()}
 	})
-	pb.RegisterPrefixOperator(piType, func(tok token.Token, right func() ast.Expression) ast.Expression {
+	_ = pb.RegisterPrefixOperator(piType, func(tok token.Token, right func() ast.Expression) ast.Expression {
 		return &PiLiteral{Token: tok}
 	})
 	pb.UseExpressionInterceptor(func(p *Parser, next func() ast.Expression) ast.Expression {
