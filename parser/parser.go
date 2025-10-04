@@ -217,12 +217,6 @@ func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
 	return p
 }
 
-// New creates a new Parser instance with default options.
-// This is the standard constructor for creating a parser with no middleware or transformations.
-func New(l *lexer.Lexer) *Parser {
-	return newWithOptions(l, parserOptions{})
-}
-
 // ParseProgram parses the entire source code and returns the resulting AST Program.
 // It continuously parses statements until EOF is reached, collecting any parsing errors.
 // After parsing, it applies any registered program transformers to the final AST.

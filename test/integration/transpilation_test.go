@@ -53,8 +53,8 @@ func executeJavaScript(code string) (string, error) {
 
 // transpileXJSCode transpiles XJS code to JavaScript using the main Parse function
 func transpileXJSCode(input string) (string, error) {
-	l := lexer.New(input)
-	p := parser.New(l)
+	lb := lexer.NewBuilder()
+	p := parser.NewBuilder(lb).Build(input)
 	program, err := p.ParseProgram()
 	if err != nil {
 		return "", fmt.Errorf("ParseProgram error: %v", err)

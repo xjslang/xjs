@@ -20,7 +20,7 @@ func TestRawStrings(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := New(tt.input)
+			l := new(tt.input)
 			for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
 				if tok.Type != token.RAW_STRING || tok.Literal != tt.expected {
 					t.Errorf("Lexer(%q) got %q, want %q", tt.input, tok.Literal, tt.expected)
