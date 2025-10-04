@@ -87,7 +87,6 @@ Rather than accumulating features over time, **XJS** starts with a carefully cur
 |----------|--------|-------------|
 | **Classes** | Functions provide sufficient abstraction | Use functions and closures |
 | **`const/var`** | Single variable declaration is sufficient | Use `let` only |
-| **Weak equality** | `==` automatically becomes `===` | Strict equality only |
 | **Arrow functions** | Non-essential | `function() {}` |
 | **`try/catch`** | Non-essential | Return error values |
 | **`import/export`** | Non-essential | Use `require()` |
