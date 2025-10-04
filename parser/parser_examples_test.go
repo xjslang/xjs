@@ -276,3 +276,36 @@ func Example_combined() {
 	fmt.Println(ast.String())
 	// Output: const circleArea=(Math.PI*Math.pow(r,2));if (((typeof radius)=="string")){let randomRadius=(Math.random()*10)}
 }
+
+type FactorialExpression struct {
+	Token token.Token
+	Left  ast.Expression
+}
+
+func (fe *FactorialExpression) WriteTo(b *strings.Builder) {
+	b.WriteString("factorial(")
+	fe.Left.WriteTo(b)
+	b.WriteRune(')')
+}
+
+func Example_postfixOperator() {
+	input := "let result = 5! + 2!"
+	lb := lexer.NewBuilder()
+	pb := NewBuilder(lb)
+
+	// adds support for the ! postfix operator factorial
+	_ = pb.RegisterPostfixOperator(token.NOT, func(tok token.Token, left ast.Expression) ast.Expression {
+		return &FactorialExpression{
+			Token: tok,
+			Left:  left,
+		}
+	})
+
+	p := pb.Build(input)
+	ast, err := p.ParseProgram()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(ast.String())
+	// Output: let result=(factorial(5)+factorial(2))
+}
