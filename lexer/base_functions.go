@@ -15,7 +15,6 @@ func (l *Lexer) NewToken(tokenType token.Type, literal string) token.Token {
 
 func baseNextToken(l *Lexer) token.Token {
 	var tok token.Token
-	l.skipWhitespace()
 
 	switch l.CurrentChar {
 	case '=':

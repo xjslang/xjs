@@ -63,9 +63,6 @@ func (l *Lexer) PeekChar() byte {
 
 // skipWhitespace skips whitespace characters and tracks newlines for ASI.
 func (l *Lexer) skipWhitespace() {
-	if !isWhitespace(l.CurrentChar) {
-		return
-	}
 	l.hadNewlineBefore = false
 	for isWhitespace(l.CurrentChar) {
 		if l.CurrentChar == '\n' {
@@ -278,6 +275,7 @@ func (l *Lexer) readRawString() string {
 
 // NextToken generates and returns the next token from the input stream.
 func (l *Lexer) NextToken() token.Token {
+	l.skipWhitespace()
 	return l.nextToken(l)
 }
 
@@ -306,7 +304,6 @@ func newWithOptions(input string, interceptors ...Interceptor) *Lexer {
 func (l *Lexer) useTokenInterceptor(interceptor Interceptor) {
 	next := l.nextToken
 	l.nextToken = func(l *Lexer) token.Token {
-		l.skipWhitespace()
 		return interceptor(l, func() token.Token {
 			return next(l)
 		})
