@@ -35,14 +35,22 @@ func NewBuilder(lb *lexer.Builder) *Builder {
 		token.FUNCTION:   true,
 	}
 
+	// initializes map for postfix operators (from parser's default postfix operators)
+	registeredPostfixOps := map[token.Type]bool{
+		token.INCREMENT: true,
+		token.DECREMENT: true,
+	}
+
 	return &Builder{
-		LexerBuilder:        lb,
-		stmtInterceptors:    []Interceptor[ast.Statement]{},
-		expInterceptors:     []Interceptor[ast.Expression]{},
-		prefixOperators:     []prefixOperator{},
-		infixOperators:      []infixOperator{},
-		registeredPrefixOps: registeredPrefixOps,
-		registeredInfixOps:  registeredInfixOps,
+		LexerBuilder:         lb,
+		stmtInterceptors:     []Interceptor[ast.Statement]{},
+		expInterceptors:      []Interceptor[ast.Expression]{},
+		prefixOperators:      []prefixOperator{},
+		infixOperators:       []infixOperator{},
+		postfixOperators:     []postfixOperator{},
+		registeredPrefixOps:  registeredPrefixOps,
+		registeredInfixOps:   registeredInfixOps,
+		registeredPostfixOps: registeredPostfixOps,
 	}
 }
 
@@ -91,6 +99,19 @@ func (pb *Builder) RegisterInfixOperator(tokenType token.Type, precedence int, c
 	return nil
 }
 
+// RegisterPostfixOperator allows registering new postfix operators.
+func (pb *Builder) RegisterPostfixOperator(tokenType token.Type, createExpr func(tok token.Token, left ast.Expression) ast.Expression) error {
+	if pb.registeredPostfixOps[tokenType] {
+		return fmt.Errorf("duplicate postfix operator: %s", tokenType)
+	}
+	pb.postfixOperators = append(pb.postfixOperators, postfixOperator{
+		tokenType:  tokenType,
+		createExpr: createExpr,
+	})
+	pb.registeredPostfixOps[tokenType] = true
+	return nil
+}
+
 // WithTolerantMode enables tolerant parsing mode, which continues parsing even on syntax errors.
 // This is useful for language servers, formatters, and analysis tools that need to work with
 // incomplete or invalid code. In tolerant mode, the parser will not stop on missing semicolons
@@ -114,6 +135,7 @@ func (pb *Builder) Build(input string) *Parser {
 		expInterceptors:  pb.expInterceptors,
 		prefixOperators:  pb.prefixOperators,
 		infixOperators:   pb.infixOperators,
+		postfixOperators: pb.postfixOperators,
 		tolerantMode:     pb.tolerantMode,
 	})
 }

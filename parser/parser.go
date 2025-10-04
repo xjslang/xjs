@@ -66,6 +66,10 @@ type infixOperator struct {
 	precedence int
 	createExpr func(tok token.Token, left ast.Expression, right func() ast.Expression) ast.Expression
 }
+type postfixOperator struct {
+	tokenType  token.Type
+	createExpr func(tok token.Token, left ast.Expression) ast.Expression
+}
 
 // Builder provides a fluent interface for constructing a Parser with various middleware
 // and transformations. It allows composition of lexer options, statement interceptors,
@@ -76,10 +80,12 @@ type Builder struct {
 	expInterceptors  []Interceptor[ast.Expression]
 	infixOperators   []infixOperator
 	prefixOperators  []prefixOperator
+	postfixOperators []postfixOperator
 	tolerantMode     bool
 	// maps to track registered operators and detect duplicates
-	registeredPrefixOps map[token.Type]bool
-	registeredInfixOps  map[token.Type]bool
+	registeredPrefixOps  map[token.Type]bool
+	registeredInfixOps   map[token.Type]bool
+	registeredPostfixOps map[token.Type]bool
 }
 
 // Parser is the main structure responsible for syntactic analysis of XJS source code.
@@ -126,6 +132,7 @@ type parserOptions struct {
 	expInterceptors  []Interceptor[ast.Expression]
 	infixOperators   []infixOperator
 	prefixOperators  []prefixOperator
+	postfixOperators []postfixOperator
 	tolerantMode     bool
 }
 
@@ -208,6 +215,9 @@ func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
 	}
 	for _, infixOp := range opts.infixOperators {
 		p.registerInfixOperator(infixOp.tokenType, infixOp.precedence, infixOp.createExpr)
+	}
+	for _, postfixOp := range opts.postfixOperators {
+		p.registerPostfixOperator(postfixOp.tokenType, postfixOp.createExpr)
 	}
 
 	// Read two tokens, so CurrentToken and PeekToken are both set
@@ -368,5 +378,12 @@ func (p *Parser) registerInfixOperator(tokenType token.Type, precedence int, cre
 			return p.expressionParseFn(p, precedence)
 		}
 		return createExpr(p.CurrentToken, left, right)
+	}
+}
+
+func (p *Parser) registerPostfixOperator(tokenType token.Type, createExpr func(token.Token, ast.Expression) ast.Expression) {
+	p.precedences[tokenType] = CALL // highest precedence
+	p.infixParseFns[tokenType] = func(left ast.Expression) ast.Expression {
+		return createExpr(p.CurrentToken, left)
 	}
 }

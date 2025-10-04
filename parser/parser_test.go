@@ -1,10 +1,12 @@
 package parser
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/token"
 )
 
 func TestParseBasicLiterals(t *testing.T) {
@@ -481,4 +483,123 @@ func TestNextToken(t *testing.T) {
 	if p.CurrentToken.Literal != "x" {
 		t.Errorf("After NextToken, expected current token 'x', got %q", p.CurrentToken.Literal)
 	}
+}
+
+func TestRegisterOperatorsDuplication(t *testing.T) {
+	t.Run("RegisterPrefixOperator duplicates", func(t *testing.T) {
+		lb := lexer.NewBuilder()
+		pb := NewBuilder(lb)
+
+		// Test builtin prefix operators
+		builtinPrefixOps := []token.Type{
+			token.IDENT, token.INT, token.FLOAT, token.STRING, token.RAW_STRING,
+			token.TRUE, token.FALSE, token.NULL, token.NOT, token.MINUS,
+			token.INCREMENT, token.DECREMENT, token.LPAREN, token.LBRACKET,
+			token.LBRACE, token.FUNCTION,
+		}
+
+		for _, tokenType := range builtinPrefixOps {
+			err := pb.RegisterPrefixOperator(tokenType, func(tok token.Token, right func() ast.Expression) ast.Expression {
+				return nil
+			})
+			if err == nil {
+				t.Errorf("Expected error when registering duplicate builtin prefix operator %v, but got nil", tokenType)
+			} else if !strings.Contains(err.Error(), "duplicate") || !strings.Contains(err.Error(), "prefix") {
+				t.Errorf("Expected error message to contain 'duplicate' and 'prefix', but got: %v", err.Error())
+			}
+		}
+
+		// Test custom prefix operator duplication
+		customType := token.Type(1000)
+		err := pb.RegisterPrefixOperator(customType, func(tok token.Token, right func() ast.Expression) ast.Expression {
+			return nil
+		})
+		if err != nil {
+			t.Errorf("Expected no error when registering new custom prefix operator, but got: %v", err)
+		}
+
+		err = pb.RegisterPrefixOperator(customType, func(tok token.Token, right func() ast.Expression) ast.Expression {
+			return nil
+		})
+		if err == nil {
+			t.Error("Expected error when registering duplicate custom prefix operator, but got nil")
+		}
+	})
+
+	t.Run("RegisterInfixOperator duplicates", func(t *testing.T) {
+		lb := lexer.NewBuilder()
+		pb := NewBuilder(lb)
+
+		// Test builtin infix operators (from precedences map)
+		builtinInfixOps := []token.Type{
+			token.PLUS, token.MINUS, token.MULTIPLY, token.DIVIDE, token.MODULO,
+			token.EQ, token.NOT_EQ, token.LT, token.GT, token.LTE, token.GTE,
+			token.AND, token.OR, token.ASSIGN, token.PLUS_ASSIGN, token.MINUS_ASSIGN,
+			token.LPAREN, token.DOT, token.LBRACKET, token.INCREMENT, token.DECREMENT,
+		}
+
+		for _, tokenType := range builtinInfixOps {
+			err := pb.RegisterInfixOperator(tokenType, 1, func(tok token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
+				return nil
+			})
+			if err == nil {
+				t.Errorf("Expected error when registering duplicate builtin infix operator %v, but got nil", tokenType)
+			} else if !strings.Contains(err.Error(), "duplicate") || !strings.Contains(err.Error(), "infix") {
+				t.Errorf("Expected error message to contain 'duplicate' and 'infix', but got: %v", err.Error())
+			}
+		}
+
+		// Test custom infix operator duplication
+		customType := token.Type(1001)
+		err := pb.RegisterInfixOperator(customType, 5, func(tok token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
+			return nil
+		})
+		if err != nil {
+			t.Errorf("Expected no error when registering new custom infix operator, but got: %v", err)
+		}
+
+		err = pb.RegisterInfixOperator(customType, 5, func(tok token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
+			return nil
+		})
+		if err == nil {
+			t.Error("Expected error when registering duplicate custom infix operator, but got nil")
+		}
+	})
+
+	t.Run("RegisterPostfixOperator duplicates", func(t *testing.T) {
+		lb := lexer.NewBuilder()
+		pb := NewBuilder(lb)
+
+		// Test builtin postfix operators
+		builtinPostfixOps := []token.Type{
+			token.INCREMENT, token.DECREMENT,
+		}
+
+		for _, tokenType := range builtinPostfixOps {
+			err := pb.RegisterPostfixOperator(tokenType, func(tok token.Token, left ast.Expression) ast.Expression {
+				return nil
+			})
+			if err == nil {
+				t.Errorf("Expected error when registering duplicate builtin postfix operator %v, but got nil", tokenType)
+			} else if !strings.Contains(err.Error(), "duplicate") || !strings.Contains(err.Error(), "postfix") {
+				t.Errorf("Expected error message to contain 'duplicate' and 'postfix', but got: %v", err.Error())
+			}
+		}
+
+		// Test custom postfix operator duplication
+		customType := token.Type(1002)
+		err := pb.RegisterPostfixOperator(customType, func(tok token.Token, left ast.Expression) ast.Expression {
+			return nil
+		})
+		if err != nil {
+			t.Errorf("Expected no error when registering new custom postfix operator, but got: %v", err)
+		}
+
+		err = pb.RegisterPostfixOperator(customType, func(tok token.Token, left ast.Expression) ast.Expression {
+			return nil
+		})
+		if err == nil {
+			t.Error("Expected error when registering duplicate custom postfix operator, but got nil")
+		}
+	})
 }
