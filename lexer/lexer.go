@@ -30,8 +30,23 @@ type Lexer struct {
 	hadNewlineBefore bool // tracks if we just consumed a newline
 }
 
-// New creates a new Lexer instance for the given input string.
-func New(input string) *Lexer {
+func newWithOptions(input string, interceptors ...Interceptor) *Lexer {
+	l := &Lexer{
+		input:            input,
+		Line:             1,
+		Column:           0,
+		hadNewlineBefore: false,
+		nextToken:        baseNextToken,
+	}
+	for _, reader := range interceptors {
+		l.useTokenInterceptor(reader)
+	}
+	l.ReadChar()
+	return l
+}
+
+// new creates a new Lexer instance for the given input string.
+func new(input string) *Lexer {
 	return newWithOptions(input)
 }
 
@@ -284,21 +299,6 @@ func (l *Lexer) skipLineComment() {
 	for l.CurrentChar != '\n' && l.CurrentChar != 0 {
 		l.ReadChar()
 	}
-}
-
-func newWithOptions(input string, interceptors ...Interceptor) *Lexer {
-	l := &Lexer{
-		input:            input,
-		Line:             1,
-		Column:           0,
-		hadNewlineBefore: false,
-		nextToken:        baseNextToken,
-	}
-	for _, reader := range interceptors {
-		l.useTokenInterceptor(reader)
-	}
-	l.ReadChar()
-	return l
 }
 
 func (l *Lexer) useTokenInterceptor(interceptor Interceptor) {

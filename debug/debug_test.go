@@ -16,8 +16,8 @@ func TestToString(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := lexer.New(tt.input)
-			p := parser.New(l)
+			lb := lexer.NewBuilder()
+			p := parser.NewBuilder(lb).Build(tt.input)
 			stmt := p.ParseStatement()
 			if stmt == nil {
 				t.Fatalf("ParseStatement() returned nil")

@@ -23,8 +23,8 @@ func TestParseBasicLiterals(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := lexer.New(tt.input)
-			p := New(l)
+			lb := lexer.NewBuilder()
+			p := NewBuilder(lb).Build(tt.input)
 			program, err := p.ParseProgram()
 			if err != nil {
 				t.Errorf("ParseProgram(%q) error = %v", tt.input, err)
@@ -67,8 +67,8 @@ func TestParseBinaryExpressions(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := lexer.New(tt.input)
-			p := New(l)
+			lb := lexer.NewBuilder()
+			p := NewBuilder(lb).Build(tt.input)
 			program, err := p.ParseProgram()
 			if err != nil {
 				t.Errorf("ParseProgram(%q) error = %v", tt.input, err)
@@ -103,8 +103,8 @@ func TestParseUnaryExpressions(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := lexer.New(tt.input)
-			p := New(l)
+			lb := lexer.NewBuilder()
+			p := NewBuilder(lb).Build(tt.input)
 			program, err := p.ParseProgram()
 			if err != nil {
 				t.Errorf("ParseProgram error = %v", err)
@@ -137,8 +137,8 @@ func TestParseIdentifiers(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := lexer.New(tt.input)
-			p := New(l)
+			lb := lexer.NewBuilder()
+			p := NewBuilder(lb).Build(tt.input)
 			program, err := p.ParseProgram()
 			if err != nil {
 				t.Errorf("ParseProgram error = %v", err)
@@ -170,8 +170,8 @@ func TestParseLetStatements(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := lexer.New(tt.input)
-			p := New(l)
+			lb := lexer.NewBuilder()
+			p := NewBuilder(lb).Build(tt.input)
 			program, err := p.ParseProgram()
 			if err != nil {
 				t.Errorf("ParseProgram error = %v", err)
@@ -203,8 +203,8 @@ func TestParseFunctionDeclarations(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := lexer.New(tt.input)
-			p := New(l)
+			lb := lexer.NewBuilder()
+			p := NewBuilder(lb).Build(tt.input)
 			program, err := p.ParseProgram()
 			if err != nil {
 				t.Errorf("ParseProgram error = %v", err)
@@ -237,8 +237,8 @@ func TestParseArrayLiterals(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := lexer.New(tt.input)
-			p := New(l)
+			lb := lexer.NewBuilder()
+			p := NewBuilder(lb).Build(tt.input)
 			program, err := p.ParseProgram()
 			if err != nil {
 				t.Errorf("ParseProgram error = %v", err)
@@ -271,8 +271,8 @@ func TestParseAssignmentExpressions(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := lexer.New(tt.input)
-			p := New(l)
+			lb := lexer.NewBuilder()
+			p := NewBuilder(lb).Build(tt.input)
 			program, err := p.ParseProgram()
 			if err != nil {
 				t.Errorf("ParseProgram error = %v", err)
@@ -305,8 +305,8 @@ func TestParseCallExpressions(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := lexer.New(tt.input)
-			p := New(l)
+			lb := lexer.NewBuilder()
+			p := NewBuilder(lb).Build(tt.input)
 			program, err := p.ParseProgram()
 			if err != nil {
 				t.Errorf("ParseProgram error = %v", err)
@@ -339,8 +339,8 @@ func TestParseMemberExpressions(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := lexer.New(tt.input)
-			p := New(l)
+			lb := lexer.NewBuilder()
+			p := NewBuilder(lb).Build(tt.input)
 			program, err := p.ParseProgram()
 			if err != nil {
 				t.Errorf("ParseProgram error = %v", err)
@@ -431,8 +431,8 @@ func TestParseMultipleStatements(t *testing.T) {
 	let y = 10;
 	x + y`
 
-	l := lexer.New(input)
-	p := New(l)
+	lb := lexer.NewBuilder()
+	p := NewBuilder(lb).Build(input)
 	program, err := p.ParseProgram()
 	if err != nil {
 		t.Errorf("ParseProgram error = %v", err)
@@ -453,8 +453,8 @@ func TestParseMultipleStatements(t *testing.T) {
 func TestParserErrors(t *testing.T) {
 	input := "let x = 5;"
 
-	l := lexer.New(input)
-	p := New(l)
+	lb := lexer.NewBuilder()
+	p := NewBuilder(lb).Build(input)
 	_, err := p.ParseProgram()
 	if err != nil {
 		t.Errorf("ParseProgram error = %v", err)
@@ -465,8 +465,8 @@ func TestParserErrors(t *testing.T) {
 func TestNextToken(t *testing.T) {
 	input := "let x = 5"
 
-	l := lexer.New(input)
-	p := New(l)
+	lb := lexer.NewBuilder()
+	p := NewBuilder(lb).Build(input)
 
 	if p.CurrentToken.Literal != "let" {
 		t.Errorf("Expected current token 'let', got %q", p.CurrentToken.Literal)
