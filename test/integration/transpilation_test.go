@@ -12,6 +12,8 @@ import (
 	"github.com/xjslang/xjs/parser"
 )
 
+const testDataDir = "../../testdata"
+
 type TranspilationTest struct {
 	name           string
 	inputFile      string
@@ -68,8 +70,8 @@ func transpileXJSCode(input string) (string, error) {
 
 // loadTestCase loads a test case from fixture files
 func loadTestCase(t *testing.T, baseName string) TranspilationTest {
-	inputFile := filepath.Join("../testdata", baseName+".js")
-	outputFile := filepath.Join("../testdata", baseName+".output")
+	inputFile := filepath.Join(testDataDir, baseName+".js")
+	outputFile := filepath.Join(testDataDir, baseName+".output")
 
 	// Read input file
 	inputContent, err := os.ReadFile(inputFile)
@@ -117,7 +119,6 @@ func RunTranspilationTest(t *testing.T, test TranspilationTest) {
 // TestTranspilation tests the transpilation of XJS code to JavaScript by executing it
 func TestTranspilation(t *testing.T) {
 	// Dynamically discover test cases by reading .js files from testdata directory
-	testDataDir := "../testdata"
 	files, err := os.ReadDir(testDataDir)
 	if err != nil {
 		t.Fatalf("Failed to read testdata directory: %v", err)
