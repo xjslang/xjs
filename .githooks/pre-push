@@ -1,0 +1,9 @@
+#!/bin/bash
+
+mage lint
+if [ $? -ne 0 ]; then
+    echo "Linting failed, aborting push"
+    exit 1
+fi
+
+exit 0
