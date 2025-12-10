@@ -25,7 +25,12 @@ go.work.sum
 /dist/
 
 # IDE files
-.vscode/
+# Note: .vscode/settings.json is tracked for team consistency
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
 .idea/
 *.swp
 *.swo

@@ -1,9 +1,12 @@
+//go:build integration
+
 // Package main demonstrates basic usage of the xjs library with function expressions
 package integration
 
 import (
 	"fmt"
 
+	"github.com/xjslang/xjs/compiler"
 	"github.com/xjslang/xjs/lexer"
 	"github.com/xjslang/xjs/parser"
 )
@@ -37,6 +40,7 @@ func Example_general() {
 		fmt.Printf("ParseProgram error = %v\n", err)
 		return
 	}
-	fmt.Println(program.String())
+	result := compiler.New().Compile(program)
+	fmt.Println(result.Code)
 	// Output: let x=5;let y=10.5;let name="Hello World";let items=[];items.push(function(){console.log("new item")});function add(a,b){return (a+b)};if ((x<y)){console.log("x is less than y")};let numbers=[1,2,3,4,5];let person={age:30,name:"John"}
 }

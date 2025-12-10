@@ -4,13 +4,16 @@ package ast
 
 import (
 	"sort"
-	"strings"
 
 	"github.com/xjslang/xjs/token"
 )
 
+type CompileOptions struct {
+	GenerateSourceMap bool
+}
+
 type Node interface {
-	WriteTo(b *strings.Builder)
+	WriteTo(ccw *CodeWriter)
 }
 
 type Statement interface {
@@ -25,18 +28,12 @@ type Program struct {
 	Statements []Statement
 }
 
-func (p *Program) String() string {
-	var b strings.Builder
-	p.WriteTo(&b)
-	return b.String()
-}
-
-func (p *Program) WriteTo(b *strings.Builder) {
+func (p *Program) WriteTo(cw *CodeWriter) {
 	for i, stmt := range p.Statements {
 		if i > 0 {
-			b.WriteRune(';')
+			cw.WriteRune(';')
 		}
-		stmt.WriteTo(b)
+		stmt.WriteTo(cw)
 	}
 }
 
@@ -47,12 +44,13 @@ type LetStatement struct {
 	Value Expression
 }
 
-func (ls *LetStatement) WriteTo(b *strings.Builder) {
-	b.WriteString("let ")
-	ls.Name.WriteTo(b)
+func (ls *LetStatement) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(ls.Token.Line, ls.Token.Column)
+	cw.WriteString("let ")
+	ls.Name.WriteTo(cw)
 	if ls.Value != nil {
-		b.WriteRune('=')
-		ls.Value.WriteTo(b)
+		cw.WriteRune('=')
+		ls.Value.WriteTo(cw)
 	}
 }
 
@@ -61,11 +59,12 @@ type ReturnStatement struct {
 	ReturnValue Expression
 }
 
-func (rs *ReturnStatement) WriteTo(b *strings.Builder) {
-	b.WriteString("return")
+func (rs *ReturnStatement) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(rs.Token.Line, rs.Token.Column)
+	cw.WriteString("return")
 	if rs.ReturnValue != nil {
-		b.WriteRune(' ')
-		rs.ReturnValue.WriteTo(b)
+		cw.WriteRune(' ')
+		rs.ReturnValue.WriteTo(cw)
 	}
 }
 
@@ -74,9 +73,9 @@ type ExpressionStatement struct {
 	Expression Expression
 }
 
-func (es *ExpressionStatement) WriteTo(b *strings.Builder) {
+func (es *ExpressionStatement) WriteTo(cw *CodeWriter) {
 	if es.Expression != nil {
-		es.Expression.WriteTo(b)
+		es.Expression.WriteTo(cw)
 	}
 }
 
@@ -87,18 +86,19 @@ type FunctionDeclaration struct {
 	Body       *BlockStatement
 }
 
-func (fd *FunctionDeclaration) WriteTo(b *strings.Builder) {
-	b.WriteString("function ")
-	fd.Name.WriteTo(b)
-	b.WriteRune('(')
+func (fd *FunctionDeclaration) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(fd.Token.Line, fd.Token.Column)
+	cw.WriteString("function ")
+	fd.Name.WriteTo(cw)
+	cw.WriteRune('(')
 	for i, param := range fd.Parameters {
 		if i > 0 {
-			b.WriteRune(',')
+			cw.WriteRune(',')
 		}
-		param.WriteTo(b)
+		param.WriteTo(cw)
 	}
-	b.WriteRune(')')
-	fd.Body.WriteTo(b)
+	cw.WriteRune(')')
+	fd.Body.WriteTo(cw)
 }
 
 type BlockStatement struct {
@@ -106,15 +106,16 @@ type BlockStatement struct {
 	Statements []Statement
 }
 
-func (bs *BlockStatement) WriteTo(b *strings.Builder) {
-	b.WriteRune('{')
+func (bs *BlockStatement) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(bs.Token.Line, bs.Token.Column)
+	cw.WriteRune('{')
 	for i, stmt := range bs.Statements {
 		if i > 0 {
-			b.WriteRune(';')
+			cw.WriteRune(';')
 		}
-		stmt.WriteTo(b)
+		stmt.WriteTo(cw)
 	}
-	b.WriteRune('}')
+	cw.WriteRune('}')
 }
 
 type IfStatement struct {
@@ -124,14 +125,15 @@ type IfStatement struct {
 	ElseBranch Statement // can be nil
 }
 
-func (ifs *IfStatement) WriteTo(b *strings.Builder) {
-	b.WriteString("if (")
-	ifs.Condition.WriteTo(b)
-	b.WriteRune(')')
-	ifs.ThenBranch.WriteTo(b)
+func (ifs *IfStatement) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(ifs.Token.Line, ifs.Token.Column)
+	cw.WriteString("if (")
+	ifs.Condition.WriteTo(cw)
+	cw.WriteRune(')')
+	ifs.ThenBranch.WriteTo(cw)
 	if ifs.ElseBranch != nil {
-		b.WriteString(" else ")
-		ifs.ElseBranch.WriteTo(b)
+		cw.WriteString(" else ")
+		ifs.ElseBranch.WriteTo(cw)
 	}
 }
 
@@ -141,11 +143,12 @@ type WhileStatement struct {
 	Body      Statement
 }
 
-func (ws *WhileStatement) WriteTo(b *strings.Builder) {
-	b.WriteString("while (")
-	ws.Condition.WriteTo(b)
-	b.WriteRune(')')
-	ws.Body.WriteTo(b)
+func (ws *WhileStatement) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(ws.Token.Line, ws.Token.Column)
+	cw.WriteString("while (")
+	ws.Condition.WriteTo(cw)
+	cw.WriteRune(')')
+	ws.Body.WriteTo(cw)
 }
 
 type ForStatement struct {
@@ -156,21 +159,22 @@ type ForStatement struct {
 	Body      Statement
 }
 
-func (fs *ForStatement) WriteTo(b *strings.Builder) {
-	b.WriteString("for (")
+func (fs *ForStatement) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(fs.Token.Line, fs.Token.Column)
+	cw.WriteString("for (")
 	if fs.Init != nil {
-		fs.Init.WriteTo(b)
+		fs.Init.WriteTo(cw)
 	}
-	b.WriteRune(';')
+	cw.WriteRune(';')
 	if fs.Condition != nil {
-		fs.Condition.WriteTo(b)
+		fs.Condition.WriteTo(cw)
 	}
-	b.WriteRune(';')
+	cw.WriteRune(';')
 	if fs.Update != nil {
-		fs.Update.WriteTo(b)
+		fs.Update.WriteTo(cw)
 	}
-	b.WriteRune(')')
-	fs.Body.WriteTo(b)
+	cw.WriteRune(')')
+	fs.Body.WriteTo(cw)
 }
 
 // Expressions
@@ -179,24 +183,27 @@ type Identifier struct {
 	Value string
 }
 
-func (i *Identifier) WriteTo(b *strings.Builder) {
-	b.WriteString(i.Value)
+func (i *Identifier) WriteTo(cw *CodeWriter) {
+	cw.AddNamedMapping(i.Token.Line, i.Token.Column, i.Value)
+	cw.WriteString(i.Value)
 }
 
 type IntegerLiteral struct {
 	Token token.Token // the INT token
 }
 
-func (il *IntegerLiteral) WriteTo(b *strings.Builder) {
-	b.WriteString(il.Token.Literal)
+func (il *IntegerLiteral) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(il.Token.Line, il.Token.Column)
+	cw.WriteString(il.Token.Literal)
 }
 
 type FloatLiteral struct {
 	Token token.Token // the FLOAT token
 }
 
-func (fl *FloatLiteral) WriteTo(b *strings.Builder) {
-	b.WriteString(fl.Token.Literal)
+func (fl *FloatLiteral) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(fl.Token.Line, fl.Token.Column)
+	cw.WriteString(fl.Token.Literal)
 }
 
 type StringLiteral struct {
@@ -204,10 +211,11 @@ type StringLiteral struct {
 	Value string
 }
 
-func (sl *StringLiteral) WriteTo(b *strings.Builder) {
-	b.WriteRune('"')
-	b.WriteString(sl.Value)
-	b.WriteRune('"')
+func (sl *StringLiteral) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(sl.Token.Line, sl.Token.Column)
+	cw.WriteRune('"')
+	cw.WriteString(sl.Value)
+	cw.WriteRune('"')
 }
 
 type MultiStringLiteral struct {
@@ -215,10 +223,11 @@ type MultiStringLiteral struct {
 	Value string
 }
 
-func (sl *MultiStringLiteral) WriteTo(b *strings.Builder) {
-	b.WriteRune('`')
-	b.WriteString(sl.Value)
-	b.WriteRune('`')
+func (sl *MultiStringLiteral) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(sl.Token.Line, sl.Token.Column)
+	cw.WriteRune('`')
+	cw.WriteString(sl.Value)
+	cw.WriteRune('`')
 }
 
 type BooleanLiteral struct {
@@ -226,16 +235,18 @@ type BooleanLiteral struct {
 	Value bool
 }
 
-func (bl *BooleanLiteral) WriteTo(b *strings.Builder) {
-	b.WriteString(bl.Token.Literal)
+func (bl *BooleanLiteral) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(bl.Token.Line, bl.Token.Column)
+	cw.WriteString(bl.Token.Literal)
 }
 
 type NullLiteral struct {
 	Token token.Token // the NULL token
 }
 
-func (nl *NullLiteral) WriteTo(b *strings.Builder) {
-	b.WriteString("null")
+func (nl *NullLiteral) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(nl.Token.Line, nl.Token.Column)
+	cw.WriteString("null")
 }
 
 type BinaryExpression struct {
@@ -245,12 +256,13 @@ type BinaryExpression struct {
 	Right    Expression
 }
 
-func (be *BinaryExpression) WriteTo(b *strings.Builder) {
-	b.WriteRune('(')
-	be.Left.WriteTo(b)
-	b.WriteString(be.Operator)
-	be.Right.WriteTo(b)
-	b.WriteRune(')')
+func (be *BinaryExpression) WriteTo(cw *CodeWriter) {
+	cw.WriteRune('(')
+	be.Left.WriteTo(cw)
+	cw.AddMapping(be.Token.Line, be.Token.Column)
+	cw.WriteString(be.Operator)
+	be.Right.WriteTo(cw)
+	cw.WriteRune(')')
 }
 
 type UnaryExpression struct {
@@ -259,11 +271,12 @@ type UnaryExpression struct {
 	Right    Expression
 }
 
-func (ue *UnaryExpression) WriteTo(b *strings.Builder) {
-	b.WriteRune('(')
-	b.WriteString(ue.Operator)
-	ue.Right.WriteTo(b)
-	b.WriteRune(')')
+func (ue *UnaryExpression) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(ue.Token.Line, ue.Token.Column)
+	cw.WriteRune('(')
+	cw.WriteString(ue.Operator)
+	ue.Right.WriteTo(cw)
+	cw.WriteRune(')')
 }
 
 type PostfixExpression struct {
@@ -272,11 +285,12 @@ type PostfixExpression struct {
 	Operator string
 }
 
-func (pe *PostfixExpression) WriteTo(b *strings.Builder) {
-	b.WriteRune('(')
-	pe.Left.WriteTo(b)
-	b.WriteString(pe.Operator)
-	b.WriteRune(')')
+func (pe *PostfixExpression) WriteTo(cw *CodeWriter) {
+	cw.WriteRune('(')
+	pe.Left.WriteTo(cw)
+	cw.AddMapping(pe.Token.Line, pe.Token.Column)
+	cw.WriteString(pe.Operator)
+	cw.WriteRune(')')
 }
 
 type CallExpression struct {
@@ -285,16 +299,17 @@ type CallExpression struct {
 	Arguments []Expression
 }
 
-func (ce *CallExpression) WriteTo(b *strings.Builder) {
-	ce.Function.WriteTo(b)
-	b.WriteRune('(')
+func (ce *CallExpression) WriteTo(cw *CodeWriter) {
+	ce.Function.WriteTo(cw)
+	cw.AddMapping(ce.Token.Line, ce.Token.Column)
+	cw.WriteRune('(')
 	for i, arg := range ce.Arguments {
 		if i > 0 {
-			b.WriteRune(',')
+			cw.WriteRune(',')
 		}
-		arg.WriteTo(b)
+		arg.WriteTo(cw)
 	}
-	b.WriteRune(')')
+	cw.WriteRune(')')
 }
 
 type MemberExpression struct {
@@ -304,16 +319,17 @@ type MemberExpression struct {
 	Computed bool // true for obj[prop], false for obj.prop
 }
 
-func (me *MemberExpression) WriteTo(b *strings.Builder) {
+func (me *MemberExpression) WriteTo(cw *CodeWriter) {
+	me.Object.WriteTo(cw)
 	if me.Computed {
-		me.Object.WriteTo(b)
-		b.WriteRune('[')
-		me.Property.WriteTo(b)
-		b.WriteRune(']')
+		cw.AddMapping(me.Token.Line, me.Token.Column)
+		cw.WriteRune('[')
+		me.Property.WriteTo(cw)
+		cw.WriteRune(']')
 	} else {
-		me.Object.WriteTo(b)
-		b.WriteRune('.')
-		me.Property.WriteTo(b)
+		cw.AddMapping(me.Token.Line, me.Token.Column)
+		cw.WriteRune('.')
+		me.Property.WriteTo(cw)
 	}
 }
 
@@ -323,10 +339,11 @@ type AssignmentExpression struct {
 	Value Expression
 }
 
-func (ae *AssignmentExpression) WriteTo(b *strings.Builder) {
-	ae.Left.WriteTo(b)
-	b.WriteRune('=')
-	ae.Value.WriteTo(b)
+func (ae *AssignmentExpression) WriteTo(cw *CodeWriter) {
+	ae.Left.WriteTo(cw)
+	cw.AddMapping(ae.Token.Line, ae.Token.Column)
+	cw.WriteRune('=')
+	ae.Value.WriteTo(cw)
 }
 
 type CompoundAssignmentExpression struct {
@@ -336,12 +353,13 @@ type CompoundAssignmentExpression struct {
 	Value    Expression
 }
 
-func (cae *CompoundAssignmentExpression) WriteTo(b *strings.Builder) {
-	cae.Left.WriteTo(b)
-	b.WriteRune(' ')
-	b.WriteString(cae.Operator)
-	b.WriteRune('=')
-	cae.Value.WriteTo(b)
+func (cae *CompoundAssignmentExpression) WriteTo(cw *CodeWriter) {
+	cae.Left.WriteTo(cw)
+	cw.AddMapping(cae.Token.Line, cae.Token.Column)
+	cw.WriteRune(' ')
+	cw.WriteString(cae.Operator)
+	cw.WriteRune('=')
+	cae.Value.WriteTo(cw)
 }
 
 type FunctionExpression struct {
@@ -350,16 +368,17 @@ type FunctionExpression struct {
 	Body       *BlockStatement
 }
 
-func (fe *FunctionExpression) WriteTo(b *strings.Builder) {
-	b.WriteString("function(")
+func (fe *FunctionExpression) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(fe.Token.Line, fe.Token.Column)
+	cw.WriteString("function(")
 	for i, param := range fe.Parameters {
 		if i > 0 {
-			b.WriteRune(',')
+			cw.WriteRune(',')
 		}
-		param.WriteTo(b)
+		param.WriteTo(cw)
 	}
-	b.WriteRune(')')
-	fe.Body.WriteTo(b)
+	cw.WriteRune(')')
+	fe.Body.WriteTo(cw)
 }
 
 type ArrayLiteral struct {
@@ -367,15 +386,16 @@ type ArrayLiteral struct {
 	Elements []Expression
 }
 
-func (al *ArrayLiteral) WriteTo(b *strings.Builder) {
-	b.WriteRune('[')
+func (al *ArrayLiteral) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(al.Token.Line, al.Token.Column)
+	cw.WriteRune('[')
 	for i, elem := range al.Elements {
 		if i > 0 {
-			b.WriteRune(',')
+			cw.WriteRune(',')
 		}
-		elem.WriteTo(b)
+		elem.WriteTo(cw)
 	}
-	b.WriteRune(']')
+	cw.WriteRune(']')
 }
 
 type ObjectLiteral struct {
@@ -383,8 +403,9 @@ type ObjectLiteral struct {
 	Properties map[Expression]Expression
 }
 
-func (ol *ObjectLiteral) WriteTo(b *strings.Builder) {
-	b.WriteRune('{')
+func (ol *ObjectLiteral) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(ol.Token.Line, ol.Token.Column)
+	cw.WriteRune('{')
 
 	// Extract keys and sort them for deterministic output
 	keys := make([]Expression, 0, len(ol.Properties))
@@ -394,7 +415,7 @@ func (ol *ObjectLiteral) WriteTo(b *strings.Builder) {
 
 	// Sort keys by their string representation
 	sort.Slice(keys, func(i, j int) bool {
-		var keyI, keyJ strings.Builder
+		var keyI, keyJ CodeWriter
 		keys[i].WriteTo(&keyI)
 		keys[j].WriteTo(&keyJ)
 		return keyI.String() < keyJ.String()
@@ -403,12 +424,12 @@ func (ol *ObjectLiteral) WriteTo(b *strings.Builder) {
 	// Write properties in sorted order
 	for i, key := range keys {
 		if i > 0 {
-			b.WriteRune(',')
+			cw.WriteRune(',')
 		}
-		key.WriteTo(b)
-		b.WriteRune(':')
-		ol.Properties[key].WriteTo(b)
+		key.WriteTo(cw)
+		cw.WriteRune(':')
+		ol.Properties[key].WriteTo(cw)
 	}
 
-	b.WriteRune('}')
+	cw.WriteRune('}')
 }
