@@ -1,3 +1,5 @@
+//go:build integration
+
 package integration
 
 import (
@@ -6,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/compiler"
 	"github.com/xjslang/xjs/lexer"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/token"
@@ -13,7 +16,8 @@ import (
 
 // transpileASTToJS converts an AST to JavaScript (now with automatic semicolons)
 func transpileASTToJS(program *ast.Program) string {
-	return program.String()
+	result := compiler.New().Compile(program)
+	return result.Code
 }
 
 // TestMiddlewareParsers tests the custom middleware functionality

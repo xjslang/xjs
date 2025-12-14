@@ -28,8 +28,8 @@ parser := parser.NewBuilder(lb).
 
 // the parser now "understands" the JSX and "defer" syntax
 // and can translate your custom JavaScript code into standard JavaScript
-program, _ := parser.ParseProgram()
-fmt.Println(program.String())
+result := compiler.New().Compile(program)
+fmt.Println(result.Code)
 ```
 
 ## Key Features
@@ -49,7 +49,7 @@ go get github.com/xjslang/xjs@latest
 ### Basic Usage
 
 ```go
-package example
+package main
 
 import (
 	"fmt"
@@ -73,11 +73,73 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("ParseProgram() error: %v\n", err))
 	}
-	fmt.Println(strings.ReplaceAll(program.String(), ";", ";\n"))
+	result := compiler.New().Compile(program)
+	fmt.Println(strings.ReplaceAll(result.Code, ";", ";\n"))
 	// Output:
 	// console.log("Hello ${name} ${surname}!")
 }
 ```
+
+## Source Maps
+
+XJS supports source map generation to map the transpiled JavaScript code back to the original XJS source. This is particularly useful for debugging, as it allows you to see the original source code in stack traces and browser dev tools.
+
+### Generating Source Maps
+
+```go
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/xjslang/xjs/compiler"
+	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/parser"
+)
+
+func main() {
+	input := `function outer() {
+    return inner();
+}
+
+function inner() {
+    nonExistentFunction();
+}`
+
+	lb := lexer.NewBuilder()
+	p := parser.NewBuilder(lb).Build(input)
+	program, err := p.ParseProgram()
+	if err != nil {
+		panic(err)
+	}
+
+	result := compiler.New().
+		WithSourceMap(). // Generate source map
+		Compile(program)
+	
+	// Add source map reference to your output
+	jsCode := result.Code
+	sourceMap := result.SourceMap
+	sourceMap.Sources = []string{"input.xjs"}
+	sourceMap.SourcesContent = []string{input}
+	mapJSON, _ := json.Marshal(sourceMap)
+	output := jsCode + "\n//# sourceMappingURL=output.js.map"
+	
+	fmt.Println(output)          // output.js
+	fmt.Println(string(mapJSON)) // output.js.map
+}
+```
+
+### Using Source Maps with Node.js
+
+When running transpiled code with Node.js, you can enable source map support to get stack traces that reference your original XJS code:
+
+```bash
+node --enable-source-maps output.js
+```
+
+The stack traces will then point to the correct line numbers in your original XJS source code, making debugging much easier.
 
 ## Philosophy: Minimalism and Sufficiency
 

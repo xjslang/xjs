@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/compiler"
 	"github.com/xjslang/xjs/lexer"
 	"github.com/xjslang/xjs/token"
 )
@@ -38,8 +39,9 @@ func TestParseBasicLiterals(t *testing.T) {
 				return
 			}
 
-			if program.String() != tt.expected {
-				t.Errorf("Parse(%q) = %v, want %v", tt.input, program.String(), tt.expected)
+			result := compiler.New().Compile(program)
+			if result.Code != tt.expected {
+				t.Errorf("Parse(%q) = %v, want %v", tt.input, result.Code, tt.expected)
 			}
 		})
 	}
@@ -82,8 +84,9 @@ func TestParseBinaryExpressions(t *testing.T) {
 				return
 			}
 
-			if program.String() != tt.expected {
-				t.Errorf("Parse(%q) = %v, want %v", tt.input, program.String(), tt.expected)
+			result := compiler.New().Compile(program)
+			if result.Code != tt.expected {
+				t.Errorf("Parse(%q) = %v, want %v", tt.input, result.Code, tt.expected)
 			}
 		})
 	}
@@ -118,8 +121,9 @@ func TestParseUnaryExpressions(t *testing.T) {
 				return
 			}
 
-			if program.String() != tt.expected {
-				t.Errorf("Parse(%q) = %v, want %v", tt.input, program.String(), tt.expected)
+			result := compiler.New().Compile(program)
+			if result.Code != tt.expected {
+				t.Errorf("Parse(%q) = %v, want %v", tt.input, result.Code, tt.expected)
 			}
 		})
 	}
@@ -152,8 +156,9 @@ func TestParseIdentifiers(t *testing.T) {
 				return
 			}
 
-			if program.String() != tt.expected {
-				t.Errorf("Parse(%q) = %v, want %v", tt.input, program.String(), tt.expected)
+			result := compiler.New().Compile(program)
+			if result.Code != tt.expected {
+				t.Errorf("Parse(%q) = %v, want %v", tt.input, result.Code, tt.expected)
 			}
 		})
 	}
@@ -185,8 +190,9 @@ func TestParseLetStatements(t *testing.T) {
 				return
 			}
 
-			if program.String() != tt.expected {
-				t.Errorf("Parse(%q) = %v, want %v", tt.input, program.String(), tt.expected)
+			result := compiler.New().Compile(program)
+			if result.Code != tt.expected {
+				t.Errorf("Parse(%q) = %v, want %v", tt.input, result.Code, tt.expected)
 			}
 		})
 	}
@@ -218,8 +224,9 @@ func TestParseFunctionDeclarations(t *testing.T) {
 				return
 			}
 
-			if program.String() != tt.expected {
-				t.Errorf("Parse(%q) = %v, want %v", tt.input, program.String(), tt.expected)
+			result := compiler.New().Compile(program)
+			if result.Code != tt.expected {
+				t.Errorf("Parse(%q) = %v, want %v", tt.input, result.Code, tt.expected)
 			}
 		})
 	}
@@ -252,8 +259,9 @@ func TestParseArrayLiterals(t *testing.T) {
 				return
 			}
 
-			if program.String() != tt.expected {
-				t.Errorf("Parse(%q) = %v, want %v", tt.input, program.String(), tt.expected)
+			result := compiler.New().Compile(program)
+			if result.Code != tt.expected {
+				t.Errorf("Parse(%q) = %v, want %v", tt.input, result.Code, tt.expected)
 			}
 		})
 	}
@@ -286,8 +294,9 @@ func TestParseAssignmentExpressions(t *testing.T) {
 				return
 			}
 
-			if program.String() != tt.expected {
-				t.Errorf("Parse(%q) = %v, want %v", tt.input, program.String(), tt.expected)
+			result := compiler.New().Compile(program)
+			if result.Code != tt.expected {
+				t.Errorf("Parse(%q) = %v, want %v", tt.input, result.Code, tt.expected)
 			}
 		})
 	}
@@ -320,8 +329,9 @@ func TestParseCallExpressions(t *testing.T) {
 				return
 			}
 
-			if program.String() != tt.expected {
-				t.Errorf("Parse(%q) = %v, want %v", tt.input, program.String(), tt.expected)
+			result := compiler.New().Compile(program)
+			if result.Code != tt.expected {
+				t.Errorf("Parse(%q) = %v, want %v", tt.input, result.Code, tt.expected)
 			}
 		})
 	}
@@ -354,8 +364,9 @@ func TestParseMemberExpressions(t *testing.T) {
 				return
 			}
 
-			if program.String() != tt.expected {
-				t.Errorf("Parse(%q) = %v, want %v", tt.input, program.String(), tt.expected)
+			result := compiler.New().Compile(program)
+			if result.Code != tt.expected {
+				t.Errorf("Parse(%q) = %v, want %v", tt.input, result.Code, tt.expected)
 			}
 		})
 	}
@@ -391,8 +402,9 @@ func TestUseStatementParser(t *testing.T) {
 		return
 	}
 
-	if program.String() != "handled_statement" {
-		t.Errorf("Expected custom parser result, got %v", program.String())
+	result := compiler.New().Compile(program)
+	if result.Code != "handled_statement" {
+		t.Errorf("Expected custom parser result, got %v", result.Code)
 	}
 }
 
@@ -423,8 +435,9 @@ func TestUseExpressionHandler(t *testing.T) {
 		return
 	}
 
-	if program.String() != "handled_expression" {
-		t.Errorf("Expected custom expression result, got %v", program.String())
+	result := compiler.New().Compile(program)
+	if result.Code != "handled_expression" {
+		t.Errorf("Expected custom expression result, got %v", result.Code)
 	}
 }
 
@@ -447,8 +460,9 @@ func TestParseMultipleStatements(t *testing.T) {
 	}
 
 	expected := "let x=5;let y=10;(x+y)"
-	if program.String() != expected {
-		t.Errorf("Expected %q, got %q", expected, program.String())
+	result := compiler.New().Compile(program)
+	if result.Code != expected {
+		t.Errorf("Expected %q, got %q", expected, result.Code)
 	}
 }
 

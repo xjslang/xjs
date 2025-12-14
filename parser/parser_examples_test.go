@@ -2,9 +2,9 @@ package parser
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/compiler"
 	"github.com/xjslang/xjs/lexer"
 	"github.com/xjslang/xjs/token"
 )
@@ -15,12 +15,12 @@ type ConstStatement struct {
 	Value ast.Expression
 }
 
-func (ls *ConstStatement) WriteTo(b *strings.Builder) {
-	b.WriteString("const ")
-	ls.Name.WriteTo(b)
+func (ls *ConstStatement) WriteTo(w *ast.CodeWriter) {
+	w.WriteString("const ")
+	ls.Name.WriteTo(w)
 	if ls.Value != nil {
-		b.WriteRune('=')
-		ls.Value.WriteTo(b)
+		w.WriteRune('=')
+		ls.Value.WriteTo(w)
 	}
 }
 
@@ -44,11 +44,12 @@ func Example_statement() {
 		return next() // otherwise, next!
 	})
 	p := pb.Build(input)
-	ast, err := p.ParseProgram()
+	program, err := p.ParseProgram()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(ast.String())
+	result := compiler.New().Compile(program)
+	fmt.Println(result.Code)
 	// Output: const x=42
 }
 
@@ -57,10 +58,10 @@ type TypeofExpression struct {
 	Right ast.Expression
 }
 
-func (te *TypeofExpression) WriteTo(b *strings.Builder) {
-	b.WriteString("(typeof ")
-	te.Right.WriteTo(b)
-	b.WriteRune(')')
+func (te *TypeofExpression) WriteTo(w *ast.CodeWriter) {
+	w.WriteString("(typeof ")
+	te.Right.WriteTo(w)
+	w.WriteRune(')')
 }
 
 func Example_prefixOperator() {
@@ -84,11 +85,12 @@ func Example_prefixOperator() {
 		}
 	})
 	p := pb.Build(input)
-	ast, err := p.ParseProgram()
+	program, err := p.ParseProgram()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(ast.String())
+	result := compiler.New().Compile(program)
+	fmt.Println(result.Code)
 	// Output: if (((typeof x)=="string")){console.log("x is a string")}
 }
 
@@ -98,12 +100,12 @@ type PowExpression struct {
 	Right ast.Expression
 }
 
-func (pe *PowExpression) WriteTo(b *strings.Builder) {
-	b.WriteString("Math.pow(")
-	pe.Left.WriteTo(b)
-	b.WriteRune(',')
-	pe.Right.WriteTo(b)
-	b.WriteRune(')')
+func (pe *PowExpression) WriteTo(w *ast.CodeWriter) {
+	w.WriteString("Math.pow(")
+	pe.Left.WriteTo(w)
+	w.WriteRune(',')
+	pe.Right.WriteTo(w)
+	w.WriteRune(')')
 }
 
 func Example_infixOperator() {
@@ -129,11 +131,12 @@ func Example_infixOperator() {
 	})
 
 	p := pb.Build(input)
-	ast, err := p.ParseProgram()
+	program, err := p.ParseProgram()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(ast.String())
+	result := compiler.New().Compile(program)
+	fmt.Println(result.Code)
 	// Output: let squareArea=Math.pow(r,2)
 }
 
@@ -142,8 +145,8 @@ type PiLiteral struct {
 }
 
 // Tells the parser how to write a node
-func (pl *PiLiteral) WriteTo(b *strings.Builder) {
-	b.WriteString("Math.PI")
+func (pl *PiLiteral) WriteTo(w *ast.CodeWriter) {
+	w.WriteString("Math.PI")
 }
 
 func Example_operand() {
@@ -166,11 +169,12 @@ func Example_operand() {
 	})
 
 	p := pb.Build(input)
-	ast, err := p.ParseProgram()
+	program, err := p.ParseProgram()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(ast.String())
+	result := compiler.New().Compile(program)
+	fmt.Println(result.Code)
 	// Output: let area=((Math.PI*r)*r)
 }
 
@@ -178,8 +182,8 @@ type RandomExpression struct {
 	Token token.Token
 }
 
-func (re *RandomExpression) WriteTo(b *strings.Builder) {
-	b.WriteString("Math.random()")
+func (re *RandomExpression) WriteTo(w *ast.CodeWriter) {
+	w.WriteString("Math.random()")
 }
 
 func Example_expressionParser() {
@@ -194,11 +198,12 @@ func Example_expressionParser() {
 		return next()
 	})
 	p := pb.Build(input)
-	ast, err := p.ParseProgram()
+	program, err := p.ParseProgram()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(ast.String())
+	result := compiler.New().Compile(program)
+	fmt.Println(result.Code)
 	// Output: let randomValue=(Math.random()+10)
 }
 
@@ -269,11 +274,12 @@ func Example_combined() {
 		return next()
 	})
 	p := pb.Build(input)
-	ast, err := p.ParseProgram()
+	program, err := p.ParseProgram()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(ast.String())
+	result := compiler.New().Compile(program)
+	fmt.Println(result.Code)
 	// Output: const circleArea=(Math.PI*Math.pow(r,2));if (((typeof radius)=="string")){let randomRadius=(Math.random()*10)}
 }
 
@@ -282,10 +288,10 @@ type FactorialExpression struct {
 	Left  ast.Expression
 }
 
-func (fe *FactorialExpression) WriteTo(b *strings.Builder) {
-	b.WriteString("factorial(")
-	fe.Left.WriteTo(b)
-	b.WriteRune(')')
+func (fe *FactorialExpression) WriteTo(w *ast.CodeWriter) {
+	w.WriteString("factorial(")
+	fe.Left.WriteTo(w)
+	w.WriteRune(')')
 }
 
 func Example_postfixOperator() {
@@ -302,10 +308,11 @@ func Example_postfixOperator() {
 	})
 
 	p := pb.Build(input)
-	ast, err := p.ParseProgram()
+	program, err := p.ParseProgram()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(ast.String())
+	result := compiler.New().Compile(program)
+	fmt.Println(result.Code)
 	// Output: let result=(factorial(5)+factorial(2))
 }

@@ -10,67 +10,71 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
-// Test runs all project tests (unit, integration, middleware)
+// Test runs all project tests (unit and integration)
 func Test() error {
 	fmt.Println("🚀 Starting XJS Test Suite")
 	fmt.Println("==========================")
 	fmt.Println()
-	mg.SerialDeps(TestTranspilation, TestUnit, TestMiddleware, TestTolerantMode, testErrors)
+	mg.SerialDeps(TestUnit, TestE2E, TestIntegration)
 	fmt.Println()
 	fmt.Println("🎉 All tests completed successfully!")
 	return nil
 }
 
-// testTranspilation runs transpilation tests with fixtures
-func TestTranspilation() error {
-	fmt.Println("🧪 Running transpilation tests...")
-	err := sh.RunV("go", "test", "-v", "-run", "TestTranspilation$", "./test/integration")
-	if err != nil {
-		fmt.Println()
-		fmt.Println("❌ Some transpilation tests failed.")
-		return err
-	}
-	fmt.Println()
-	fmt.Println("✅ All transpilation tests passed!")
-	return nil
-}
-
-// testErrors runs error handling tests
-func testErrors() error {
-	fmt.Println("🔥 Running error handling tests...")
-	err := sh.RunV("go", "test", "-v", "-run", "TestTranspilationErrors", "./test/integration")
-	if err != nil {
-		fmt.Println()
-		fmt.Println("❌ Some error handling tests failed.")
-		return err
-	}
-	fmt.Println()
-	fmt.Println("✅ All error handling tests passed!")
-	return nil
-}
-
-// testUnit runs only unit tests (excluding integration tests)
+// TestUnit runs only unit tests (excluding integration tests)
 func TestUnit() error {
 	fmt.Println("🧪 Running unit tests...")
-	return sh.RunV("go", "test", "-v", "./ast", "./lexer", "./parser", "./token")
+	err := sh.RunV("go", "test", "-v", "./...")
+	if err != nil {
+		fmt.Println()
+		fmt.Println("❌ Some unit tests failed.")
+		return err
+	}
+	fmt.Println()
+	fmt.Println("✅ All unit tests passed!")
+	return nil
 }
 
-// testMiddleware runs only middleware tests
-func TestMiddleware() error {
-	fmt.Println("⚙️ Running middleware tests...")
-	return sh.RunV("go", "test", "-v", "-run", "TestMiddleware", "./test/integration")
+// TestIntegration runs integration tests (middleware, transpilation, tolerant mode, etc.)
+func TestIntegration() error {
+	fmt.Println("🧪 Running integration tests...")
+	err := sh.RunV("go", "test", "-v", "-tags=integration", "./test/integration/...")
+	if err != nil {
+		fmt.Println()
+		fmt.Println("❌ Some integration tests failed.")
+		return err
+	}
+	fmt.Println()
+	fmt.Println("✅ All integration tests passed!")
+	return nil
 }
 
-// testTolerantMode runs only tolerant mode tests
-func TestTolerantMode() error {
-	fmt.Println("🛡️ Running tolerant mode tests...")
-	return sh.RunV("go", "test", "-v", "-run", "TestTolerant", "./test/integration", "./parser")
+// TestE2E runs end-to-end tests with Node.js
+func TestE2E() error {
+	fmt.Println("🧪 Running end-to-end tests with Node.js...")
+
+	// Check if Node.js is available
+	if !commandExists("node") {
+		fmt.Println("⚠️  Node.js not found, skipping e2e tests...")
+		fmt.Println("   Install Node.js to run these tests: https://nodejs.org/")
+		return nil
+	}
+
+	err := sh.RunV("go", "test", "-v", "-tags=e2e", "./test/e2e/...")
+	if err != nil {
+		fmt.Println()
+		fmt.Println("❌ Some e2e tests failed.")
+		return err
+	}
+	fmt.Println()
+	fmt.Println("✅ All e2e tests passed!")
+	return nil
 }
 
 // Bench runs only benchmarks
 func Bench() error {
 	fmt.Println("⚡ Running benchmarks...")
-	return sh.RunV("go", "test", "-bench=.", "-benchmem", "./test/integration")
+	return sh.RunV("go", "test", "-bench=.", "-benchmem", "-tags=integration", "./test/integration")
 }
 
 // Clean removes temporary files and cache
