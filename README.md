@@ -167,18 +167,17 @@ XJS provides several ways to extend the language:
 - **`lexer.Builder.UseTokenInterceptor`** - Intercept and modify token lexing flow
 - **`parser.Builder.UseStatementInterceptor`** - Intercept and modify statement parsing flow
 - **`parser.Builder.UseExpressionInterceptor`** - Intercept and modify expression parsing flow  
-- **`parser.Builder.UsePrefixOperator`** - Register prefix operators (like `typeof`)
-- **`parser.Builder.UseInfixOperator`** - Register infix operators (like `^` for power)
-- **`parser.Builder.UseOperand`** - Register custom literals/constants
-- **`parser.Builder.UseProgramTransformer`** - Transform the generated AST
+- **`parser.Builder.RegisterPrefixOperator`** - Register prefix operators (like `typeof`)
+- **`parser.Builder.RegisterInfixOperator`** - Register infix operators (like `^` for power)
+- **`parser.Builder.RegisterPostfixOperator`** - Register postfix operators (like `++` after expression)
 
 ### Simple Extension Example
 
 ```go
 // Add support for the ^ (power) operator
 powTokenType := lb.RegisterTokenType("pow")
-pb.UseInfixOperator(powTokenType, parser.PRODUCT+1, func(left ast.Expression, right func() ast.Expression) ast.Expression {
-    return &PowExpression{Left: left, Right: right()}
+pb.RegisterInfixOperator(powTokenType, parser.PRODUCT+1, func(tok token.Token, left ast.Expression, right func() ast.Expression) ast.Expression {
+    return &PowExpression{Token: tok, Left: left, Right: right()}
 })
 
 // Input: let result = 2^3
