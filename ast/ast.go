@@ -293,6 +293,18 @@ func (pe *PostfixExpression) WriteTo(cw *CodeWriter) {
 	cw.WriteRune(')')
 }
 
+type GroupedExpression struct {
+	Token      token.Token // the opening ( token
+	Expression Expression
+}
+
+func (ge *GroupedExpression) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(ge.Token.Line, ge.Token.Column)
+	cw.WriteRune('(')
+	ge.Expression.WriteTo(cw)
+	cw.WriteRune(')')
+}
+
 type CallExpression struct {
 	Token     token.Token // the ( token
 	Function  Expression  // Identifier or FunctionLiteral

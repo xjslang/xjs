@@ -65,7 +65,7 @@ func TestParseBinaryExpressions(t *testing.T) {
 		{"logical and", "a && b", "(a&&b)"},
 		{"logical or", "a || b", "(a||b)"},
 		{"operator precedence", "1 + 2 * 3", "(1+(2*3))"},
-		{"parentheses override", "(1 + 2) * 3", "((1+2)*3)"},
+		{"parentheses override", "(1 + 2) * 3", "(((1+2))*3)"},
 		{"complex precedence", "1 + 2 * 3 - 4", "((1+(2*3))-4)"},
 	}
 

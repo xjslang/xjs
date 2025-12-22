@@ -268,12 +268,16 @@ func (p *Parser) ParsePostfixExpression(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) ParseGroupedExpression() ast.Expression {
+	tok := p.CurrentToken
 	p.NextToken()
 	exp := p.ParseExpression()
 	if !p.ExpectToken(token.RPAREN) {
 		return nil
 	}
-	return exp
+	return &ast.GroupedExpression{
+		Token:      tok,
+		Expression: exp,
+	}
 }
 
 func (p *Parser) ParseArrayLiteral() ast.Expression {
