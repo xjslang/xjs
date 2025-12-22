@@ -201,19 +201,23 @@ func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
 	p.precedences = make(map[token.Type]int)
 	maps.Copy(p.precedences, precedences)
 
-	// uses middlewares
-	for _, interceptor := range opts.stmtInterceptors {
-		p.useStatementInterceptor(interceptor)
+	// adds interceptors in reverse order,
+	// so that the first added is the first executed (FIFO)
+	for i := len(opts.stmtInterceptors) - 1; i >= 0; i-- {
+		p.useStatementInterceptor(opts.stmtInterceptors[i])
 	}
-	for _, interceptor := range opts.expInterceptors {
-		p.useExpressionInterceptor(interceptor)
+	for i := len(opts.expInterceptors) - 1; i >= 0; i-- {
+		p.useExpressionInterceptor(opts.expInterceptors[i])
 	}
 
-	// registers custom operators
-	for _, prefixOp := range opts.prefixOperators {
+	// registers custom operators in reverse order,
+	// so that the first registered is the first executed (FIFO)
+	for i := len(opts.prefixOperators) - 1; i >= 0; i-- {
+		prefixOp := opts.prefixOperators[i]
 		p.registerPrefixOperator(prefixOp.tokenType, prefixOp.createExpr)
 	}
-	for _, infixOp := range opts.infixOperators {
+	for i := len(opts.infixOperators) - 1; i >= 0; i-- {
+		infixOp := opts.infixOperators[i]
 		p.registerInfixOperator(infixOp.tokenType, infixOp.precedence, infixOp.createExpr)
 	}
 	for _, postfixOp := range opts.postfixOperators {
