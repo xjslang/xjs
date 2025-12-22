@@ -14,6 +14,27 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
+// IIFEFunctionDeclaration wraps a function declaration in an IIFE
+type IIFEFunctionDeclaration struct {
+	*ast.FunctionDeclaration
+}
+
+// WriteTo generates an IIFE: (function name() {...})()
+func (iife *IIFEFunctionDeclaration) WriteTo(cw *ast.CodeWriter) {
+	cw.WriteString("(function ")
+	iife.Name.WriteTo(cw)
+	cw.WriteRune('(')
+	for i, param := range iife.Parameters {
+		if i > 0 {
+			cw.WriteRune(',')
+		}
+		param.WriteTo(cw)
+	}
+	cw.WriteRune(')')
+	iife.Body.WriteTo(cw)
+	cw.WriteString(")()")
+}
+
 // transpileASTToJS converts an AST to JavaScript (now with automatic semicolons)
 func transpileASTToJS(program *ast.Program) string {
 	result := compiler.New().Compile(program)
@@ -22,6 +43,56 @@ func transpileASTToJS(program *ast.Program) string {
 
 // TestMiddlewareParsers tests the custom middleware functionality
 func TestMiddlewareParsers(t *testing.T) {
+	t.Run("iife_function_declaration_middleware", func(t *testing.T) {
+		input := `
+		function main() {   // transformed to (function main() {...})()
+			function main() { // not transformed, as it is not a top-level function
+				console.log('Hello, world!')
+			}
+			main()
+		}`
+		expectedOutput := "Hello, world!"
+
+		lb := lexer.NewBuilder()
+		pb := parser.NewBuilder(lb)
+		pb.UseStatementInterceptor(func(p *parser.Parser, next func() ast.Statement) ast.Statement {
+			if p.CurrentToken.Type != token.FUNCTION {
+				return next()
+			}
+
+			// Check if we're NOT inside a function (top-level only)
+			if p.IsInFunction() {
+				return next()
+			}
+
+			funcDecl := p.ParseFunctionStatement()
+			if funcDecl.Name != nil && funcDecl.Name.Value == "main" {
+				return &IIFEFunctionDeclaration{
+					FunctionDeclaration: funcDecl,
+				}
+			}
+
+			return funcDecl
+		})
+
+		p := pb.Build(input)
+		program, err := p.ParseProgram()
+		if err != nil {
+			t.Fatalf("ParseProgram error = %v", err)
+		}
+
+		transpiledJS := transpileASTToJS(program)
+		actualOutput, err := executeJavaScript(transpiledJS)
+		if err != nil {
+			t.Fatalf("JavaScript execution failed: %v", err)
+		}
+
+		actualOutput = strings.TrimSpace(actualOutput)
+		if actualOutput != expectedOutput {
+			t.Errorf("Output mismatch:\nExpected: %q\nActual:   %q", expectedOutput, actualOutput)
+		}
+	})
+
 	t.Run("expression_parser_middleware", func(t *testing.T) {
 		input := `let x = 5 + 3; console.log(x)`
 		expectedOutput := "8"
