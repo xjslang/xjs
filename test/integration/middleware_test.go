@@ -290,3 +290,214 @@ func TestPerformanceRegression(t *testing.T) {
 	// If we get here without timing out, the performance is acceptable
 	t.Log("Performance test passed - large input transpiled successfully")
 }
+
+// TestPluginExecutionOrder verifies that plugins are executed in the order they are installed
+func TestPluginExecutionOrder(t *testing.T) {
+	t.Run("plugins_execute_in_installation_order", func(t *testing.T) {
+		input := `let x = 42; console.log(x)`
+		expectedOutput := "42"
+
+		// Shared slice to record execution order
+		var executionOrder []string
+
+		// Create plugins dynamically - each plugin adds its name to execution order when processing LET tokens
+		plugins := make([]func(*parser.Builder), 3)
+		for i := 0; i < 3; i++ {
+			pluginName := fmt.Sprintf("Plugin%d", i+1)
+			plugins[i] = func(pb *parser.Builder) {
+				pb.UseStatementInterceptor(func(p *parser.Parser, next func() ast.Statement) ast.Statement {
+					if p.CurrentToken.Type == token.LET {
+						executionOrder = append(executionOrder, pluginName)
+					}
+					return next()
+				})
+			}
+		}
+
+		// Install plugins in order: Plugin1, Plugin2, Plugin3
+		lb := lexer.NewBuilder()
+		pb := parser.NewBuilder(lb)
+		for _, plugin := range plugins {
+			pb.Install(plugin)
+		}
+
+		p := pb.Build(input)
+		program, err := p.ParseProgram()
+		if err != nil {
+			t.Fatalf("ParseProgram error = %v", err)
+		}
+
+		// Verify execution order
+		expectedOrder := []string{"Plugin1", "Plugin2", "Plugin3"}
+		if len(executionOrder) != len(expectedOrder) {
+			t.Fatalf("Expected %d plugins to execute, got %d", len(expectedOrder), len(executionOrder))
+		}
+
+		for i, pluginName := range expectedOrder {
+			if executionOrder[i] != pluginName {
+				t.Errorf("Plugin at position %d: expected %q, got %q", i, pluginName, executionOrder[i])
+			}
+		}
+
+		// Verify the code still works correctly
+		transpiledJS := transpileASTToJS(program)
+		actualOutput, err := executeJavaScript(transpiledJS)
+		if err != nil {
+			t.Fatalf("JavaScript execution failed: %v", err)
+		}
+
+		actualOutput = strings.TrimSpace(actualOutput)
+		if actualOutput != expectedOutput {
+			t.Errorf("Output mismatch:\nExpected: %q\nActual:   %q", expectedOutput, actualOutput)
+		}
+
+		t.Logf("Plugins executed in correct order: %v", executionOrder)
+	})
+
+	t.Run("expression_interceptors_execute_in_order", func(t *testing.T) {
+		input := `let result = 10 + 20; console.log(result)`
+		expectedOutput := "30"
+
+		// Shared slice to record execution order
+		var executionOrder []string
+
+		// Create plugins dynamically - each tracks INT tokens
+		plugins := make([]func(*parser.Builder), 3)
+		for i := 0; i < 3; i++ {
+			pluginName := fmt.Sprintf("Plugin%d-INT", i+1)
+			plugins[i] = func(pb *parser.Builder) {
+				pb.UseExpressionInterceptor(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
+					if p.CurrentToken.Type == token.INT {
+						executionOrder = append(executionOrder, pluginName)
+					}
+					return next()
+				})
+			}
+		}
+
+		// Install plugins in order
+		lb := lexer.NewBuilder()
+		pb := parser.NewBuilder(lb)
+		for _, plugin := range plugins {
+			pb.Install(plugin)
+		}
+
+		p := pb.Build(input)
+		program, err := p.ParseProgram()
+		if err != nil {
+			t.Fatalf("ParseProgram error = %v", err)
+		}
+
+		// Each INT token (10 and 20) should be processed by all three plugins in order
+		expectedPattern := []string{
+			"Plugin1-INT", "Plugin2-INT", "Plugin3-INT", // First INT (10)
+			"Plugin1-INT", "Plugin2-INT", "Plugin3-INT", // Second INT (20)
+		}
+
+		if len(executionOrder) != len(expectedPattern) {
+			t.Fatalf("Expected %d interceptor calls, got %d\nExecution order: %v",
+				len(expectedPattern), len(executionOrder), executionOrder)
+		}
+
+		for i, expected := range expectedPattern {
+			if executionOrder[i] != expected {
+				t.Errorf("Position %d: expected %q, got %q", i, expected, executionOrder[i])
+			}
+		}
+
+		// Verify the code still works correctly
+		transpiledJS := transpileASTToJS(program)
+		actualOutput, err := executeJavaScript(transpiledJS)
+		if err != nil {
+			t.Fatalf("JavaScript execution failed: %v", err)
+		}
+
+		actualOutput = strings.TrimSpace(actualOutput)
+		if actualOutput != expectedOutput {
+			t.Errorf("Output mismatch:\nExpected: %q\nActual:   %q", expectedOutput, actualOutput)
+		}
+
+		t.Logf("Expression interceptors executed in correct order: %v", executionOrder)
+	})
+
+	t.Run("mixed_plugins_with_multiple_features", func(t *testing.T) {
+		input := `let x = 5; function test() { return x * 2; } console.log(test())`
+		expectedOutput := "10"
+
+		// Shared map to track what each plugin processed
+		processedByPlugin := make(map[string][]string)
+
+		// Plugin1 - processes both statements and expressions
+		Plugin1 := func(pb *parser.Builder) {
+			pb.UseStatementInterceptor(func(p *parser.Parser, next func() ast.Statement) ast.Statement {
+				if p.CurrentToken.Type == token.LET {
+					processedByPlugin["Plugin1"] = append(processedByPlugin["Plugin1"], "LET")
+				}
+				return next()
+			})
+			pb.UseExpressionInterceptor(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
+				if p.CurrentToken.Type == token.INT {
+					processedByPlugin["Plugin1"] = append(processedByPlugin["Plugin1"], "INT")
+				}
+				return next()
+			})
+		}
+
+		// Plugin2 - processes only statements
+		Plugin2 := func(pb *parser.Builder) {
+			pb.UseStatementInterceptor(func(p *parser.Parser, next func() ast.Statement) ast.Statement {
+				if p.CurrentToken.Type == token.FUNCTION {
+					processedByPlugin["Plugin2"] = append(processedByPlugin["Plugin2"], "FUNCTION")
+				}
+				return next()
+			})
+		}
+
+		// Plugin3 - processes only expressions
+		Plugin3 := func(pb *parser.Builder) {
+			pb.UseExpressionInterceptor(func(p *parser.Parser, next func() ast.Expression) ast.Expression {
+				if p.CurrentToken.Type == token.IDENT {
+					processedByPlugin["Plugin3"] = append(processedByPlugin["Plugin3"], "IDENT")
+				}
+				return next()
+			})
+		}
+
+		// Install plugins
+		lb := lexer.NewBuilder()
+		pb := parser.NewBuilder(lb).Install(Plugin1).Install(Plugin2).Install(Plugin3)
+
+		p := pb.Build(input)
+		program, err := p.ParseProgram()
+		if err != nil {
+			t.Fatalf("ParseProgram error = %v", err)
+		}
+
+		// Verify each plugin processed what it should
+		if len(processedByPlugin["Plugin1"]) == 0 {
+			t.Error("Plugin1 did not process any tokens")
+		}
+		if len(processedByPlugin["Plugin2"]) == 0 {
+			t.Error("Plugin2 did not process any tokens")
+		}
+		if len(processedByPlugin["Plugin3"]) == 0 {
+			t.Error("Plugin3 did not process any tokens")
+		}
+
+		// Verify the code still works correctly
+		transpiledJS := transpileASTToJS(program)
+		actualOutput, err := executeJavaScript(transpiledJS)
+		if err != nil {
+			t.Fatalf("JavaScript execution failed: %v", err)
+		}
+
+		actualOutput = strings.TrimSpace(actualOutput)
+		if actualOutput != expectedOutput {
+			t.Errorf("Output mismatch:\nExpected: %q\nActual:   %q", expectedOutput, actualOutput)
+		}
+
+		t.Logf("Plugin1 processed: %v", processedByPlugin["Plugin1"])
+		t.Logf("Plugin2 processed: %v", processedByPlugin["Plugin2"])
+		t.Logf("Plugin3 processed: %v", processedByPlugin["Plugin3"])
+	})
+}
