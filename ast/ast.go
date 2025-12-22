@@ -376,13 +376,19 @@ func (cae *CompoundAssignmentExpression) WriteTo(cw *CodeWriter) {
 
 type FunctionExpression struct {
 	Token      token.Token // the FUNCTION token
+	Name       *Identifier // optional name
 	Parameters []*Identifier
 	Body       *BlockStatement
 }
 
 func (fe *FunctionExpression) WriteTo(cw *CodeWriter) {
 	cw.AddMapping(fe.Token.Line, fe.Token.Column)
-	cw.WriteString("function(")
+	cw.WriteString("function")
+	if fe.Name != nil {
+		cw.WriteRune(' ')
+		fe.Name.WriteTo(cw)
+	}
+	cw.WriteRune('(')
 	for i, param := range fe.Parameters {
 		if i > 0 {
 			cw.WriteRune(',')

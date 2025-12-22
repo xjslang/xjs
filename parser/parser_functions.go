@@ -316,6 +316,11 @@ func (p *Parser) ParseObjectLiteral() ast.Expression {
 
 func (p *Parser) ParseFunctionExpression() ast.Expression {
 	fe := &ast.FunctionExpression{Token: p.CurrentToken}
+	// Check for optional function name
+	if p.PeekToken.Type == token.IDENT {
+		p.NextToken()
+		fe.Name = &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
+	}
 	if !p.ExpectToken(token.LPAREN) {
 		return nil
 	}
