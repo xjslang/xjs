@@ -617,3 +617,31 @@ func TestRegisterOperatorsDuplication(t *testing.T) {
 		}
 	})
 }
+
+func TestWithSmartSemicolon(t *testing.T) {
+	tests := []struct {
+		name     string
+		smart    bool
+		input    string
+		expected string
+	}{
+		{"with smart semicolons", true, "console.log('first line')\n(function() { console.log('second line') })()", "console.log(\"first line\");(function(){console.log(\"second line\")})()"},
+		{"without smart semicolons", false, "console.log('first line')\n(function() { console.log('second line') })()", "console.log(\"first line\")(function(){console.log(\"second line\")})()"},
+	}
+	for _, tt := range tests {
+		lb := lexer.NewBuilder()
+		p := NewBuilder(lb).
+			WithSmartSemicolon(tt.smart).
+			Build(tt.input)
+		program, err := p.ParseProgram()
+		if err != nil {
+			t.Errorf("ParseProgram error = %v", err)
+			return
+		}
+
+		result := compiler.New().Compile(program)
+		if result.Code != tt.expected {
+			t.Errorf("Parse(%q) = %v, want %v", tt.input, result.Code, tt.expected)
+		}
+	}
+}

@@ -118,61 +118,6 @@ func RunTranspilationTest(t *testing.T, test TranspilationTest) {
 	})
 }
 
-func TestIIFEWithSmartSemicolon(t *testing.T) {
-	input := `console.log('first line')
-	(function() { console.log('second line') })()`
-	lb := lexer.NewBuilder()
-	p := parser.NewBuilder(lb).
-		WithSmartSemicolon(true).
-		Build(input)
-	program, err := p.ParseProgram()
-	if err != nil {
-		t.Fatalf("ParseProgram error: %v", err)
-	}
-	result := compiler.New().Compile(program)
-	actualOutput, err := executeJavaScript(result.Code)
-	if err != nil {
-		t.Fatalf("\nCode: %s\nError: %v", result.Code, err)
-	}
-	expectedOutput := "first line\nsecond line"
-	if actualOutput != expectedOutput {
-		t.Errorf("Output mismatch:\nExpected: %q\nActual:   %q\nTranspiled JS:\n%s",
-			expectedOutput, actualOutput, result.Code)
-	}
-}
-
-func TestIIFEWithoutSmartSemicolon(t *testing.T) {
-	// This test demonstrates JavaScript's standard (problematic) behavior
-	// where an IIFE after a newline continues the previous expression
-	input := `console.log('first line')
-	(function() { console.log('second line') })()`
-	lb := lexer.NewBuilder()
-	p := parser.NewBuilder(lb).Build(input) // Default: smartSemicolon = false
-	program, err := p.ParseProgram()
-	if err != nil {
-		t.Fatalf("ParseProgram error: %v", err)
-	}
-
-	// Verify it generates a single statement (JavaScript standard behavior)
-	if len(program.Statements) != 1 {
-		t.Errorf("Expected 1 statement (JavaScript standard behavior), got %d", len(program.Statements))
-	}
-
-	result := compiler.New().Compile(program)
-
-	// This should fail when executed because it tries to call undefined as a function
-	_, err = executeJavaScript(result.Code)
-	if err == nil {
-		t.Errorf("Expected JavaScript execution error (standard ASI behavior), but code executed successfully")
-	}
-
-	// Verify the generated code is what JavaScript would produce
-	expectedCode := `console.log("first line")(function(){console.log("second line")})()`
-	if result.Code != expectedCode {
-		t.Errorf("Expected code:\n%s\nGot:\n%s", expectedCode, result.Code)
-	}
-}
-
 // TestTranspilation tests the transpilation of XJS code to JavaScript by executing it
 func TestTranspilation(t *testing.T) {
 	// Dynamically discover test cases by reading .js files from testdata directory
