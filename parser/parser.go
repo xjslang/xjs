@@ -82,6 +82,7 @@ type Builder struct {
 	prefixOperators  []prefixOperator
 	postfixOperators []postfixOperator
 	tolerantMode     bool
+	smartSemicolons  bool
 	// maps to track registered operators and detect duplicates
 	registeredPrefixOps  map[token.Type]bool
 	registeredInfixOps   map[token.Type]bool
@@ -125,6 +126,9 @@ type Parser struct {
 	// tolerantMode enables permissive parsing that continues on syntax errors
 	// Useful for language servers, formatters, and analysis tools
 	tolerantMode bool
+
+	// https://eslint.org/docs/latest/rules/no-unexpected-multiline
+	smartSemicolons bool
 }
 
 type parserOptions struct {
@@ -134,6 +138,7 @@ type parserOptions struct {
 	prefixOperators  []prefixOperator
 	postfixOperators []postfixOperator
 	tolerantMode     bool
+	smartSemicolons  bool
 }
 
 // newWithOptions creates a new Parser instance with the specified lexer and parser options.
@@ -154,6 +159,7 @@ func newWithOptions(l *lexer.Lexer, opts parserOptions) *Parser {
 		expressionParseFn: baseParseExpression,
 		contextStack:      []ContextType{GlobalContext}, // Initialize with global context
 		tolerantMode:      opts.tolerantMode,
+		smartSemicolons:   opts.smartSemicolons,
 	}
 
 	p.prefixParseFns = make(map[token.Type]func() ast.Expression)
