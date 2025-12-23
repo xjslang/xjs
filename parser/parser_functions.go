@@ -199,9 +199,9 @@ func (p *Parser) ParseExpressionWithPrecedence(precedence int) ast.Expression {
 
 func (p *Parser) ParseRemainingExpressionWithPrecedence(left ast.Expression, precedence int) ast.Expression {
 	for p.PeekToken.Type != token.SEMICOLON && precedence < p.peekPrecedence() {
-		// Check if ASI should prevent continuing the expression
-		// For example: LPAREN and LBRACKET after a newline should start a new statement
-		if p.PeekToken.AfterNewline {
+		// Smart semicolon insertion: prevent LPAREN and LBRACKET after newline from continuing expression
+		// https://eslint.org/docs/latest/rules/no-unexpected-multiline
+		if p.smartSemicolons && p.PeekToken.AfterNewline {
 			switch p.PeekToken.Type {
 			case token.LPAREN, token.LBRACKET:
 				// These tokens after a newline should not continue the expression

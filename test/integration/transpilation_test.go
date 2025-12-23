@@ -118,11 +118,13 @@ func RunTranspilationTest(t *testing.T, test TranspilationTest) {
 	})
 }
 
-func TestIIFE(t *testing.T) {
+func TestIIFEWithSmartSemicolon(t *testing.T) {
 	input := `console.log('first line')
 	(function() { console.log('second line') })()`
 	lb := lexer.NewBuilder()
-	p := parser.NewBuilder(lb).Build(input)
+	p := parser.NewBuilder(lb).
+		WithSmartSemicolon(true).
+		Build(input)
 	program, err := p.ParseProgram()
 	if err != nil {
 		t.Fatalf("ParseProgram error: %v", err)
@@ -136,6 +138,38 @@ func TestIIFE(t *testing.T) {
 	if actualOutput != expectedOutput {
 		t.Errorf("Output mismatch:\nExpected: %q\nActual:   %q\nTranspiled JS:\n%s",
 			expectedOutput, actualOutput, result.Code)
+	}
+}
+
+func TestIIFEWithoutSmartSemicolon(t *testing.T) {
+	// This test demonstrates JavaScript's standard (problematic) behavior
+	// where an IIFE after a newline continues the previous expression
+	input := `console.log('first line')
+	(function() { console.log('second line') })()`
+	lb := lexer.NewBuilder()
+	p := parser.NewBuilder(lb).Build(input) // Default: smartSemicolon = false
+	program, err := p.ParseProgram()
+	if err != nil {
+		t.Fatalf("ParseProgram error: %v", err)
+	}
+
+	// Verify it generates a single statement (JavaScript standard behavior)
+	if len(program.Statements) != 1 {
+		t.Errorf("Expected 1 statement (JavaScript standard behavior), got %d", len(program.Statements))
+	}
+
+	result := compiler.New().Compile(program)
+
+	// This should fail when executed because it tries to call undefined as a function
+	_, err = executeJavaScript(result.Code)
+	if err == nil {
+		t.Errorf("Expected JavaScript execution error (standard ASI behavior), but code executed successfully")
+	}
+
+	// Verify the generated code is what JavaScript would produce
+	expectedCode := `console.log("first line")(function(){console.log("second line")})()`
+	if result.Code != expectedCode {
+		t.Errorf("Expected code:\n%s\nGot:\n%s", expectedCode, result.Code)
 	}
 }
 

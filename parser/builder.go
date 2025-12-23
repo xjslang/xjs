@@ -112,6 +112,32 @@ func (pb *Builder) RegisterPostfixOperator(tokenType token.Type, createExpr func
 	return nil
 }
 
+// WithSmartSemicolon enables smart semicolon insertion to prevent common JavaScript pitfalls
+// related to Automatic Semicolon Insertion (ASI). When enabled, the parser will prevent
+// LPAREN '(' and LBRACKET '[' tokens after a newline from continuing the previous expression.
+//
+// This prevents errors like:
+//
+//	// Without SmartSemicolon (standard JavaScript behavior):
+//	console.log('first')
+//	(function() {})()  // Error: tries to call console.log result as function
+//
+//	// With SmartSemicolon enabled:
+//	console.log('first')
+//	(function() {})()  // OK: treats IIFE as separate statement
+//
+// Reference: https://eslint.org/docs/latest/rules/no-unexpected-multiline
+//
+// Example:
+//
+//	parser := parser.NewBuilder(lexer.NewBuilder()).
+//	    WithSmartSemicolon(true).
+//	    Build(code)
+func (pb *Builder) WithSmartSemicolon(enabled bool) *Builder {
+	pb.smartSemicolons = enabled
+	return pb
+}
+
 // WithTolerantMode enables tolerant parsing mode, which continues parsing even on syntax errors.
 // This is useful for language servers, formatters, and analysis tools that need to work with
 // incomplete or invalid code. In tolerant mode, the parser will not stop on missing semicolons
@@ -137,5 +163,6 @@ func (pb *Builder) Build(input string) *Parser {
 		infixOperators:   pb.infixOperators,
 		postfixOperators: pb.postfixOperators,
 		tolerantMode:     pb.tolerantMode,
+		smartSemicolons:  pb.smartSemicolons,
 	})
 }
