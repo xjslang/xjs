@@ -199,6 +199,15 @@ func (p *Parser) ParseExpressionWithPrecedence(precedence int) ast.Expression {
 
 func (p *Parser) ParseRemainingExpressionWithPrecedence(left ast.Expression, precedence int) ast.Expression {
 	for p.PeekToken.Type != token.SEMICOLON && precedence < p.peekPrecedence() {
+		// Check if ASI should prevent continuing the expression
+		// For example: LPAREN and LBRACKET after a newline should start a new statement
+		if p.PeekToken.AfterNewline {
+			switch p.PeekToken.Type {
+			case token.LPAREN, token.LBRACKET:
+				// These tokens after a newline should not continue the expression
+				return left
+			}
+		}
 		left = p.ParseInfixExpression(left)
 	}
 	return left
@@ -439,8 +448,6 @@ func (p *Parser) shouldInsertSemicolon() bool {
 	}
 	switch p.PeekToken.Type {
 	case token.DOT: // obj.prop
-	case token.LBRACKET: // obj[prop]
-	case token.LPAREN: // func()
 	case token.LBRACE: // object literal (e.g., return { ... })
 	case token.PLUS: // + (binary)
 	case token.MINUS: // - (binary)
