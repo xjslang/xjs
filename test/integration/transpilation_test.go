@@ -118,6 +118,27 @@ func RunTranspilationTest(t *testing.T, test TranspilationTest) {
 	})
 }
 
+func TestIIFE(t *testing.T) {
+	input := `console.log('first line')
+	(function() { console.log('second line') })()`
+	lb := lexer.NewBuilder()
+	p := parser.NewBuilder(lb).Build(input)
+	program, err := p.ParseProgram()
+	if err != nil {
+		t.Fatalf("ParseProgram error: %v", err)
+	}
+	result := compiler.New().Compile(program)
+	actualOutput, err := executeJavaScript(result.Code)
+	if err != nil {
+		t.Fatalf("\nCode: %s\nError: %v", result.Code, err)
+	}
+	expectedOutput := "first line\nsecond line"
+	if actualOutput != expectedOutput {
+		t.Errorf("Output mismatch:\nExpected: %q\nActual:   %q\nTranspiled JS:\n%s",
+			expectedOutput, actualOutput, result.Code)
+	}
+}
+
 // TestTranspilation tests the transpilation of XJS code to JavaScript by executing it
 func TestTranspilation(t *testing.T) {
 	// Dynamically discover test cases by reading .js files from testdata directory
