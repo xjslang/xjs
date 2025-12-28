@@ -13,6 +13,7 @@ type Position struct {
 type ParserError struct {
 	Message  string   `json:"message"`
 	Position Position `json:"position"`
+	Length   int      `json:"length"`
 	Code     string   `json:"code,omitempty"`
 }
 

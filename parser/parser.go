@@ -269,6 +269,10 @@ func (p *Parser) NextToken() {
 // It captures the current token's position information and creates a structured
 // ParserError with the provided message.
 func (p *Parser) AddError(message string) {
+	tokenLen := len(p.CurrentToken.Literal)
+	if tokenLen == 0 {
+		tokenLen = 1
+	}
 	pos := Position{
 		Line:   p.CurrentToken.Line,
 		Column: p.CurrentToken.Column,
@@ -276,6 +280,7 @@ func (p *Parser) AddError(message string) {
 	err := ParserError{
 		Message:  message,
 		Position: pos,
+		Length:   tokenLen,
 		Code:     "SYNTAX_ERROR",
 	}
 	p.errors = append(p.errors, err)
