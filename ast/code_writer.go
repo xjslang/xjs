@@ -11,36 +11,36 @@ type CodeWriter struct {
 	Mapper *sourcemap.SourceMapper
 }
 
-func (w *CodeWriter) WriteString(s string) {
-	w.Builder.WriteString(s)
-	if w.Mapper == nil {
+func (cw *CodeWriter) WriteString(s string) {
+	cw.Builder.WriteString(s)
+	if cw.Mapper == nil {
 		return
 	}
-	w.Mapper.AdvanceString(s)
+	cw.Mapper.AdvanceString(s)
 }
 
-func (w *CodeWriter) WriteRune(r rune) {
-	w.Builder.WriteRune(r)
-	if w.Mapper == nil {
+func (cw *CodeWriter) WriteRune(r rune) {
+	cw.Builder.WriteRune(r)
+	if cw.Mapper == nil {
 		return
 	}
 	if r == '\n' {
-		w.Mapper.AdvanceLine()
+		cw.Mapper.AdvanceLine()
 	} else {
-		w.Mapper.AdvanceColumn(1)
+		cw.Mapper.AdvanceColumn(1)
 	}
 }
 
-func (w *CodeWriter) AddMapping(sourceLine, sourceColumn int) {
-	if w.Mapper == nil {
+func (cw *CodeWriter) AddMapping(sourceLine, sourceColumn int) {
+	if cw.Mapper == nil {
 		return
 	}
-	w.Mapper.AddMapping(sourceLine, sourceColumn)
+	cw.Mapper.AddMapping(sourceLine, sourceColumn)
 }
 
-func (w *CodeWriter) AddNamedMapping(sourceLine, sourceColumn int, name string) {
-	if w.Mapper == nil {
+func (cw *CodeWriter) AddNamedMapping(sourceLine, sourceColumn int, name string) {
+	if cw.Mapper == nil {
 		return
 	}
-	w.Mapper.AddNamedMapping(sourceLine, sourceColumn, name)
+	cw.Mapper.AddNamedMapping(sourceLine, sourceColumn, name)
 }
