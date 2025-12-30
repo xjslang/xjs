@@ -5,13 +5,12 @@ import "github.com/xjslang/xjs/token"
 // NewToken creates a new token using the current position as both start and end.
 // For single-character tokens, start and end positions are the same.
 func (l *Lexer) NewToken(tokenType token.Type, literal string) token.Token {
+	pos := token.Position{Line: l.Line, Column: l.Column}
 	return token.Token{
 		Type:         tokenType,
 		Literal:      literal,
-		Line:         l.Line,
-		Column:       l.Column,
-		StartLine:    l.Line,
-		StartColumn:  l.Column,
+		Start:        pos,
+		End:          pos,
 		AfterNewline: l.hadNewlineBefore,
 	}
 }
@@ -22,10 +21,8 @@ func (l *Lexer) NewTokenAt(tokenType token.Type, literal string, startLine, star
 	return token.Token{
 		Type:         tokenType,
 		Literal:      literal,
-		Line:         l.Line,
-		Column:       l.Column,
-		StartLine:    startLine,
-		StartColumn:  startColumn,
+		Start:        token.Position{Line: startLine, Column: startColumn},
+		End:          token.Position{Line: l.Line, Column: l.Column},
 		AfterNewline: l.hadNewlineBefore,
 	}
 }

@@ -45,7 +45,7 @@ type LetStatement struct {
 }
 
 func (ls *LetStatement) WriteTo(cw *CodeWriter) {
-	cw.AddMapping(ls.Token.Line, ls.Token.Column)
+	cw.AddMapping(ls.Token.Start.Line, ls.Token.Start.Column)
 	cw.WriteString("let ")
 	ls.Name.WriteTo(cw)
 	if ls.Value != nil {
@@ -60,7 +60,7 @@ type ReturnStatement struct {
 }
 
 func (rs *ReturnStatement) WriteTo(cw *CodeWriter) {
-	cw.AddMapping(rs.Token.Line, rs.Token.Column)
+	cw.AddMapping(rs.Token.Start.Line, rs.Token.Start.Column)
 	cw.WriteString("return")
 	if rs.ReturnValue != nil {
 		cw.WriteRune(' ')
@@ -87,7 +87,7 @@ type FunctionDeclaration struct {
 }
 
 func (fd *FunctionDeclaration) WriteTo(cw *CodeWriter) {
-	cw.AddMapping(fd.Token.Line, fd.Token.Column)
+	cw.AddMapping(fd.Token.Start.Line, fd.Token.Start.Column)
 	cw.WriteString("function ")
 	fd.Name.WriteTo(cw)
 	cw.WriteRune('(')
@@ -107,7 +107,7 @@ type BlockStatement struct {
 }
 
 func (bs *BlockStatement) WriteTo(cw *CodeWriter) {
-	cw.AddMapping(bs.Token.Line, bs.Token.Column)
+	cw.AddMapping(bs.Token.Start.Line, bs.Token.Start.Column)
 	cw.WriteRune('{')
 	for i, stmt := range bs.Statements {
 		if i > 0 {
@@ -126,7 +126,7 @@ type IfStatement struct {
 }
 
 func (ifs *IfStatement) WriteTo(cw *CodeWriter) {
-	cw.AddMapping(ifs.Token.Line, ifs.Token.Column)
+	cw.AddMapping(ifs.Token.Start.Line, ifs.Token.Start.Column)
 	cw.WriteString("if (")
 	ifs.Condition.WriteTo(cw)
 	cw.WriteRune(')')
@@ -144,7 +144,7 @@ type WhileStatement struct {
 }
 
 func (ws *WhileStatement) WriteTo(cw *CodeWriter) {
-	cw.AddMapping(ws.Token.Line, ws.Token.Column)
+	cw.AddMapping(ws.Token.Start.Line, ws.Token.Start.Column)
 	cw.WriteString("while (")
 	ws.Condition.WriteTo(cw)
 	cw.WriteRune(')')
@@ -160,7 +160,7 @@ type ForStatement struct {
 }
 
 func (fs *ForStatement) WriteTo(cw *CodeWriter) {
-	cw.AddMapping(fs.Token.Line, fs.Token.Column)
+	cw.AddMapping(fs.Token.Start.Line, fs.Token.Start.Column)
 	cw.WriteString("for (")
 	if fs.Init != nil {
 		fs.Init.WriteTo(cw)
@@ -184,7 +184,7 @@ type Identifier struct {
 }
 
 func (i *Identifier) WriteTo(cw *CodeWriter) {
-	cw.AddNamedMapping(i.Token.Line, i.Token.Column, i.Value)
+	cw.AddNamedMapping(i.Token.Start.Line, i.Token.Start.Column, i.Value)
 	cw.WriteString(i.Value)
 }
 
@@ -193,7 +193,7 @@ type IntegerLiteral struct {
 }
 
 func (il *IntegerLiteral) WriteTo(cw *CodeWriter) {
-	cw.AddMapping(il.Token.Line, il.Token.Column)
+	cw.AddMapping(il.Token.Start.Line, il.Token.Start.Column)
 	cw.WriteString(il.Token.Literal)
 }
 
@@ -202,7 +202,7 @@ type FloatLiteral struct {
 }
 
 func (fl *FloatLiteral) WriteTo(cw *CodeWriter) {
-	cw.AddMapping(fl.Token.Line, fl.Token.Column)
+	cw.AddMapping(fl.Token.Start.Line, fl.Token.Start.Column)
 	cw.WriteString(fl.Token.Literal)
 }
 
@@ -212,7 +212,7 @@ type StringLiteral struct {
 }
 
 func (sl *StringLiteral) WriteTo(cw *CodeWriter) {
-	cw.AddMapping(sl.Token.Line, sl.Token.Column)
+	cw.AddMapping(sl.Token.Start.Line, sl.Token.Start.Column)
 	cw.WriteRune('"')
 	cw.WriteString(sl.Value)
 	cw.WriteRune('"')
@@ -224,7 +224,7 @@ type MultiStringLiteral struct {
 }
 
 func (sl *MultiStringLiteral) WriteTo(cw *CodeWriter) {
-	cw.AddMapping(sl.Token.Line, sl.Token.Column)
+	cw.AddMapping(sl.Token.Start.Line, sl.Token.Start.Column)
 	cw.WriteRune('`')
 	cw.WriteString(sl.Value)
 	cw.WriteRune('`')
@@ -236,7 +236,7 @@ type BooleanLiteral struct {
 }
 
 func (bl *BooleanLiteral) WriteTo(cw *CodeWriter) {
-	cw.AddMapping(bl.Token.Line, bl.Token.Column)
+	cw.AddMapping(bl.Token.Start.Line, bl.Token.Start.Column)
 	cw.WriteString(bl.Token.Literal)
 }
 
@@ -245,7 +245,7 @@ type NullLiteral struct {
 }
 
 func (nl *NullLiteral) WriteTo(cw *CodeWriter) {
-	cw.AddMapping(nl.Token.Line, nl.Token.Column)
+	cw.AddMapping(nl.Token.Start.Line, nl.Token.Start.Column)
 	cw.WriteString("null")
 }
 
@@ -259,7 +259,7 @@ type BinaryExpression struct {
 func (be *BinaryExpression) WriteTo(cw *CodeWriter) {
 	cw.WriteRune('(')
 	be.Left.WriteTo(cw)
-	cw.AddMapping(be.Token.Line, be.Token.Column)
+	cw.AddMapping(be.Token.Start.Line, be.Token.Start.Column)
 	cw.WriteString(be.Operator)
 	be.Right.WriteTo(cw)
 	cw.WriteRune(')')
@@ -272,7 +272,7 @@ type UnaryExpression struct {
 }
 
 func (ue *UnaryExpression) WriteTo(cw *CodeWriter) {
-	cw.AddMapping(ue.Token.Line, ue.Token.Column)
+	cw.AddMapping(ue.Token.Start.Line, ue.Token.Start.Column)
 	cw.WriteRune('(')
 	cw.WriteString(ue.Operator)
 	ue.Right.WriteTo(cw)
@@ -288,7 +288,7 @@ type PostfixExpression struct {
 func (pe *PostfixExpression) WriteTo(cw *CodeWriter) {
 	cw.WriteRune('(')
 	pe.Left.WriteTo(cw)
-	cw.AddMapping(pe.Token.Line, pe.Token.Column)
+	cw.AddMapping(pe.Token.Start.Line, pe.Token.Start.Column)
 	cw.WriteString(pe.Operator)
 	cw.WriteRune(')')
 }
@@ -299,7 +299,7 @@ type GroupedExpression struct {
 }
 
 func (ge *GroupedExpression) WriteTo(cw *CodeWriter) {
-	cw.AddMapping(ge.Token.Line, ge.Token.Column)
+	cw.AddMapping(ge.Token.Start.Line, ge.Token.Start.Column)
 	cw.WriteRune('(')
 	ge.Expression.WriteTo(cw)
 	cw.WriteRune(')')
@@ -313,7 +313,7 @@ type CallExpression struct {
 
 func (ce *CallExpression) WriteTo(cw *CodeWriter) {
 	ce.Function.WriteTo(cw)
-	cw.AddMapping(ce.Token.Line, ce.Token.Column)
+	cw.AddMapping(ce.Token.Start.Line, ce.Token.Start.Column)
 	cw.WriteRune('(')
 	for i, arg := range ce.Arguments {
 		if i > 0 {
@@ -334,12 +334,12 @@ type MemberExpression struct {
 func (me *MemberExpression) WriteTo(cw *CodeWriter) {
 	me.Object.WriteTo(cw)
 	if me.Computed {
-		cw.AddMapping(me.Token.Line, me.Token.Column)
+		cw.AddMapping(me.Token.Start.Line, me.Token.Start.Column)
 		cw.WriteRune('[')
 		me.Property.WriteTo(cw)
 		cw.WriteRune(']')
 	} else {
-		cw.AddMapping(me.Token.Line, me.Token.Column)
+		cw.AddMapping(me.Token.Start.Line, me.Token.Start.Column)
 		cw.WriteRune('.')
 		me.Property.WriteTo(cw)
 	}
@@ -353,7 +353,7 @@ type AssignmentExpression struct {
 
 func (ae *AssignmentExpression) WriteTo(cw *CodeWriter) {
 	ae.Left.WriteTo(cw)
-	cw.AddMapping(ae.Token.Line, ae.Token.Column)
+	cw.AddMapping(ae.Token.Start.Line, ae.Token.Start.Column)
 	cw.WriteRune('=')
 	ae.Value.WriteTo(cw)
 }
@@ -367,7 +367,7 @@ type CompoundAssignmentExpression struct {
 
 func (cae *CompoundAssignmentExpression) WriteTo(cw *CodeWriter) {
 	cae.Left.WriteTo(cw)
-	cw.AddMapping(cae.Token.Line, cae.Token.Column)
+	cw.AddMapping(cae.Token.Start.Line, cae.Token.Start.Column)
 	cw.WriteRune(' ')
 	cw.WriteString(cae.Operator)
 	cw.WriteRune('=')
@@ -382,7 +382,7 @@ type FunctionExpression struct {
 }
 
 func (fe *FunctionExpression) WriteTo(cw *CodeWriter) {
-	cw.AddMapping(fe.Token.Line, fe.Token.Column)
+	cw.AddMapping(fe.Token.Start.Line, fe.Token.Start.Column)
 	cw.WriteString("function")
 	if fe.Name != nil {
 		cw.WriteRune(' ')
@@ -405,7 +405,7 @@ type ArrayLiteral struct {
 }
 
 func (al *ArrayLiteral) WriteTo(cw *CodeWriter) {
-	cw.AddMapping(al.Token.Line, al.Token.Column)
+	cw.AddMapping(al.Token.Start.Line, al.Token.Start.Column)
 	cw.WriteRune('[')
 	for i, elem := range al.Elements {
 		if i > 0 {
@@ -422,7 +422,7 @@ type ObjectLiteral struct {
 }
 
 func (ol *ObjectLiteral) WriteTo(cw *CodeWriter) {
-	cw.AddMapping(ol.Token.Line, ol.Token.Column)
+	cw.AddMapping(ol.Token.Start.Line, ol.Token.Start.Column)
 	cw.WriteRune('{')
 
 	// Extract keys and sort them for deterministic output

@@ -14,13 +14,13 @@ import (
 func TestWriteToWithSourceMapper(t *testing.T) {
 	// Create a simple AST
 	stmt := &ast.LetStatement{
-		Token: token.Token{Type: token.LET, Literal: "let", Line: 1, Column: 1},
+		Token: token.Token{Type: token.LET, Literal: "let", Start: token.Position{Line: 1, Column: 1}, End: token.Position{Line: 1, Column: 1}},
 		Name: &ast.Identifier{
-			Token: token.Token{Type: token.IDENT, Literal: "x", Line: 1, Column: 5},
+			Token: token.Token{Type: token.IDENT, Literal: "x", Start: token.Position{Line: 1, Column: 5}, End: token.Position{Line: 1, Column: 5}},
 			Value: "x",
 		},
 		Value: &ast.IntegerLiteral{
-			Token: token.Token{Type: token.INT, Literal: "42", Line: 1, Column: 9},
+			Token: token.Token{Type: token.INT, Literal: "42", Start: token.Position{Line: 1, Column: 9}, End: token.Position{Line: 1, Column: 9}},
 		},
 	}
 
@@ -57,23 +57,23 @@ func TestProgramWithSourceMapper(t *testing.T) {
 	program := &ast.Program{
 		Statements: []ast.Statement{
 			&ast.LetStatement{
-				Token: token.Token{Type: token.LET, Literal: "let", Line: 1, Column: 1},
+				Token: token.Token{Type: token.LET, Literal: "let", Start: token.Position{Line: 1, Column: 1}, End: token.Position{Line: 1, Column: 1}},
 				Name: &ast.Identifier{
-					Token: token.Token{Type: token.IDENT, Literal: "x", Line: 1, Column: 5},
+					Token: token.Token{Type: token.IDENT, Literal: "x", Start: token.Position{Line: 1, Column: 5}, End: token.Position{Line: 1, Column: 5}},
 					Value: "x",
 				},
 				Value: &ast.IntegerLiteral{
-					Token: token.Token{Type: token.INT, Literal: "5", Line: 1, Column: 9},
+					Token: token.Token{Type: token.INT, Literal: "5", Start: token.Position{Line: 1, Column: 9}, End: token.Position{Line: 1, Column: 9}},
 				},
 			},
 			&ast.LetStatement{
-				Token: token.Token{Type: token.LET, Literal: "let", Line: 2, Column: 1},
+				Token: token.Token{Type: token.LET, Literal: "let", Start: token.Position{Line: 2, Column: 1}, End: token.Position{Line: 2, Column: 1}},
 				Name: &ast.Identifier{
-					Token: token.Token{Type: token.IDENT, Literal: "y", Line: 2, Column: 5},
+					Token: token.Token{Type: token.IDENT, Literal: "y", Start: token.Position{Line: 2, Column: 5}, End: token.Position{Line: 2, Column: 5}},
 					Value: "y",
 				},
 				Value: &ast.IntegerLiteral{
-					Token: token.Token{Type: token.INT, Literal: "10", Line: 2, Column: 9},
+					Token: token.Token{Type: token.INT, Literal: "10", Start: token.Position{Line: 2, Column: 9}, End: token.Position{Line: 2, Column: 9}},
 				},
 			},
 		},

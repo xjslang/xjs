@@ -273,18 +273,12 @@ func (p *Parser) AddError(message string) {
 }
 
 // AddErrorAtToken creates and adds a new parsing error at a specific token's position.
-// This method uses the token's StartLine/StartColumn and Line/Column to create a range
+// This method uses the token's Start and End positions to create a range
 // that accurately represents the full extent of the token causing the error.
 func (p *Parser) AddErrorAtToken(message string, tok token.Token) {
 	rng := Range{
-		Start: Position{
-			Line:   tok.StartLine,
-			Column: tok.StartColumn,
-		},
-		End: Position{
-			Line:   tok.Line,
-			Column: tok.Column,
-		},
+		Start: tok.Start,
+		End:   tok.End,
 	}
 	err := ParserError{
 		Message: message,

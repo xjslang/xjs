@@ -44,20 +44,28 @@ func ExamplePrint() {
 	//    Token: (token.Token) {
 	//       Type: (token.Type) 0,
 	//       Literal: (string) "",
-	//       Line: (int) 0,
-	//       Column: (int) 0,
-	//       StartLine: (int) 0,
-	//       StartColumn: (int) 0,
+	//       Start: (token.Position) {
+	//          Line: (int) 0,
+	//          Column: (int) 0
+	//       },
+	//       End: (token.Position) {
+	//          Line: (int) 0,
+	//          Column: (int) 0
+	//       },
 	//       AfterNewline: (bool) false
 	//    },
 	//    Name: (*ast.Identifier)({
 	//       Token: (token.Token) {
 	//          Type: (token.Type) 0,
 	//          Literal: (string) "",
-	//          Line: (int) 0,
-	//          Column: (int) 0,
-	//          StartLine: (int) 0,
-	//          StartColumn: (int) 0,
+	//          Start: (token.Position) {
+	//             Line: (int) 0,
+	//             Column: (int) 0
+	//          },
+	//          End: (token.Position) {
+	//             Line: (int) 0,
+	//             Column: (int) 0
+	//          },
 	//          AfterNewline: (bool) false
 	//       },
 	//       Value: (string) (len=1) "x"
@@ -66,10 +74,14 @@ func ExamplePrint() {
 	//       Token: (token.Token) {
 	//          Type: (token.Type) 0,
 	//          Literal: (string) (len=1) "5",
-	//          Line: (int) 0,
-	//          Column: (int) 0,
-	//          StartLine: (int) 0,
-	//          StartColumn: (int) 0,
+	//          Start: (token.Position) {
+	//             Line: (int) 0,
+	//             Column: (int) 0
+	//          },
+	//          End: (token.Position) {
+	//             Line: (int) 0,
+	//             Column: (int) 0
+	//          },
 	//          AfterNewline: (bool) false
 	//       }
 	//    })

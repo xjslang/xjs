@@ -1,13 +1,10 @@
 package parser
 
-type Position struct {
-	Line   int `json:"line"`
-	Column int `json:"column"`
-}
+import "github.com/xjslang/xjs/token"
 
 type Range struct {
-	Start Position `json:"start"`
-	End   Position `json:"end"`
+	Start token.Position `json:"start"`
+	End   token.Position `json:"end"`
 }
 
 type ParserError struct {

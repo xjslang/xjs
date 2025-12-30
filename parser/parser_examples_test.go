@@ -116,7 +116,8 @@ func Example_infixOperator() {
 	lb.UseTokenInterceptor(func(l *lexer.Lexer, next func() token.Token) token.Token {
 		if l.CurrentChar == '^' {
 			l.ReadChar()
-			return token.Token{Type: powType, Literal: "^", Line: l.Line, Column: l.Column}
+			pos := token.Position{Line: l.Line, Column: l.Column}
+			return token.Token{Type: powType, Literal: "^", Start: pos, End: pos}
 		}
 		return next()
 	})
@@ -229,7 +230,8 @@ func Example_combined() {
 	lb.UseTokenInterceptor(func(l *lexer.Lexer, next func() token.Token) token.Token {
 		if l.CurrentChar == '^' {
 			l.ReadChar() // consume ^
-			return token.Token{Type: powType, Literal: "^", Line: l.Line, Column: l.Column}
+			pos := token.Position{Line: l.Line, Column: l.Column}
+			return token.Token{Type: powType, Literal: "^", Start: pos, End: pos}
 		}
 		return next()
 	})

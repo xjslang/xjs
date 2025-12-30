@@ -5,6 +5,12 @@ import "fmt"
 
 type Type int
 
+// Position represents a location in the source code (1-indexed).
+type Position struct {
+	Line   int `json:"line"`
+	Column int `json:"column"`
+}
+
 const (
 	// Special tokens
 	ILLEGAL Type = iota
@@ -76,16 +82,14 @@ const (
 type Token struct {
 	Type         Type
 	Literal      string
-	Line         int  // Current/end line position (1-indexed)
-	Column       int  // Current/end column position (1-indexed)
-	StartLine    int  // Starting line position of the token (1-indexed)
-	StartColumn  int  // Starting column position of the token (1-indexed)
-	AfterNewline bool // true if this token follows a newline character
+	Start        Position // Starting position of the token (1-indexed)
+	End          Position // Ending position of the token (1-indexed)
+	AfterNewline bool     // true if this token follows a newline character
 }
 
 func (t Token) String() string {
-	return fmt.Sprintf("{Type: %s, Literal: %q, Line: %d, Col: %d, Start: %d:%d}",
-		t.Type, t.Literal, t.Line, t.Column, t.StartLine, t.StartColumn)
+	return fmt.Sprintf("{Type: %s, Literal: %q, Start: %d:%d, End: %d:%d}",
+		t.Type, t.Literal, t.Start.Line, t.Start.Column, t.End.Line, t.End.Column)
 }
 
 func (tt Type) String() string {
