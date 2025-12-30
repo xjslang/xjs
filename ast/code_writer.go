@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/xjslang/xjs/sourcemap"
+	"github.com/xjslang/xjs/token"
 )
 
 type CodeWriter struct {
@@ -31,11 +32,11 @@ func (cw *CodeWriter) WriteRune(r rune) {
 	}
 }
 
-func (cw *CodeWriter) AddMapping(sourceLine, sourceColumn int) {
+func (cw *CodeWriter) AddMapping(pos token.Position) {
 	if cw.Mapper == nil {
 		return
 	}
-	cw.Mapper.AddMapping(sourceLine, sourceColumn)
+	cw.Mapper.AddMapping(pos.Line, pos.Column)
 }
 
 func (cw *CodeWriter) AddNamedMapping(sourceLine, sourceColumn int, name string) {
