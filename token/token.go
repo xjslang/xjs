@@ -76,14 +76,16 @@ const (
 type Token struct {
 	Type         Type
 	Literal      string
-	Line         int
-	Column       int
+	Line         int  // Current/end line position (1-indexed)
+	Column       int  // Current/end column position (1-indexed)
+	StartLine    int  // Starting line position of the token (1-indexed)
+	StartColumn  int  // Starting column position of the token (1-indexed)
 	AfterNewline bool // true if this token follows a newline character
 }
 
 func (t Token) String() string {
-	return fmt.Sprintf("{Type: %s, Literal: %q, Line: %d, Col: %d}",
-		t.Type, t.Literal, t.Line, t.Column)
+	return fmt.Sprintf("{Type: %s, Literal: %q, Line: %d, Col: %d, Start: %d:%d}",
+		t.Type, t.Literal, t.Line, t.Column, t.StartLine, t.StartColumn)
 }
 
 func (tt Type) String() string {

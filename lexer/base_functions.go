@@ -2,13 +2,30 @@ package lexer
 
 import "github.com/xjslang/xjs/token"
 
-// NewToken creates a new token.
+// NewToken creates a new token using the current position as both start and end.
+// For single-character tokens, start and end positions are the same.
 func (l *Lexer) NewToken(tokenType token.Type, literal string) token.Token {
 	return token.Token{
 		Type:         tokenType,
 		Literal:      literal,
 		Line:         l.Line,
 		Column:       l.Column,
+		StartLine:    l.Line,
+		StartColumn:  l.Column,
+		AfterNewline: l.hadNewlineBefore,
+	}
+}
+
+// NewTokenAt creates a new token with explicit start position.
+// This should be used when the start position was captured before reading a multi-character literal.
+func (l *Lexer) NewTokenAt(tokenType token.Type, literal string, startLine, startColumn int) token.Token {
+	return token.Token{
+		Type:         tokenType,
+		Literal:      literal,
+		Line:         l.Line,
+		Column:       l.Column,
+		StartLine:    startLine,
+		StartColumn:  startColumn,
 		AfterNewline: l.hadNewlineBefore,
 	}
 }
@@ -120,23 +137,33 @@ func baseNextToken(l *Lexer) token.Token {
 	case ']':
 		tok = l.NewToken(token.RBRACKET, string(l.CurrentChar))
 	case '"':
-		tok = l.NewToken(token.STRING, l.readString('"'))
+		// Capture position BEFORE reading the string
+		startLine, startColumn := l.Line, l.Column
+		tok = l.NewTokenAt(token.STRING, l.readString('"'), startLine, startColumn)
 	case '\'':
-		tok = l.NewToken(token.STRING, l.readString('\''))
+		// Capture position BEFORE reading the string
+		startLine, startColumn := l.Line, l.Column
+		tok = l.NewTokenAt(token.STRING, l.readString('\''), startLine, startColumn)
 	case '`':
-		tok = l.NewToken(token.RAW_STRING, l.readRawString())
+		// Capture position BEFORE reading the raw string
+		startLine, startColumn := l.Line, l.Column
+		tok = l.NewTokenAt(token.RAW_STRING, l.readRawString(), startLine, startColumn)
 	case 0:
 		tok = l.NewToken(token.EOF, "")
 	default:
 		if isLetter(l.CurrentChar) {
+			// Capture position BEFORE reading the identifier
+			startLine, startColumn := l.Line, l.Column
 			literal := l.readIdentifier()
 			tokType := token.LookupIdent(literal)
-			tok = l.NewToken(tokType, literal)
+			tok = l.NewTokenAt(tokType, literal, startLine, startColumn)
 			// Don't call ReadChar() here because readIdentifier() already does it
 			return tok
 		} else if isDigit(l.CurrentChar) {
+			// Capture position BEFORE reading the number
+			startLine, startColumn := l.Line, l.Column
 			literal, tokType := l.readNumber()
-			tok = l.NewToken(tokType, literal)
+			tok = l.NewTokenAt(tokType, literal, startLine, startColumn)
 			return tok
 		} else {
 			tok = l.NewToken(token.ILLEGAL, string(l.CurrentChar))
