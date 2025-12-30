@@ -273,22 +273,23 @@ func (p *Parser) AddError(message string) {
 }
 
 // AddErrorAtToken creates and adds a new parsing error at a specific token's position.
-// This method uses the token's StartLine and StartColumn to accurately report the error
-// at the beginning of the token, which is especially important for multi-character tokens.
+// This method uses the token's StartLine/StartColumn and Line/Column to create a range
+// that accurately represents the full extent of the token causing the error.
 func (p *Parser) AddErrorAtToken(message string, tok token.Token) {
-	tokenLen := len(tok.Literal)
-	if tokenLen == 0 {
-		tokenLen = 1
-	}
-	pos := Position{
-		Line:   tok.StartLine,
-		Column: tok.StartColumn,
+	rng := Range{
+		Start: Position{
+			Line:   tok.StartLine,
+			Column: tok.StartColumn,
+		},
+		End: Position{
+			Line:   tok.Line,
+			Column: tok.Column,
+		},
 	}
 	err := ParserError{
-		Message:  message,
-		Position: pos,
-		Length:   tokenLen,
-		Code:     "SYNTAX_ERROR",
+		Message: message,
+		Range:   rng,
+		Code:    "SYNTAX_ERROR",
 	}
 	p.errors = append(p.errors, err)
 }

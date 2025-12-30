@@ -5,9 +5,13 @@ type Position struct {
 	Column int `json:"column"`
 }
 
+type Range struct {
+	Start Position `json:"start"`
+	End   Position `json:"end"`
+}
+
 type ParserError struct {
-	Message  string   `json:"message"`
-	Position Position `json:"position"`
-	Length   int      `json:"length"`
-	Code     string   `json:"code,omitempty"`
+	Message string `json:"message"`
+	Range   Range  `json:"range"`
+	Code    string `json:"code,omitempty"`
 }

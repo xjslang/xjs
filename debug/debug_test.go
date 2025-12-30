@@ -46,6 +46,8 @@ func ExamplePrint() {
 	//       Literal: (string) "",
 	//       Line: (int) 0,
 	//       Column: (int) 0,
+	//       StartLine: (int) 0,
+	//       StartColumn: (int) 0,
 	//       AfterNewline: (bool) false
 	//    },
 	//    Name: (*ast.Identifier)({
@@ -54,6 +56,8 @@ func ExamplePrint() {
 	//          Literal: (string) "",
 	//          Line: (int) 0,
 	//          Column: (int) 0,
+	//          StartLine: (int) 0,
+	//          StartColumn: (int) 0,
 	//          AfterNewline: (bool) false
 	//       },
 	//       Value: (string) (len=1) "x"
@@ -64,6 +68,8 @@ func ExamplePrint() {
 	//          Literal: (string) (len=1) "5",
 	//          Line: (int) 0,
 	//          Column: (int) 0,
+	//          StartLine: (int) 0,
+	//          StartColumn: (int) 0,
 	//          AfterNewline: (bool) false
 	//       }
 	//    })
