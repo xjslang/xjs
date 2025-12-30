@@ -269,13 +269,20 @@ func (p *Parser) NextToken() {
 // It captures the current token's position information and creates a structured
 // ParserError with the provided message.
 func (p *Parser) AddError(message string) {
-	tokenLen := len(p.CurrentToken.Literal)
+	p.AddErrorAtToken(message, p.CurrentToken)
+}
+
+// AddErrorAtToken creates and adds a new parsing error at a specific token's position.
+// This method uses the token's StartLine and StartColumn to accurately report the error
+// at the beginning of the token, which is especially important for multi-character tokens.
+func (p *Parser) AddErrorAtToken(message string, tok token.Token) {
+	tokenLen := len(tok.Literal)
 	if tokenLen == 0 {
 		tokenLen = 1
 	}
 	pos := Position{
-		Line:   p.CurrentToken.Line,
-		Column: p.CurrentToken.Column,
+		Line:   tok.StartLine,
+		Column: tok.StartColumn,
 	}
 	err := ParserError{
 		Message:  message,
