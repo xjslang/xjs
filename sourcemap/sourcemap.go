@@ -56,13 +56,13 @@ func New() *SourceMapper {
 }
 
 // AddMapping records a mapping from the current generated position
-// to the given original source position (1-based line and column from token).
+// to the given original source position (0-based line and column from token).
 func (m *SourceMapper) AddMapping(sourceLine, sourceColumn int) {
 	m.mappings = append(m.mappings, Mapping{
 		GeneratedLine:   m.generatedLine,
 		GeneratedColumn: m.generatedColumn,
-		SourceLine:      sourceLine - 1, // Convert to 0-based
-		SourceColumn:    sourceColumn - 1,
+		SourceLine:      sourceLine,
+		SourceColumn:    sourceColumn,
 	})
 }
 
@@ -78,8 +78,8 @@ func (m *SourceMapper) AddNamedMapping(sourceLine, sourceColumn int, name string
 	m.mappings = append(m.mappings, Mapping{
 		GeneratedLine:   m.generatedLine,
 		GeneratedColumn: m.generatedColumn,
-		SourceLine:      sourceLine - 1,
-		SourceColumn:    sourceColumn - 1,
+		SourceLine:      sourceLine,
+		SourceColumn:    sourceColumn,
 		NameIndex:       nameIdx,
 		HasName:         true,
 	})

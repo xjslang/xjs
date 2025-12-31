@@ -33,8 +33,8 @@ type Lexer struct {
 func newWithOptions(input string, interceptors ...Interceptor) *Lexer {
 	l := &Lexer{
 		input:            input,
-		Line:             1,
-		Column:           0,
+		Line:             0,
+		Column:           -1,
 		hadNewlineBefore: false,
 		nextToken:        baseNextToken,
 	}
@@ -52,6 +52,15 @@ func new(input string) *Lexer {
 
 // ReadChar advances the lexer to the next character in the input.
 func (l *Lexer) ReadChar() {
+	// If the previous character was a newline, reset column
+	if l.CurrentChar == '\n' {
+		l.Line++
+		l.Column = -1 // Will become 0 after increment below
+	}
+
+	// Increment column for the new character position
+	l.Column++
+
 	if l.readPosition >= len(l.input) {
 		l.CurrentChar = 0 // ASCII NUL character represents "EOF"
 	} else {
@@ -59,13 +68,6 @@ func (l *Lexer) ReadChar() {
 	}
 	l.position = l.readPosition
 	l.readPosition++
-
-	if l.CurrentChar == '\n' {
-		l.Line++
-		l.Column = 0
-	} else {
-		l.Column++
-	}
 }
 
 // PeekChar returns the next character without advancing the lexer position.
