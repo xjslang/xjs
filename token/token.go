@@ -95,99 +95,99 @@ func (t Token) String() string {
 func (tt Type) String() string {
 	switch tt {
 	case ILLEGAL:
-		return "ILLEGAL"
+		return "illegal"
 	case EOF:
-		return "EOF"
+		return "end of line"
 	case IDENT:
-		return "IDENT"
+		return "identifier"
 	case INT:
-		return "INT"
+		return "integer"
 	case FLOAT:
-		return "FLOAT"
+		return "float number"
 	case STRING:
-		return "STRING"
+		return "string"
 	case RAW_STRING:
-		return "RAW_STRING"
+		return "raw string"
 	case ASSIGN:
-		return "ASSIGN"
+		return "="
 	case PLUS_ASSIGN:
-		return "PLUS_ASSIGN"
+		return "+="
 	case MINUS_ASSIGN:
-		return "MINUS_ASSIGN"
+		return "-="
 	case PLUS:
-		return "PLUS"
+		return "+"
 	case MINUS:
-		return "MINUS"
+		return "-"
 	case MULTIPLY:
-		return "MULTIPLY"
+		return "*"
 	case DIVIDE:
-		return "DIVIDE"
+		return "/"
 	case MODULO:
-		return "MODULO"
+		return "%"
 	case EQ:
-		return "EQ"
+		return "=="
 	case NOT_EQ:
-		return "NOT_EQ"
+		return "!="
 	case LT:
-		return "LT"
+		return "<"
 	case GT:
-		return "GT"
+		return ">"
 	case LTE:
-		return "LTE"
+		return "<="
 	case GTE:
-		return "GTE"
+		return "=>"
 	case AND:
-		return "AND"
+		return "&&"
 	case OR:
-		return "OR"
+		return "||"
 	case NOT:
-		return "NOT"
+		return "!"
 	case INCREMENT:
-		return "INCREMENT"
+		return "++"
 	case DECREMENT:
-		return "DECREMENT"
+		return "--"
 	case COMMA:
-		return "COMMA"
+		return ","
 	case SEMICOLON:
-		return "SEMICOLON"
+		return ";"
 	case COLON:
-		return "COLON"
+		return ":"
 	case DOT:
-		return "DOT"
+		return "."
 	case LPAREN:
-		return "LPAREN"
+		return "("
 	case RPAREN:
-		return "RPAREN"
+		return ")"
 	case LBRACE:
-		return "LBRACE"
+		return "{"
 	case RBRACE:
-		return "RBRACE"
+		return "}"
 	case LBRACKET:
-		return "LBRACKET"
+		return "["
 	case RBRACKET:
-		return "RBRACKET"
+		return "]"
 	case FUNCTION:
-		return "FUNCTION"
+		return "function"
 	case LET:
-		return "LET"
+		return "let"
 	case IF:
-		return "IF"
+		return "if"
 	case ELSE:
-		return "ELSE"
+		return "else"
 	case WHILE:
-		return "WHILE"
+		return "while"
 	case FOR:
-		return "FOR"
+		return "for"
 	case RETURN:
-		return "RETURN"
+		return "return"
 	case TRUE:
-		return "TRUE"
+		return "true"
 	case FALSE:
-		return "FALSE"
+		return "false"
 	case NULL:
-		return "NULL"
+		return "undefined"
 	default:
-		return fmt.Sprintf("UNKNOWN(%d)", tt)
+		return fmt.Sprintf("unknown(%d)", tt)
 	}
 }
 

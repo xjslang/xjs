@@ -174,7 +174,7 @@ func (p *Parser) ParseExpressionStatement() *ast.ExpressionStatement {
 func (p *Parser) ParsePrefixExpression() ast.Expression {
 	prefix := p.prefixParseFns[p.CurrentToken.Type]
 	if prefix == nil {
-		p.AddError(fmt.Sprintf("no prefix parse function for %s found", p.CurrentToken.Type))
+		p.AddError(fmt.Sprintf("Unknown operator %s", p.CurrentToken.Literal))
 		return nil
 	}
 	return prefix()

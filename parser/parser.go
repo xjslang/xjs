@@ -296,7 +296,7 @@ func (p *Parser) ExpectToken(t token.Type) bool {
 		p.NextToken()
 		return true
 	}
-	p.AddErrorAtToken(fmt.Sprintf("output %s, got %s", t, p.PeekToken.Type), p.PeekToken)
+	p.AddErrorAtToken(fmt.Sprintf("%s expected", t), p.PeekToken)
 	return false
 }
 
@@ -316,7 +316,7 @@ func (p *Parser) ExpectSemicolonASI() bool {
 	if p.tolerantMode {
 		return true
 	}
-	p.AddErrorAtToken(fmt.Sprintf("expected semicolon or newline, got %s", p.PeekToken.Type), p.PeekToken)
+	p.AddErrorAtToken("semicolon or newline expected", p.PeekToken)
 	return false
 }
 
