@@ -32,7 +32,7 @@ func TestErrorPositions(t *testing.T) {
 				endCol    int
 			}{
 				{
-					message:   "expected semicolon or newline, got LET",
+					message:   "semicolon or newline expected",
 					startLine: 0,
 					startCol:  10,
 					endLine:   0,
@@ -51,7 +51,7 @@ func TestErrorPositions(t *testing.T) {
 				endCol    int
 			}{
 				{
-					message:   "output RPAREN, got EOF",
+					message:   ") expected",
 					startLine: 0,
 					startCol:  14,
 					endLine:   0,
@@ -70,7 +70,7 @@ func TestErrorPositions(t *testing.T) {
 				endCol    int
 			}{
 				{
-					message:   "output IDENT, got LPAREN",
+					message:   "identifier expected",
 					startLine: 0,
 					startCol:  9,
 					endLine:   0,
@@ -89,14 +89,14 @@ func TestErrorPositions(t *testing.T) {
 				endCol    int
 			}{
 				{
-					message:   "no prefix parse function for PLUS found",
+					message:   "unexpected +",
 					startLine: 0,
 					startCol:  12,
 					endLine:   0,
 					endCol:    12,
 				},
 				{
-					message:   "expected semicolon or newline, got INT",
+					message:   "semicolon or newline expected",
 					startLine: 0,
 					startCol:  14,
 					endLine:   0,
@@ -117,14 +117,14 @@ let z = 10`,
 				endCol    int
 			}{
 				{
-					message:   "no prefix parse function for LET found",
+					message:   "unexpected let",
 					startLine: 2,
 					startCol:  0,
 					endLine:   2,
 					endCol:    3,
 				},
 				{
-					message:   "expected semicolon or newline, got IDENT",
+					message:   "semicolon or newline expected",
 					startLine: 2,
 					startCol:  4,
 					endLine:   2,
