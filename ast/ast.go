@@ -41,13 +41,15 @@ type CommentBlock struct {
 }
 
 func (cb *CommentBlock) WriteTo(cw *CodeWriter) {
-	// TODO: implement this when appropriate
-	// for _, comment := range cb.Comments {
-	// 	cw.AddMapping(comment.Start)
-	// 	cw.WriteString("//")
-	// 	cw.WriteString(comment.Literal)
-	// 	cw.WriteRune('\n')
-	// }
+	if !cw.PrettyPrint {
+		return
+	}
+	for _, comment := range cb.Comments {
+		cw.AddMapping(comment.Start)
+		cw.WriteString("//")
+		cw.WriteString(comment.Literal)
+		cw.WriteNewline()
+	}
 }
 
 // Statements
