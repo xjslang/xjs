@@ -164,13 +164,7 @@ func (ifs *IfStatement) WriteTo(cw *CodeWriter) {
 	cw.WriteSpace()
 	ifs.ThenBranch.WriteTo(cw)
 	if ifs.ElseBranch != nil {
-		cw.WriteSpace()
-		cw.WriteString("else")
-		if !cw.PrettyPrint {
-			cw.WriteRune(' ')
-		} else {
-			cw.WriteSpace()
-		}
+		cw.WriteString(" else ")
 		ifs.ElseBranch.WriteTo(cw)
 	}
 }
