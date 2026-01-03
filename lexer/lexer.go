@@ -290,17 +290,24 @@ func (l *Lexer) readRawString() string {
 	return result.String()
 }
 
+// readLineComment reads a line comment and returns its content (without the //)
+func (l *Lexer) readLineComment() string {
+	// Skip the two slashes
+	for range 2 {
+		l.ReadChar()
+	}
+
+	position := l.position
+	for l.CurrentChar != '\n' && l.CurrentChar != 0 {
+		l.ReadChar()
+	}
+	return l.input[position:l.position]
+}
+
 // NextToken generates and returns the next token from the input stream.
 func (l *Lexer) NextToken() token.Token {
 	l.skipWhitespace()
 	return l.nextToken(l)
-}
-
-// skipLineComment skips characters until the end of line for line comments (//)
-func (l *Lexer) skipLineComment() {
-	for l.CurrentChar != '\n' && l.CurrentChar != 0 {
-		l.ReadChar()
-	}
 }
 
 func (l *Lexer) useTokenInterceptor(interceptor Interceptor) {

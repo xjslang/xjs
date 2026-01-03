@@ -7,6 +7,8 @@ import (
 
 func baseParseStatement(p *Parser) ast.Statement {
 	switch p.CurrentToken.Type {
+	case token.COMMENT:
+		return p.ParseCommentBlock()
 	case token.LET:
 		return p.ParseLetStatement()
 	case token.FUNCTION:

@@ -106,8 +106,11 @@ func baseNextToken(l *Lexer) token.Token {
 		tok = l.NewToken(token.MULTIPLY, string(l.CurrentChar))
 	case '/':
 		if l.PeekChar() == '/' {
-			l.skipLineComment()
-			return l.NextToken() // Skip the comment and get the next token
+			// Capture position BEFORE reading the comment
+			startLine, startColumn := l.Line, l.Column
+			comment := l.readLineComment()
+			tok = l.NewTokenAt(token.COMMENT, comment, startLine, startColumn)
+			return tok // Don't call ReadChar() - readLineComment already positioned us
 		} else {
 			tok = l.NewToken(token.DIVIDE, string(l.CurrentChar))
 		}

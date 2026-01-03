@@ -22,6 +22,7 @@ const (
 	FLOAT      // 123.45
 	STRING     // "hello"
 	RAW_STRING //
+	COMMENT    // // line comment
 
 	// Operators
 	ASSIGN       // =
@@ -108,6 +109,8 @@ func (tt Type) String() string {
 		return "string"
 	case RAW_STRING:
 		return "raw string"
+	case COMMENT:
+		return "comment"
 	case ASSIGN:
 		return "="
 	case PLUS_ASSIGN:

@@ -37,6 +37,22 @@ func (p *Program) WriteTo(cw *CodeWriter) {
 	}
 }
 
+// CommentBlock represents one or more consecutive line comments.
+// It is treated as a statement in the AST.
+type CommentBlock struct {
+	Comments []token.Token // each token is a COMMENT token
+}
+
+func (cb *CommentBlock) WriteTo(cw *CodeWriter) {
+	// TODO: implement this when appropriate
+	// for _, comment := range cb.Comments {
+	// 	cw.AddMapping(comment.Start)
+	// 	cw.WriteString("//")
+	// 	cw.WriteString(comment.Literal)
+	// 	cw.WriteRune('\n')
+	// }
+}
+
 // Statements
 type LetStatement struct {
 	Token token.Token // the LET token
