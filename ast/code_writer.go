@@ -8,11 +8,28 @@ import (
 )
 
 type CodeWriter struct {
-	strings.Builder
-	Mapper *sourcemap.SourceMapper
+	Builder      strings.Builder
+	Mapper       *sourcemap.SourceMapper
+	PrettyPrint  bool
+	IndentLevel  int
+	IndentString string
+
+	// insertNewLine indicates whether a new line should be inserted before writing
+	// the next element in the generated code. This flag helps control the formatting
+	// and readability of the output code.
+	insertNewLine bool
+}
+
+func (cw *CodeWriter) String() string {
+	return cw.Builder.String()
 }
 
 func (cw *CodeWriter) WriteString(s string) {
+	if cw.insertNewLine {
+		cw.Builder.WriteRune('\n')
+		cw.insertNewLine = false
+	}
+
 	cw.Builder.WriteString(s)
 	if cw.Mapper == nil {
 		return
@@ -21,6 +38,11 @@ func (cw *CodeWriter) WriteString(s string) {
 }
 
 func (cw *CodeWriter) WriteRune(r rune) {
+	if cw.insertNewLine {
+		cw.Builder.WriteRune('\n')
+		cw.insertNewLine = false
+	}
+
 	cw.Builder.WriteRune(r)
 	if cw.Mapper == nil {
 		return
@@ -44,4 +66,52 @@ func (cw *CodeWriter) AddNamedMapping(sourceLine, sourceColumn int, name string)
 		return
 	}
 	cw.Mapper.AddNamedMapping(sourceLine, sourceColumn, name)
+}
+
+// WriteIndent writes the current indentation level
+func (cw *CodeWriter) WriteIndent() {
+	if !cw.PrettyPrint {
+		return
+	}
+	indent := cw.IndentString
+	if indent == "" {
+		indent = "  " // default: 2 spaces
+	}
+	for i := 0; i < cw.IndentLevel; i++ {
+		cw.WriteString(indent)
+	}
+}
+
+// WriteNewline writes a newline character if PrettyPrint is enabled
+func (cw *CodeWriter) WriteNewline() {
+	if !cw.PrettyPrint {
+		return
+	}
+	cw.insertNewLine = true
+}
+
+// WriteSpace writes a space character if PrettyPrint is enabled
+func (cw *CodeWriter) WriteSpace() {
+	if !cw.PrettyPrint {
+		return
+	}
+	cw.WriteRune(' ')
+}
+
+// IncreaseIndent increases the indentation level
+func (cw *CodeWriter) IncreaseIndent() {
+	if !cw.PrettyPrint {
+		return
+	}
+	cw.IndentLevel++
+}
+
+// DecreaseIndent decreases the indentation level
+func (cw *CodeWriter) DecreaseIndent() {
+	if !cw.PrettyPrint {
+		return
+	}
+	if cw.IndentLevel > 0 {
+		cw.IndentLevel--
+	}
 }

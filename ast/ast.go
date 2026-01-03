@@ -13,7 +13,7 @@ type CompileOptions struct {
 }
 
 type Node interface {
-	WriteTo(ccw *CodeWriter)
+	WriteTo(cw *CodeWriter)
 }
 
 type Statement interface {
@@ -29,10 +29,7 @@ type Program struct {
 }
 
 func (p *Program) WriteTo(cw *CodeWriter) {
-	for i, stmt := range p.Statements {
-		if i > 0 {
-			cw.WriteRune(';')
-		}
+	for _, stmt := range p.Statements {
 		stmt.WriteTo(cw)
 	}
 }
@@ -65,9 +62,13 @@ func (ls *LetStatement) WriteTo(cw *CodeWriter) {
 	cw.WriteString("let ")
 	ls.Name.WriteTo(cw)
 	if ls.Value != nil {
+		cw.WriteSpace()
 		cw.WriteRune('=')
+		cw.WriteSpace()
 		ls.Value.WriteTo(cw)
 	}
+	cw.WriteRune(';')
+	cw.WriteNewline()
 }
 
 type ReturnStatement struct {
@@ -82,6 +83,8 @@ func (rs *ReturnStatement) WriteTo(cw *CodeWriter) {
 		cw.WriteRune(' ')
 		rs.ReturnValue.WriteTo(cw)
 	}
+	cw.WriteRune(';')
+	cw.WriteNewline()
 }
 
 type ExpressionStatement struct {
@@ -90,9 +93,12 @@ type ExpressionStatement struct {
 }
 
 func (es *ExpressionStatement) WriteTo(cw *CodeWriter) {
-	if es.Expression != nil {
-		es.Expression.WriteTo(cw)
+	if es.Expression == nil {
+		return
 	}
+	es.Expression.WriteTo(cw)
+	cw.WriteRune(';')
+	cw.WriteNewline()
 }
 
 type FunctionDeclaration struct {
@@ -110,10 +116,12 @@ func (fd *FunctionDeclaration) WriteTo(cw *CodeWriter) {
 	for i, param := range fd.Parameters {
 		if i > 0 {
 			cw.WriteRune(',')
+			cw.WriteSpace()
 		}
 		param.WriteTo(cw)
 	}
 	cw.WriteRune(')')
+	cw.WriteSpace()
 	fd.Body.WriteTo(cw)
 }
 
@@ -125,13 +133,16 @@ type BlockStatement struct {
 func (bs *BlockStatement) WriteTo(cw *CodeWriter) {
 	cw.AddMapping(bs.Token.Start)
 	cw.WriteRune('{')
-	for i, stmt := range bs.Statements {
-		if i > 0 {
-			cw.WriteRune(';')
-		}
+	cw.IncreaseIndent()
+	cw.WriteNewline()
+	for _, stmt := range bs.Statements {
+		cw.WriteIndent()
 		stmt.WriteTo(cw)
 	}
+	cw.DecreaseIndent()
+	cw.WriteIndent()
 	cw.WriteRune('}')
+	cw.WriteNewline()
 }
 
 type IfStatement struct {
@@ -143,12 +154,26 @@ type IfStatement struct {
 
 func (ifs *IfStatement) WriteTo(cw *CodeWriter) {
 	cw.AddMapping(ifs.Token.Start)
-	cw.WriteString("if (")
+	cw.WriteString("if")
+	cw.WriteSpace()
+	cw.WriteRune('(')
 	ifs.Condition.WriteTo(cw)
 	cw.WriteRune(')')
+	cw.WriteSpace()
 	ifs.ThenBranch.WriteTo(cw)
 	if ifs.ElseBranch != nil {
-		cw.WriteString(" else ")
+		// TODO: do we need to use `PrettyPrint` here?
+		if !cw.PrettyPrint {
+			cw.WriteRune(' ')
+		} else {
+			cw.WriteSpace()
+		}
+		cw.WriteString("else")
+		if !cw.PrettyPrint {
+			cw.WriteRune(' ')
+		} else {
+			cw.WriteSpace()
+		}
 		ifs.ElseBranch.WriteTo(cw)
 	}
 }
@@ -161,9 +186,12 @@ type WhileStatement struct {
 
 func (ws *WhileStatement) WriteTo(cw *CodeWriter) {
 	cw.AddMapping(ws.Token.Start)
-	cw.WriteString("while (")
+	cw.WriteString("while")
+	cw.WriteSpace()
+	cw.WriteRune('(')
 	ws.Condition.WriteTo(cw)
 	cw.WriteRune(')')
+	cw.WriteSpace()
 	ws.Body.WriteTo(cw)
 }
 
@@ -177,19 +205,25 @@ type ForStatement struct {
 
 func (fs *ForStatement) WriteTo(cw *CodeWriter) {
 	cw.AddMapping(fs.Token.Start)
-	cw.WriteString("for (")
+	cw.WriteString("for")
+	cw.WriteSpace()
+	cw.WriteRune('(')
 	if fs.Init != nil {
 		fs.Init.WriteTo(cw)
+	} else {
+		cw.WriteRune(';')
 	}
-	cw.WriteRune(';')
+	cw.WriteSpace()
 	if fs.Condition != nil {
 		fs.Condition.WriteTo(cw)
 	}
 	cw.WriteRune(';')
+	cw.WriteSpace()
 	if fs.Update != nil {
 		fs.Update.WriteTo(cw)
 	}
 	cw.WriteRune(')')
+	cw.WriteSpace()
 	fs.Body.WriteTo(cw)
 }
 
@@ -275,8 +309,10 @@ type BinaryExpression struct {
 func (be *BinaryExpression) WriteTo(cw *CodeWriter) {
 	cw.WriteRune('(')
 	be.Left.WriteTo(cw)
+	cw.WriteSpace()
 	cw.AddMapping(be.Token.Start)
 	cw.WriteString(be.Operator)
+	cw.WriteSpace()
 	be.Right.WriteTo(cw)
 	cw.WriteRune(')')
 }
@@ -334,6 +370,7 @@ func (ce *CallExpression) WriteTo(cw *CodeWriter) {
 	for i, arg := range ce.Arguments {
 		if i > 0 {
 			cw.WriteRune(',')
+			cw.WriteSpace()
 		}
 		arg.WriteTo(cw)
 	}
@@ -369,8 +406,10 @@ type AssignmentExpression struct {
 
 func (ae *AssignmentExpression) WriteTo(cw *CodeWriter) {
 	ae.Left.WriteTo(cw)
+	cw.WriteSpace()
 	cw.AddMapping(ae.Token.Start)
 	cw.WriteRune('=')
+	cw.WriteSpace()
 	ae.Value.WriteTo(cw)
 }
 
@@ -408,10 +447,12 @@ func (fe *FunctionExpression) WriteTo(cw *CodeWriter) {
 	for i, param := range fe.Parameters {
 		if i > 0 {
 			cw.WriteRune(',')
+			cw.WriteSpace()
 		}
 		param.WriteTo(cw)
 	}
 	cw.WriteRune(')')
+	cw.WriteSpace()
 	fe.Body.WriteTo(cw)
 }
 
@@ -426,6 +467,7 @@ func (al *ArrayLiteral) WriteTo(cw *CodeWriter) {
 	for i, elem := range al.Elements {
 		if i > 0 {
 			cw.WriteRune(',')
+			cw.WriteSpace()
 		}
 		elem.WriteTo(cw)
 	}
@@ -459,9 +501,11 @@ func (ol *ObjectLiteral) WriteTo(cw *CodeWriter) {
 	for i, key := range keys {
 		if i > 0 {
 			cw.WriteRune(',')
+			cw.WriteSpace()
 		}
 		key.WriteTo(cw)
 		cw.WriteRune(':')
+		cw.WriteSpace()
 		ol.Properties[key].WriteTo(cw)
 	}
 
