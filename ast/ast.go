@@ -164,12 +164,7 @@ func (ifs *IfStatement) WriteTo(cw *CodeWriter) {
 	cw.WriteSpace()
 	ifs.ThenBranch.WriteTo(cw)
 	if ifs.ElseBranch != nil {
-		// TODO: do we need to use `PrettyPrint` here?
-		if !cw.PrettyPrint {
-			cw.WriteRune(' ')
-		} else {
-			cw.WriteSpace()
-		}
+		cw.WriteSpace()
 		cw.WriteString("else")
 		if !cw.PrettyPrint {
 			cw.WriteRune(' ')
