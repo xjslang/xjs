@@ -138,7 +138,7 @@ func (tt Type) String() string {
 	case LTE:
 		return "<="
 	case GTE:
-		return "=>"
+		return ">="
 	case AND:
 		return "&&"
 	case OR:
