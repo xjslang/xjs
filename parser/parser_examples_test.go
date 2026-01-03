@@ -91,7 +91,7 @@ func Example_prefixOperator() {
 	}
 	result := compiler.New().Compile(program)
 	fmt.Println(result.Code)
-	// Output: if (((typeof x)=="string")){console.log("x is a string")}
+	// Output: if(((typeof x)=="string")){console.log("x is a string");}
 }
 
 type PowExpression struct {
@@ -138,7 +138,7 @@ func Example_infixOperator() {
 	}
 	result := compiler.New().Compile(program)
 	fmt.Println(result.Code)
-	// Output: let squareArea=Math.pow(r,2)
+	// Output: let squareArea=Math.pow(r,2);
 }
 
 type PiLiteral struct {
@@ -176,7 +176,7 @@ func Example_operand() {
 	}
 	result := compiler.New().Compile(program)
 	fmt.Println(result.Code)
-	// Output: let area=((Math.PI*r)*r)
+	// Output: let area=((Math.PI*r)*r);
 }
 
 type RandomExpression struct {
@@ -205,7 +205,7 @@ func Example_expressionParser() {
 	}
 	result := compiler.New().Compile(program)
 	fmt.Println(result.Code)
-	// Output: let randomValue=(Math.random()+10)
+	// Output: let randomValue=(Math.random()+10);
 }
 
 func Example_combined() {
@@ -282,7 +282,7 @@ func Example_combined() {
 	}
 	result := compiler.New().Compile(program)
 	fmt.Println(result.Code)
-	// Output: const circleArea=(Math.PI*Math.pow(r,2));if (((typeof radius)=="string")){let randomRadius=(Math.random()*10)}
+	// Output: const circleArea=(Math.PI*Math.pow(r,2))if(((typeof radius)=="string")){let randomRadius=(Math.random()*10);}
 }
 
 type FactorialExpression struct {
@@ -316,5 +316,5 @@ func Example_postfixOperator() {
 	}
 	result := compiler.New().Compile(program)
 	fmt.Println(result.Code)
-	// Output: let result=(factorial(5)+factorial(2))
+	// Output: let result=(factorial(5)+factorial(2));
 }

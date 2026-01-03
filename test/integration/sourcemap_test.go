@@ -27,7 +27,7 @@ func TestWriteToWithSourceMapper(t *testing.T) {
 	// Generate without source map
 	var w1 ast.CodeWriter
 	stmt.WriteTo(&w1)
-	if w1.String() != "let x=42" {
+	if w1.String() != "let x=42;" {
 		t.Errorf("WriteTo without mapper = %q, want %q", w1.String(), "let x=42")
 	}
 
@@ -38,7 +38,7 @@ func TestWriteToWithSourceMapper(t *testing.T) {
 	}
 	stmt.WriteTo(&w2)
 
-	if w2.String() != "let x=42" {
+	if w2.String() != "let x=42;" {
 		t.Errorf("WriteTo with mapper = %q, want %q", w2.String(), "let x=42")
 	}
 
@@ -87,7 +87,7 @@ func TestProgramWithSourceMapper(t *testing.T) {
 	program.WriteTo(&w)
 
 	output := w.String()
-	if output != "let x=5;let y=10" {
-		t.Errorf("Output = %q, want %q", output, "let x=5;let y=10")
+	if output != "let x=5;let y=10;" {
+		t.Errorf("Output = %q, want %q", output, "let x=5;let y=10;")
 	}
 }

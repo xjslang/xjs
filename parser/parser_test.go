@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -10,18 +11,30 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
+func TestWithComments(t *testing.T) {
+	input := `console.log('Hello, World!') // prints a message`
+	lb := lexer.NewBuilder()
+	p := NewBuilder(lb).Build(input)
+	program, err := p.ParseProgram()
+	if err != nil {
+		t.Errorf("ParseProgram(%q) error = %v", input, err)
+	}
+	result := compiler.New().Compile(program)
+	fmt.Println(result.Code)
+}
+
 func TestParseBasicLiterals(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
 		expected string
 	}{
-		{"integer literal", "42", "42"},
-		{"float literal", "3.14", "3.14"},
-		{"string literal", `"hello"`, `"hello"`},
-		{"boolean true", "true", "true"},
-		{"boolean false", "false", "false"},
-		{"null literal", "null", "null"},
+		{"integer literal", "42", "42;"},
+		{"float literal", "3.14", "3.14;"},
+		{"string literal", `"hello"`, `"hello";`},
+		{"boolean true", "true", "true;"},
+		{"boolean false", "false", "false;"},
+		{"null literal", "null", "null;"},
 	}
 
 	for _, tt := range tests {
@@ -53,20 +66,20 @@ func TestParseBinaryExpressions(t *testing.T) {
 		input    string
 		expected string
 	}{
-		{"addition", "1 + 2", "(1+2)"},
-		{"subtraction", "5 - 3", "(5-3)"},
-		{"multiplication", "3 * 4", "(3*4)"},
-		{"division", "8 / 2", "(8/2)"},
-		{"modulo", "10 % 3", "(10%3)"},
-		{"equality", "x == y", "(x==y)"},
-		{"inequality", "x != y", "(x!=y)"},
-		{"less than", "x < y", "(x<y)"},
-		{"greater than", "x > y", "(x>y)"},
-		{"logical and", "a && b", "(a&&b)"},
-		{"logical or", "a || b", "(a||b)"},
-		{"operator precedence", "1 + 2 * 3", "(1+(2*3))"},
-		{"parentheses override", "(1 + 2) * 3", "(((1+2))*3)"},
-		{"complex precedence", "1 + 2 * 3 - 4", "((1+(2*3))-4)"},
+		{"addition", "1 + 2", "(1+2);"},
+		{"subtraction", "5 - 3", "(5-3);"},
+		{"multiplication", "3 * 4", "(3*4);"},
+		{"division", "8 / 2", "(8/2);"},
+		{"modulo", "10 % 3", "(10%3);"},
+		{"equality", "x == y", "(x==y);"},
+		{"inequality", "x != y", "(x!=y);"},
+		{"less than", "x < y", "(x<y);"},
+		{"greater than", "x > y", "(x>y);"},
+		{"logical and", "a && b", "(a&&b);"},
+		{"logical or", "a || b", "(a||b);"},
+		{"operator precedence", "1 + 2 * 3", "(1+(2*3));"},
+		{"parentheses override", "(1 + 2) * 3", "(((1+2))*3);"},
+		{"complex precedence", "1 + 2 * 3 - 4", "((1+(2*3))-4);"},
 	}
 
 	for _, tt := range tests {
@@ -98,12 +111,12 @@ func TestParseUnaryExpressions(t *testing.T) {
 		input    string
 		expected string
 	}{
-		{"negation", "-x", "(-x)"},
-		{"logical not", "!true", "(!true)"},
-		{"prefix increment", "++x", "(++x)"},
-		{"prefix decrement", "--x", "(--x)"},
-		{"postfix increment", "x++", "(x++)"},
-		{"postfix decrement", "x--", "(x--)"},
+		{"negation", "-x", "(-x);"},
+		{"logical not", "!true", "(!true);"},
+		{"prefix increment", "++x", "(++x);"},
+		{"prefix decrement", "--x", "(--x);"},
+		{"postfix increment", "x++", "(x++);"},
+		{"postfix decrement", "x--", "(x--);"},
 	}
 
 	for _, tt := range tests {
@@ -135,10 +148,10 @@ func TestParseIdentifiers(t *testing.T) {
 		input    string
 		expected string
 	}{
-		{"simple identifier", "x", "x"},
-		{"camelCase identifier", "myVariable", "myVariable"},
-		{"underscore identifier", "_private", "_private"},
-		{"dollar sign identifier", "$special", "$special"},
+		{"simple identifier", "x", "x;"},
+		{"camelCase identifier", "myVariable", "myVariable;"},
+		{"underscore identifier", "_private", "_private;"},
+		{"dollar sign identifier", "$special", "$special;"},
 	}
 
 	for _, tt := range tests {
@@ -170,9 +183,9 @@ func TestParseLetStatements(t *testing.T) {
 		input    string
 		expected string
 	}{
-		{"let without assignment", "let x", "let x"},
-		{"let with assignment", "let x = 5", "let x=5"},
-		{"let with expression", "let result = 1 + 2", "let result=(1+2)"},
+		{"let without assignment", "let x", "let x;"},
+		{"let with assignment", "let x = 5", "let x=5;"},
+		{"let with expression", "let result = 1 + 2", "let result=(1+2);"},
 	}
 
 	for _, tt := range tests {
@@ -206,7 +219,7 @@ func TestParseFunctionDeclarations(t *testing.T) {
 	}{
 		{"function no params", "function test() {}", "function test(){}"},
 		{"function with params", "function add(a, b) {}", "function add(a,b){}"},
-		{"function with body", "function greet() { return 'hello' }", "function greet(){return \"hello\"}"},
+		{"function with body", "function greet() { return 'hello' }", "function greet(){return \"hello\";}"},
 	}
 
 	for _, tt := range tests {
@@ -238,10 +251,10 @@ func TestParseArrayLiterals(t *testing.T) {
 		input    string
 		expected string
 	}{
-		{"empty array", "[]", "[]"},
-		{"array with numbers", "[1, 2, 3]", "[1,2,3]"},
-		{"array with mixed types", "[1, 'hello', true]", "[1,\"hello\",true]"},
-		{"nested arrays", "[[1, 2], [3, 4]]", "[[1,2],[3,4]]"},
+		{"empty array", "[]", "[];"},
+		{"array with numbers", "[1, 2, 3]", "[1,2,3];"},
+		{"array with mixed types", "[1, 'hello', true]", "[1,\"hello\",true];"},
+		{"nested arrays", "[[1, 2], [3, 4]]", "[[1,2],[3,4]];"},
 	}
 
 	for _, tt := range tests {
@@ -273,10 +286,10 @@ func TestParseAssignmentExpressions(t *testing.T) {
 		input    string
 		expected string
 	}{
-		{"simple assignment", "x = 5", "x=5"},
-		{"compound addition", "x += 10", "x +=10"},
-		{"compound subtraction", "x -= 5", "x -=5"},
-		{"assignment with expression", "x = 1 + 2", "x=(1+2)"},
+		{"simple assignment", "x = 5", "x=5;"},
+		{"compound addition", "x += 10", "x +=10;"},
+		{"compound subtraction", "x -= 5", "x -=5;"},
+		{"assignment with expression", "x = 1 + 2", "x=(1+2);"},
 	}
 
 	for _, tt := range tests {
@@ -308,10 +321,10 @@ func TestParseCallExpressions(t *testing.T) {
 		input    string
 		expected string
 	}{
-		{"function call no args", "foo()", "foo()"},
-		{"function call with args", "add(1, 2)", "add(1,2)"},
-		{"chained calls", "obj.method()", "obj.method()"},
-		{"nested calls", "outer(inner())", "outer(inner())"},
+		{"function call no args", "foo()", "foo();"},
+		{"function call with args", "add(1, 2)", "add(1,2);"},
+		{"chained calls", "obj.method()", "obj.method();"},
+		{"nested calls", "outer(inner())", "outer(inner());"},
 	}
 
 	for _, tt := range tests {
@@ -343,10 +356,10 @@ func TestParseMemberExpressions(t *testing.T) {
 		input    string
 		expected string
 	}{
-		{"dot notation", "obj.prop", "obj.prop"},
-		{"bracket notation", "obj[key]", "obj[key]"},
-		{"chained access", "obj.prop.value", "obj.prop.value"},
-		{"mixed access", "obj.prop[0]", "obj.prop[0]"},
+		{"dot notation", "obj.prop", "obj.prop;"},
+		{"bracket notation", "obj[key]", "obj[key];"},
+		{"chained access", "obj.prop.value", "obj.prop.value;"},
+		{"mixed access", "obj.prop[0]", "obj.prop[0];"},
 	}
 
 	for _, tt := range tests {
@@ -403,7 +416,7 @@ func TestUseStatementParser(t *testing.T) {
 	}
 
 	result := compiler.New().Compile(program)
-	if result.Code != "handled_statement" {
+	if result.Code != "handled_statement;" {
 		t.Errorf("Expected custom parser result, got %v", result.Code)
 	}
 }
@@ -436,7 +449,7 @@ func TestUseExpressionHandler(t *testing.T) {
 	}
 
 	result := compiler.New().Compile(program)
-	if result.Code != "handled_expression" {
+	if result.Code != "handled_expression;" {
 		t.Errorf("Expected custom expression result, got %v", result.Code)
 	}
 }
@@ -459,7 +472,7 @@ func TestParseMultipleStatements(t *testing.T) {
 		return
 	}
 
-	expected := "let x=5;let y=10;(x+y)"
+	expected := "let x=5;let y=10;(x+y);"
 	result := compiler.New().Compile(program)
 	if result.Code != expected {
 		t.Errorf("Expected %q, got %q", expected, result.Code)
@@ -625,8 +638,8 @@ func TestWithSmartSemicolon(t *testing.T) {
 		input    string
 		expected string
 	}{
-		{"with smart semicolons", true, "console.log('first line')\n(function() { console.log('second line') })()", "console.log(\"first line\");(function(){console.log(\"second line\")})()"},
-		{"without smart semicolons", false, "console.log('first line')\n(function() { console.log('second line') })()", "console.log(\"first line\")(function(){console.log(\"second line\")})()"},
+		{"with smart semicolons", true, "console.log('first line')\n(function() { console.log('second line') })()", "console.log(\"first line\");(function(){console.log(\"second line\");})();"},
+		{"without smart semicolons", false, "console.log('first line')\n(function() { console.log('second line') })()", "console.log(\"first line\")(function(){console.log(\"second line\");})();"},
 	}
 	for _, tt := range tests {
 		lb := lexer.NewBuilder()
