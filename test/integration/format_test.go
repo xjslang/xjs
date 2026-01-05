@@ -49,20 +49,24 @@ func Example_format() {
 	// let x = 5;
 	// let y = 10.5;
 	// let name = "Hello World";
+	//
 	// // push items
 	// let items = [];
 	// items.push(function() {
 	//   console.log("new item");
 	// }
 	// );
+	//
 	// // add function
 	// function add(a, b) {
 	//   return (a + b);
 	// }
+	//
 	// // conditional
 	// if ((x < y)) {
 	//   console.log("x is less than y");
 	// }
+	//
 	// // init vars
 	// let numbers = [1, 2, 3, 4, 5];
 	// let person = {age: 30, name: "John"};
