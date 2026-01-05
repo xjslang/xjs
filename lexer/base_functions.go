@@ -111,7 +111,8 @@ func baseNextToken(l *Lexer) token.Token {
 		if l.CurrentChar == '\n' {
 			tok = l.NewTokenAt(token.BLANK_LINE, "", startLine, startColumn)
 		} else {
-			tok = l.nextToken(l)
+			l.hadNewlineBefore = true
+			return l.nextToken(l)
 		}
 	case '/':
 		if l.PeekChar() == '/' {
