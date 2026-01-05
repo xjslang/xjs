@@ -81,10 +81,7 @@ func (l *Lexer) PeekChar() byte {
 // skipWhitespace skips whitespace characters and tracks newlines for ASI.
 func (l *Lexer) skipWhitespace() {
 	l.hadNewlineBefore = false
-	for isWhitespace(l.CurrentChar) {
-		if l.CurrentChar == '\n' {
-			l.hadNewlineBefore = true
-		}
+	for l.CurrentChar == ' ' || l.CurrentChar == '\t' || l.CurrentChar == '\r' {
 		l.ReadChar()
 	}
 }

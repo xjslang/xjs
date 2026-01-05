@@ -104,6 +104,15 @@ func baseNextToken(l *Lexer) token.Token {
 		}
 	case '*':
 		tok = l.NewToken(token.MULTIPLY, string(l.CurrentChar))
+	case '\n':
+		startLine, startColumn := l.Line, l.Column
+		l.ReadChar()
+		l.skipWhitespace()
+		if l.CurrentChar == '\n' {
+			tok = l.NewTokenAt(token.BLANK_LINE, "", startLine, startColumn)
+		} else {
+			tok = l.nextToken(l)
+		}
 	case '/':
 		if l.PeekChar() == '/' {
 			// Capture position BEFORE reading the comment

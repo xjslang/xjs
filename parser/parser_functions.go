@@ -23,6 +23,19 @@ func (p *Parser) ParseCommentBlock() *ast.CommentBlock {
 	return block
 }
 
+// ParseBlankLine parses blank line tokens into a BlankLine statement.
+// Multiple consecutive BLANK_LINE tokens are condensed into one.
+func (p *Parser) ParseBlankLine() *ast.BlankLine {
+	bl := &ast.BlankLine{Token: p.CurrentToken}
+
+	// Consume consecutive blank line tokens
+	for p.PeekToken.Type == token.BLANK_LINE {
+		p.NextToken()
+	}
+
+	return bl
+}
+
 func (p *Parser) ParseLetStatement() *ast.LetStatement {
 	stmt := &ast.LetStatement{Token: p.CurrentToken}
 	if !p.ExpectToken(token.IDENT) {
@@ -223,8 +236,8 @@ func (p *Parser) ParseRemainingExpressionWithPrecedence(left ast.Expression, pre
 				return left
 			}
 		}
-		// Stop if we hit a comment
-		if p.PeekToken.Type == token.COMMENT {
+		// Stop if we hit a comment or blank line
+		if p.PeekToken.Type == token.COMMENT || p.PeekToken.Type == token.BLANK_LINE {
 			return left
 		}
 		left = p.ParseInfixExpression(left)
@@ -462,8 +475,8 @@ func (p *Parser) shouldInsertSemicolon() bool {
 	if p.PeekToken.Type == token.RBRACE {
 		return true
 	}
-	// Comments after a statement should trigger ASI
-	if p.PeekToken.Type == token.COMMENT {
+	// Comments and blank lines after a statement should trigger ASI
+	if p.PeekToken.Type == token.COMMENT || p.PeekToken.Type == token.BLANK_LINE {
 		return true
 	}
 	if !p.PeekToken.AfterNewline {

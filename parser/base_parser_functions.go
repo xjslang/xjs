@@ -9,6 +9,8 @@ func baseParseStatement(p *Parser) ast.Statement {
 	switch p.CurrentToken.Type {
 	case token.COMMENT:
 		return p.ParseCommentBlock()
+	case token.BLANK_LINE:
+		return p.ParseBlankLine()
 	case token.LET:
 		return p.ParseLetStatement()
 	case token.FUNCTION:

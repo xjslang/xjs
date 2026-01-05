@@ -23,6 +23,7 @@ const (
 	STRING     // "hello"
 	RAW_STRING //
 	COMMENT    // // line comment
+	BLANK_LINE // empty line separator
 
 	// Operators
 	ASSIGN       // =

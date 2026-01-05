@@ -52,6 +52,16 @@ func (cb *CommentBlock) WriteTo(cw *CodeWriter) {
 	}
 }
 
+// BlankLine represents one or more consecutive blank lines.
+// Multiple blank lines are condensed to a single blank line in output.
+type BlankLine struct {
+	Token token.Token
+}
+
+func (bl *BlankLine) WriteTo(cw *CodeWriter) {
+	cw.WriteRune('\n')
+}
+
 // Statements
 type LetStatement struct {
 	Token token.Token // the LET token
