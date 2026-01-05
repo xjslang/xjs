@@ -59,6 +59,9 @@ type BlankLine struct {
 }
 
 func (bl *BlankLine) WriteTo(cw *CodeWriter) {
+	if !cw.PrettyPrint {
+		return
+	}
 	cw.WriteRune('\n')
 }
 
