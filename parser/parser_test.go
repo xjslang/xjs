@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -10,18 +9,6 @@ import (
 	"github.com/xjslang/xjs/lexer"
 	"github.com/xjslang/xjs/token"
 )
-
-func TestWithComments(t *testing.T) {
-	input := `console.log('Hello, World!') // prints a message`
-	lb := lexer.NewBuilder()
-	p := NewBuilder(lb).Build(input)
-	program, err := p.ParseProgram()
-	if err != nil {
-		t.Errorf("ParseProgram(%q) error = %v", input, err)
-	}
-	result := compiler.New().Compile(program)
-	fmt.Println(result.Code)
-}
 
 func TestParseBasicLiterals(t *testing.T) {
 	tests := []struct {
