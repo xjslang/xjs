@@ -8,6 +8,24 @@ import (
 	"github.com/xjslang/xjs/parser"
 )
 
+func Example_objectLiteral() {
+	input := `
+	let user = {
+		name: 'John Smith', // user name
+		age: 35, // user age
+	}`
+	lb := lexer.NewBuilder()
+	p := parser.NewBuilder(lb).Build(input)
+	program, _ := p.ParseProgram()
+	c := compiler.New().WithPrettyPrint().Compile(program)
+	fmt.Println(c.Code)
+	// Output:
+	// let user = {
+	//   name: "John Smith", // user name
+	//   age: 35 // user age
+	// };
+}
+
 func Example_inlineComments() {
 	input := `
 	console.log('Hello, World!') // prints a message
@@ -99,5 +117,5 @@ func Example_format() {
 	//
 	// // init vars
 	// let numbers = [1, 2, 3, 4, 5];
-	// let person = {age: 30, name: "John"};
+	// let person = {name: "John", age: 30};
 }
