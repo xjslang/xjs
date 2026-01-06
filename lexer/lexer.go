@@ -95,7 +95,7 @@ func (l *Lexer) readIdentifier() string {
 	return l.input[position:l.position]
 }
 
-// readNumber reads a number (integer or decimal)
+// readNumber reads a number (integer, decimal, or scientific notation)
 func (l *Lexer) readNumber() (string, token.Type) {
 	position := l.position
 	tokenType := token.INT
@@ -108,6 +108,27 @@ func (l *Lexer) readNumber() (string, token.Type) {
 	if l.CurrentChar == '.' && isDigit(l.PeekChar()) {
 		tokenType = token.FLOAT
 		l.ReadChar() // consume the '.'
+		for isDigit(l.CurrentChar) {
+			l.ReadChar()
+		}
+	}
+
+	// Check for scientific notation (e or E)
+	if l.CurrentChar == 'e' || l.CurrentChar == 'E' {
+		tokenType = token.FLOAT
+		l.ReadChar() // consume the 'e' or 'E'
+
+		// Check for optional sign
+		if l.CurrentChar == '+' || l.CurrentChar == '-' {
+			l.ReadChar() // consume the sign
+		}
+
+		// Read the exponent digits
+		if !isDigit(l.CurrentChar) {
+			// Invalid scientific notation - return what we have so far
+			return l.input[position:l.position], tokenType
+		}
+
 		for isDigit(l.CurrentChar) {
 			l.ReadChar()
 		}
