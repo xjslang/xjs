@@ -95,10 +95,25 @@ func (l *Lexer) readIdentifier() string {
 	return l.input[position:l.position]
 }
 
-// readNumber reads a number (integer or decimal)
+// readNumber reads a number (integer, decimal, scientific notation, hexadecimal, binary, or octal)
 func (l *Lexer) readNumber() (string, token.Type) {
 	position := l.position
 	tokenType := token.INT
+
+	// Check for hexadecimal numbers (0x or 0X)
+	if l.CurrentChar == '0' && (l.PeekChar() == 'x' || l.PeekChar() == 'X') {
+		return l.readHexNumber()
+	}
+
+	// Check for binary numbers (0b or 0B)
+	if l.CurrentChar == '0' && (l.PeekChar() == 'b' || l.PeekChar() == 'B') {
+		return l.readBinaryNumber()
+	}
+
+	// Check for octal numbers (0o or 0O)
+	if l.CurrentChar == '0' && (l.PeekChar() == 'o' || l.PeekChar() == 'O') {
+		return l.readOctalNumber()
+	}
 
 	for isDigit(l.CurrentChar) {
 		l.ReadChar()
@@ -113,7 +128,94 @@ func (l *Lexer) readNumber() (string, token.Type) {
 		}
 	}
 
+	// Check for scientific notation (e or E)
+	if l.CurrentChar == 'e' || l.CurrentChar == 'E' {
+		tokenType = token.FLOAT
+		l.ReadChar() // consume the 'e' or 'E'
+
+		// Check for optional sign
+		if l.CurrentChar == '+' || l.CurrentChar == '-' {
+			l.ReadChar() // consume the sign
+		}
+
+		// Read the exponent digits
+		if !isDigit(l.CurrentChar) {
+			// Invalid scientific notation - return what we have so far
+			return l.input[position:l.position], tokenType
+		}
+
+		for isDigit(l.CurrentChar) {
+			l.ReadChar()
+		}
+	}
+
 	return l.input[position:l.position], tokenType
+}
+
+// readHexNumber reads a hexadecimal number (0x or 0X followed by hex digits)
+func (l *Lexer) readHexNumber() (string, token.Type) {
+	position := l.position
+
+	// Consume '0'
+	l.ReadChar()
+	// Consume 'x' or 'X'
+	l.ReadChar()
+
+	// Read hex digits
+	if !isHexDigit(l.CurrentChar) {
+		// Invalid hex number - return what we have so far
+		return l.input[position:l.position], token.INT
+	}
+
+	for isHexDigit(l.CurrentChar) {
+		l.ReadChar()
+	}
+
+	return l.input[position:l.position], token.INT
+}
+
+// readBinaryNumber reads a binary number (0b or 0B followed by binary digits)
+func (l *Lexer) readBinaryNumber() (string, token.Type) {
+	position := l.position
+
+	// Consume '0'
+	l.ReadChar()
+	// Consume 'b' or 'B'
+	l.ReadChar()
+
+	// Read binary digits
+	if !isBinaryDigit(l.CurrentChar) {
+		// Invalid binary number - return what we have so far
+		return l.input[position:l.position], token.INT
+	}
+
+	for isBinaryDigit(l.CurrentChar) {
+		l.ReadChar()
+	}
+
+	return l.input[position:l.position], token.INT
+}
+
+// readOctalNumber reads an octal number (0o or 0O followed by octal digits)
+func (l *Lexer) readOctalNumber() (string, token.Type) {
+	position := l.position
+
+	// Consume '0'
+	l.ReadChar()
+	// Consume 'o' or 'O'
+	l.ReadChar()
+
+	// Read octal digits
+	if !isOctalDigit(l.CurrentChar) {
+		// Invalid octal number - return what we have so far
+		return l.input[position:l.position], token.INT
+	}
+
+	for isOctalDigit(l.CurrentChar) {
+		l.ReadChar()
+	}
+
+	return l.input[position:l.position], token.INT
 }
 
 // readString reads a string literal
