@@ -3,8 +3,6 @@
 package ast
 
 import (
-	"sort"
-
 	"github.com/xjslang/xjs/token"
 )
 
@@ -115,9 +113,10 @@ func (bl *BlankLine) WriteTo(cw *CodeWriter) {
 
 // Statements
 type LetStatement struct {
-	Token token.Token // the LET token
-	Name  *Identifier
-	Value Expression
+	Token         token.Token // the LET token
+	Name          *Identifier
+	Value         Expression
+	InlineComment *token.Token // optional inline comment after the statement (nil if none)
 }
 
 func (ls *LetStatement) WriteTo(cw *CodeWriter) {
@@ -131,12 +130,17 @@ func (ls *LetStatement) WriteTo(cw *CodeWriter) {
 		ls.Value.WriteTo(cw)
 	}
 	cw.WriteRune(';')
+	if ls.InlineComment != nil && cw.PrettyPrint {
+		cw.WriteString(" //")
+		cw.WriteString(ls.InlineComment.Literal)
+	}
 	cw.WriteNewline()
 }
 
 type ReturnStatement struct {
-	Token       token.Token // the RETURN token
-	ReturnValue Expression
+	Token         token.Token // the RETURN token
+	ReturnValue   Expression
+	InlineComment *token.Token // optional inline comment after the statement (nil if none)
 }
 
 func (rs *ReturnStatement) WriteTo(cw *CodeWriter) {
@@ -147,12 +151,17 @@ func (rs *ReturnStatement) WriteTo(cw *CodeWriter) {
 		rs.ReturnValue.WriteTo(cw)
 	}
 	cw.WriteRune(';')
+	if rs.InlineComment != nil && cw.PrettyPrint {
+		cw.WriteString(" //")
+		cw.WriteString(rs.InlineComment.Literal)
+	}
 	cw.WriteNewline()
 }
 
 type ExpressionStatement struct {
-	Token      token.Token // the first token of the expression
-	Expression Expression
+	Token         token.Token // the first token of the expression
+	Expression    Expression
+	InlineComment *token.Token // optional inline comment after the statement (nil if none)
 }
 
 func (es *ExpressionStatement) WriteTo(cw *CodeWriter) {
@@ -161,6 +170,10 @@ func (es *ExpressionStatement) WriteTo(cw *CodeWriter) {
 	}
 	es.Expression.WriteTo(cw)
 	cw.WriteRune(';')
+	if es.InlineComment != nil && cw.PrettyPrint {
+		cw.WriteString(" //")
+		cw.WriteString(es.InlineComment.Literal)
+	}
 	cw.WriteNewline()
 }
 
@@ -623,39 +636,66 @@ func (al *ArrayLiteral) Precedence() int {
 	return PrecedenceAtomic
 }
 
+type ObjectProperty struct {
+	Key           Expression
+	Value         Expression
+	InlineComment *token.Token // optional inline comment after the property value
+}
+
 type ObjectLiteral struct {
 	Token      token.Token // the { token
-	Properties map[Expression]Expression
+	Properties []ObjectProperty
 }
 
 func (ol *ObjectLiteral) WriteTo(cw *CodeWriter) {
 	cw.AddMapping(ol.Token.Start)
-	cw.WriteRune('{')
 
-	// Extract keys and sort them for deterministic output
-	keys := make([]Expression, 0, len(ol.Properties))
-	for key := range ol.Properties {
-		keys = append(keys, key)
+	// Check if any property has an inline comment
+	hasComments := false
+	for _, prop := range ol.Properties {
+		if prop.InlineComment != nil {
+			hasComments = true
+			break
+		}
 	}
 
-	// Sort keys by their string representation
-	sort.Slice(keys, func(i, j int) bool {
-		var keyI, keyJ CodeWriter
-		keys[i].WriteTo(&keyI)
-		keys[j].WriteTo(&keyJ)
-		return keyI.String() < keyJ.String()
-	})
+	// Use multi-line format if pretty-print is enabled and there are comments
+	useMultiLine := cw.PrettyPrint && hasComments
 
-	// Write properties in sorted order
-	for i, key := range keys {
-		if i > 0 {
-			cw.WriteRune(',')
+	cw.WriteRune('{')
+
+	if useMultiLine {
+		cw.IncreaseIndent()
+		cw.WriteNewline()
+		for i, prop := range ol.Properties {
+			cw.WriteIndent()
+			prop.Key.WriteTo(cw)
+			cw.WriteRune(':')
 			cw.WriteSpace()
+			prop.Value.WriteTo(cw)
+			if i < len(ol.Properties)-1 {
+				cw.WriteRune(',')
+			}
+			if prop.InlineComment != nil {
+				cw.WriteString(" //")
+				cw.WriteString(prop.InlineComment.Literal)
+			}
+			cw.WriteNewline()
 		}
-		key.WriteTo(cw)
-		cw.WriteRune(':')
-		cw.WriteSpace()
-		ol.Properties[key].WriteTo(cw)
+		cw.DecreaseIndent()
+		cw.WriteIndent()
+	} else {
+		// Single-line format
+		for i, prop := range ol.Properties {
+			if i > 0 {
+				cw.WriteRune(',')
+				cw.WriteSpace()
+			}
+			prop.Key.WriteTo(cw)
+			cw.WriteRune(':')
+			cw.WriteSpace()
+			prop.Value.WriteTo(cw)
+		}
 	}
 
 	cw.WriteRune('}')
