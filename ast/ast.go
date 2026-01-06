@@ -115,9 +115,10 @@ func (bl *BlankLine) WriteTo(cw *CodeWriter) {
 
 // Statements
 type LetStatement struct {
-	Token token.Token // the LET token
-	Name  *Identifier
-	Value Expression
+	Token         token.Token // the LET token
+	Name          *Identifier
+	Value         Expression
+	InlineComment *token.Token // optional inline comment after the statement (nil if none)
 }
 
 func (ls *LetStatement) WriteTo(cw *CodeWriter) {
@@ -131,12 +132,17 @@ func (ls *LetStatement) WriteTo(cw *CodeWriter) {
 		ls.Value.WriteTo(cw)
 	}
 	cw.WriteRune(';')
+	if ls.InlineComment != nil && cw.PrettyPrint {
+		cw.WriteString(" //")
+		cw.WriteString(ls.InlineComment.Literal)
+	}
 	cw.WriteNewline()
 }
 
 type ReturnStatement struct {
-	Token       token.Token // the RETURN token
-	ReturnValue Expression
+	Token         token.Token // the RETURN token
+	ReturnValue   Expression
+	InlineComment *token.Token // optional inline comment after the statement (nil if none)
 }
 
 func (rs *ReturnStatement) WriteTo(cw *CodeWriter) {
@@ -147,6 +153,10 @@ func (rs *ReturnStatement) WriteTo(cw *CodeWriter) {
 		rs.ReturnValue.WriteTo(cw)
 	}
 	cw.WriteRune(';')
+	if rs.InlineComment != nil && cw.PrettyPrint {
+		cw.WriteString(" //")
+		cw.WriteString(rs.InlineComment.Literal)
+	}
 	cw.WriteNewline()
 }
 

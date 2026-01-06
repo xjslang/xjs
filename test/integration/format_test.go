@@ -11,7 +11,15 @@ import (
 func Example_inlineComments() {
 	input := `
 	console.log('Hello, World!') // prints a message
-	console.log('Bye, bye'); // prints another message`
+	console.log('Bye, bye'); // prints another message
+	let x = 5 // variable without semicolon
+	let y = 10; // variable with semicolon
+	function test() {
+		return x // return without semicolon
+	}
+	function test2() {
+		return y; // return with semicolon
+	}`
 	lb := lexer.NewBuilder()
 	p := parser.NewBuilder(lb).Build(input)
 	program, _ := p.ParseProgram()
@@ -20,6 +28,14 @@ func Example_inlineComments() {
 	// Output:
 	// console.log("Hello, World!"); // prints a message
 	// console.log("Bye, bye"); // prints another message
+	// let x = 5; // variable without semicolon
+	// let y = 10; // variable with semicolon
+	// function test() {
+	//   return x; // return without semicolon
+	// }
+	// function test2() {
+	//   return y; // return with semicolon
+	// }
 }
 
 func Example_format() {

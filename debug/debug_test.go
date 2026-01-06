@@ -84,6 +84,7 @@ func ExamplePrint() {
 	//          },
 	//          AfterNewline: (bool) false
 	//       }
-	//    })
+	//    }),
+	//    InlineComment: (*token.Token)(<nil>)
 	// })
 }
