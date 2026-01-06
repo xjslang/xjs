@@ -59,6 +59,22 @@ func (p *Parser) ParseLetStatement() *ast.LetStatement {
 	return stmt
 }
 
+// ParseLetExpression parses a let expression (used in for loop initializers).
+// Unlike ParseLetStatement, it returns an Expression and doesn't expect a semicolon.
+func (p *Parser) ParseLetExpression() ast.Expression {
+	expr := &ast.LetExpression{Token: p.CurrentToken}
+	if !p.ExpectToken(token.IDENT) {
+		return nil
+	}
+	expr.Name = &ast.Identifier{Token: p.CurrentToken, Value: p.CurrentToken.Literal}
+	if p.PeekToken.Type == token.ASSIGN {
+		p.NextToken() // consume =
+		p.NextToken() // move to value
+		expr.Value = p.ParseExpression()
+	}
+	return expr
+}
+
 func (p *Parser) ParseFunctionStatement() *ast.FunctionDeclaration {
 	stmt := &ast.FunctionDeclaration{Token: p.CurrentToken}
 	if !p.ExpectToken(token.IDENT) {
@@ -159,9 +175,15 @@ func (p *Parser) ParseForStatement() *ast.ForStatement {
 	}
 	if p.PeekToken.Type != token.SEMICOLON {
 		p.NextToken()
-		stmt.Init = p.statementParseFn(p)
-	} else {
-		p.NextToken() // consume semicolon
+		// Parse init as expression: either LetExpression or regular expression
+		if p.CurrentToken.Type == token.LET {
+			stmt.Init = p.ParseLetExpression()
+		} else {
+			stmt.Init = p.ParseExpression()
+		}
+	}
+	if !p.ExpectToken(token.SEMICOLON) {
+		return nil
 	}
 	if p.PeekToken.Type != token.SEMICOLON {
 		p.NextToken()

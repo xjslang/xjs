@@ -78,6 +78,13 @@ func (p *Program) WriteTo(cw *CodeWriter) {
 	for _, stmt := range p.Statements {
 		stmt.WriteTo(cw)
 	}
+	// Flush any pending newline
+	if cw.PrettyPrint {
+		cw.Builder.WriteRune('\n')
+		if cw.Mapper != nil {
+			cw.Mapper.AdvanceLine()
+		}
+	}
 }
 
 // CommentBlock represents one or more consecutive line comments.
@@ -129,7 +136,7 @@ func (ls *LetStatement) WriteTo(cw *CodeWriter) {
 		cw.WriteSpace()
 		ls.Value.WriteTo(cw)
 	}
-	cw.WriteRune(';')
+	cw.WriteSemi()
 	if ls.InlineComment != nil && cw.PrettyPrint {
 		cw.WriteString(" //")
 		cw.WriteString(ls.InlineComment.Literal)
@@ -150,7 +157,7 @@ func (rs *ReturnStatement) WriteTo(cw *CodeWriter) {
 		cw.WriteRune(' ')
 		rs.ReturnValue.WriteTo(cw)
 	}
-	cw.WriteRune(';')
+	cw.WriteSemi()
 	if rs.InlineComment != nil && cw.PrettyPrint {
 		cw.WriteString(" //")
 		cw.WriteString(rs.InlineComment.Literal)
@@ -169,7 +176,7 @@ func (es *ExpressionStatement) WriteTo(cw *CodeWriter) {
 		return
 	}
 	es.Expression.WriteTo(cw)
-	cw.WriteRune(';')
+	cw.WriteSemi()
 	if es.InlineComment != nil && cw.PrettyPrint {
 		cw.WriteString(" //")
 		cw.WriteString(es.InlineComment.Literal)
@@ -262,7 +269,7 @@ func (ws *WhileStatement) WriteTo(cw *CodeWriter) {
 
 type ForStatement struct {
 	Token     token.Token // the FOR token
-	Init      Statement   // can be nil
+	Init      Expression  // can be nil, typically LetExpression or AssignmentExpression
 	Condition Expression  // can be nil
 	Update    Expression  // can be nil
 	Body      Statement
@@ -274,10 +281,14 @@ func (fs *ForStatement) WriteTo(cw *CodeWriter) {
 	cw.WriteSpace()
 	cw.WriteRune('(')
 	if fs.Init != nil {
+		// Suppress the semicolon and newline from Init statement (e.g., LetStatement)
+		// because we write the separator semicolon ourselves and don't want newlines in for()
+		// cw.suppressNextSemi = true
+		// cw.suppressNextNewline = true
 		fs.Init.WriteTo(cw)
-	} else {
-		cw.WriteRune(';')
 	}
+	// Always write the separator semicolon (required by for syntax)
+	cw.WriteRune(';')
 	cw.WriteSpace()
 	if fs.Condition != nil {
 		fs.Condition.WriteTo(cw)
@@ -389,6 +400,30 @@ func (nl *NullLiteral) WriteTo(cw *CodeWriter) {
 
 func (nl *NullLiteral) Precedence() int {
 	return PrecedenceAtomic
+}
+
+// LetExpression represents a let declaration as an expression (used in for loops).
+// Unlike LetStatement, this does not add semicolon or newline when writing.
+type LetExpression struct {
+	Token token.Token // the LET token
+	Name  *Identifier
+	Value Expression
+}
+
+func (le *LetExpression) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(le.Token.Start)
+	cw.WriteString("let ")
+	le.Name.WriteTo(cw)
+	if le.Value != nil {
+		cw.WriteSpace()
+		cw.WriteRune('=')
+		cw.WriteSpace()
+		le.Value.WriteTo(cw)
+	}
+}
+
+func (le *LetExpression) Precedence() int {
+	return PrecedenceAssignment
 }
 
 type BinaryExpression struct {
