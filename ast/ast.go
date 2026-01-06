@@ -262,7 +262,7 @@ func (ws *WhileStatement) WriteTo(cw *CodeWriter) {
 
 type ForStatement struct {
 	Token     token.Token // the FOR token
-	Init      Statement   // can be nil
+	Init      Expression  // can be nil, typically LetExpression or AssignmentExpression
 	Condition Expression  // can be nil
 	Update    Expression  // can be nil
 	Body      Statement
@@ -275,6 +275,7 @@ func (fs *ForStatement) WriteTo(cw *CodeWriter) {
 	cw.WriteRune('(')
 	if fs.Init != nil {
 		fs.Init.WriteTo(cw)
+		cw.WriteRune(';')
 	} else {
 		cw.WriteRune(';')
 	}
@@ -389,6 +390,30 @@ func (nl *NullLiteral) WriteTo(cw *CodeWriter) {
 
 func (nl *NullLiteral) Precedence() int {
 	return PrecedenceAtomic
+}
+
+// LetExpression represents a let declaration as an expression (used in for loops).
+// Unlike LetStatement, this does not add semicolon or newline when writing.
+type LetExpression struct {
+	Token token.Token // the LET token
+	Name  *Identifier
+	Value Expression
+}
+
+func (le *LetExpression) WriteTo(cw *CodeWriter) {
+	cw.AddMapping(le.Token.Start)
+	cw.WriteString("let ")
+	le.Name.WriteTo(cw)
+	if le.Value != nil {
+		cw.WriteSpace()
+		cw.WriteRune('=')
+		cw.WriteSpace()
+		le.Value.WriteTo(cw)
+	}
+}
+
+func (le *LetExpression) Precedence() int {
+	return PrecedenceAssignment
 }
 
 type BinaryExpression struct {
