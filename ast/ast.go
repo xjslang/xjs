@@ -8,6 +8,51 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
+// Operator precedence levels (must match parser precedences)
+const (
+	_ int = iota
+	PrecedenceLowest
+	PrecedenceAssignment // =
+	PrecedenceLogicalOr  // ||
+	PrecedenceLogicalAnd // &&
+	PrecedenceEquality   // == !=
+	PrecedenceComparison // > < >= <=
+	PrecedenceSum        // +
+	PrecedenceProduct    // * / %
+	PrecedenceUnary      // -x !x ++x --x
+	PrecedencePostfix    // x++ x--
+	PrecedenceCall       // myFunction(X)
+	PrecedenceMember     // obj.prop obj[prop]
+	PrecedenceAtomic     // literals, identifiers, grouped expressions
+)
+
+func operatorPrecedence(tokenType token.Type) int {
+	switch tokenType {
+	case token.ASSIGN, token.PLUS_ASSIGN, token.MINUS_ASSIGN:
+		return PrecedenceAssignment
+	case token.OR:
+		return PrecedenceLogicalOr
+	case token.AND:
+		return PrecedenceLogicalAnd
+	case token.EQ, token.NOT_EQ:
+		return PrecedenceEquality
+	case token.LT, token.GT, token.LTE, token.GTE:
+		return PrecedenceComparison
+	case token.PLUS, token.MINUS:
+		return PrecedenceSum
+	case token.MULTIPLY, token.DIVIDE, token.MODULO:
+		return PrecedenceProduct
+	case token.INCREMENT, token.DECREMENT:
+		return PrecedencePostfix
+	case token.LPAREN:
+		return PrecedenceCall
+	case token.DOT, token.LBRACKET:
+		return PrecedenceMember
+	default:
+		return PrecedenceLowest
+	}
+}
+
 type CompileOptions struct {
 	GenerateSourceMap bool
 }
@@ -22,6 +67,9 @@ type Statement interface {
 
 type Expression interface {
 	Node
+	// Precedence returns the operator precedence level for this expression.
+	// Higher values indicate higher precedence.
+	Precedence() int
 }
 
 type Program struct {
@@ -231,7 +279,6 @@ func (fs *ForStatement) WriteTo(cw *CodeWriter) {
 	fs.Body.WriteTo(cw)
 }
 
-// Expressions
 type Identifier struct {
 	Token token.Token // the IDENT token
 	Value string
@@ -240,6 +287,10 @@ type Identifier struct {
 func (i *Identifier) WriteTo(cw *CodeWriter) {
 	cw.AddNamedMapping(i.Token.Start.Line, i.Token.Start.Column, i.Value)
 	cw.WriteString(i.Value)
+}
+
+func (i *Identifier) Precedence() int {
+	return PrecedenceAtomic
 }
 
 type IntegerLiteral struct {
@@ -251,6 +302,10 @@ func (il *IntegerLiteral) WriteTo(cw *CodeWriter) {
 	cw.WriteString(il.Token.Literal)
 }
 
+func (il *IntegerLiteral) Precedence() int {
+	return PrecedenceAtomic
+}
+
 type FloatLiteral struct {
 	Token token.Token // the FLOAT token
 }
@@ -258,6 +313,10 @@ type FloatLiteral struct {
 func (fl *FloatLiteral) WriteTo(cw *CodeWriter) {
 	cw.AddMapping(fl.Token.Start)
 	cw.WriteString(fl.Token.Literal)
+}
+
+func (fl *FloatLiteral) Precedence() int {
+	return PrecedenceAtomic
 }
 
 type StringLiteral struct {
@@ -272,6 +331,10 @@ func (sl *StringLiteral) WriteTo(cw *CodeWriter) {
 	cw.WriteRune('"')
 }
 
+func (sl *StringLiteral) Precedence() int {
+	return PrecedenceAtomic
+}
+
 type MultiStringLiteral struct {
 	Token token.Token // the MULTI_STRING token
 	Value string
@@ -284,6 +347,10 @@ func (sl *MultiStringLiteral) WriteTo(cw *CodeWriter) {
 	cw.WriteRune('`')
 }
 
+func (sl *MultiStringLiteral) Precedence() int {
+	return PrecedenceAtomic
+}
+
 type BooleanLiteral struct {
 	Token token.Token // the TRUE or FALSE token
 	Value bool
@@ -292,6 +359,10 @@ type BooleanLiteral struct {
 func (bl *BooleanLiteral) WriteTo(cw *CodeWriter) {
 	cw.AddMapping(bl.Token.Start)
 	cw.WriteString(bl.Token.Literal)
+}
+
+func (bl *BooleanLiteral) Precedence() int {
+	return PrecedenceAtomic
 }
 
 type NullLiteral struct {
@@ -303,6 +374,10 @@ func (nl *NullLiteral) WriteTo(cw *CodeWriter) {
 	cw.WriteString("null")
 }
 
+func (nl *NullLiteral) Precedence() int {
+	return PrecedenceAtomic
+}
+
 type BinaryExpression struct {
 	Token    token.Token // the operator token
 	Left     Expression
@@ -311,14 +386,37 @@ type BinaryExpression struct {
 }
 
 func (be *BinaryExpression) WriteTo(cw *CodeWriter) {
-	cw.WriteRune('(')
+	myPrecedence := be.Precedence()
+
+	// Left side needs parens if its precedence is lower than ours
+	leftNeedsParens := be.Left.Precedence() < myPrecedence
+	if leftNeedsParens {
+		cw.WriteRune('(')
+	}
 	be.Left.WriteTo(cw)
+	if leftNeedsParens {
+		cw.WriteRune(')')
+	}
+
 	cw.WriteSpace()
 	cw.AddMapping(be.Token.Start)
 	cw.WriteString(be.Operator)
 	cw.WriteSpace()
+
+	// Right side needs parens if its precedence is lower OR equal (for left-associativity)
+	// For example: 1-2-3 should be ((1-2)-3) not (1-(2-3))
+	rightNeedsParens := be.Right.Precedence() <= myPrecedence
+	if rightNeedsParens {
+		cw.WriteRune('(')
+	}
 	be.Right.WriteTo(cw)
-	cw.WriteRune(')')
+	if rightNeedsParens {
+		cw.WriteRune(')')
+	}
+}
+
+func (be *BinaryExpression) Precedence() int {
+	return operatorPrecedence(be.Token.Type)
 }
 
 type UnaryExpression struct {
@@ -329,10 +427,19 @@ type UnaryExpression struct {
 
 func (ue *UnaryExpression) WriteTo(cw *CodeWriter) {
 	cw.AddMapping(ue.Token.Start)
-	cw.WriteRune('(')
 	cw.WriteString(ue.Operator)
-	ue.Right.WriteTo(cw)
-	cw.WriteRune(')')
+	// Right side needs parens if its precedence is lower than unary
+	if ue.Right.Precedence() < PrecedenceUnary {
+		cw.WriteRune('(')
+		ue.Right.WriteTo(cw)
+		cw.WriteRune(')')
+	} else {
+		ue.Right.WriteTo(cw)
+	}
+}
+
+func (ue *UnaryExpression) Precedence() int {
+	return PrecedenceUnary
 }
 
 type PostfixExpression struct {
@@ -342,11 +449,20 @@ type PostfixExpression struct {
 }
 
 func (pe *PostfixExpression) WriteTo(cw *CodeWriter) {
-	cw.WriteRune('(')
-	pe.Left.WriteTo(cw)
+	// Left side needs parens if its precedence is lower than postfix
+	if pe.Left.Precedence() < PrecedencePostfix {
+		cw.WriteRune('(')
+		pe.Left.WriteTo(cw)
+		cw.WriteRune(')')
+	} else {
+		pe.Left.WriteTo(cw)
+	}
 	cw.AddMapping(pe.Token.Start)
 	cw.WriteString(pe.Operator)
-	cw.WriteRune(')')
+}
+
+func (pe *PostfixExpression) Precedence() int {
+	return PrecedencePostfix
 }
 
 type GroupedExpression struct {
@@ -359,6 +475,11 @@ func (ge *GroupedExpression) WriteTo(cw *CodeWriter) {
 	cw.WriteRune('(')
 	ge.Expression.WriteTo(cw)
 	cw.WriteRune(')')
+}
+
+func (ge *GroupedExpression) Precedence() int {
+	// Grouped expressions have atomic precedence because parens are explicit
+	return PrecedenceAtomic
 }
 
 type CallExpression struct {
@@ -379,6 +500,10 @@ func (ce *CallExpression) WriteTo(cw *CodeWriter) {
 		arg.WriteTo(cw)
 	}
 	cw.WriteRune(')')
+}
+
+func (ce *CallExpression) Precedence() int {
+	return PrecedenceCall
 }
 
 type MemberExpression struct {
@@ -402,6 +527,10 @@ func (me *MemberExpression) WriteTo(cw *CodeWriter) {
 	}
 }
 
+func (me *MemberExpression) Precedence() int {
+	return PrecedenceMember
+}
+
 type AssignmentExpression struct {
 	Token token.Token // the = token
 	Left  Expression
@@ -415,6 +544,10 @@ func (ae *AssignmentExpression) WriteTo(cw *CodeWriter) {
 	cw.WriteRune('=')
 	cw.WriteSpace()
 	ae.Value.WriteTo(cw)
+}
+
+func (ae *AssignmentExpression) Precedence() int {
+	return PrecedenceAssignment
 }
 
 type CompoundAssignmentExpression struct {
@@ -431,6 +564,10 @@ func (cae *CompoundAssignmentExpression) WriteTo(cw *CodeWriter) {
 	cw.WriteString(cae.Operator)
 	cw.WriteRune('=')
 	cae.Value.WriteTo(cw)
+}
+
+func (cae *CompoundAssignmentExpression) Precedence() int {
+	return PrecedenceAssignment
 }
 
 type FunctionExpression struct {
@@ -460,6 +597,10 @@ func (fe *FunctionExpression) WriteTo(cw *CodeWriter) {
 	fe.Body.WriteTo(cw)
 }
 
+func (fe *FunctionExpression) Precedence() int {
+	return PrecedenceAtomic
+}
+
 type ArrayLiteral struct {
 	Token    token.Token // the [ token
 	Elements []Expression
@@ -476,6 +617,10 @@ func (al *ArrayLiteral) WriteTo(cw *CodeWriter) {
 		elem.WriteTo(cw)
 	}
 	cw.WriteRune(']')
+}
+
+func (al *ArrayLiteral) Precedence() int {
+	return PrecedenceAtomic
 }
 
 type ObjectLiteral struct {
@@ -514,4 +659,8 @@ func (ol *ObjectLiteral) WriteTo(cw *CodeWriter) {
 	}
 
 	cw.WriteRune('}')
+}
+
+func (ol *ObjectLiteral) Precedence() int {
+	return PrecedenceAtomic
 }

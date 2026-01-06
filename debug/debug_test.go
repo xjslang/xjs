@@ -12,7 +12,7 @@ import (
 func TestToString(t *testing.T) {
 	tests := []struct{ name, input, expected string }{
 		{"LetStatement", "let x = 5", "let x=5;"},
-		{"FunctionDeclaration", "function add(a, b){ return a+b }", "function add(a,b){return (a+b);}"},
+		{"FunctionDeclaration", "function add(a, b){ return a+b }", "function add(a,b){return a+b;}"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
