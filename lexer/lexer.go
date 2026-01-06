@@ -95,7 +95,7 @@ func (l *Lexer) readIdentifier() string {
 	return l.input[position:l.position]
 }
 
-// readNumber reads a number (integer, decimal, scientific notation, or hexadecimal)
+// readNumber reads a number (integer, decimal, scientific notation, hexadecimal, or binary)
 func (l *Lexer) readNumber() (string, token.Type) {
 	position := l.position
 	tokenType := token.INT
@@ -103,6 +103,11 @@ func (l *Lexer) readNumber() (string, token.Type) {
 	// Check for hexadecimal numbers (0x or 0X)
 	if l.CurrentChar == '0' && (l.PeekChar() == 'x' || l.PeekChar() == 'X') {
 		return l.readHexNumber()
+	}
+
+	// Check for binary numbers (0b or 0B)
+	if l.CurrentChar == '0' && (l.PeekChar() == 'b' || l.PeekChar() == 'B') {
+		return l.readBinaryNumber()
 	}
 
 	for isDigit(l.CurrentChar) {
@@ -158,6 +163,28 @@ func (l *Lexer) readHexNumber() (string, token.Type) {
 	}
 
 	for isHexDigit(l.CurrentChar) {
+		l.ReadChar()
+	}
+
+	return l.input[position:l.position], token.INT
+}
+
+// readBinaryNumber reads a binary number (0b or 0B followed by binary digits)
+func (l *Lexer) readBinaryNumber() (string, token.Type) {
+	position := l.position
+
+	// Consume '0'
+	l.ReadChar()
+	// Consume 'b' or 'B'
+	l.ReadChar()
+
+	// Read binary digits
+	if !isBinaryDigit(l.CurrentChar) {
+		// Invalid binary number - return what we have so far
+		return l.input[position:l.position], token.INT
+	}
+
+	for isBinaryDigit(l.CurrentChar) {
 		l.ReadChar()
 	}
 
