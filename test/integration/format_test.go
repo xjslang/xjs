@@ -11,7 +11,7 @@ import (
 func Example_inlineComments() {
 	input := `
 	console.log('Hello, World!') // prints a message
-	console.log('Bye, bye') // prints another message`
+	console.log('Bye, bye'); // prints another message`
 	lb := lexer.NewBuilder()
 	p := parser.NewBuilder(lb).Build(input)
 	program, _ := p.ParseProgram()
