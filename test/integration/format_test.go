@@ -8,6 +8,20 @@ import (
 	"github.com/xjslang/xjs/parser"
 )
 
+func Example_inlineComments() {
+	input := `
+	console.log('Hello, World!') // prints a message
+	console.log('Bye, bye') // prints another message`
+	lb := lexer.NewBuilder()
+	p := parser.NewBuilder(lb).Build(input)
+	program, _ := p.ParseProgram()
+	c := compiler.New().WithPrettyPrint().Compile(program)
+	fmt.Println(c.Code)
+	// Output:
+	// console.log("Hello, World!"); // prints a message
+	// console.log("Bye, bye"); // prints another message
+}
+
 func Example_format() {
 	input := `
 		// init vars
