@@ -129,7 +129,9 @@ p.UseOperand("PI", func() Expression {
 ### Testing
 - Unit tests for individual components
 - Integration tests in `test/integration/`
-- Test data in `test/testdata/` with `.js` and `.output` files
+- Test data in `test/testdata/` with `.js` and `.output` files:
+  - `.js` files contain the source code to be parsed
+  - `.output` files contain the **execution result** of running the parsed/transpiled code (NOT the transpiled code itself)
 - Example-based tests using Go's Example functions
 
 ## Common Patterns
