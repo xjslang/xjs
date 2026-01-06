@@ -353,6 +353,12 @@ func (p *Parser) ParseObjectLiteral() ast.Expression {
 		return obj
 	}
 	p.NextToken()
+
+	// Skip comments and blank lines after opening brace
+	for p.CurrentToken.Type == token.COMMENT || p.CurrentToken.Type == token.BLANK_LINE {
+		p.NextToken()
+	}
+
 	for {
 		key := p.ParseExpression()
 		if !p.ExpectToken(token.COLON) {
@@ -398,6 +404,11 @@ func (p *Parser) ParseObjectLiteral() ast.Expression {
 
 		// Move to next property
 		p.NextToken()
+
+		// Skip comments and blank lines before next property
+		for p.CurrentToken.Type == token.COMMENT || p.CurrentToken.Type == token.BLANK_LINE {
+			p.NextToken()
+		}
 	}
 	if !p.ExpectToken(token.RBRACE) {
 		return nil
