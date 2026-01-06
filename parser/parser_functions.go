@@ -361,11 +361,23 @@ func (p *Parser) ParseObjectLiteral() ast.Expression {
 		p.NextToken()
 		value := p.ParseExpression()
 		obj.Properties[key] = value
+
+		// Skip inline comments after property value
+		for p.PeekToken.Type == token.COMMENT {
+			p.NextToken()
+		}
+
 		if p.PeekToken.Type != token.COMMA {
 			break
 		}
-		p.NextToken()
-		p.NextToken()
+		p.NextToken() // consume comma
+
+		// Skip comments after comma
+		for p.PeekToken.Type == token.COMMENT {
+			p.NextToken()
+		}
+
+		p.NextToken() // move to next key
 	}
 	if !p.ExpectToken(token.RBRACE) {
 		return nil
