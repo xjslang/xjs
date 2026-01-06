@@ -95,10 +95,15 @@ func (l *Lexer) readIdentifier() string {
 	return l.input[position:l.position]
 }
 
-// readNumber reads a number (integer, decimal, or scientific notation)
+// readNumber reads a number (integer, decimal, scientific notation, or hexadecimal)
 func (l *Lexer) readNumber() (string, token.Type) {
 	position := l.position
 	tokenType := token.INT
+
+	// Check for hexadecimal numbers (0x or 0X)
+	if l.CurrentChar == '0' && (l.PeekChar() == 'x' || l.PeekChar() == 'X') {
+		return l.readHexNumber()
+	}
 
 	for isDigit(l.CurrentChar) {
 		l.ReadChar()
@@ -135,6 +140,28 @@ func (l *Lexer) readNumber() (string, token.Type) {
 	}
 
 	return l.input[position:l.position], tokenType
+}
+
+// readHexNumber reads a hexadecimal number (0x or 0X followed by hex digits)
+func (l *Lexer) readHexNumber() (string, token.Type) {
+	position := l.position
+
+	// Consume '0'
+	l.ReadChar()
+	// Consume 'x' or 'X'
+	l.ReadChar()
+
+	// Read hex digits
+	if !isHexDigit(l.CurrentChar) {
+		// Invalid hex number - return what we have so far
+		return l.input[position:l.position], token.INT
+	}
+
+	for isHexDigit(l.CurrentChar) {
+		l.ReadChar()
+	}
+
+	return l.input[position:l.position], token.INT
 }
 
 // readString reads a string literal
