@@ -64,6 +64,10 @@ func (te *TypeofExpression) WriteTo(w *ast.CodeWriter) {
 	w.WriteRune(')')
 }
 
+func (te *TypeofExpression) Precedence() int {
+	return ast.PrecedenceUnary
+}
+
 func Example_prefixOperator() {
 	input := "if (typeof x == 'string') { console.log('x is a string') }"
 	lb := lexer.NewBuilder()
@@ -91,7 +95,7 @@ func Example_prefixOperator() {
 	}
 	result := compiler.New().Compile(program)
 	fmt.Println(result.Code)
-	// Output: if(((typeof x)=="string")){console.log("x is a string");}
+	// Output: if((typeof x)=="string"){console.log("x is a string");}
 }
 
 type PowExpression struct {
@@ -106,6 +110,11 @@ func (pe *PowExpression) WriteTo(w *ast.CodeWriter) {
 	w.WriteRune(',')
 	pe.Right.WriteTo(w)
 	w.WriteRune(')')
+}
+
+func (pe *PowExpression) Precedence() int {
+	// Higher than PRODUCT since it's defined as PRODUCT+1
+	return ast.PrecedenceProduct + 1
 }
 
 func Example_infixOperator() {
@@ -150,6 +159,10 @@ func (pl *PiLiteral) WriteTo(w *ast.CodeWriter) {
 	w.WriteString("Math.PI")
 }
 
+func (pl *PiLiteral) Precedence() int {
+	return ast.PrecedenceAtomic
+}
+
 func Example_operand() {
 	input := "let area = PI * r * r"
 	lb := lexer.NewBuilder()
@@ -176,7 +189,7 @@ func Example_operand() {
 	}
 	result := compiler.New().Compile(program)
 	fmt.Println(result.Code)
-	// Output: let area=((Math.PI*r)*r);
+	// Output: let area=Math.PI*r*r;
 }
 
 type RandomExpression struct {
@@ -185,6 +198,10 @@ type RandomExpression struct {
 
 func (re *RandomExpression) WriteTo(w *ast.CodeWriter) {
 	w.WriteString("Math.random()")
+}
+
+func (re *RandomExpression) Precedence() int {
+	return ast.PrecedenceCall
 }
 
 func Example_expressionParser() {
@@ -205,7 +222,7 @@ func Example_expressionParser() {
 	}
 	result := compiler.New().Compile(program)
 	fmt.Println(result.Code)
-	// Output: let randomValue=(Math.random()+10);
+	// Output: let randomValue=Math.random()+10;
 }
 
 func Example_combined() {
@@ -282,7 +299,7 @@ func Example_combined() {
 	}
 	result := compiler.New().Compile(program)
 	fmt.Println(result.Code)
-	// Output: const circleArea=(Math.PI*Math.pow(r,2))if(((typeof radius)=="string")){let randomRadius=(Math.random()*10);}
+	// Output: const circleArea=Math.PI*Math.pow(r,2)if((typeof radius)=="string"){let randomRadius=Math.random()*10;}
 }
 
 type FactorialExpression struct {
@@ -294,6 +311,10 @@ func (fe *FactorialExpression) WriteTo(w *ast.CodeWriter) {
 	w.WriteString("factorial(")
 	fe.Left.WriteTo(w)
 	w.WriteRune(')')
+}
+
+func (fe *FactorialExpression) Precedence() int {
+	return ast.PrecedencePostfix
 }
 
 func Example_postfixOperator() {
@@ -316,5 +337,5 @@ func Example_postfixOperator() {
 	}
 	result := compiler.New().Compile(program)
 	fmt.Println(result.Code)
-	// Output: let result=(factorial(5)+factorial(2));
+	// Output: let result=factorial(5)+factorial(2);
 }

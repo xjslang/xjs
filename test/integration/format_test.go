@@ -59,11 +59,11 @@ func Example_format() {
 	//
 	// // add function
 	// function add(a, b) {
-	//   return (a + b);
+	//   return a + b;
 	// }
 	//
 	// // conditional
-	// if ((x < y)) {
+	// if (x < y) {
 	//   console.log("x is less than y");
 	// }
 	//
