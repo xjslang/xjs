@@ -347,7 +347,7 @@ func (p *Parser) ParseArrayLiteral() ast.Expression {
 
 func (p *Parser) ParseObjectLiteral() ast.Expression {
 	obj := &ast.ObjectLiteral{Token: p.CurrentToken}
-	obj.Properties = make(map[ast.Expression]ast.Expression)
+	obj.Properties = []ast.ObjectProperty{}
 	if p.PeekToken.Type == token.RBRACE {
 		p.NextToken()
 		return obj
@@ -360,24 +360,44 @@ func (p *Parser) ParseObjectLiteral() ast.Expression {
 		}
 		p.NextToken()
 		value := p.ParseExpression()
-		obj.Properties[key] = value
 
-		// Skip inline comments after property value
-		for p.PeekToken.Type == token.COMMENT {
-			p.NextToken()
+		prop := ast.ObjectProperty{
+			Key:   key,
+			Value: value,
 		}
 
+		obj.Properties = append(obj.Properties, prop)
+
 		if p.PeekToken.Type != token.COMMA {
+			// No comma, check for inline comment before closing brace
+			if p.PeekToken.Type == token.COMMENT {
+				p.NextToken()
+				comment := p.CurrentToken
+				obj.Properties[len(obj.Properties)-1].InlineComment = &comment
+			}
 			break
 		}
 		p.NextToken() // consume comma
 
-		// Skip comments after comma
-		for p.PeekToken.Type == token.COMMENT {
+		// Check for inline comment after comma (belongs to current property)
+		if p.PeekToken.Type == token.COMMENT {
+			p.NextToken()
+			comment := p.CurrentToken
+			obj.Properties[len(obj.Properties)-1].InlineComment = &comment
+		}
+
+		// Skip blank lines after comment
+		for p.PeekToken.Type == token.BLANK_LINE {
 			p.NextToken()
 		}
 
-		p.NextToken() // move to next key
+		// Check for trailing comma (comma before closing brace)
+		if p.PeekToken.Type == token.RBRACE {
+			break
+		}
+
+		// Move to next property
+		p.NextToken()
 	}
 	if !p.ExpectToken(token.RBRACE) {
 		return nil
