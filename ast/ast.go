@@ -78,6 +78,13 @@ func (p *Program) WriteTo(cw *CodeWriter) {
 	for _, stmt := range p.Statements {
 		stmt.WriteTo(cw)
 	}
+	// Flush any pending newline
+	if cw.PrettyPrint {
+		cw.Builder.WriteRune('\n')
+		if cw.Mapper != nil {
+			cw.Mapper.AdvanceLine()
+		}
+	}
 }
 
 // CommentBlock represents one or more consecutive line comments.
@@ -129,7 +136,7 @@ func (ls *LetStatement) WriteTo(cw *CodeWriter) {
 		cw.WriteSpace()
 		ls.Value.WriteTo(cw)
 	}
-	cw.WriteRune(';')
+	cw.WriteSemi()
 	if ls.InlineComment != nil && cw.PrettyPrint {
 		cw.WriteString(" //")
 		cw.WriteString(ls.InlineComment.Literal)
@@ -150,7 +157,7 @@ func (rs *ReturnStatement) WriteTo(cw *CodeWriter) {
 		cw.WriteRune(' ')
 		rs.ReturnValue.WriteTo(cw)
 	}
-	cw.WriteRune(';')
+	cw.WriteSemi()
 	if rs.InlineComment != nil && cw.PrettyPrint {
 		cw.WriteString(" //")
 		cw.WriteString(rs.InlineComment.Literal)
@@ -169,7 +176,7 @@ func (es *ExpressionStatement) WriteTo(cw *CodeWriter) {
 		return
 	}
 	es.Expression.WriteTo(cw)
-	cw.WriteRune(';')
+	cw.WriteSemi()
 	if es.InlineComment != nil && cw.PrettyPrint {
 		cw.WriteString(" //")
 		cw.WriteString(es.InlineComment.Literal)
@@ -274,11 +281,14 @@ func (fs *ForStatement) WriteTo(cw *CodeWriter) {
 	cw.WriteSpace()
 	cw.WriteRune('(')
 	if fs.Init != nil {
+		// Suppress the semicolon and newline from Init statement (e.g., LetStatement)
+		// because we write the separator semicolon ourselves and don't want newlines in for()
+		// cw.suppressNextSemi = true
+		// cw.suppressNextNewline = true
 		fs.Init.WriteTo(cw)
-		cw.WriteRune(';')
-	} else {
-		cw.WriteRune(';')
 	}
+	// Always write the separator semicolon (required by for syntax)
+	cw.WriteRune(';')
 	cw.WriteSpace()
 	if fs.Condition != nil {
 		fs.Condition.WriteTo(cw)

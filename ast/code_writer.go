@@ -8,11 +8,12 @@ import (
 )
 
 type CodeWriter struct {
-	Builder      strings.Builder
-	Mapper       *sourcemap.SourceMapper
-	PrettyPrint  bool
-	IndentLevel  int
-	IndentString string
+	Builder         strings.Builder
+	Mapper          *sourcemap.SourceMapper
+	PrettyPrint     bool
+	IndentLevel     int
+	IndentString    string
+	WriteSemicolons bool
 
 	// insertNewLine indicates whether a new line should be inserted before writing
 	// the next element in the generated code. This flag helps control the formatting
@@ -66,6 +67,19 @@ func (cw *CodeWriter) AddNamedMapping(sourceLine, sourceColumn int, name string)
 		return
 	}
 	cw.Mapper.AddNamedMapping(sourceLine, sourceColumn, name)
+}
+
+// WriteSemi writes a semicolon if WriteSemicolons is true.
+func (cw *CodeWriter) WriteSemi() {
+	if !cw.PrettyPrint {
+		cw.WriteRune(';')
+		return
+	}
+
+	// In pretty-print mode, respect WriteSemicolons setting
+	if cw.WriteSemicolons {
+		cw.WriteRune(';')
+	}
 }
 
 // WriteIndent writes the current indentation level
