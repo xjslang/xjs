@@ -206,6 +206,7 @@ func (fd *FunctionDeclaration) WriteTo(cw *CodeWriter) {
 	cw.WriteRune(')')
 	cw.WriteSpace()
 	fd.Body.WriteTo(cw)
+	cw.WriteNewline()
 }
 
 type BlockStatement struct {
@@ -225,7 +226,6 @@ func (bs *BlockStatement) WriteTo(cw *CodeWriter) {
 	cw.DecreaseIndent()
 	cw.WriteIndent()
 	cw.WriteRune('}')
-	cw.WriteNewline()
 }
 
 type IfStatement struct {
@@ -281,13 +281,8 @@ func (fs *ForStatement) WriteTo(cw *CodeWriter) {
 	cw.WriteSpace()
 	cw.WriteRune('(')
 	if fs.Init != nil {
-		// Suppress the semicolon and newline from Init statement (e.g., LetStatement)
-		// because we write the separator semicolon ourselves and don't want newlines in for()
-		// cw.suppressNextSemi = true
-		// cw.suppressNextNewline = true
 		fs.Init.WriteTo(cw)
 	}
-	// Always write the separator semicolon (required by for syntax)
 	cw.WriteRune(';')
 	cw.WriteSpace()
 	if fs.Condition != nil {
