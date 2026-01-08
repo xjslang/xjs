@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -8,6 +9,68 @@ import (
 	"github.com/xjslang/xjs/lexer"
 	"github.com/xjslang/xjs/parser"
 )
+
+func Example_prettyPrint() {
+	input := `// Configuration
+let port = 3000 // default port
+let host = 'localhost'
+
+// Main server function
+function startServer() {
+  let isRunning = false
+  
+  // Handler function
+  let onRequest = function(req) {
+    console.log('Request received') // log message
+    return req.path
+  }
+  
+  // Nested helper
+  function init() {
+    isRunning = true
+    return {port: port, status: 'running'}
+  }
+  
+  return init()
+}
+
+startServer()`
+	lb := lexer.NewBuilder()
+	p := parser.NewBuilder(lb).Build(input)
+	program, err := p.ParseProgram()
+	if err != nil {
+		fmt.Printf("ParseProgram error = %v\n", err)
+		return
+	}
+
+	result := compiler.New().WithPrettyPrint().Compile(program)
+	fmt.Println(result.Code)
+	// Output:
+	// // Configuration
+	// let port = 3000; // default port
+	// let host = "localhost";
+	//
+	// // Main server function
+	// function startServer() {
+	//   let isRunning = false;
+	//
+	//   // Handler function
+	//   let onRequest = function(req) {
+	//     console.log("Request received"); // log message
+	//     return req.path;
+	//   };
+	//
+	//   // Nested helper
+	//   function init() {
+	//     isRunning = true;
+	//     return {port: port, status: "running"};
+	//   }
+	//
+	//   return init();
+	// }
+	//
+	// startServer();
+}
 
 func TestPrettyPrint_LineComments(t *testing.T) {
 	input := `
