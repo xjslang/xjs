@@ -164,6 +164,10 @@ func TestTranspilationErrors(t *testing.T) {
 			name:  "unclosed_string",
 			input: `console.log("unclosed string`,
 		},
+		{
+			name:  "unclosed_block",
+			input: "function test(){",
+		},
 	}
 
 	for _, test := range errorTests {

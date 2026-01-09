@@ -142,7 +142,13 @@ let z = 10`,
 				endLine   int
 				endCol    int
 			}{
-				// The parser currently handles this without error - we mark empty expectation
+				{
+					message:   "unclosed block statement, expected '}'",
+					startLine: 0,
+					startCol:  27,
+					endLine:   0,
+					endCol:    27,
+				},
 			},
 		},
 	}

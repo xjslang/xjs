@@ -205,6 +205,9 @@ func (p *Parser) ParseBlockStatement() *ast.BlockStatement {
 		}
 		p.NextToken()
 	}
+	if p.CurrentToken.Type != token.RBRACE && !p.tolerantMode {
+		p.AddError("unclosed block statement, expected '}'")
+	}
 	return block
 }
 
