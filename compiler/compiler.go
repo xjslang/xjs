@@ -7,6 +7,18 @@ import (
 	"github.com/xjslang/xjs/sourcemap"
 )
 
+// cleanEmptyLines removes whitespace from lines that contain only whitespace.
+// This ensures that empty lines in the output don't have indentation.
+func cleanEmptyLines(code string) string {
+	lines := strings.Split(code, "\n")
+	for i, line := range lines {
+		if len(line) > 0 && len(strings.TrimSpace(line)) == 0 {
+			lines[i] = ""
+		}
+	}
+	return strings.Join(lines, "\n")
+}
+
 type CompileResult struct {
 	Code      string
 	SourceMap *sourcemap.SourceMap
@@ -90,6 +102,12 @@ func (c *Compiler) Compile(program *ast.Program) CompileResult {
 	program.WriteTo(&w)
 
 	code := w.String()
+
+	// Clean up empty lines: remove indentation from lines that contain only whitespace
+	if c.prettyPrint {
+		code = cleanEmptyLines(code)
+	}
+
 	var sm *sourcemap.SourceMap
 	if c.generateSourceMap {
 		sm = w.Mapper.SourceMap()
