@@ -140,9 +140,8 @@ func (ls *LetStatement) WriteTo(cw *CodeWriter) {
 }
 
 type ReturnStatement struct {
-	Token         token.Token // the RETURN token
-	ReturnValue   Expression
-	InlineComment *token.Token // optional inline comment after the statement (nil if none)
+	Token       token.Token // the RETURN token
+	ReturnValue Expression
 }
 
 func (rs *ReturnStatement) WriteTo(cw *CodeWriter) {
@@ -153,10 +152,6 @@ func (rs *ReturnStatement) WriteTo(cw *CodeWriter) {
 		rs.ReturnValue.WriteTo(cw)
 	}
 	cw.WriteSemi()
-	if rs.InlineComment != nil && cw.PrettyPrint {
-		cw.WriteString(" //")
-		cw.WriteString(rs.InlineComment.Literal)
-	}
 	cw.WriteNewline()
 }
 
