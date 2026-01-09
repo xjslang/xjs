@@ -218,12 +218,6 @@ func (p *Parser) ParseExpressionStatement() *ast.ExpressionStatement {
 	if !p.ExpectSemicolonASI() {
 		return nil
 	}
-	// Check for inline comment after the statement
-	if p.PeekToken.Type == token.COMMENT {
-		p.NextToken()
-		comment := p.CurrentToken
-		stmt.InlineComment = &comment
-	}
 	return stmt
 }
 

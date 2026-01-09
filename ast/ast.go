@@ -156,9 +156,8 @@ func (rs *ReturnStatement) WriteTo(cw *CodeWriter) {
 }
 
 type ExpressionStatement struct {
-	Token         token.Token // the first token of the expression
-	Expression    Expression
-	InlineComment *token.Token // optional inline comment after the statement (nil if none)
+	Token      token.Token // the first token of the expression
+	Expression Expression
 }
 
 func (es *ExpressionStatement) WriteTo(cw *CodeWriter) {
@@ -167,10 +166,6 @@ func (es *ExpressionStatement) WriteTo(cw *CodeWriter) {
 	}
 	es.Expression.WriteTo(cw)
 	cw.WriteSemi()
-	if es.InlineComment != nil && cw.PrettyPrint {
-		cw.WriteString(" //")
-		cw.WriteString(es.InlineComment.Literal)
-	}
 	cw.WriteNewline()
 }
 
