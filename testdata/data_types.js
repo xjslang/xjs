@@ -1,8 +1,8 @@
-// Números enteros
+// Integers
 let integer = 42;
 console.log(integer);
 
-// Números flotantes
+// Floating point numbers
 let float = 3.14159;
 console.log(float);
 
@@ -10,7 +10,7 @@ console.log(float);
 let string = "Hello World";
 console.log(string);
 
-// Booleanos
+// Booleans
 let trueValue = true;
 let falseValue = false;
 console.log(trueValue);

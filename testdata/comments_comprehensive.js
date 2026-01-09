@@ -1,24 +1,24 @@
-// Test completo de comentarios
-// Este archivo demuestra diferentes usos de comentarios
+// Comprehensive comment test
+// This file demonstrates different uses of comments
 
-let x = 5; // Variable numérica
+let x = 5; // Numeric variable
 let y = 10;
 
-// Función que suma dos números
+// Function that adds two numbers
 function add(a, b) {
-    // Retorna la suma de los parámetros
+    // Returns the sum of the parameters
     return a + b;
 }
 
-// Llamada a la función
-let result = add(x, y); // Debería ser 15
+// Function call
+let result = add(x, y); // Should be 15
 
-// Condicional con comentario
-if (result > 10) { // Si el resultado es mayor a 10
+// Conditional with comment
+if (result > 10) { // If the result is greater than 10
     console.log("Result is greater than 10");
 } else {
     console.log("Result is 10 or less");
 }
 
-// Comentario al final del archivo
+// Comment at the end of the file
 console.log(result);

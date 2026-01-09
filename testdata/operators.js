@@ -1,14 +1,14 @@
 let a = 10;
 let b = 3;
 
-// Operadores aritméticos
+// Arithmetic operators
 console.log(a + b);   // 13
 console.log(a - b);   // 7
 console.log(a * b);   // 30
 console.log(a / b);   // 3.333...
 console.log(a % b);   // 1
 
-// Operadores de comparación (estricta, sin coerción)
+// Comparison operators (strict, no coercion)
 console.log(a == b);   // false (10 == 3)
 console.log(a != b);   // true (10 != 3)
 console.log(a == 10);  // true (10 == 10)
