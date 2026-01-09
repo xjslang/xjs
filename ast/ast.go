@@ -3,8 +3,6 @@
 package ast
 
 import (
-	"sort"
-
 	"github.com/xjslang/xjs/token"
 )
 
@@ -660,37 +658,23 @@ type ObjectProperty struct {
 
 type ObjectLiteral struct {
 	Token      token.Token // the { token
-	Properties map[Expression]Expression
+	Properties []ObjectProperty
 }
 
 func (ol *ObjectLiteral) WriteTo(cw *CodeWriter) {
 	cw.AddMapping(ol.Token.Start)
 	cw.WriteRune('{')
 
-	// Extract keys and sort them for deterministic output
-	keys := make([]Expression, 0, len(ol.Properties))
-	for key := range ol.Properties {
-		keys = append(keys, key)
-	}
-
-	// Sort keys by their string representation
-	sort.Slice(keys, func(i, j int) bool {
-		var keyI, keyJ CodeWriter
-		keys[i].WriteTo(&keyI)
-		keys[j].WriteTo(&keyJ)
-		return keyI.String() < keyJ.String()
-	})
-
-	// Write properties in sorted order
-	for i, key := range keys {
+	// Write properties in order they were defined
+	for i, prop := range ol.Properties {
 		if i > 0 {
 			cw.WriteRune(',')
 			cw.WriteSpace()
 		}
-		key.WriteTo(cw)
+		prop.Key.WriteTo(cw)
 		cw.WriteRune(':')
 		cw.WriteSpace()
-		ol.Properties[key].WriteTo(cw)
+		prop.Value.WriteTo(cw)
 	}
 
 	cw.WriteRune('}')

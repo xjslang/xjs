@@ -351,7 +351,7 @@ func (p *Parser) ParseArrayLiteral() ast.Expression {
 
 func (p *Parser) ParseObjectLiteral() ast.Expression {
 	obj := &ast.ObjectLiteral{Token: p.CurrentToken}
-	obj.Properties = make(map[ast.Expression]ast.Expression)
+	obj.Properties = []ast.ObjectProperty{}
 	if p.PeekToken.Type == token.RBRACE {
 		p.NextToken()
 		return obj
@@ -364,7 +364,10 @@ func (p *Parser) ParseObjectLiteral() ast.Expression {
 		}
 		p.NextToken()
 		value := p.ParseExpression()
-		obj.Properties[key] = value
+		obj.Properties = append(obj.Properties, ast.ObjectProperty{
+			Key:   key,
+			Value: value,
+		})
 		if p.PeekToken.Type != token.COMMA {
 			break
 		}
