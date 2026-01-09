@@ -12,7 +12,7 @@ import (
 
 func Example_prettyPrint() {
 	input := `// Configuration
-let port = 3000 // default port
+let port = 3000
 let host = 'localhost'
 
 // Main server function
@@ -21,7 +21,7 @@ function startServer() {
   
   // Handler function
   let onRequest = function(req) {
-    console.log('Request received') // log message
+    console.log('Request received')
     return req.path
   }
   
@@ -47,7 +47,7 @@ startServer()`
 	fmt.Println(result.Code)
 	// Output:
 	// // Configuration
-	// let port = 3000; // default port
+	// let port = 3000;
 	// let host = "localhost";
 	//
 	// // Main server function
@@ -56,7 +56,7 @@ startServer()`
 	//
 	//   // Handler function
 	//   let onRequest = function(req) {
-	//     console.log("Request received"); // log message
+	//     console.log("Request received");
 	//     return req.path;
 	//   };
 	//
@@ -105,66 +105,6 @@ function main() {
 	result := compiler.New().WithPrettyPrint().Compile(program)
 	if result.Code != expected {
 		t.Errorf("Expected:\n%s\n\nGot:\n%s", expected, result.Code)
-	}
-}
-
-func TestPrettyPrint_InlineComments(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    string
-		expected string
-	}{
-		{
-			name: "inline comments on let statements",
-			input: `
-let x = 5 // without semicolon
-let y = 10; // with semicolon`,
-			expected: `let x = 5; // without semicolon
-let y = 10; // with semicolon
-`,
-		},
-		{
-			name: "inline comments on return statements",
-			input: `
-function test() {
-	return x // without semicolon
-}
-function test2() {
-	return y; // with semicolon
-}`,
-			expected: `function test() {
-  return x; // without semicolon
-}
-function test2() {
-  return y; // with semicolon
-}
-`,
-		},
-		{
-			name: "inline comments on expression statements",
-			input: `
-console.log('Hello') // message
-console.log('World'); // another message`,
-			expected: `console.log("Hello"); // message
-console.log("World"); // another message
-`,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			lb := lexer.NewBuilder()
-			p := parser.NewBuilder(lb).Build(tt.input)
-			program, err := p.ParseProgram()
-			if err != nil {
-				t.Fatalf("Parse error: %v", err)
-			}
-
-			result := compiler.New().WithPrettyPrint().Compile(program)
-			if result.Code != tt.expected {
-				t.Errorf("Expected:\n%s\n\nGot:\n%s", tt.expected, result.Code)
-			}
-		})
 	}
 }
 
@@ -242,55 +182,6 @@ let server = {
 				t.Errorf("Expected:\n%s\n\nGot:\n%s", tt.expected, result.Code)
 			}
 		})
-	}
-}
-
-func TestPrettyPrint_MixedComments(t *testing.T) {
-	input := `
-// Application configuration
-let config = {
-	host: 'localhost', // default host
-	port: 3000, // default port
-}
-
-// Initialize application
-function init() {
-	let message = 'Starting' // status message
-	// Log to console
-	console.log(message, config.host) // debug output
-	return config // return configuration
-}`
-
-	expected := `// Application configuration
-let config = {
-  host: "localhost", // default host
-  port: 3000 // default port
-};
-
-// Initialize application
-function init() {
-  let message = "Starting"; // status message
-  // Log to console
-  console.log(message, config.host); // debug output
-  return config; // return configuration
-}
-`
-
-	lb := lexer.NewBuilder()
-	p := parser.NewBuilder(lb).Build(input)
-	program, err := p.ParseProgram()
-	if err != nil {
-		t.Fatalf("Parse error: %v", err)
-	}
-
-	result := compiler.New().WithPrettyPrint().Compile(program)
-
-	// Normalize line endings for comparison
-	expectedNormalized := strings.ReplaceAll(expected, "\r\n", "\n")
-	resultNormalized := strings.ReplaceAll(result.Code, "\r\n", "\n")
-
-	if resultNormalized != expectedNormalized {
-		t.Errorf("Expected:\n%s\n\nGot:\n%s", expected, result.Code)
 	}
 }
 

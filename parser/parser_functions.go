@@ -50,12 +50,6 @@ func (p *Parser) ParseLetStatement() *ast.LetStatement {
 	if !p.ExpectSemicolonASI() {
 		return nil
 	}
-	// Check for inline comment after the statement
-	if p.PeekToken.Type == token.COMMENT {
-		p.NextToken()
-		comment := p.CurrentToken
-		stmt.InlineComment = &comment
-	}
 	return stmt
 }
 

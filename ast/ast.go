@@ -120,10 +120,9 @@ func (bl *BlankLine) WriteTo(cw *CodeWriter) {
 
 // Statements
 type LetStatement struct {
-	Token         token.Token // the LET token
-	Name          *Identifier
-	Value         Expression
-	InlineComment *token.Token // optional inline comment after the statement (nil if none)
+	Token token.Token // the LET token
+	Name  *Identifier
+	Value Expression
 }
 
 func (ls *LetStatement) WriteTo(cw *CodeWriter) {
@@ -137,10 +136,6 @@ func (ls *LetStatement) WriteTo(cw *CodeWriter) {
 		ls.Value.WriteTo(cw)
 	}
 	cw.WriteSemi()
-	if ls.InlineComment != nil && cw.PrettyPrint {
-		cw.WriteString(" //")
-		cw.WriteString(ls.InlineComment.Literal)
-	}
 	cw.WriteNewline()
 }
 
