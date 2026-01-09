@@ -3,6 +3,8 @@
 package ast
 
 import (
+	"sort"
+
 	"github.com/xjslang/xjs/token"
 )
 
@@ -652,65 +654,43 @@ func (al *ArrayLiteral) Precedence() int {
 }
 
 type ObjectProperty struct {
-	Key           Expression
-	Value         Expression
-	InlineComment *token.Token // optional inline comment after the property value
+	Key   Expression
+	Value Expression
 }
 
 type ObjectLiteral struct {
 	Token      token.Token // the { token
-	Properties []ObjectProperty
+	Properties map[Expression]Expression
 }
 
 func (ol *ObjectLiteral) WriteTo(cw *CodeWriter) {
 	cw.AddMapping(ol.Token.Start)
-
-	// Check if any property has an inline comment
-	hasComments := false
-	for _, prop := range ol.Properties {
-		if prop.InlineComment != nil {
-			hasComments = true
-			break
-		}
-	}
-
-	// Use multi-line format if pretty-print is enabled and there are comments
-	useMultiLine := cw.PrettyPrint && hasComments
-
 	cw.WriteRune('{')
 
-	if useMultiLine {
-		cw.IncreaseIndent()
-		cw.WriteNewline()
-		for i, prop := range ol.Properties {
-			cw.WriteIndent()
-			prop.Key.WriteTo(cw)
-			cw.WriteRune(':')
+	// Extract keys and sort them for deterministic output
+	keys := make([]Expression, 0, len(ol.Properties))
+	for key := range ol.Properties {
+		keys = append(keys, key)
+	}
+
+	// Sort keys by their string representation
+	sort.Slice(keys, func(i, j int) bool {
+		var keyI, keyJ CodeWriter
+		keys[i].WriteTo(&keyI)
+		keys[j].WriteTo(&keyJ)
+		return keyI.String() < keyJ.String()
+	})
+
+	// Write properties in sorted order
+	for i, key := range keys {
+		if i > 0 {
+			cw.WriteRune(',')
 			cw.WriteSpace()
-			prop.Value.WriteTo(cw)
-			if i < len(ol.Properties)-1 {
-				cw.WriteRune(',')
-			}
-			if prop.InlineComment != nil {
-				cw.WriteString(" //")
-				cw.WriteString(prop.InlineComment.Literal)
-			}
-			cw.WriteNewline()
 		}
-		cw.DecreaseIndent()
-		cw.WriteIndent()
-	} else {
-		// Single-line format
-		for i, prop := range ol.Properties {
-			if i > 0 {
-				cw.WriteRune(',')
-				cw.WriteSpace()
-			}
-			prop.Key.WriteTo(cw)
-			cw.WriteRune(':')
-			cw.WriteSpace()
-			prop.Value.WriteTo(cw)
-		}
+		key.WriteTo(cw)
+		cw.WriteRune(':')
+		cw.WriteSpace()
+		ol.Properties[key].WriteTo(cw)
 	}
 
 	cw.WriteRune('}')
