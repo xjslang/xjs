@@ -18,7 +18,7 @@ console.log(a < b);    // false
 console.log(a >= 10);  // true
 console.log(b <= 5);   // true
 
-// Operadores lógicos
+// Logical operators
 let x = true;
 let y = false;
 console.log(x && y);   // false
