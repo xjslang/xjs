@@ -2,8 +2,5 @@
   // Include integration build tag so VS Code recognizes test/integration files
   // Comment out these lines if you want VS Code to only analyze unit tests
   "go.buildTags": "integration e2e",
-  "go.testTags": "integration e2e",
-  "gopls": {
-    "experimentalWorkspaceModule": true
-  }
+  "go.testTags": "integration e2e"
 }
