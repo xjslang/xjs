@@ -78,13 +78,6 @@ func (p *Program) WriteTo(cw *CodeWriter) {
 	for _, stmt := range p.Statements {
 		stmt.WriteTo(cw)
 	}
-	// Flush any pending newline
-	if cw.PrettyPrint {
-		cw.Builder.WriteRune('\n')
-		if cw.Mapper != nil {
-			cw.Mapper.AdvanceLine()
-		}
-	}
 }
 
 // CommentBlock represents one or more consecutive line comments.

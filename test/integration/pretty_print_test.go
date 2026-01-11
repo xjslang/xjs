@@ -92,8 +92,7 @@ let port = 3000;
 function main() {
   // Initialize server
   console.log("Starting server");
-}
-`
+}`
 
 	lb := lexer.NewBuilder()
 	p := parser.NewBuilder(lb).Build(input)
@@ -119,61 +118,61 @@ func TestPrettyPrint_WithSemi(t *testing.T) {
 			name:     "default with semicolons",
 			input:    "let x = 5\nlet y = 10",
 			withSemi: true,
-			expected: "let x = 5;\nlet y = 10;\n",
+			expected: "let x = 5;\nlet y = 10;",
 		},
 		{
 			name:     "without semicolons",
 			input:    "let x = 5\nlet y = 10",
 			withSemi: false,
-			expected: "let x = 5\nlet y = 10\n",
+			expected: "let x = 5\nlet y = 10",
 		},
 		{
 			name:     "for loop with semicolons",
 			input:    "for (let i = 0; i < 10; i++) {\n  console.log(i)\n}",
 			withSemi: true,
-			expected: "for (let i = 0; i < 10; i++) {\n  console.log(i);\n}\n",
+			expected: "for (let i = 0; i < 10; i++) {\n  console.log(i);\n}",
 		},
 		{
 			name:     "for loop without optional semicolons",
 			input:    "for (let i = 0; i < 10; i++) {\n  console.log(i)\n}",
 			withSemi: false,
-			expected: "for (let i = 0; i < 10; i++) {\n  console.log(i)\n}\n",
+			expected: "for (let i = 0; i < 10; i++) {\n  console.log(i)\n}",
 		},
 		{
 			name:     "return statement with semicolon",
 			input:    "function test() {\n  return 42\n}",
 			withSemi: true,
-			expected: "function test() {\n  return 42;\n}\n",
+			expected: "function test() {\n  return 42;\n}",
 		},
 		{
 			name:     "return statement without semicolon",
 			input:    "function test() {\n  return 42\n}",
 			withSemi: false,
-			expected: "function test() {\n  return 42\n}\n",
+			expected: "function test() {\n  return 42\n}",
 		},
 		{
 			name:     "expression statement with semicolon",
 			input:    "console.log('hello')\nx++",
 			withSemi: true,
-			expected: "console.log(\"hello\");\nx++;\n",
+			expected: "console.log(\"hello\");\nx++;",
 		},
 		{
 			name:     "expression statement without semicolon",
 			input:    "console.log('hello')\nx++",
 			withSemi: false,
-			expected: "console.log(\"hello\")\nx++\n",
+			expected: "console.log(\"hello\")\nx++",
 		},
 		{
 			name:     "complex for loop without optional semicolons",
 			input:    "for (let i = 0; i < 10; i++) {\n  let x = i * 2\n  console.log(x)\n}",
 			withSemi: false,
-			expected: "for (let i = 0; i < 10; i++) {\n  let x = i * 2\n  console.log(x)\n}\n",
+			expected: "for (let i = 0; i < 10; i++) {\n  let x = i * 2\n  console.log(x)\n}",
 		},
 		{
 			name:     "for loop with empty init without semicolons",
 			input:    "let i = 0\nfor (; i < 10; i++) {\n  console.log(i)\n}",
 			withSemi: false,
-			expected: "let i = 0\nfor (; i < 10; i++) {\n  console.log(i)\n}\n",
+			expected: "let i = 0\nfor (; i < 10; i++) {\n  console.log(i)\n}",
 		},
 	}
 
