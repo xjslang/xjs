@@ -204,6 +204,7 @@ func (bs *BlockStatement) WriteTo(cw *CodeWriter) {
 	cw.DecreaseIndent()
 	cw.WriteIndent()
 	cw.WriteRune('}')
+	cw.WriteNewline()
 }
 
 type IfStatement struct {
