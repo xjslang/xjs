@@ -226,6 +226,7 @@ func (ifs *IfStatement) WriteTo(cw *CodeWriter) {
 		cw.WriteString(" else ")
 		ifs.ElseBranch.WriteTo(cw)
 	}
+	cw.WriteNewline()
 }
 
 type WhileStatement struct {
