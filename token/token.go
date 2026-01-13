@@ -22,8 +22,6 @@ const (
 	FLOAT      // 123.45
 	STRING     // "hello"
 	RAW_STRING //
-	COMMENT    // // line comment
-	BLANK_LINE // empty line separator
 
 	// Operators
 	ASSIGN       // =
@@ -82,11 +80,12 @@ const (
 )
 
 type Token struct {
-	Type         Type
-	Literal      string
-	Start        Position // Starting position of the token (1-indexed)
-	End          Position // Ending position of the token (1-indexed)
-	AfterNewline bool     // true if this token follows a newline character
+	Type            Type
+	Literal         string
+	Start           Position // Starting position of the token (1-indexed)
+	End             Position // Ending position of the token (1-indexed)
+	AfterNewline    bool     // true if this token follows a newline character
+	LeadingComments []string // comments and whitespaces before the token
 }
 
 func (t Token) String() string {
@@ -110,8 +109,6 @@ func (tt Type) String() string {
 		return "string"
 	case RAW_STRING:
 		return "raw string"
-	case COMMENT:
-		return "comment"
 	case ASSIGN:
 		return "="
 	case PLUS_ASSIGN:

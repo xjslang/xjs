@@ -1,9 +1,18 @@
+version: "2"
+
 run:
   timeout: 5m
   tests: true
   build-tags:
     - integration
     - e2e
+
+linters:
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - errcheck
 
 issues:
   max-issues-per-linter: 0

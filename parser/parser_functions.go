@@ -8,34 +8,6 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-// ParseCommentBlock parses one or more consecutive comment tokens into a CommentBlock.
-func (p *Parser) ParseCommentBlock() *ast.CommentBlock {
-	block := &ast.CommentBlock{
-		Comments: []token.Token{p.CurrentToken},
-	}
-
-	// Collect consecutive comment tokens
-	for p.PeekToken.Type == token.COMMENT {
-		p.NextToken()
-		block.Comments = append(block.Comments, p.CurrentToken)
-	}
-
-	return block
-}
-
-// ParseBlankLine parses blank line tokens into a BlankLine statement.
-// Multiple consecutive BLANK_LINE tokens are condensed into one.
-func (p *Parser) ParseBlankLine() *ast.BlankLine {
-	bl := &ast.BlankLine{Token: p.CurrentToken}
-
-	// Consume consecutive blank line tokens
-	for p.PeekToken.Type == token.BLANK_LINE {
-		p.NextToken()
-	}
-
-	return bl
-}
-
 func (p *Parser) ParseLetStatement() *ast.LetStatement {
 	stmt := &ast.LetStatement{Token: p.CurrentToken}
 	if !p.ExpectToken(token.IDENT) {
@@ -111,7 +83,7 @@ func (p *Parser) ParseFunctionParameters() []*ast.Identifier {
 
 func (p *Parser) ParseReturnStatement() *ast.ReturnStatement {
 	stmt := &ast.ReturnStatement{Token: p.CurrentToken}
-	if p.PeekToken.Type != token.SEMICOLON && p.PeekToken.Type != token.EOF && p.PeekToken.Type != token.RBRACE && p.PeekToken.Type != token.COMMENT {
+	if p.PeekToken.Type != token.SEMICOLON && p.PeekToken.Type != token.EOF && p.PeekToken.Type != token.RBRACE {
 		p.NextToken()
 		stmt.ReturnValue = p.ParseExpression()
 	}
@@ -260,10 +232,6 @@ func (p *Parser) ParseRemainingExpressionWithPrecedence(left ast.Expression, pre
 				// These tokens after a newline should not continue the expression
 				return left
 			}
-		}
-		// Stop if we hit a comment or blank line
-		if p.PeekToken.Type == token.COMMENT || p.PeekToken.Type == token.BLANK_LINE {
-			return left
 		}
 		left = p.ParseInfixExpression(left)
 	}
@@ -501,10 +469,6 @@ func (p *Parser) shouldInsertSemicolon() bool {
 		return true
 	}
 	if p.PeekToken.Type == token.RBRACE {
-		return true
-	}
-	// Comments and blank lines after a statement should trigger ASI
-	if p.PeekToken.Type == token.COMMENT || p.PeekToken.Type == token.BLANK_LINE {
 		return true
 	}
 	if !p.PeekToken.AfterNewline {

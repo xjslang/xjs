@@ -1,17 +1,20 @@
 package lexer
 
-import "github.com/xjslang/xjs/token"
+import (
+	"github.com/xjslang/xjs/token"
+)
 
 // NewToken creates a new token using the current position as both start and end.
 // For single-character tokens, start and end positions are the same.
 func (l *Lexer) NewToken(tokenType token.Type, literal string) token.Token {
 	pos := token.Position{Line: l.Line, Column: l.Column}
 	return token.Token{
-		Type:         tokenType,
-		Literal:      literal,
-		Start:        pos,
-		End:          pos,
-		AfterNewline: l.hadNewlineBefore,
+		Type:            tokenType,
+		Literal:         literal,
+		Start:           pos,
+		End:             pos,
+		AfterNewline:    l.hadNewlineBefore,
+		LeadingComments: append([]string(nil), l.leadingComments...),
 	}
 }
 
@@ -19,11 +22,12 @@ func (l *Lexer) NewToken(tokenType token.Type, literal string) token.Token {
 // This should be used when the start position was captured before reading a multi-character literal.
 func (l *Lexer) NewTokenAt(tokenType token.Type, literal string, startLine, startColumn int) token.Token {
 	return token.Token{
-		Type:         tokenType,
-		Literal:      literal,
-		Start:        token.Position{Line: startLine, Column: startColumn},
-		End:          token.Position{Line: l.Line, Column: l.Column},
-		AfterNewline: l.hadNewlineBefore,
+		Type:            tokenType,
+		Literal:         literal,
+		Start:           token.Position{Line: startLine, Column: startColumn},
+		End:             token.Position{Line: l.Line, Column: l.Column},
+		AfterNewline:    l.hadNewlineBefore,
+		LeadingComments: append([]string(nil), l.leadingComments...),
 	}
 }
 
@@ -104,26 +108,8 @@ func baseNextToken(l *Lexer) token.Token {
 		}
 	case '*':
 		tok = l.NewToken(token.MULTIPLY, string(l.CurrentChar))
-	case '\n':
-		startLine, startColumn := l.Line, l.Column
-		l.ReadChar()
-		l.skipWhitespace()
-		if l.CurrentChar == '\n' {
-			tok = l.NewTokenAt(token.BLANK_LINE, "", startLine, startColumn)
-		} else {
-			l.hadNewlineBefore = true
-			return l.nextToken(l)
-		}
 	case '/':
-		if l.PeekChar() == '/' {
-			// Capture position BEFORE reading the comment
-			startLine, startColumn := l.Line, l.Column
-			comment := l.readLineComment()
-			tok = l.NewTokenAt(token.COMMENT, comment, startLine, startColumn)
-			return tok // Don't call ReadChar() - readLineComment already positioned us
-		} else {
-			tok = l.NewToken(token.DIVIDE, string(l.CurrentChar))
-		}
+		tok = l.NewToken(token.DIVIDE, string(l.CurrentChar))
 	case '%':
 		tok = l.NewToken(token.MODULO, string(l.CurrentChar))
 	case ',':

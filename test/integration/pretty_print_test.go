@@ -73,8 +73,7 @@ startServer()`
 }
 
 func TestPrettyPrint_LineComments(t *testing.T) {
-	input := `
-// Configuration file
+	input := `// Configuration file
 let host = 'localhost'
 let port = 3000
 

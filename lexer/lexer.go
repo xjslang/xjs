@@ -27,16 +27,15 @@ type Lexer struct {
 	Line             int  // current line
 	Column           int  // current column
 	nextToken        func(*Lexer) token.Token
-	hadNewlineBefore bool // tracks if we just consumed a newline
+	hadNewlineBefore bool     // tracks if we just consumed a newline
+	leadingComments  []string // leading comments before the token
 }
 
 func newWithOptions(input string, interceptors ...Interceptor) *Lexer {
 	l := &Lexer{
-		input:            input,
-		Line:             0,
-		Column:           -1,
-		hadNewlineBefore: false,
-		nextToken:        baseNextToken,
+		input:     input,
+		Column:    -1,
+		nextToken: baseNextToken,
 	}
 	for _, reader := range interceptors {
 		l.useTokenInterceptor(reader)
@@ -78,11 +77,42 @@ func (l *Lexer) PeekChar() byte {
 	return l.input[l.readPosition]
 }
 
-// skipWhitespace skips whitespace characters and tracks newlines for ASI.
-func (l *Lexer) skipWhitespace() {
+// readLeadingComments reads leading comments (it includes collapsed blank lines)
+func (l *Lexer) readLeadingComments() {
 	l.hadNewlineBefore = false
-	for l.CurrentChar == ' ' || l.CurrentChar == '\t' || l.CurrentChar == '\r' {
-		l.ReadChar()
+	l.leadingComments = nil
+	for {
+		// read whitespaces
+		for isWhitespace(l.CurrentChar) {
+			if l.CurrentChar == '\n' {
+				l.hadNewlineBefore = true
+				l.leadingComments = append(l.leadingComments, "")
+			}
+			l.ReadChar()
+		}
+
+		// read comments
+		for l.CurrentChar == '/' && l.PeekChar() == '/' {
+			// consume "//"
+			l.ReadChar()
+			l.ReadChar()
+
+			var comment strings.Builder
+			for l.CurrentChar != '\n' && l.CurrentChar != 0 {
+				comment.WriteByte(l.CurrentChar)
+				l.ReadChar()
+			}
+			// omits the last newline
+			if l.CurrentChar == '\n' {
+				l.hadNewlineBefore = true
+				l.ReadChar()
+			}
+			l.leadingComments = append(l.leadingComments, comment.String())
+		}
+
+		if !isWhitespace(l.CurrentChar) {
+			break
+		}
 	}
 }
 
@@ -389,23 +419,9 @@ func (l *Lexer) readRawString() string {
 	return result.String()
 }
 
-// readLineComment reads a line comment and returns its content (without the //)
-func (l *Lexer) readLineComment() string {
-	// Skip the two slashes
-	for range 2 {
-		l.ReadChar()
-	}
-
-	position := l.position
-	for l.CurrentChar != '\n' && l.CurrentChar != 0 {
-		l.ReadChar()
-	}
-	return l.input[position:l.position]
-}
-
 // NextToken generates and returns the next token from the input stream.
 func (l *Lexer) NextToken() token.Token {
-	l.skipWhitespace()
+	l.readLeadingComments()
 	return l.nextToken(l)
 }
 

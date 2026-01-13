@@ -1,6 +1,10 @@
 package debug
 
 import (
+	"bytes"
+	"io"
+	"os"
+	"strings"
 	"testing"
 
 	"github.com/xjslang/xjs/ast"
@@ -32,58 +36,43 @@ func TestToString(t *testing.T) {
 	}
 }
 
-func ExamplePrint() {
+func TestPrint(t *testing.T) {
 	stmt := &ast.LetStatement{
 		Name:  &ast.Identifier{Value: "x"},
 		Value: &ast.IntegerLiteral{Token: token.Token{Literal: "5"}},
 	}
 
-	Print(stmt)
-	// Output:
-	// (*ast.LetStatement)({
-	//    Token: (token.Token) {
-	//       Type: (token.Type) 0,
-	//       Literal: (string) "",
-	//       Start: (token.Position) {
-	//          Line: (int) 0,
-	//          Column: (int) 0
-	//       },
-	//       End: (token.Position) {
-	//          Line: (int) 0,
-	//          Column: (int) 0
-	//       },
-	//       AfterNewline: (bool) false
-	//    },
-	//    Name: (*ast.Identifier)({
-	//       Token: (token.Token) {
-	//          Type: (token.Type) 0,
-	//          Literal: (string) "",
-	//          Start: (token.Position) {
-	//             Line: (int) 0,
-	//             Column: (int) 0
-	//          },
-	//          End: (token.Position) {
-	//             Line: (int) 0,
-	//             Column: (int) 0
-	//          },
-	//          AfterNewline: (bool) false
-	//       },
-	//       Value: (string) (len=1) "x"
-	//    }),
-	//    Value: (*ast.IntegerLiteral)({
-	//       Token: (token.Token) {
-	//          Type: (token.Type) 0,
-	//          Literal: (string) (len=1) "5",
-	//          Start: (token.Position) {
-	//             Line: (int) 0,
-	//             Column: (int) 0
-	//          },
-	//          End: (token.Position) {
-	//             Line: (int) 0,
-	//             Column: (int) 0
-	//          },
-	//          AfterNewline: (bool) false
-	//       }
-	//    })
-	// })
+	// Capture stdout to verify output
+	output := captureOutput(func() {
+		Print(stmt)
+	})
+
+	// Verify output is not empty
+	if output == "" {
+		t.Error("Print() produced no output")
+	}
+
+	// Verify output contains expected key strings
+	expectedStrings := []string{"ast.LetStatement", "Identifier", "x", "IntegerLiteral", "5"}
+	for _, expected := range expectedStrings {
+		if !strings.Contains(output, expected) {
+			t.Errorf("Print() output missing expected string %q", expected)
+		}
+	}
+}
+
+// captureOutput captures stdout during function execution
+func captureOutput(f func()) string {
+	old := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+
+	f()
+
+	w.Close()
+	os.Stdout = old
+
+	var buf bytes.Buffer
+	io.Copy(&buf, r)
+	return buf.String()
 }

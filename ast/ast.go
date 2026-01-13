@@ -83,33 +83,6 @@ func (p *Program) WriteTo(cw *CodeWriter) {
 	}
 }
 
-// CommentBlock represents one or more consecutive line comments.
-// It is treated as a statement in the AST.
-type CommentBlock struct {
-	Comments []token.Token // each token is a COMMENT token
-}
-
-func (cb *CommentBlock) WriteTo(cw *CodeWriter) {
-	if !cw.PrettyPrint {
-		return
-	}
-	for _, comment := range cb.Comments {
-		cw.AddMapping(comment.Start)
-		cw.WriteString("//")
-		cw.WriteString(comment.Literal)
-	}
-}
-
-// BlankLine represents one or more consecutive blank lines.
-// Multiple blank lines are condensed to a single blank line in output.
-type BlankLine struct {
-	Token token.Token
-}
-
-func (bl *BlankLine) WriteTo(cw *CodeWriter) {
-	// no needed
-}
-
 // Statements
 type LetStatement struct {
 	Token token.Token // the LET token
@@ -118,6 +91,7 @@ type LetStatement struct {
 }
 
 func (ls *LetStatement) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(ls.Token.LeadingComments)
 	cw.AddMapping(ls.Token.Start)
 	cw.WriteString("let ")
 	ls.Name.WriteTo(cw)
@@ -136,6 +110,7 @@ type ReturnStatement struct {
 }
 
 func (rs *ReturnStatement) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(rs.Token.LeadingComments)
 	cw.AddMapping(rs.Token.Start)
 	cw.WriteString("return")
 	if rs.ReturnValue != nil {
@@ -166,6 +141,7 @@ type FunctionDeclaration struct {
 }
 
 func (fd *FunctionDeclaration) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(fd.Token.LeadingComments)
 	cw.AddMapping(fd.Token.Start)
 	cw.WriteString("function ")
 	fd.Name.WriteTo(cw)
@@ -253,6 +229,7 @@ type ForStatement struct {
 }
 
 func (fs *ForStatement) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(fs.Token.LeadingComments)
 	cw.AddMapping(fs.Token.Start)
 	cw.WriteString("for")
 	cw.WriteSpace()
@@ -281,6 +258,7 @@ type Identifier struct {
 }
 
 func (i *Identifier) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(i.Token.LeadingComments)
 	cw.AddNamedMapping(i.Token.Start.Line, i.Token.Start.Column, i.Value)
 	cw.WriteString(i.Value)
 }
@@ -294,6 +272,7 @@ type IntegerLiteral struct {
 }
 
 func (il *IntegerLiteral) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(il.Token.LeadingComments)
 	cw.AddMapping(il.Token.Start)
 	cw.WriteString(il.Token.Literal)
 }
@@ -307,6 +286,7 @@ type FloatLiteral struct {
 }
 
 func (fl *FloatLiteral) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(fl.Token.LeadingComments)
 	cw.AddMapping(fl.Token.Start)
 	cw.WriteString(fl.Token.Literal)
 }
@@ -337,6 +317,7 @@ type MultiStringLiteral struct {
 }
 
 func (sl *MultiStringLiteral) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(sl.Token.LeadingComments)
 	cw.AddMapping(sl.Token.Start)
 	cw.WriteRune('`')
 	cw.WriteString(sl.Value)
@@ -353,6 +334,7 @@ type BooleanLiteral struct {
 }
 
 func (bl *BooleanLiteral) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(bl.Token.LeadingComments)
 	cw.AddMapping(bl.Token.Start)
 	cw.WriteString(bl.Token.Literal)
 }
@@ -366,6 +348,7 @@ type NullLiteral struct {
 }
 
 func (nl *NullLiteral) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(nl.Token.LeadingComments)
 	cw.AddMapping(nl.Token.Start)
 	cw.WriteString("null")
 }
@@ -383,6 +366,7 @@ type LetExpression struct {
 }
 
 func (le *LetExpression) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(le.Token.LeadingComments)
 	cw.AddMapping(le.Token.Start)
 	cw.WriteString("let ")
 	le.Name.WriteTo(cw)
@@ -558,6 +542,7 @@ type AssignmentExpression struct {
 }
 
 func (ae *AssignmentExpression) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(ae.Token.LeadingComments)
 	ae.Left.WriteTo(cw)
 	cw.WriteSpace()
 	cw.AddMapping(ae.Token.Start)
