@@ -75,7 +75,10 @@ type Program struct {
 }
 
 func (p *Program) WriteTo(cw *CodeWriter) {
-	for _, stmt := range p.Statements {
+	for i, stmt := range p.Statements {
+		if i > 0 {
+			cw.WriteNewline()
+		}
 		stmt.WriteTo(cw)
 	}
 }
@@ -94,7 +97,6 @@ func (cb *CommentBlock) WriteTo(cw *CodeWriter) {
 		cw.AddMapping(comment.Start)
 		cw.WriteString("//")
 		cw.WriteString(comment.Literal)
-		cw.WriteNewline()
 	}
 }
 
@@ -105,10 +107,7 @@ type BlankLine struct {
 }
 
 func (bl *BlankLine) WriteTo(cw *CodeWriter) {
-	if !cw.PrettyPrint {
-		return
-	}
-	cw.WriteRune('\n')
+	// no needed
 }
 
 // Statements
@@ -129,7 +128,6 @@ func (ls *LetStatement) WriteTo(cw *CodeWriter) {
 		ls.Value.WriteTo(cw)
 	}
 	cw.WriteSemi()
-	cw.WriteNewline()
 }
 
 type ReturnStatement struct {
@@ -145,7 +143,6 @@ func (rs *ReturnStatement) WriteTo(cw *CodeWriter) {
 		rs.ReturnValue.WriteTo(cw)
 	}
 	cw.WriteSemi()
-	cw.WriteNewline()
 }
 
 type ExpressionStatement struct {
@@ -159,7 +156,6 @@ func (es *ExpressionStatement) WriteTo(cw *CodeWriter) {
 	}
 	es.Expression.WriteTo(cw)
 	cw.WriteSemi()
-	cw.WriteNewline()
 }
 
 type FunctionDeclaration struct {
@@ -184,7 +180,6 @@ func (fd *FunctionDeclaration) WriteTo(cw *CodeWriter) {
 	cw.WriteRune(')')
 	cw.WriteSpace()
 	fd.Body.WriteTo(cw)
-	cw.WriteNewline()
 }
 
 type BlockStatement struct {
@@ -197,11 +192,15 @@ func (bs *BlockStatement) WriteTo(cw *CodeWriter) {
 	cw.WriteRune('{')
 	cw.IncreaseIndent()
 	cw.WriteNewline()
-	for _, stmt := range bs.Statements {
+	for i, stmt := range bs.Statements {
+		if i > 0 {
+			cw.WriteNewline()
+		}
 		cw.WriteIndent()
 		stmt.WriteTo(cw)
 	}
 	cw.DecreaseIndent()
+	cw.WriteNewline()
 	cw.WriteIndent()
 	cw.WriteRune('}')
 }
@@ -226,7 +225,6 @@ func (ifs *IfStatement) WriteTo(cw *CodeWriter) {
 		cw.WriteString(" else ")
 		ifs.ElseBranch.WriteTo(cw)
 	}
-	cw.WriteNewline()
 }
 
 type WhileStatement struct {

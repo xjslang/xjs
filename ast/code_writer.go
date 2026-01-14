@@ -14,11 +14,6 @@ type CodeWriter struct {
 	IndentLevel     int
 	IndentString    string
 	WriteSemicolons bool
-
-	// insertNewLine indicates whether a new line should be inserted before writing
-	// the next element in the generated code. This flag helps control the formatting
-	// and readability of the output code.
-	insertNewLine bool
 }
 
 func (cw *CodeWriter) String() string {
@@ -26,11 +21,6 @@ func (cw *CodeWriter) String() string {
 }
 
 func (cw *CodeWriter) WriteString(s string) {
-	if cw.insertNewLine {
-		cw.Builder.WriteRune('\n')
-		cw.insertNewLine = false
-	}
-
 	cw.Builder.WriteString(s)
 	if cw.Mapper == nil {
 		return
@@ -39,11 +29,6 @@ func (cw *CodeWriter) WriteString(s string) {
 }
 
 func (cw *CodeWriter) WriteRune(r rune) {
-	if cw.insertNewLine {
-		cw.Builder.WriteRune('\n')
-		cw.insertNewLine = false
-	}
-
 	cw.Builder.WriteRune(r)
 	if cw.Mapper == nil {
 		return
@@ -101,7 +86,7 @@ func (cw *CodeWriter) WriteNewline() {
 	if !cw.PrettyPrint {
 		return
 	}
-	cw.insertNewLine = true
+	cw.WriteRune('\n')
 }
 
 // WriteSpace writes a space character if PrettyPrint is enabled
