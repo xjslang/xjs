@@ -22,4 +22,5 @@ func (cw *CodeWriter) WriteLeadingComments(comments []string) {
 		cw.Builder.WriteString(comment)
 	}
 	cw.WriteNewline()
+	cw.WriteIndent()
 }
