@@ -583,6 +583,7 @@ type FunctionExpression struct {
 }
 
 func (fe *FunctionExpression) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(fe.Token.LeadingComments)
 	cw.AddMapping(fe.Token.Start)
 	cw.WriteString("function")
 	if fe.Name != nil {
