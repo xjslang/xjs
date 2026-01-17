@@ -99,6 +99,7 @@ func (c *Compiler) Compile(program *ast.Program) CompileResult {
 	}
 	program.WriteTo(&w)
 
+	// TODO: maybe it won't necessary to "clean" the result
 	code := w.String()
 	if c.prettyPrint {
 		code = cleanEmptyLines(code)
