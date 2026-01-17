@@ -12,8 +12,8 @@ import (
 
 func Example_prettyPrint() {
 	input := `// Configuration
-let port = 3000
-let host = 'localhost'
+let port = 3000 // HTTP port
+let host = 'localhost' // HTTP host
 
 // Main server function
 function startServer() {
@@ -47,8 +47,8 @@ startServer()`
 	fmt.Println(result.Code)
 	// Output:
 	// // Configuration
-	// let port = 3000;
-	// let host = "localhost";
+	// let port = 3000; // HTTP port
+	// let host = "localhost"; // HTTP host
 	//
 	// // Main server function
 	// function startServer() {
