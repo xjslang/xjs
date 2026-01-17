@@ -161,9 +161,11 @@ func (fd *FunctionDeclaration) WriteTo(cw *CodeWriter) {
 type BlockStatement struct {
 	Token      token.Token // the { token
 	Statements []Statement
+	RBrace     token.Token
 }
 
 func (bs *BlockStatement) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(bs.Token.LeadingComments)
 	cw.AddMapping(bs.Token.Start)
 	cw.WriteRune('{')
 	cw.IncreaseIndent()
@@ -177,6 +179,7 @@ func (bs *BlockStatement) WriteTo(cw *CodeWriter) {
 	}
 	cw.DecreaseIndent()
 	cw.WriteNewline()
+	cw.WriteLeadingComments(bs.RBrace.LeadingComments)
 	cw.WriteIndent()
 	cw.WriteRune('}')
 }

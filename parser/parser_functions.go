@@ -180,6 +180,7 @@ func (p *Parser) ParseBlockStatement() *ast.BlockStatement {
 	if p.CurrentToken.Type != token.RBRACE && !p.tolerantMode {
 		p.AddError("unclosed block statement, expected '}'")
 	}
+	block.RBrace = p.CurrentToken
 	return block
 }
 
