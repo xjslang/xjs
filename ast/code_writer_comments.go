@@ -6,11 +6,17 @@ func (cw *CodeWriter) WriteLeadingComments(comments []string) {
 	}
 
 	for i, comment := range comments {
-		if i > 0 {
+		isComment := len(comment) > 0
+		if i == 0 {
+			// Add a space between the current line and the comment
+			if cw.pendingNewline && isComment {
+				cw.Builder.WriteRune(' ')
+			}
+		} else {
 			cw.writeNewline()
 			cw.writeIndent()
 		}
-		if len(comment) > 0 {
+		if isComment {
 			cw.Builder.WriteString("//")
 		}
 		cw.Builder.WriteString(comment)

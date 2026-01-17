@@ -72,3 +72,19 @@ func TestWriteIndent(t *testing.T) {
 		t.Errorf("Expected %q, got %q", expected, output)
 	}
 }
+
+// TestComments verifies that a space is added between the current line and the next comment.
+func TestComments(t *testing.T) {
+	cw := CodeWriter{PrettyPrint: true}
+	cw.WriteString("command()")
+	cw.WriteNewline()
+	cw.WriteLeadingComments([]string{
+		" comment",
+	})
+
+	expected := "command() // comment"
+	output := cw.String()
+	if output != expected {
+		t.Errorf("Expected %q, got %q", expected, output)
+	}
+}
