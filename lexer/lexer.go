@@ -107,7 +107,7 @@ func (l *Lexer) readLeadingComments() {
 				l.hadNewlineBefore = true
 				l.ReadChar()
 			}
-			l.leadingComments = append(l.leadingComments, comment.String())
+			l.leadingComments = append(l.leadingComments, strings.TrimRight(comment.String(), " "))
 		}
 
 		if !isWhitespace(l.CurrentChar) {
