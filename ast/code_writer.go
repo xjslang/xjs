@@ -14,8 +14,8 @@ type CodeWriter struct {
 	IndentString    string
 	WriteSemicolons bool
 
-	pendingNewline bool
-	pendingIndent  bool
+	pendingIndent bool
+	pendings      []rune
 }
 
 // WriteString writes a string to the buffer

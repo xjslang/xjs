@@ -1,10 +1,10 @@
 package ast
 
 func (cw *CodeWriter) flushPending() {
-	if cw.pendingNewline {
-		cw.writeNewline()
-		cw.pendingNewline = false
+	for _, ch := range cw.pendings {
+		cw.Builder.WriteRune(ch)
 	}
+	cw.pendings = []rune{}
 
 	if cw.pendingIndent {
 		cw.writeIndent()
@@ -69,7 +69,12 @@ func (cw *CodeWriter) WriteNewline() {
 	if !cw.PrettyPrint {
 		return
 	}
-	cw.pendingNewline = true
+
+	if n := len(cw.pendings); n > 0 && (cw.pendings[n-1] == ' ' || cw.pendings[n-1] == '\n') {
+		cw.pendings[n-1] = '\n'
+	} else {
+		cw.pendings = append(cw.pendings, '\n')
+	}
 }
 
 // WriteSpace writes a space character if PrettyPrint is enabled
@@ -77,5 +82,14 @@ func (cw *CodeWriter) WriteSpace() {
 	if !cw.PrettyPrint {
 		return
 	}
-	cw.WriteRune(' ')
+
+	if n := len(cw.pendings); n > 0 {
+		lastChar := cw.pendings[n-1]
+		// '\n' has higher priority than ' '
+		if lastChar != '\n' {
+			cw.pendings[n-1] = ' '
+		}
+	} else {
+		cw.pendings = append(cw.pendings, ' ')
+	}
 }
