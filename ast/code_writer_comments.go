@@ -8,7 +8,9 @@ func (cw *CodeWriter) WriteLeadingComments(comments []string) {
 	for i, comment := range comments {
 		isComment := len(comment) > 0
 		if i == 0 {
-			cw.Builder.WriteRune(' ')
+			if isComment {
+				cw.Builder.WriteRune(' ')
+			}
 		} else {
 			cw.writeNewline()
 			cw.writeIndent()
