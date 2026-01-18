@@ -161,7 +161,7 @@ func (fd *FunctionDeclaration) WriteTo(cw *CodeWriter) {
 type BlockStatement struct {
 	Token      token.Token // the { token
 	Statements []Statement
-	RBrace     token.Token
+	RBrace     token.Token // the } token
 }
 
 func (bs *BlockStatement) WriteTo(cw *CodeWriter) {
@@ -613,9 +613,11 @@ func (fe *FunctionExpression) Precedence() int {
 type ArrayLiteral struct {
 	Token    token.Token // the [ token
 	Elements []Expression
+	RBracket token.Token // the ] token
 }
 
 func (al *ArrayLiteral) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(al.Token.LeadingComments)
 	cw.AddMapping(al.Token.Start)
 	cw.WriteRune('[')
 	for i, elem := range al.Elements {
@@ -625,6 +627,7 @@ func (al *ArrayLiteral) WriteTo(cw *CodeWriter) {
 		}
 		elem.WriteTo(cw)
 	}
+	cw.WriteLeadingComments(al.RBracket.LeadingComments)
 	cw.WriteRune(']')
 }
 

@@ -318,6 +318,7 @@ func (p *Parser) ParseGroupedExpression() ast.Expression {
 func (p *Parser) ParseArrayLiteral() ast.Expression {
 	array := &ast.ArrayLiteral{Token: p.CurrentToken}
 	array.Elements = p.ParseExpressionList(token.RBRACKET)
+	array.RBracket = p.CurrentToken
 	return array
 }
 
