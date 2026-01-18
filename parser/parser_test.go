@@ -274,8 +274,8 @@ func TestParseAssignmentExpressions(t *testing.T) {
 		expected string
 	}{
 		{"simple assignment", "x = 5", "x=5;"},
-		{"compound addition", "x += 10", "x +=10;"},
-		{"compound subtraction", "x -= 5", "x -=5;"},
+		{"compound addition", "x += 10", "x+=10;"},
+		{"compound subtraction", "x -= 5", "x-=5;"},
 		{"assignment with expression", "x = 1 + 2", "x=1+2;"},
 	}
 
