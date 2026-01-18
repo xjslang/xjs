@@ -121,7 +121,6 @@ func (rs *ReturnStatement) WriteTo(cw *CodeWriter) {
 }
 
 type ExpressionStatement struct {
-	Token      token.Token // the first token of the expression
 	Expression Expression
 }
 

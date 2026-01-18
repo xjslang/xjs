@@ -189,7 +189,7 @@ func (p *Parser) ParseStatement() ast.Statement {
 }
 
 func (p *Parser) ParseExpressionStatement() *ast.ExpressionStatement {
-	stmt := &ast.ExpressionStatement{Token: p.CurrentToken}
+	stmt := &ast.ExpressionStatement{}
 	stmt.Expression = p.ParseExpression()
 	if !p.ExpectSemicolonASI() {
 		return nil
