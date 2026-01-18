@@ -487,7 +487,9 @@ func (ge *GroupedExpression) WriteTo(cw *CodeWriter) {
 	cw.WriteLeadingComments(ge.Token.LeadingComments)
 	cw.AddMapping(ge.Token.Start)
 	cw.WriteRune('(')
+	cw.IncreaseIndent()
 	ge.Expression.WriteTo(cw)
+	cw.DecreaseIndent()
 	cw.WriteRune(')')
 }
 
@@ -507,6 +509,7 @@ func (ce *CallExpression) WriteTo(cw *CodeWriter) {
 	cw.WriteLeadingComments(ce.Token.LeadingComments)
 	cw.AddMapping(ce.Token.Start)
 	cw.WriteRune('(')
+	cw.IncreaseIndent()
 	for i, arg := range ce.Arguments {
 		if i > 0 {
 			cw.WriteRune(',')
@@ -514,6 +517,7 @@ func (ce *CallExpression) WriteTo(cw *CodeWriter) {
 		}
 		arg.WriteTo(cw)
 	}
+	cw.DecreaseIndent()
 	cw.WriteRune(')')
 }
 
@@ -631,6 +635,7 @@ func (al *ArrayLiteral) WriteTo(cw *CodeWriter) {
 	cw.WriteLeadingComments(al.Token.LeadingComments)
 	cw.AddMapping(al.Token.Start)
 	cw.WriteRune('[')
+	cw.IncreaseIndent()
 	for i, elem := range al.Elements {
 		if i > 0 {
 			cw.WriteRune(',')
@@ -639,6 +644,7 @@ func (al *ArrayLiteral) WriteTo(cw *CodeWriter) {
 		elem.WriteTo(cw)
 	}
 	cw.WriteLeadingComments(al.RBracket.LeadingComments)
+	cw.DecreaseIndent()
 	cw.WriteRune(']')
 }
 
@@ -660,7 +666,7 @@ func (ol *ObjectLiteral) WriteTo(cw *CodeWriter) {
 	cw.WriteLeadingComments(ol.Token.LeadingComments)
 	cw.AddMapping(ol.Token.Start)
 	cw.WriteRune('{')
-
+	cw.IncreaseIndent()
 	// Write properties in order they were defined
 	for i, prop := range ol.Properties {
 		if i > 0 {
@@ -672,6 +678,7 @@ func (ol *ObjectLiteral) WriteTo(cw *CodeWriter) {
 		cw.WriteSpace()
 		prop.Value.WriteTo(cw)
 	}
+	cw.DecreaseIndent()
 	cw.WriteRune('}')
 }
 
