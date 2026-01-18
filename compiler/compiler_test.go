@@ -8,12 +8,17 @@ import (
 	"github.com/xjslang/xjs/parser"
 )
 
-func TestComments(m *testing.T) {
-	input := `// expression comment
-1 + 2`
+func TestComments(t *testing.T) {
+	input := `(
+// function expression comment
+function(){
+})`
 	lb := lexer.NewBuilder()
 	p := parser.NewBuilder(lb).Build(input)
-	program, _ := p.ParseProgram()
+	program, err := p.ParseProgram()
+	if err != nil {
+		t.Fatalf("ParseProgram error %v", err)
+	}
 	result := New().WithPrettyPrint(WithSemi(false)).Compile(program)
 	fmt.Println(result.Code)
 }
