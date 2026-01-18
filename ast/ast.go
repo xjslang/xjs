@@ -192,6 +192,7 @@ type IfStatement struct {
 }
 
 func (ifs *IfStatement) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(ifs.Token.LeadingComments)
 	cw.AddMapping(ifs.Token.Start)
 	cw.WriteString("if")
 	cw.WriteSpace()
@@ -213,6 +214,7 @@ type WhileStatement struct {
 }
 
 func (ws *WhileStatement) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(ws.Token.LeadingComments)
 	cw.AddMapping(ws.Token.Start)
 	cw.WriteString("while")
 	cw.WriteSpace()
@@ -304,7 +306,9 @@ type StringLiteral struct {
 }
 
 func (sl *StringLiteral) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(sl.Token.LeadingComments)
 	cw.AddMapping(sl.Token.Start)
+	// TODO: keep the original string token (' or ")
 	cw.WriteRune('"')
 	cw.WriteString(sl.Value)
 	cw.WriteRune('"')
@@ -406,6 +410,7 @@ func (be *BinaryExpression) WriteTo(cw *CodeWriter) {
 	}
 
 	cw.WriteSpace()
+	cw.WriteLeadingComments(be.Token.LeadingComments)
 	cw.AddMapping(be.Token.Start)
 	cw.WriteString(be.Operator)
 	cw.WriteSpace()
@@ -433,6 +438,7 @@ type UnaryExpression struct {
 }
 
 func (ue *UnaryExpression) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(ue.Token.LeadingComments)
 	cw.AddMapping(ue.Token.Start)
 	cw.WriteString(ue.Operator)
 	// Right side needs parens if its precedence is lower than unary
@@ -456,6 +462,7 @@ type PostfixExpression struct {
 }
 
 func (pe *PostfixExpression) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(pe.Token.LeadingComments)
 	// Left side needs parens if its precedence is lower than postfix
 	if pe.Left.Precedence() < PrecedencePostfix {
 		cw.WriteRune('(')
@@ -478,6 +485,7 @@ type GroupedExpression struct {
 }
 
 func (ge *GroupedExpression) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(ge.Token.LeadingComments)
 	cw.AddMapping(ge.Token.Start)
 	cw.WriteRune('(')
 	ge.Expression.WriteTo(cw)
@@ -522,6 +530,7 @@ type MemberExpression struct {
 
 func (me *MemberExpression) WriteTo(cw *CodeWriter) {
 	me.Object.WriteTo(cw)
+	cw.WriteLeadingComments(me.Token.LeadingComments)
 	if me.Computed {
 		cw.AddMapping(me.Token.Start)
 		cw.WriteRune('[')
@@ -545,9 +554,9 @@ type AssignmentExpression struct {
 }
 
 func (ae *AssignmentExpression) WriteTo(cw *CodeWriter) {
-	cw.WriteLeadingComments(ae.Token.LeadingComments)
 	ae.Left.WriteTo(cw)
 	cw.WriteSpace()
+	cw.WriteLeadingComments(ae.Token.LeadingComments)
 	cw.AddMapping(ae.Token.Start)
 	cw.WriteRune('=')
 	cw.WriteSpace()
@@ -567,10 +576,12 @@ type CompoundAssignmentExpression struct {
 
 func (cae *CompoundAssignmentExpression) WriteTo(cw *CodeWriter) {
 	cae.Left.WriteTo(cw)
+	cw.WriteLeadingComments(cae.Token.LeadingComments)
 	cw.AddMapping(cae.Token.Start)
-	cw.WriteRune(' ')
+	cw.WriteSpace()
 	cw.WriteString(cae.Operator)
 	cw.WriteRune('=')
+	cw.WriteSpace()
 	cae.Value.WriteTo(cw)
 }
 
@@ -646,6 +657,7 @@ type ObjectLiteral struct {
 }
 
 func (ol *ObjectLiteral) WriteTo(cw *CodeWriter) {
+	cw.WriteLeadingComments(ol.Token.LeadingComments)
 	cw.AddMapping(ol.Token.Start)
 	cw.WriteRune('{')
 
@@ -660,7 +672,6 @@ func (ol *ObjectLiteral) WriteTo(cw *CodeWriter) {
 		cw.WriteSpace()
 		prop.Value.WriteTo(cw)
 	}
-
 	cw.WriteRune('}')
 }
 
