@@ -8,10 +8,7 @@ func (cw *CodeWriter) WriteLeadingComments(comments []string) {
 	for i, comment := range comments {
 		isComment := len(comment) > 0
 		if i == 0 {
-			// Add a space between the current line and the comment
-			if cw.pendingNewline && isComment {
-				cw.Builder.WriteRune(' ')
-			}
+			cw.Builder.WriteRune(' ')
 		} else {
 			cw.writeNewline()
 			cw.writeIndent()
