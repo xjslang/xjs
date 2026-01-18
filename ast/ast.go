@@ -504,6 +504,7 @@ type CallExpression struct {
 
 func (ce *CallExpression) WriteTo(cw *CodeWriter) {
 	ce.Function.WriteTo(cw)
+	cw.WriteLeadingComments(ce.Token.LeadingComments)
 	cw.AddMapping(ce.Token.Start)
 	cw.WriteRune('(')
 	for i, arg := range ce.Arguments {
