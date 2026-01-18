@@ -1,5 +1,31 @@
 package ast
 
+func isWhitespace(ch rune) bool {
+	return ch == ' ' || ch == '\n'
+}
+
+func priority(ch rune) uint8 {
+	if ch == '\n' {
+		return 1
+	}
+	return 0
+}
+
+func (cw *CodeWriter) writePending(ch rune) {
+	if n := len(cw.pendings); n > 0 {
+		lastChar := cw.pendings[n-1]
+		if isWhitespace(lastChar) {
+			if priority(lastChar) < priority(ch) {
+				cw.pendings[n-1] = ch
+			}
+		} else if lastChar != ch {
+			cw.pendings = append(cw.pendings, ch)
+		}
+	} else {
+		cw.pendings = append(cw.pendings, ch)
+	}
+}
+
 func (cw *CodeWriter) flushPending() {
 	for _, ch := range cw.pendings {
 		cw.Builder.WriteRune(ch)
@@ -70,11 +96,7 @@ func (cw *CodeWriter) WriteNewline() {
 		return
 	}
 
-	if n := len(cw.pendings); n > 0 && (cw.pendings[n-1] == ' ' || cw.pendings[n-1] == '\n') {
-		cw.pendings[n-1] = '\n'
-	} else {
-		cw.pendings = append(cw.pendings, '\n')
-	}
+	cw.writePending('\n')
 }
 
 // WriteSpace writes a space character if PrettyPrint is enabled
@@ -83,13 +105,5 @@ func (cw *CodeWriter) WriteSpace() {
 		return
 	}
 
-	if n := len(cw.pendings); n > 0 {
-		lastChar := cw.pendings[n-1]
-		// '\n' has higher priority than ' '
-		if lastChar != '\n' {
-			cw.pendings[n-1] = ' '
-		}
-	} else {
-		cw.pendings = append(cw.pendings, ' ')
-	}
+	cw.writePending(' ')
 }
