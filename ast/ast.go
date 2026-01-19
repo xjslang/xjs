@@ -167,8 +167,8 @@ func (bs *BlockStatement) WriteTo(cw *CodeWriter) {
 	cw.WriteLeadingComments(bs.Token.LeadingComments)
 	cw.AddMapping(bs.Token.Start)
 	cw.WriteRune('{')
-	cw.IncreaseIndent()
 	cw.WriteNewline()
+	cw.IncreaseIndent()
 	for i, stmt := range bs.Statements {
 		if i > 0 {
 			cw.WriteNewline()
