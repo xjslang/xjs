@@ -662,6 +662,7 @@ type ObjectProperty struct {
 type ObjectLiteral struct {
 	Token      token.Token // the { token
 	Properties []ObjectProperty
+	RBrace     token.Token // the } token
 }
 
 func (ol *ObjectLiteral) WriteTo(cw *CodeWriter) {
@@ -680,6 +681,7 @@ func (ol *ObjectLiteral) WriteTo(cw *CodeWriter) {
 		cw.WriteSpace()
 		prop.Value.WriteTo(cw)
 	}
+	cw.WriteLeadingComments(ol.RBrace.LeadingComments)
 	cw.DecreaseIndent()
 	cw.WriteRune('}')
 }

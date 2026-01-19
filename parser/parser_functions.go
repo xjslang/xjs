@@ -351,6 +351,7 @@ func (p *Parser) ParseObjectLiteral() ast.Expression {
 	if !p.ExpectToken(token.RBRACE) {
 		return nil
 	}
+	obj.RBrace = p.CurrentToken
 	return obj
 }
 
