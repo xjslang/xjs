@@ -41,6 +41,17 @@ func (cw *CodeWriter) WriteRune(r rune) {
 	}
 }
 
+// WriteSemi writes a semicolon if WriteSemicolons is true.
+func (cw *CodeWriter) WriteSemi() {
+	if !cw.PrettyPrint {
+		cw.WriteRune(';')
+		return
+	}
+	if cw.WriteSemicolons {
+		cw.WriteRune(';')
+	}
+}
+
 // String returns the accumulated string
 func (cw *CodeWriter) String() string {
 	return cw.Builder.String()

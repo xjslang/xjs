@@ -53,18 +53,6 @@ func (cw *CodeWriter) WriteIndent() {
 	}
 }
 
-// WriteSemi writes a semicolon if WriteSemicolons is true.
-func (cw *CodeWriter) WriteSemi() {
-	if !cw.PrettyPrint {
-		cw.WriteRune(';')
-		return
-	}
-
-	if cw.WriteSemicolons {
-		cw.WriteRune(';')
-	}
-}
-
 // WriteNewline writes a newline character if PrettyPrint is enabled
 func (cw *CodeWriter) WriteNewline() {
 	if !cw.PrettyPrint {
