@@ -8,11 +8,9 @@ import (
 )
 
 func cleanEmptyLines(code string) string {
-	lines := strings.Split(code, "\n")
+	lines := strings.Split(strings.TrimSpace(code), "\n")
 	for i, line := range lines {
-		if len(line) > 0 && len(strings.TrimSpace(line)) == 0 {
-			lines[i] = ""
-		}
+		lines[i] = strings.TrimRight(line, " ")
 	}
 	return strings.Join(lines, "\n")
 }
