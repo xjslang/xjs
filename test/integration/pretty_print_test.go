@@ -5,55 +5,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/xjslang/djs/builder"
-	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/compiler"
 	"github.com/xjslang/xjs/lexer"
 	"github.com/xjslang/xjs/parser"
 )
-
-func TestCodeWritter(t *testing.T) {
-	cw := ast.CodeWriter{
-		PrettyPrint:  true,
-		IndentString: "··",
-	}
-
-	cw.WriteString("function test() {")
-	cw.WriteNewline()
-	cw.IncreaseIndent()
-
-	cw.WriteLeadingComments([]string{
-		" comment 1",
-	})
-
-	cw.WriteString("console.log('aaa')")
-	cw.WriteNewline()
-	cw.DecreaseIndent()
-
-	cw.WriteIndent()
-	cw.WriteRune('}')
-	cw.WriteNewline()
-
-	fmt.Println(cw.String())
-}
-
-func TestMain(t *testing.T) {
-	input := `{ // block
-  {
-    let x = 100 // x-coordinate
-    let y = 200
-  }
-}`
-
-	lb := lexer.NewBuilder()
-	p := builder.New(lb).Build(input)
-	program, err := p.ParseProgram()
-	if err != nil {
-		t.Fatalf("ParseProgram error = %v", err)
-	}
-	result := compiler.New().WithPrettyPrint(compiler.WithSemi(false)).Compile(program)
-	fmt.Println(result.Code)
-}
 
 func Example_prettyPrint() {
 	input := `// Configuration
