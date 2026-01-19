@@ -22,7 +22,7 @@ func (cw *CodeWriter) WriteLeadingComments(comments []string) {
 	}
 
 	// Clear pendings and move to the next line
-	cw.pendings = []rune{}
+	cw.clearPending()
 	cw.WriteNewline()
 	cw.WriteIndent()
 }

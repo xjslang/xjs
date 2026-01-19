@@ -1,5 +1,9 @@
 package ast
 
+func (cw *CodeWriter) clearPending() {
+	cw.pendings = []rune{}
+}
+
 func (cw *CodeWriter) flushPending() {
 	for _, ch := range cw.pendings {
 		if ch == '\t' {
@@ -8,7 +12,7 @@ func (cw *CodeWriter) flushPending() {
 			cw.Builder.WriteRune(ch)
 		}
 	}
-	cw.pendings = []rune{}
+	cw.clearPending()
 }
 
 func (cw *CodeWriter) writeNewline() {
@@ -58,7 +62,7 @@ func (cw *CodeWriter) WriteNewline() {
 	if !cw.PrettyPrint {
 		return
 	}
-	cw.pendings = []rune{}
+	cw.clearPending()
 	cw.pendings = append(cw.pendings, '\n')
 }
 
