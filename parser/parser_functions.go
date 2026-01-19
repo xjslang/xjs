@@ -312,6 +312,7 @@ func (p *Parser) ParseGroupedExpression() ast.Expression {
 	return &ast.GroupedExpression{
 		Token:      tok,
 		Expression: exp,
+		RParen:     p.CurrentToken,
 	}
 }
 

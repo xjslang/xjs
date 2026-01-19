@@ -481,6 +481,7 @@ func (pe *PostfixExpression) Precedence() int {
 type GroupedExpression struct {
 	Token      token.Token // the opening ( token
 	Expression Expression
+	RParen     token.Token // the closing ) token
 }
 
 func (ge *GroupedExpression) WriteTo(cw *CodeWriter) {
@@ -489,6 +490,7 @@ func (ge *GroupedExpression) WriteTo(cw *CodeWriter) {
 	cw.WriteRune('(')
 	cw.IncreaseIndent()
 	ge.Expression.WriteTo(cw)
+	cw.WriteLeadingComments(ge.RParen.LeadingComments)
 	cw.DecreaseIndent()
 	cw.WriteRune(')')
 }
