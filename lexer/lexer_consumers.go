@@ -16,7 +16,7 @@ func (l *Lexer) consumeChars(sb *strings.Builder, count int) {
 
 func (l *Lexer) consumeIdentifier(sb *strings.Builder) {
 	sb.WriteRune(l.CurrentChar)
-	for l.Advance(); l.CurrentChar >= 'a' && l.CurrentChar <= 'z'; l.Advance() {
+	for l.Advance(); isLetter(l.CurrentChar) || isDigit(l.CurrentChar); l.Advance() {
 		sb.WriteRune(l.CurrentChar)
 	}
 }

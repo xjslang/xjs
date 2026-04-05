@@ -6,6 +6,8 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
+const eof = rune(-1)
+
 type Lexer struct {
 	input       io.RuneReader
 	CurrentChar rune
@@ -17,8 +19,8 @@ type Lexer struct {
 func New(input io.RuneReader) *Lexer {
 	l := &Lexer{
 		input:       input,
-		CurrentChar: 0,
-		PeekChar:    0,
+		CurrentChar: eof,
+		PeekChar:    eof,
 		tokenReader: defaultTokenReader,
 	}
 	// advance twice to update both `CurrentChar` and `PeekChar`
@@ -31,7 +33,7 @@ func (l *Lexer) Advance() {
 	l.CurrentChar = l.PeekChar
 	r, _, err := l.input.ReadRune()
 	if err == io.EOF {
-		l.PeekChar = 0
+		l.PeekChar = eof
 		return
 	}
 	if err != nil {

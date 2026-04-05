@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/xjslang/xjs/token"
 )
 
 func TestSkipWhitespaces(t *testing.T) {
@@ -18,5 +20,39 @@ func TestSkipWhitespaces(t *testing.T) {
 	tok := l.NextToken()
 	if tok.Literal != "" {
 		t.Errorf("Expected empty string, got %s", tok.Literal)
+	}
+}
+
+func TestConsumeIdentifier(t *testing.T) {
+	idNames := []string{"hello", "hello123", "_hello123"}
+	for _, idName := range idNames {
+		l := New(strings.NewReader(idName))
+		tok := l.NextToken()
+		if tok.Type != token.IDENT {
+			t.Errorf("Expected %v, got %v", token.IDENT, tok.Type)
+		} else if tok.Literal != idName {
+			t.Errorf("Expected %s, got %s", idName, tok.Literal)
+		}
+	}
+}
+
+func TestScanContinuesAfterNullCharacter(t *testing.T) {
+	l := New(strings.NewReader("hello\x00dolly"))
+	expected := []token.Token{
+		{Type: token.IDENT, Literal: "hello"},
+		{Type: token.UNKNOWN, Literal: "\x00"},
+		{Type: token.IDENT, Literal: "dolly"},
+	}
+	for _, expectedToken := range expected {
+		tok := l.NextToken()
+		if tok.Type != expectedToken.Type {
+			t.Errorf("Expected %v, got %v", expectedToken.Type, tok.Type)
+		} else if tok.Literal != expectedToken.Literal {
+			t.Errorf("Expected %s, got %s", expectedToken.Literal, tok.Literal)
+		}
+	}
+	tok := l.NextToken()
+	if tok.Type != token.EOF {
+		t.Errorf("Expected %v, got %v", token.EOF, tok.Type)
 	}
 }
