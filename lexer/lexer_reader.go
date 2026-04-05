@@ -51,10 +51,10 @@ func defaultTokenReader(l *Lexer) token.Token {
 			return token.Token{Type: token.GREATER, Literal: sb.String()}
 		}
 	default:
-		if l.CurrentChar >= 'a' && l.CurrentChar <= 'z' {
+		if isLetter(l.CurrentChar) {
 			l.consumeIdentifier(sb)
 			return token.Token{Type: token.IDENT, Literal: sb.String()}
-		} else if l.CurrentChar == token.EOF {
+		} else if l.CurrentChar == eof {
 			return token.Token{Type: token.EOF, Literal: ""}
 		}
 	}
