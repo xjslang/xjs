@@ -17,8 +17,8 @@ type Lexer struct {
 func New(input io.RuneReader) *Lexer {
 	l := &Lexer{
 		input:       input,
-		CurrentChar: token.EOF,
-		PeekChar:    token.EOF,
+		CurrentChar: 0,
+		PeekChar:    0,
 		tokenReader: defaultTokenReader,
 	}
 	// advance twice to update both `CurrentChar` and `PeekChar`
@@ -31,7 +31,7 @@ func (l *Lexer) Advance() {
 	l.CurrentChar = l.PeekChar
 	r, _, err := l.input.ReadRune()
 	if err == io.EOF {
-		l.PeekChar = token.EOF
+		l.PeekChar = 0
 		return
 	}
 	if err != nil {

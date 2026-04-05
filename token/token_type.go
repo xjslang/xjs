@@ -2,8 +2,10 @@ package token
 
 import "fmt"
 
+type TokenType int
+
 const (
-	EOF = iota
+	EOF TokenType = iota
 	EQ
 	NOT_EQ
 	ASSIGN
@@ -15,8 +17,6 @@ const (
 	IDENT
 	UNKNOWN
 )
-
-type TokenType int
 
 func (tt TokenType) String() string {
 	switch tt {
