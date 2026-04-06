@@ -34,3 +34,20 @@ func (l *Lexer) readNumber() string {
 	}
 	return sb.String()
 }
+
+func (l *Lexer) readString(delimiter rune) string {
+	sb := strings.Builder{}
+	sb.WriteRune(l.CurrentChar)
+	for {
+		l.Advance()
+		if l.CurrentChar == delimiter {
+			sb.WriteRune(l.CurrentChar)
+			l.Advance()
+			break
+		} else if l.CurrentChar == eof || l.CurrentChar == '\n' {
+			break
+		}
+		sb.WriteRune(l.CurrentChar)
+	}
+	return sb.String()
+}
