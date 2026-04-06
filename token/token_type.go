@@ -15,6 +15,7 @@ const (
 	GREATER
 	GREATER_OR_EQ
 	IDENT
+	NUMBER
 	UNKNOWN
 )
 
@@ -38,6 +39,8 @@ func (tt TokenType) String() string {
 		return "GREATER_OR_EQ"
 	case IDENT:
 		return "IDENT"
+	case NUMBER:
+		return "NUMBER"
 	case UNKNOWN:
 		return "UNKNOWN"
 	}
