@@ -36,6 +36,17 @@ func TestConsumeIdentifier(t *testing.T) {
 	}
 }
 
+func TestConsumeNumber(t *testing.T) {
+	number := "123"
+	l := New(strings.NewReader(number))
+	tok := l.NextToken()
+	if tok.Type != token.NUMBER {
+		t.Errorf("Expected %v, got %v", token.NUMBER, tok.Type)
+	} else if tok.Literal != number {
+		t.Errorf("Expected %s, got %s", number, tok.Literal)
+	}
+}
+
 func TestScanContinuesAfterNullCharacter(t *testing.T) {
 	l := New(strings.NewReader("hello\x00dolly"))
 	expected := []token.Token{

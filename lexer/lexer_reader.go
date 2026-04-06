@@ -54,6 +54,9 @@ func defaultTokenReader(l *Lexer) token.Token {
 		if isLetter(l.CurrentChar) {
 			l.consumeIdentifier(sb)
 			return token.Token{Type: token.IDENT, Literal: sb.String()}
+		} else if isDigit(l.CurrentChar) {
+			l.consumeNumber(sb)
+			return token.Token{Type: token.NUMBER, Literal: sb.String()}
 		} else if l.CurrentChar == eof {
 			return token.Token{Type: token.EOF, Literal: ""}
 		}
