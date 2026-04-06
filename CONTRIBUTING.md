@@ -2,6 +2,14 @@
 
 Thank you for your interest in contributing!
 
+## Development Setup
+
+Install [mage](https://magefile.org/) and prepare the environment:
+
+```bash
+mage setup
+```
+
 ## Commit convention
 
 Commits follow the [Conventional Commits](https://www.conventionalcommits.org/) format:
