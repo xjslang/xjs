@@ -2,13 +2,13 @@ package lexer
 
 import "strings"
 
-func (l *Lexer) consumeChar() string {
+func (l *Lexer) readChar() string {
 	lit := string(l.CurrentChar)
 	l.Advance()
 	return lit
 }
 
-func (l *Lexer) consumeChars(count int) string {
+func (l *Lexer) readChars(count int) string {
 	sb := strings.Builder{}
 	for range count {
 		sb.WriteRune(l.CurrentChar)
@@ -17,7 +17,7 @@ func (l *Lexer) consumeChars(count int) string {
 	return sb.String()
 }
 
-func (l *Lexer) consumeIdentifier() string {
+func (l *Lexer) readIden() string {
 	sb := strings.Builder{}
 	sb.WriteRune(l.CurrentChar)
 	for l.Advance(); isLetter(l.CurrentChar) || isDigit(l.CurrentChar); l.Advance() {
@@ -26,7 +26,7 @@ func (l *Lexer) consumeIdentifier() string {
 	return sb.String()
 }
 
-func (l *Lexer) consumeNumber() string {
+func (l *Lexer) readNumber() string {
 	sb := strings.Builder{}
 	sb.WriteRune(l.CurrentChar)
 	for l.Advance(); isDigit(l.CurrentChar); l.Advance() {
