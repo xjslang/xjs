@@ -1,8 +1,6 @@
 package lexer
 
 import (
-	"strings"
-
 	"github.com/xjslang/xjs/token"
 )
 
@@ -16,52 +14,51 @@ func (l *Lexer) UseTokenReader(reader func(l *Lexer, next func() token.Token) to
 }
 
 func defaultTokenReader(l *Lexer) token.Token {
-	sb := &strings.Builder{}
 	switch l.CurrentChar {
 	case '=':
 		if l.PeekChar == '=' {
-			l.consumeChars(sb, 2)
-			return token.Token{Type: token.EQ, Literal: sb.String()}
+			lit := l.consumeChars(2)
+			return token.Token{Type: token.EQ, Literal: lit}
 		} else {
-			l.consumeChar(sb)
-			return token.Token{Type: token.ASSIGN, Literal: sb.String()}
+			lit := l.consumeChar()
+			return token.Token{Type: token.ASSIGN, Literal: lit}
 		}
 	case '!':
 		if l.PeekChar == '=' {
-			l.consumeChars(sb, 2)
-			return token.Token{Type: token.NOT_EQ, Literal: sb.String()}
+			lit := l.consumeChars(2)
+			return token.Token{Type: token.NOT_EQ, Literal: lit}
 		} else {
-			l.consumeChar(sb)
-			return token.Token{Type: token.NOT, Literal: sb.String()}
+			lit := l.consumeChar()
+			return token.Token{Type: token.NOT, Literal: lit}
 		}
 	case '<':
 		if l.PeekChar == '=' {
-			l.consumeChars(sb, 2)
-			return token.Token{Type: token.LOWER_OR_EQ, Literal: sb.String()}
+			lit := l.consumeChars(2)
+			return token.Token{Type: token.LOWER_OR_EQ, Literal: lit}
 		} else {
-			l.consumeChar(sb)
-			return token.Token{Type: token.LOWER, Literal: sb.String()}
+			lit := l.consumeChar()
+			return token.Token{Type: token.LOWER, Literal: lit}
 		}
 	case '>':
 		if l.PeekChar == '=' {
-			l.consumeChars(sb, 2)
-			return token.Token{Type: token.GREATER_OR_EQ, Literal: sb.String()}
+			lit := l.consumeChars(2)
+			return token.Token{Type: token.GREATER_OR_EQ, Literal: lit}
 		} else {
-			l.consumeChar(sb)
-			return token.Token{Type: token.GREATER, Literal: sb.String()}
+			lit := l.consumeChar()
+			return token.Token{Type: token.GREATER, Literal: lit}
 		}
 	default:
 		if isLetter(l.CurrentChar) {
-			l.consumeIdentifier(sb)
-			return token.Token{Type: token.IDENT, Literal: sb.String()}
+			lit := l.consumeIdentifier()
+			return token.Token{Type: token.IDENT, Literal: lit}
 		} else if isDigit(l.CurrentChar) {
-			l.consumeNumber(sb)
-			return token.Token{Type: token.NUMBER, Literal: sb.String()}
+			lit := l.consumeNumber()
+			return token.Token{Type: token.NUMBER, Literal: lit}
 		} else if l.CurrentChar == eof {
 			return token.Token{Type: token.EOF, Literal: ""}
 		}
 	}
 
-	l.consumeChar(sb)
-	return token.Token{Type: token.UNKNOWN, Literal: sb.String()}
+	lit := l.consumeChar()
+	return token.Token{Type: token.UNKNOWN, Literal: lit}
 }
