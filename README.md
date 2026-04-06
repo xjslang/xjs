@@ -2,7 +2,7 @@
 
 > [!WARNING]  
 > This branch is in maintenance mode and will be deprecated.
-> A full rewrite is underway in the [`v2-rewrite`](../../tree/v2-rewrite) branch (alpha). New features will only land there.
+> A full rewrite is underway in the [`dev`](../../tree/dev) branch (alpha). New features will only land there.
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/xjslang/xjs.svg)](https://pkg.go.dev/github.com/xjslang/xjs)
 [![Go Report Card](https://goreportcard.com/badge/github.com/xjslang/xjs)](https://goreportcard.com/report/github.com/xjslang/xjs)
