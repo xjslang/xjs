@@ -23,7 +23,7 @@ func TestSkipWhitespaces(t *testing.T) {
 	}
 }
 
-func TestConsumeIdentifier(t *testing.T) {
+func TestReadIden(t *testing.T) {
 	idNames := []string{"hello", "hello123", "_hello123"}
 	for _, idName := range idNames {
 		l := New(strings.NewReader(idName))
@@ -36,7 +36,7 @@ func TestConsumeIdentifier(t *testing.T) {
 	}
 }
 
-func TestConsumeNumber(t *testing.T) {
+func TestReadNumber(t *testing.T) {
 	number := "123"
 	l := New(strings.NewReader(number))
 	tok := l.NextToken()
