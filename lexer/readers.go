@@ -1,6 +1,10 @@
 package lexer
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/xjslang/xjs/token"
+)
 
 func (l *Lexer) readChar() string {
 	lit := string(l.CurrentChar)
@@ -35,7 +39,7 @@ func (l *Lexer) readNumber() string {
 	return sb.String()
 }
 
-func (l *Lexer) readString(delimiter rune) string {
+func (l *Lexer) readString(delimiter rune) (string, token.TokenType) {
 	sb := strings.Builder{}
 	sb.WriteRune(l.CurrentChar)
 	for {
@@ -45,9 +49,9 @@ func (l *Lexer) readString(delimiter rune) string {
 			l.Advance()
 			break
 		} else if l.CurrentChar == eof || l.CurrentChar == '\n' {
-			break
+			return sb.String(), token.ILLEGAL
 		}
 		sb.WriteRune(l.CurrentChar)
 	}
-	return sb.String()
+	return sb.String(), token.STRING
 }

@@ -48,8 +48,8 @@ func defaultTokenReader(l *Lexer) token.Token {
 			return token.Token{Type: token.GREATER, Literal: lit}
 		}
 	case '\'', '"':
-		lit := l.readString(l.CurrentChar)
-		return token.Token{Type: token.STRING, Literal: lit}
+		lit, typ := l.readString(l.CurrentChar)
+		return token.Token{Type: typ, Literal: lit}
 	default:
 		if isLetter(l.CurrentChar) {
 			lit := l.readIden()

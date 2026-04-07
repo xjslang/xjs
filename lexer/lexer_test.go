@@ -53,8 +53,24 @@ func TestReadNumber(t *testing.T) {
 }
 
 func TestReadString(t *testing.T) {
-	expectTokenSequence(t, " 'Hello, World!' \"Hello, World!\"", []token.Token{
-		{Type: token.STRING, Literal: "'Hello, World!'"},
-		{Type: token.STRING, Literal: "\"Hello, World!\""},
+	t.Run("legal string", func(t *testing.T) {
+		expectTokenSequence(t, " 'Hello, World!' \"Hello, World!\"", []token.Token{
+			{Type: token.STRING, Literal: "'Hello, World!'"},
+			{Type: token.STRING, Literal: "\"Hello, World!\""},
+		})
+	})
+	t.Run("illegal string", func(t *testing.T) {
+		items := []string{
+			"'Hello, World",  // missing '
+			"'",              // missing '
+			"\"Hello, World", // missing "
+			"\"",             // missing "
+		}
+		expectTokenSequence(t, strings.Join(items, "\n"), []token.Token{
+			{Type: token.ILLEGAL, Literal: "'Hello, World"},
+			{Type: token.ILLEGAL, Literal: "'"},
+			{Type: token.ILLEGAL, Literal: "\"Hello, World"},
+			{Type: token.ILLEGAL, Literal: "\""},
+		})
 	})
 }
