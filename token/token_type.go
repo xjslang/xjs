@@ -21,34 +21,27 @@ const (
 	ILLEGAL
 )
 
+var tokenLiterals = map[TokenType]string{
+	EOF:           "EOF",
+	EQ:            "EQ",
+	NOT_EQ:        "NOT_EQ",
+	ASSIGN:        "ASSIGN",
+	NOT:           "NOT",
+	LOWER:         "LOWER",
+	LOWER_OR_EQ:   "LOWER_OR_EQ",
+	GREATER:       "GREATER",
+	GREATER_OR_EQ: "GREATER_OR_EQ",
+	IDENT:         "IDENT",
+	NUMBER:        "NUMBER",
+	STRING:        "STRING",
+	UNKNOWN:       "UNKNOWN",
+	ILLEGAL:       "ILLEGAL",
+}
+
 func (tt TokenType) String() string {
-	switch tt {
-	case EOF:
-		return "EOF"
-	case EQ:
-		return "EQ"
-	case NOT_EQ:
-		return "NOT_EQ"
-	case NOT:
-		return "NOT"
-	case LOWER:
-		return "LOWER"
-	case LOWER_OR_EQ:
-		return "LOWER_OR_EQ"
-	case GREATER:
-		return "GREATER"
-	case GREATER_OR_EQ:
-		return "GREATER_OR_EQ"
-	case IDENT:
-		return "IDENT"
-	case NUMBER:
-		return "NUMBER"
-	case STRING:
-		return "STRING"
-	case UNKNOWN:
-		return "UNKNOWN"
-	case ILLEGAL:
-		return "ILLEGAL"
+	lit, ok := tokenLiterals[tt]
+	if !ok {
+		return fmt.Sprintf("UNKNOWN(%d)", tt)
 	}
-	return fmt.Sprintf("UNKNOWN(%d)", tt)
+	return lit
 }
