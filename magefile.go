@@ -15,3 +15,7 @@ func Setup() error {
 func Lint() error {
 	return sh.RunV("golangci-lint", "run")
 }
+
+func Test() error {
+	return sh.RunV("go", "test", "./...", "-v")
+}
