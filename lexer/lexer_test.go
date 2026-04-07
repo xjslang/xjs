@@ -32,9 +32,11 @@ func TestScanContinuesAfterNullCharacter(t *testing.T) {
 }
 
 func TestSkipWhitespaces(t *testing.T) {
-	expectTokenSequence(t, "  one two ", []token.Token{
+	expectTokenSequence(t, "  one\ntwo\rthree\tfour ", []token.Token{
 		{Type: token.IDENT, Literal: "one"},
 		{Type: token.IDENT, Literal: "two"},
+		{Type: token.IDENT, Literal: "three"},
+		{Type: token.IDENT, Literal: "four"},
 	})
 }
 
