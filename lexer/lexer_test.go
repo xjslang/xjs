@@ -47,6 +47,26 @@ func TestReadNumber(t *testing.T) {
 	}
 }
 
+func TestReadString(t *testing.T) {
+	inputs := []string{
+		"'Hello, World!'",   // single quote
+		"\"Hello, World!\"", // double quote
+	}
+	for _, input := range inputs {
+		l := New(strings.NewReader(input))
+		tok := l.NextToken()
+		if tok.Type != token.STRING {
+			t.Errorf("Expected %v, got %v", token.STRING, tok.Type)
+		} else if tok.Literal != input {
+			t.Errorf("Expected %s, got %s", input, tok.Literal)
+		}
+		tok = l.NextToken()
+		if tok.Type != token.EOF {
+			t.Errorf("Expected %v, got %v", token.EOF, tok.Type)
+		}
+	}
+}
+
 func TestScanContinuesAfterNullCharacter(t *testing.T) {
 	l := New(strings.NewReader("hello\x00dolly"))
 	expected := []token.Token{
