@@ -18,6 +18,7 @@ const (
 	NUMBER
 	STRING
 	UNKNOWN
+	ILLEGAL
 )
 
 func (tt TokenType) String() string {
@@ -46,6 +47,8 @@ func (tt TokenType) String() string {
 		return "STRING"
 	case UNKNOWN:
 		return "UNKNOWN"
+	case ILLEGAL:
+		return "ILLEGAL"
 	}
 	return fmt.Sprintf("UNKNOWN(%d)", tt)
 }
