@@ -6,47 +6,47 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func (l *Lexer) readChar() string {
+func (l *Lexer) consumeChar() string {
 	lit := string(l.CurrentChar)
-	l.Advance()
+	l.ReadChar()
 	return lit
 }
 
-func (l *Lexer) readChars(count int) string {
+func (l *Lexer) consumeChars(count int) string {
 	sb := strings.Builder{}
 	for range count {
 		sb.WriteRune(l.CurrentChar)
-		l.Advance()
+		l.ReadChar()
 	}
 	return sb.String()
 }
 
-func (l *Lexer) readIden() string {
+func (l *Lexer) consumeIdentifier() string {
 	sb := strings.Builder{}
 	sb.WriteRune(l.CurrentChar)
-	for l.Advance(); isLetter(l.CurrentChar) || isDigit(l.CurrentChar); l.Advance() {
+	for l.ReadChar(); isLetter(l.CurrentChar) || isDigit(l.CurrentChar); l.ReadChar() {
 		sb.WriteRune(l.CurrentChar)
 	}
 	return sb.String()
 }
 
-func (l *Lexer) readNumber() string {
+func (l *Lexer) consumeNumber() string {
 	sb := strings.Builder{}
 	sb.WriteRune(l.CurrentChar)
-	for l.Advance(); isDigit(l.CurrentChar); l.Advance() {
+	for l.ReadChar(); isDigit(l.CurrentChar); l.ReadChar() {
 		sb.WriteRune(l.CurrentChar)
 	}
 	return sb.String()
 }
 
-func (l *Lexer) readString(delimiter rune) (string, token.TokenType) {
+func (l *Lexer) consumeString(delimiter rune) (string, token.TokenType) {
 	sb := strings.Builder{}
 	sb.WriteRune(l.CurrentChar)
 	for {
-		l.Advance()
+		l.ReadChar()
 		if l.CurrentChar == delimiter {
 			sb.WriteRune(l.CurrentChar)
-			l.Advance()
+			l.ReadChar()
 			break
 		} else if l.CurrentChar == eof || l.CurrentChar == '\n' {
 			return sb.String(), token.ILLEGAL
