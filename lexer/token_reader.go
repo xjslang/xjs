@@ -15,6 +15,9 @@ func (l *Lexer) UseTokenReader(reader func(l *Lexer, next func() token.Token) to
 
 func defaultTokenReader(l *Lexer) token.Token {
 	switch l.CurrentChar {
+	case ';':
+		lit := l.consumeChar()
+		return token.Token{Type: token.SEMI, Literal: lit}
 	case '=':
 		if l.PeekChar == '=' {
 			lit := l.consumeChars(2)
@@ -50,10 +53,23 @@ func defaultTokenReader(l *Lexer) token.Token {
 	case '\'', '"':
 		lit, typ := l.consumeString(l.CurrentChar)
 		return token.Token{Type: typ, Literal: lit}
+	case '(':
+		lit := l.consumeChar()
+		return token.Token{Type: token.LPAREN, Literal: lit}
+	case ')':
+		lit := l.consumeChar()
+		return token.Token{Type: token.RPAREN, Literal: lit}
+	case '{':
+		lit := l.consumeChar()
+		return token.Token{Type: token.LBRACE, Literal: lit}
+	case '}':
+		lit := l.consumeChar()
+		return token.Token{Type: token.RBRACE, Literal: lit}
 	default:
 		if isLetter(l.CurrentChar) {
 			lit := l.consumeIdentifier()
-			return token.Token{Type: token.IDENT, Literal: lit}
+			typ := token.Lookup(lit)
+			return token.Token{Type: typ, Literal: lit}
 		} else if isDigit(l.CurrentChar) {
 			lit := l.consumeNumber()
 			return token.Token{Type: token.NUMBER, Literal: lit}

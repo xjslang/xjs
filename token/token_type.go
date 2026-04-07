@@ -19,6 +19,13 @@ const (
 	STRING
 	UNKNOWN
 	ILLEGAL
+	LET
+	SEMI
+	FUNCTION
+	LPAREN
+	RPAREN
+	LBRACE
+	RBRACE
 )
 
 var tokenLiterals = map[TokenType]string{
@@ -36,6 +43,13 @@ var tokenLiterals = map[TokenType]string{
 	STRING:        "STRING",
 	UNKNOWN:       "UNKNOWN",
 	ILLEGAL:       "ILLEGAL",
+	LET:           "LET",
+	SEMI:          "SEMI",
+	FUNCTION:      "FUNCTION",
+	LPAREN:        "LPAREN",
+	RPAREN:        "RPAREN",
+	LBRACE:        "LBRACE",
+	RBRACE:        "RBRACE",
 }
 
 func (tt TokenType) String() string {
@@ -44,4 +58,14 @@ func (tt TokenType) String() string {
 		return "UNKNOWN(" + strconv.Itoa(int(tt)) + ")"
 	}
 	return lit
+}
+
+func Lookup(lit string) TokenType {
+	switch lit {
+	case "let":
+		return LET
+	case "function":
+		return FUNCTION
+	}
+	return IDENT
 }
