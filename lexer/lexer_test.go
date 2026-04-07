@@ -1,89 +1,58 @@
 package lexer
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
 	"github.com/xjslang/xjs/token"
 )
 
-func TestSkipWhitespaces(t *testing.T) {
-	idNames := []string{"lorem", "ipsum", "dolor"}
-	l := New(strings.NewReader(fmt.Sprintf("  %s    %s %s   ", idNames[0], idNames[1], idNames[2])))
-	for i := range 3 {
+func expectTokenSequence(t *testing.T, input string, expectedToks []token.Token) {
+	l := New(strings.NewReader(input))
+	for i, expectedTok := range expectedToks {
 		tok := l.NextToken()
-		if tok.Literal != idNames[i] {
-			t.Errorf("Expected %s, got %s", idNames[i], tok.Literal)
+		if tok.Type != expectedTok.Type {
+			t.Errorf("token %d: expected type %v, got %v", i, expectedTok.Type, tok.Type)
+		} else if tok.Literal != expectedTok.Literal {
+			t.Errorf("token %d: expected %q, got %q", i, expectedTok.Literal, tok.Literal)
 		}
 	}
 	tok := l.NextToken()
-	if tok.Literal != "" {
-		t.Errorf("Expected empty string, got %s", tok.Literal)
-	}
-}
-
-func TestReadIden(t *testing.T) {
-	idNames := []string{"hello", "hello123", "_hello123"}
-	for _, idName := range idNames {
-		l := New(strings.NewReader(idName))
-		tok := l.NextToken()
-		if tok.Type != token.IDENT {
-			t.Errorf("Expected %v, got %v", token.IDENT, tok.Type)
-		} else if tok.Literal != idName {
-			t.Errorf("Expected %s, got %s", idName, tok.Literal)
-		}
-	}
-}
-
-func TestReadNumber(t *testing.T) {
-	number := "123"
-	l := New(strings.NewReader(number))
-	tok := l.NextToken()
-	if tok.Type != token.NUMBER {
-		t.Errorf("Expected %v, got %v", token.NUMBER, tok.Type)
-	} else if tok.Literal != number {
-		t.Errorf("Expected %s, got %s", number, tok.Literal)
-	}
-}
-
-func TestReadString(t *testing.T) {
-	inputs := []string{
-		"'Hello, World!'",   // single quote
-		"\"Hello, World!\"", // double quote
-	}
-	for _, input := range inputs {
-		l := New(strings.NewReader(input))
-		tok := l.NextToken()
-		if tok.Type != token.STRING {
-			t.Errorf("Expected %v, got %v", token.STRING, tok.Type)
-		} else if tok.Literal != input {
-			t.Errorf("Expected %s, got %s", input, tok.Literal)
-		}
-		tok = l.NextToken()
-		if tok.Type != token.EOF {
-			t.Errorf("Expected %v, got %v", token.EOF, tok.Type)
-		}
+	if tok.Type != token.EOF || tok.Literal != "" {
+		t.Errorf("Expected %v, got %q", token.EOF, tok.Literal)
 	}
 }
 
 func TestScanContinuesAfterNullCharacter(t *testing.T) {
-	l := New(strings.NewReader("hello\x00dolly"))
-	expected := []token.Token{
-		{Type: token.IDENT, Literal: "hello"},
+	expectTokenSequence(t, "Hello\x00World", []token.Token{
+		{Type: token.IDENT, Literal: "Hello"},
 		{Type: token.UNKNOWN, Literal: "\x00"},
-		{Type: token.IDENT, Literal: "dolly"},
-	}
-	for _, expectedToken := range expected {
-		tok := l.NextToken()
-		if tok.Type != expectedToken.Type {
-			t.Errorf("Expected %v, got %v", expectedToken.Type, tok.Type)
-		} else if tok.Literal != expectedToken.Literal {
-			t.Errorf("Expected %s, got %s", expectedToken.Literal, tok.Literal)
-		}
-	}
-	tok := l.NextToken()
-	if tok.Type != token.EOF {
-		t.Errorf("Expected %v, got %v", token.EOF, tok.Type)
-	}
+		{Type: token.IDENT, Literal: "World"},
+	})
+}
+
+func TestSkipWhitespaces(t *testing.T) {
+	expectTokenSequence(t, "  one two ", []token.Token{
+		{Type: token.IDENT, Literal: "one"},
+		{Type: token.IDENT, Literal: "two"},
+	})
+}
+
+func TestReadIden(t *testing.T) {
+	expectTokenSequence(t, " hello  hello123   _hello123 ", []token.Token{
+		{Type: token.IDENT, Literal: "hello"},
+		{Type: token.IDENT, Literal: "hello123"},
+		{Type: token.IDENT, Literal: "_hello123"},
+	})
+}
+
+func TestReadNumber(t *testing.T) {
+	expectTokenSequence(t, "123", []token.Token{{Type: token.NUMBER, Literal: "123"}})
+}
+
+func TestReadString(t *testing.T) {
+	expectTokenSequence(t, " 'Hello, World!' \"Hello, World!\"", []token.Token{
+		{Type: token.STRING, Literal: "'Hello, World!'"},
+		{Type: token.STRING, Literal: "\"Hello, World!\""},
+	})
 }
