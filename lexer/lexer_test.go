@@ -60,6 +60,10 @@ func TestReadString(t *testing.T) {
 		} else if tok.Literal != input {
 			t.Errorf("Expected %s, got %s", input, tok.Literal)
 		}
+		tok = l.NextToken()
+		if tok.Type != token.EOF {
+			t.Errorf("Expected %v, got %v", token.EOF, tok.Type)
+		}
 	}
 }
 
