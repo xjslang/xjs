@@ -48,7 +48,7 @@ func (l *Lexer) NextToken() token.Token {
 }
 
 func (l *Lexer) skipWhitespaces() {
-	for l.CurrentChar == ' ' {
+	for isWhitespace(l.CurrentChar) {
 		l.Advance()
 	}
 }
