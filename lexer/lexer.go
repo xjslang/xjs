@@ -23,13 +23,13 @@ func New(input io.RuneReader) *Lexer {
 		PeekChar:    eof,
 		tokenReader: defaultTokenReader,
 	}
-	// advance twice to update both `CurrentChar` and `PeekChar`
-	l.Advance()
-	l.Advance()
+	// called twice to init both CurrentChar and PeekChar
+	l.ReadChar()
+	l.ReadChar()
 	return l
 }
 
-func (l *Lexer) Advance() {
+func (l *Lexer) ReadChar() {
 	l.CurrentChar = l.PeekChar
 	r, _, err := l.input.ReadRune()
 	if err == io.EOF {
@@ -49,6 +49,6 @@ func (l *Lexer) NextToken() token.Token {
 
 func (l *Lexer) skipWhitespaces() {
 	for isWhitespace(l.CurrentChar) {
-		l.Advance()
+		l.ReadChar()
 	}
 }
