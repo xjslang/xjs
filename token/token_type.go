@@ -1,6 +1,8 @@
 package token
 
-import "fmt"
+import "strconv"
+
+type TokenType int
 
 type TokenType int
 
@@ -41,7 +43,7 @@ var tokenLiterals = map[TokenType]string{
 func (tt TokenType) String() string {
 	lit, ok := tokenLiterals[tt]
 	if !ok {
-		return fmt.Sprintf("UNKNOWN(%d)", tt)
+		return "UNKNOWN(" + strconv.Itoa(int(tt)) + ")"
 	}
 	return lit
 }
