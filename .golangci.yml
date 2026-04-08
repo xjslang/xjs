@@ -1,0 +1,25 @@
+linters:
+  default: standard
+  enable:
+    - depguard
+
+linters-settings:
+  depguard:
+    rules:
+      main:
+        deny:
+          - pkg: "reflect"
+            desc: "reflection is banned to keep WASM size small"
+          - pkg: "encoding/json"
+            desc: "encoding/json uses reflection"
+          - pkg: "fmt"
+            desc: "fmt uses reflection"
+
+run:
+  timeout: 5m
+  tests: true
+  relative-path-mode: gomod
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
