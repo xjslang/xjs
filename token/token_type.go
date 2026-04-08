@@ -4,8 +4,6 @@ import "strconv"
 
 type TokenType int
 
-type TokenType int
-
 const (
 	EOF TokenType = iota
 	EQ
