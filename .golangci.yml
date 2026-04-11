@@ -14,6 +14,10 @@ linters-settings:
             desc: "encoding/json uses reflection"
           - pkg: "fmt"
             desc: "fmt uses reflection"
+          - pkg: "github.com/davecgh/go-spew/spew"
+            desc: "spew uses reflection"
+          - pkg: "github.com/xjslang/xjs/debug"
+            desc: "debug package is for tests only"
 
 run:
   timeout: 5m
@@ -26,5 +30,9 @@ issues:
   exclude-rules:
     # Allow reflection-using packages in test files
     - path: _test\.go
+      linters:
+        - depguard
+    # Allow debug package to use reflection internally
+    - path: debug/
       linters:
         - depguard
