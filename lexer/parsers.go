@@ -1,0 +1,42 @@
+package lexer
+
+import (
+	"strings"
+
+	"github.com/xjslang/xjs/token"
+)
+
+func (l *Lexer) parseIdentifier() string {
+	sb := strings.Builder{}
+	sb.WriteRune(l.CurrentChar) // consume the first letter
+	for l.AdvanceChar(); isLetter(l.CurrentChar) || isDigit(l.CurrentChar); l.AdvanceChar() {
+		sb.WriteRune(l.CurrentChar)
+	}
+	return sb.String()
+}
+
+func (l *Lexer) parseNumber() string {
+	sb := strings.Builder{}
+	sb.WriteRune(l.CurrentChar) // consume the first digit
+	for l.AdvanceChar(); isDigit(l.CurrentChar); l.AdvanceChar() {
+		sb.WriteRune(l.CurrentChar)
+	}
+	return sb.String()
+}
+
+func (l *Lexer) parseString(delimiter rune) (string, token.TokenType) {
+	sb := strings.Builder{}
+	sb.WriteRune(l.CurrentChar) // consume delimiter
+	for {
+		l.AdvanceChar()
+		if l.CurrentChar == delimiter {
+			sb.WriteRune(l.CurrentChar)
+			l.AdvanceChar()
+			break
+		} else if l.CurrentChar == eof || l.CurrentChar == '\n' {
+			return sb.String(), token.ILLEGAL
+		}
+		sb.WriteRune(l.CurrentChar)
+	}
+	return sb.String(), token.STRING
+}

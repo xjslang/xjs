@@ -16,68 +16,82 @@ func (l *Lexer) UseTokenReader(reader func(l *Lexer, next func() token.Token) to
 func defaultTokenReader(l *Lexer) token.Token {
 	switch l.CurrentChar {
 	case ';':
-		lit := l.consumeChar()
-		return token.Token{Type: token.SEMI, Literal: lit}
+		c := l.CurrentChar
+		l.AdvanceChar()
+		return token.Token{Type: token.SEMI, Literal: string(c)}
 	case '=':
-		if l.PeekChar == '=' {
-			lit := l.consumeChars(2)
-			return token.Token{Type: token.EQ, Literal: lit}
+		c1 := l.CurrentChar
+		l.AdvanceChar()
+		if l.CurrentChar == '=' {
+			c2 := l.CurrentChar
+			l.AdvanceChar()
+			return token.Token{Type: token.EQ, Literal: string([]rune{c1, c2})}
 		} else {
-			lit := l.consumeChar()
-			return token.Token{Type: token.ASSIGN, Literal: lit}
+			return token.Token{Type: token.ASSIGN, Literal: string(c1)}
 		}
 	case '!':
-		if l.PeekChar == '=' {
-			lit := l.consumeChars(2)
-			return token.Token{Type: token.NOT_EQ, Literal: lit}
+		c1 := l.CurrentChar
+		l.AdvanceChar()
+		if l.CurrentChar == '=' {
+			c2 := l.CurrentChar
+			l.AdvanceChar()
+			return token.Token{Type: token.NOT_EQ, Literal: string([]rune{c1, c2})}
 		} else {
-			lit := l.consumeChar()
-			return token.Token{Type: token.NOT, Literal: lit}
+			return token.Token{Type: token.NOT, Literal: string(c1)}
 		}
 	case '<':
-		if l.PeekChar == '=' {
-			lit := l.consumeChars(2)
-			return token.Token{Type: token.LOWER_OR_EQ, Literal: lit}
+		c1 := l.CurrentChar
+		l.AdvanceChar()
+		if l.CurrentChar == '=' {
+			c2 := l.CurrentChar
+			l.AdvanceChar()
+			return token.Token{Type: token.LOWER_OR_EQ, Literal: string([]rune{c1, c2})}
 		} else {
-			lit := l.consumeChar()
-			return token.Token{Type: token.LOWER, Literal: lit}
+			return token.Token{Type: token.LOWER, Literal: string(c1)}
 		}
 	case '>':
-		if l.PeekChar == '=' {
-			lit := l.consumeChars(2)
-			return token.Token{Type: token.GREATER_OR_EQ, Literal: lit}
+		c1 := l.CurrentChar
+		l.AdvanceChar()
+		if l.CurrentChar == '=' {
+			c2 := l.CurrentChar
+			l.AdvanceChar()
+			return token.Token{Type: token.GREATER_OR_EQ, Literal: string([]rune{c1, c2})}
 		} else {
-			lit := l.consumeChar()
-			return token.Token{Type: token.GREATER, Literal: lit}
+			return token.Token{Type: token.GREATER, Literal: string(c1)}
 		}
 	case '\'', '"':
-		lit, typ := l.consumeString(l.CurrentChar)
+		lit, typ := l.parseString(l.CurrentChar)
 		return token.Token{Type: typ, Literal: lit}
 	case '(':
-		lit := l.consumeChar()
-		return token.Token{Type: token.LPAREN, Literal: lit}
+		c := l.CurrentChar
+		l.AdvanceChar()
+		return token.Token{Type: token.LPAREN, Literal: string(c)}
 	case ')':
-		lit := l.consumeChar()
-		return token.Token{Type: token.RPAREN, Literal: lit}
+		c := l.CurrentChar
+		l.AdvanceChar()
+		return token.Token{Type: token.RPAREN, Literal: string(c)}
 	case '{':
-		lit := l.consumeChar()
-		return token.Token{Type: token.LBRACE, Literal: lit}
+		c := l.CurrentChar
+		l.AdvanceChar()
+		return token.Token{Type: token.LBRACE, Literal: string(c)}
 	case '}':
-		lit := l.consumeChar()
-		return token.Token{Type: token.RBRACE, Literal: lit}
+		c := l.CurrentChar
+		l.AdvanceChar()
+		return token.Token{Type: token.RBRACE, Literal: string(c)}
 	default:
 		if isLetter(l.CurrentChar) {
-			lit := l.consumeIdentifier()
+			lit := l.parseIdentifier()
 			typ := token.Lookup(lit)
 			return token.Token{Type: typ, Literal: lit}
 		} else if isDigit(l.CurrentChar) {
-			lit := l.consumeNumber()
+			lit := l.parseNumber()
 			return token.Token{Type: token.NUMBER, Literal: lit}
 		} else if l.CurrentChar == eof {
 			return token.Token{Type: token.EOF, Literal: ""}
 		}
 	}
 
-	lit := l.consumeChar()
-	return token.Token{Type: token.UNKNOWN, Literal: lit}
+	c := l.CurrentChar
+	l.AdvanceChar()
+	return token.Token{Type: token.UNKNOWN, Literal: string(c)}
 }

@@ -31,6 +31,24 @@ func TestScanContinuesAfterNullCharacter(t *testing.T) {
 	})
 }
 
+func TestPunctuators(t *testing.T) {
+	expectTokenSequence(t, "; = == ! != < <= > >= () {}", []token.Token{
+		{Type: token.SEMI, Literal: ";"},
+		{Type: token.ASSIGN, Literal: "="},
+		{Type: token.EQ, Literal: "=="},
+		{Type: token.NOT, Literal: "!"},
+		{Type: token.NOT_EQ, Literal: "!="},
+		{Type: token.LOWER, Literal: "<"},
+		{Type: token.LOWER_OR_EQ, Literal: "<="},
+		{Type: token.GREATER, Literal: ">"},
+		{Type: token.GREATER_OR_EQ, Literal: ">="},
+		{Type: token.LPAREN, Literal: "("},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.LBRACE, Literal: "{"},
+		{Type: token.RBRACE, Literal: "}"},
+	})
+}
+
 func TestSkipWhitespaces(t *testing.T) {
 	expectTokenSequence(t, "  one\ntwo\rthree\tfour ", []token.Token{
 		{Type: token.IDENT, Literal: "one"},
