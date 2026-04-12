@@ -59,6 +59,16 @@ func defaultTokenReader(l *Lexer) token.Token {
 		} else {
 			return token.Token{Type: token.GREATER, Literal: string(c1)}
 		}
+	case '/':
+		c1 := l.CurrentChar
+		l.AdvanceChar()
+		if l.CurrentChar == '/' {
+			l.AdvanceChar()
+			comment := l.parseSinglelineComment()
+			return token.Token{Type: token.SINGLELINE_COMMENT, Literal: comment}
+		} else {
+			return token.Token{Type: token.DIVISION, Literal: string(c1)}
+		}
 	case '\'', '"':
 		lit, typ := l.parseString(l.CurrentChar)
 		return token.Token{Type: typ, Literal: lit}
@@ -78,6 +88,9 @@ func defaultTokenReader(l *Lexer) token.Token {
 		c := l.CurrentChar
 		l.AdvanceChar()
 		return token.Token{Type: token.RBRACE, Literal: string(c)}
+	case '\n':
+		l.AdvanceChar()
+		return token.Token{Type: token.NEWLINE, Literal: ""}
 	default:
 		if isLetter(l.CurrentChar) {
 			lit := l.parseIdentifier()

@@ -15,12 +15,39 @@ func expectTokenSequence(t *testing.T, input string, expectedToks []token.Token)
 			t.Errorf("token %d: expected type %v, got %v", i, expectedTok.Type, tok.Type)
 		} else if tok.Literal != expectedTok.Literal {
 			t.Errorf("token %d: expected %q, got %q", i, expectedTok.Literal, tok.Literal)
+		} else if expectedTok.LeadingTrivia != nil && len(tok.LeadingTrivia) != len(expectedTok.LeadingTrivia) {
+			t.Errorf("token %d: expected %d leading trivia lines, got %d", i, len(expectedTok.LeadingTrivia), len(tok.LeadingTrivia))
+		} else {
+			for j, line := range expectedTok.LeadingTrivia {
+				if tok.LeadingTrivia[j] != line {
+					t.Errorf("token %d: expected %q leading trivia line, got %q", i, line, tok.LeadingTrivia[j])
+				}
+			}
 		}
 	}
-	tok := l.NextToken()
-	if tok.Type != token.EOF || tok.Literal != "" {
-		t.Errorf("Expected %v, got %q", token.EOF, tok.Literal)
-	}
+}
+
+func TestEmptySinglelineComment(t *testing.T) {
+	expectTokenSequence(t, "//\nhello//\r\nthere//\rObi-Wan Kenobi", []token.Token{
+		{Type: token.IDENT, Literal: "hello", LeadingTrivia: []string{""}},
+		{Type: token.IDENT, Literal: "there", LeadingTrivia: []string{""}},
+		{Type: token.EOF, LeadingTrivia: []string{"\rObi-Wan Kenobi"}},
+	})
+}
+
+func TestSinglelineComments(t *testing.T) {
+	expectTokenSequence(t, `
+  // First Name
+  John
+  
+  // Last Name
+  Smith
+	
+	// Final comment`, []token.Token{
+		{Type: token.IDENT, Literal: "John", LeadingTrivia: []string{"", " First Name"}},
+		{Type: token.IDENT, Literal: "Smith", LeadingTrivia: []string{"", "", " Last Name"}},
+		{Type: token.EOF, LeadingTrivia: []string{"", "", " Final comment"}},
+	})
 }
 
 func TestScanContinuesAfterNullCharacter(t *testing.T) {
@@ -28,11 +55,12 @@ func TestScanContinuesAfterNullCharacter(t *testing.T) {
 		{Type: token.IDENT, Literal: "Hello"},
 		{Type: token.UNKNOWN, Literal: "\x00"},
 		{Type: token.IDENT, Literal: "World"},
+		{Type: token.EOF},
 	})
 }
 
 func TestPunctuators(t *testing.T) {
-	expectTokenSequence(t, "; = == ! != < <= > >= () {}", []token.Token{
+	expectTokenSequence(t, "; = == ! != < <= > >= () {} /", []token.Token{
 		{Type: token.SEMI, Literal: ";"},
 		{Type: token.ASSIGN, Literal: "="},
 		{Type: token.EQ, Literal: "=="},
@@ -46,15 +74,19 @@ func TestPunctuators(t *testing.T) {
 		{Type: token.RPAREN, Literal: ")"},
 		{Type: token.LBRACE, Literal: "{"},
 		{Type: token.RBRACE, Literal: "}"},
+		{Type: token.DIVISION, Literal: "/"},
+		{Type: token.EOF},
 	})
 }
 
 func TestSkipWhitespaces(t *testing.T) {
-	expectTokenSequence(t, "  one\ntwo\rthree\tfour ", []token.Token{
+	expectTokenSequence(t, "  one\ntwo\rthree\tfour \r\n five ", []token.Token{
 		{Type: token.IDENT, Literal: "one"},
 		{Type: token.IDENT, Literal: "two"},
 		{Type: token.IDENT, Literal: "three"},
 		{Type: token.IDENT, Literal: "four"},
+		{Type: token.IDENT, Literal: "five"},
+		{Type: token.EOF},
 	})
 }
 
@@ -63,11 +95,15 @@ func TestReadIden(t *testing.T) {
 		{Type: token.IDENT, Literal: "hello"},
 		{Type: token.IDENT, Literal: "hello123"},
 		{Type: token.IDENT, Literal: "_hello123"},
+		{Type: token.EOF},
 	})
 }
 
 func TestReadNumber(t *testing.T) {
-	expectTokenSequence(t, "123", []token.Token{{Type: token.NUMBER, Literal: "123"}})
+	expectTokenSequence(t, "123", []token.Token{
+		{Type: token.NUMBER, Literal: "123"},
+		{Type: token.EOF},
+	})
 }
 
 func TestReadString(t *testing.T) {
@@ -75,6 +111,7 @@ func TestReadString(t *testing.T) {
 		expectTokenSequence(t, " 'Hello, World!' \"Hello, World!\"", []token.Token{
 			{Type: token.STRING, Literal: "'Hello, World!'"},
 			{Type: token.STRING, Literal: "\"Hello, World!\""},
+			{Type: token.EOF},
 		})
 	})
 	t.Run("illegal string", func(t *testing.T) {
@@ -89,6 +126,7 @@ func TestReadString(t *testing.T) {
 			{Type: token.ILLEGAL, Literal: "'"},
 			{Type: token.ILLEGAL, Literal: "\"Hello, World"},
 			{Type: token.ILLEGAL, Literal: "\""},
+			{Type: token.EOF},
 		})
 	})
 }
