@@ -38,9 +38,8 @@ const (
 	RBRACE    // }
 	NEWLINE   // \n
 
-	// comments
-	SINGLELINE_COMMENT // //
-	MULTILINE_COMMENT  // /*
+	// single and multile comments
+	COMMENT
 
 	// keywords
 	LET
@@ -48,31 +47,30 @@ const (
 )
 
 var tokenLiterals = map[TokenType]string{
-	EOF:                "EOF",
-	EQ:                 "EQ",
-	NOT_EQ:             "NOT_EQ",
-	ASSIGN:             "ASSIGN",
-	NOT:                "NOT",
-	LT:                 "LT",
-	LTE:                "LTE",
-	GT:                 "GT",
-	GTE:                "GTE",
-	IDENT:              "IDENT",
-	NUMBER:             "NUMBER",
-	STRING:             "STRING",
-	UNKNOWN:            "UNKNOWN",
-	ILLEGAL:            "ILLEGAL",
-	LET:                "LET",
-	SEMICOLON:          "SEMICOLON",
-	FUNCTION:           "FUNCTION",
-	LPAREN:             "LPAREN",
-	RPAREN:             "RPAREN",
-	LBRACE:             "LBRACE",
-	RBRACE:             "RBRACE",
-	NEWLINE:            "NEWLINE",
-	SINGLELINE_COMMENT: "SINGLELINE_COMMENT",
-	MULTILINE_COMMENT:  "MULTILINE_COMMENT",
-	DIVIDE:             "DIVIDE",
+	EOF:       "EOF",
+	EQ:        "EQ",
+	NOT_EQ:    "NOT_EQ",
+	ASSIGN:    "ASSIGN",
+	NOT:       "NOT",
+	LT:        "LT",
+	LTE:       "LTE",
+	GT:        "GT",
+	GTE:       "GTE",
+	IDENT:     "IDENT",
+	NUMBER:    "NUMBER",
+	STRING:    "STRING",
+	UNKNOWN:   "UNKNOWN",
+	ILLEGAL:   "ILLEGAL",
+	LET:       "LET",
+	SEMICOLON: "SEMICOLON",
+	FUNCTION:  "FUNCTION",
+	LPAREN:    "LPAREN",
+	RPAREN:    "RPAREN",
+	LBRACE:    "LBRACE",
+	RBRACE:    "RBRACE",
+	NEWLINE:   "NEWLINE",
+	COMMENT:   "COMMENT",
+	DIVIDE:    "DIVIDE",
 }
 
 func (tt TokenType) String() string {

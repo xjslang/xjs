@@ -20,7 +20,7 @@ func (l *Lexer) parseMultilineComment() (string, token.TokenType) {
 		sb.WriteRune(l.CurrentChar)
 		l.AdvanceChar()
 	}
-	return sb.String(), token.MULTILINE_COMMENT
+	return sb.String(), token.COMMENT
 }
 
 func (l *Lexer) parseSinglelineComment() string {

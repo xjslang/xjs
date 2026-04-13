@@ -61,7 +61,7 @@ func defaultTokenReader(l *Lexer) token.Token {
 		if l.CurrentChar == '/' {
 			l.AdvanceChar()
 			comment := l.parseSinglelineComment()
-			return token.Token{Type: token.SINGLELINE_COMMENT, Literal: comment}
+			return token.Token{Type: token.COMMENT, Literal: comment}
 		}
 		if l.CurrentChar == '*' {
 			l.AdvanceChar()
