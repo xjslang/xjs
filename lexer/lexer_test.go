@@ -35,6 +35,17 @@ func TestEmptySinglelineComment(t *testing.T) {
 	})
 }
 
+func TestMultilineComments(t *testing.T) {
+	expectTokenSequence(t, `/* lorem
+ipsum dolor */
+
+hello/* unfinished comment`, []token.Token{
+		{Type: token.IDENT, Literal: "hello", LeadingTrivia: []string{" lorem\nipsum dolor ", "", ""}},
+		{Type: token.ILLEGAL, Literal: " unfinished comment"},
+		{Type: token.EOF},
+	})
+}
+
 func TestSinglelineComments(t *testing.T) {
 	expectTokenSequence(t, `
   // First Name
