@@ -23,7 +23,7 @@ func New(l *lexer.Lexer) *Parser {
 }
 
 func (p *Parser) AddError(err error) {
-	// unimplemented
+	// TODO: implement
 }
 
 func (p *Parser) AdvanceToken() {

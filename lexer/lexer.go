@@ -43,12 +43,21 @@ func (l *Lexer) AdvanceChar() {
 }
 
 func (l *Lexer) NextToken() token.Token {
-	l.skipWhitespaces()
-	return l.tokenReader(l)
+	next := func() token.Token {
+		l.skipWhitespaces()
+		return l.tokenReader(l)
+	}
+	var trivia []string
+	tok := next()
+	for ; tok.Type == token.NEWLINE || tok.Type == token.SINGLELINE_COMMENT; tok = next() {
+		trivia = append(trivia, tok.Literal)
+	}
+	tok.LeadingTrivia = trivia
+	return tok
 }
 
 func (l *Lexer) skipWhitespaces() {
-	for isWhitespace(l.CurrentChar) {
+	for l.CurrentChar == ' ' || l.CurrentChar == '\t' || l.CurrentChar == '\r' {
 		l.AdvanceChar()
 	}
 }
