@@ -72,20 +72,20 @@ func TestScanContinuesAfterNullCharacter(t *testing.T) {
 
 func TestPunctuators(t *testing.T) {
 	expectTokenSequence(t, "; = == ! != < <= > >= () {} /", []token.Token{
-		{Type: token.SEMI, Literal: ";"},
+		{Type: token.SEMICOLON, Literal: ";"},
 		{Type: token.ASSIGN, Literal: "="},
 		{Type: token.EQ, Literal: "=="},
 		{Type: token.NOT, Literal: "!"},
 		{Type: token.NOT_EQ, Literal: "!="},
-		{Type: token.LOWER, Literal: "<"},
-		{Type: token.LOWER_OR_EQ, Literal: "<="},
-		{Type: token.GREATER, Literal: ">"},
-		{Type: token.GREATER_OR_EQ, Literal: ">="},
+		{Type: token.LT, Literal: "<"},
+		{Type: token.LTE, Literal: "<="},
+		{Type: token.GT, Literal: ">"},
+		{Type: token.GTE, Literal: ">="},
 		{Type: token.LPAREN, Literal: "("},
 		{Type: token.RPAREN, Literal: ")"},
 		{Type: token.LBRACE, Literal: "{"},
 		{Type: token.RBRACE, Literal: "}"},
-		{Type: token.DIVISION, Literal: "/"},
+		{Type: token.DIVIDE, Literal: "/"},
 		{Type: token.EOF},
 	})
 }

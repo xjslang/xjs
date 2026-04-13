@@ -18,7 +18,7 @@ func defaultTokenReader(l *Lexer) token.Token {
 	case ';':
 		c := l.CurrentChar
 		l.AdvanceChar()
-		return token.Token{Type: token.SEMI, Literal: string(c)}
+		return token.Token{Type: token.SEMICOLON, Literal: string(c)}
 	case '=':
 		c1 := l.CurrentChar
 		l.AdvanceChar()
@@ -43,18 +43,18 @@ func defaultTokenReader(l *Lexer) token.Token {
 		if l.CurrentChar == '=' {
 			c2 := l.CurrentChar
 			l.AdvanceChar()
-			return token.Token{Type: token.LOWER_OR_EQ, Literal: string([]rune{c1, c2})}
+			return token.Token{Type: token.LTE, Literal: string([]rune{c1, c2})}
 		}
-		return token.Token{Type: token.LOWER, Literal: string(c1)}
+		return token.Token{Type: token.LT, Literal: string(c1)}
 	case '>':
 		c1 := l.CurrentChar
 		l.AdvanceChar()
 		if l.CurrentChar == '=' {
 			c2 := l.CurrentChar
 			l.AdvanceChar()
-			return token.Token{Type: token.GREATER_OR_EQ, Literal: string([]rune{c1, c2})}
+			return token.Token{Type: token.GTE, Literal: string([]rune{c1, c2})}
 		}
-		return token.Token{Type: token.GREATER, Literal: string(c1)}
+		return token.Token{Type: token.GT, Literal: string(c1)}
 	case '/':
 		c1 := l.CurrentChar
 		l.AdvanceChar()
@@ -69,7 +69,7 @@ func defaultTokenReader(l *Lexer) token.Token {
 			return token.Token{Type: typ, Literal: comment}
 		}
 
-		return token.Token{Type: token.DIVISION, Literal: string(c1)}
+		return token.Token{Type: token.DIVIDE, Literal: string(c1)}
 	case '\'', '"':
 		lit, typ := l.parseString(l.CurrentChar)
 		return token.Token{Type: typ, Literal: lit}

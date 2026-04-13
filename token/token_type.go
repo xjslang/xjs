@@ -5,31 +5,46 @@ import "strconv"
 type TokenType int
 
 const (
+	// special keywords
 	EOF TokenType = iota
-	EQ
-	NOT_EQ
-	ASSIGN
-	NOT
-	LOWER
-	LOWER_OR_EQ
-	GREATER
-	GREATER_OR_EQ
 	IDENT
-	NUMBER
-	STRING
-	UNKNOWN
 	ILLEGAL
+	UNKNOWN
+
+	// literals
+	STRING
+	NUMBER
+
+	// operators
+	ASSIGN // =
+	DIVIDE // /
+
+	// comparison operators
+	EQ     // ==
+	NOT_EQ // !=
+	LT     // <
+	LTE    // <=
+	GT     // >
+	GTE    // >=
+
+	// logical operators
+	NOT
+
+	// delimiters
+	SEMICOLON // ;
+	LPAREN    // (
+	RPAREN    // )
+	LBRACE    // {
+	RBRACE    // }
+	NEWLINE   // \n
+
+	// comments
+	SINGLELINE_COMMENT // //
+	MULTILINE_COMMENT  // /*
+
+	// keywords
 	LET
-	SEMI
 	FUNCTION
-	LPAREN
-	RPAREN
-	LBRACE
-	RBRACE
-	NEWLINE
-	SINGLELINE_COMMENT
-	MULTILINE_COMMENT
-	DIVISION
 )
 
 var tokenLiterals = map[TokenType]string{
@@ -38,17 +53,17 @@ var tokenLiterals = map[TokenType]string{
 	NOT_EQ:             "NOT_EQ",
 	ASSIGN:             "ASSIGN",
 	NOT:                "NOT",
-	LOWER:              "LOWER",
-	LOWER_OR_EQ:        "LOWER_OR_EQ",
-	GREATER:            "GREATER",
-	GREATER_OR_EQ:      "GREATER_OR_EQ",
+	LT:                 "LT",
+	LTE:                "LTE",
+	GT:                 "GT",
+	GTE:                "GTE",
 	IDENT:              "IDENT",
 	NUMBER:             "NUMBER",
 	STRING:             "STRING",
 	UNKNOWN:            "UNKNOWN",
 	ILLEGAL:            "ILLEGAL",
 	LET:                "LET",
-	SEMI:               "SEMI",
+	SEMICOLON:          "SEMICOLON",
 	FUNCTION:           "FUNCTION",
 	LPAREN:             "LPAREN",
 	RPAREN:             "RPAREN",
@@ -57,7 +72,7 @@ var tokenLiterals = map[TokenType]string{
 	NEWLINE:            "NEWLINE",
 	SINGLELINE_COMMENT: "SINGLELINE_COMMENT",
 	MULTILINE_COMMENT:  "MULTILINE_COMMENT",
-	DIVISION:           "DIVISION",
+	DIVIDE:             "DIVIDE",
 }
 
 func (tt TokenType) String() string {

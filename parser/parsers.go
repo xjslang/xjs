@@ -37,7 +37,7 @@ func (p *Parser) parseLetStatement() (*ast.LetStatement, error) {
 		return stmt, err
 	}
 	stmt.Value = p.ParseExpression()
-	if _, err := p.Expect(token.SEMI); err != nil {
+	if _, err := p.Expect(token.SEMICOLON); err != nil {
 		return stmt, err
 	}
 	return stmt, nil
