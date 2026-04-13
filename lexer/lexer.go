@@ -49,7 +49,7 @@ func (l *Lexer) NextToken() token.Token {
 	}
 	var trivia []string
 	tok := next()
-	for ; tok.Type == token.NEWLINE || tok.Type == token.SINGLELINE_COMMENT; tok = next() {
+	for ; tok.Type == token.NEWLINE || tok.Type == token.SINGLELINE_COMMENT || tok.Type == token.MULTILINE_COMMENT; tok = next() {
 		trivia = append(trivia, tok.Literal)
 	}
 	tok.LeadingTrivia = trivia

@@ -26,9 +26,8 @@ func defaultTokenReader(l *Lexer) token.Token {
 			c2 := l.CurrentChar
 			l.AdvanceChar()
 			return token.Token{Type: token.EQ, Literal: string([]rune{c1, c2})}
-		} else {
-			return token.Token{Type: token.ASSIGN, Literal: string(c1)}
 		}
+		return token.Token{Type: token.ASSIGN, Literal: string(c1)}
 	case '!':
 		c1 := l.CurrentChar
 		l.AdvanceChar()
@@ -36,9 +35,8 @@ func defaultTokenReader(l *Lexer) token.Token {
 			c2 := l.CurrentChar
 			l.AdvanceChar()
 			return token.Token{Type: token.NOT_EQ, Literal: string([]rune{c1, c2})}
-		} else {
-			return token.Token{Type: token.NOT, Literal: string(c1)}
 		}
+		return token.Token{Type: token.NOT, Literal: string(c1)}
 	case '<':
 		c1 := l.CurrentChar
 		l.AdvanceChar()
@@ -46,9 +44,8 @@ func defaultTokenReader(l *Lexer) token.Token {
 			c2 := l.CurrentChar
 			l.AdvanceChar()
 			return token.Token{Type: token.LOWER_OR_EQ, Literal: string([]rune{c1, c2})}
-		} else {
-			return token.Token{Type: token.LOWER, Literal: string(c1)}
 		}
+		return token.Token{Type: token.LOWER, Literal: string(c1)}
 	case '>':
 		c1 := l.CurrentChar
 		l.AdvanceChar()
@@ -56,9 +53,8 @@ func defaultTokenReader(l *Lexer) token.Token {
 			c2 := l.CurrentChar
 			l.AdvanceChar()
 			return token.Token{Type: token.GREATER_OR_EQ, Literal: string([]rune{c1, c2})}
-		} else {
-			return token.Token{Type: token.GREATER, Literal: string(c1)}
 		}
+		return token.Token{Type: token.GREATER, Literal: string(c1)}
 	case '/':
 		c1 := l.CurrentChar
 		l.AdvanceChar()
@@ -66,9 +62,14 @@ func defaultTokenReader(l *Lexer) token.Token {
 			l.AdvanceChar()
 			comment := l.parseSinglelineComment()
 			return token.Token{Type: token.SINGLELINE_COMMENT, Literal: comment}
-		} else {
-			return token.Token{Type: token.DIVISION, Literal: string(c1)}
 		}
+		if l.CurrentChar == '*' {
+			l.AdvanceChar()
+			comment, typ := l.parseMultilineComment()
+			return token.Token{Type: typ, Literal: comment}
+		}
+
+		return token.Token{Type: token.DIVISION, Literal: string(c1)}
 	case '\'', '"':
 		lit, typ := l.parseString(l.CurrentChar)
 		return token.Token{Type: typ, Literal: lit}
