@@ -25,11 +25,12 @@ func TestAfterNewline(t *testing.T) {
 			l := New(strings.NewReader(test.input))
 			for i, expectedTok := range expectedToks {
 				tok := l.NextToken()
-				if tok.Type != expectedTok.Type {
+				switch {
+				case tok.Type != expectedTok.Type:
 					t.Errorf("token %d: expected type %v, got %v", i, expectedTok.Type, tok.Type)
-				} else if tok.Literal != expectedTok.Literal {
+				case tok.Literal != expectedTok.Literal:
 					t.Errorf("token %d: expected %q, got %q", i, expectedTok.Literal, tok.Literal)
-				} else if tok.AfterNewline != expectedTok.AfterNewline {
+				case tok.AfterNewline != expectedTok.AfterNewline:
 					t.Errorf("token %d: expected AfterNewline to be %t, got %t", i, expectedTok.AfterNewline, tok.AfterNewline)
 				}
 			}
@@ -46,13 +47,14 @@ func TestEmptySinglelineComment(t *testing.T) {
 	l := New(strings.NewReader("//\nhello//\r\nthere//\rObi-Wan Kenobi"))
 	for i, expectedTok := range expectedToks {
 		tok := l.NextToken()
-		if tok.Type != expectedTok.Type {
+		switch {
+		case tok.Type != expectedTok.Type:
 			t.Errorf("token %d: expected type %v, got %v", i, expectedTok.Type, tok.Type)
-		} else if tok.Literal != expectedTok.Literal {
+		case tok.Literal != expectedTok.Literal:
 			t.Errorf("token %d: expected %q, got %q", i, expectedTok.Literal, tok.Literal)
-		} else if expectedTok.LeadingTrivia != nil && len(tok.LeadingTrivia) != len(expectedTok.LeadingTrivia) {
+		case len(tok.LeadingTrivia) != len(expectedTok.LeadingTrivia):
 			t.Errorf("token %d: expected %d leading trivia lines, got %d", i, len(expectedTok.LeadingTrivia), len(tok.LeadingTrivia))
-		} else {
+		default:
 			for j, line := range expectedTok.LeadingTrivia {
 				if tok.LeadingTrivia[j] != line {
 					t.Errorf("token %d: expected %q leading trivia line, got %q", i, line, tok.LeadingTrivia[j])
@@ -74,13 +76,14 @@ ipsum dolor */
 hello/* unfinished comment`))
 	for i, expectedTok := range expectedToks {
 		tok := l.NextToken()
-		if tok.Type != expectedTok.Type {
+		switch {
+		case tok.Type != expectedTok.Type:
 			t.Errorf("token %d: expected type %v, got %v", i, expectedTok.Type, tok.Type)
-		} else if tok.Literal != expectedTok.Literal {
+		case tok.Literal != expectedTok.Literal:
 			t.Errorf("token %d: expected %q, got %q", i, expectedTok.Literal, tok.Literal)
-		} else if expectedTok.LeadingTrivia != nil && len(tok.LeadingTrivia) != len(expectedTok.LeadingTrivia) {
+		case len(tok.LeadingTrivia) != len(expectedTok.LeadingTrivia):
 			t.Errorf("token %d: expected %d leading trivia lines, got %d", i, len(expectedTok.LeadingTrivia), len(tok.LeadingTrivia))
-		} else {
+		default:
 			for j, line := range expectedTok.LeadingTrivia {
 				if tok.LeadingTrivia[j] != line {
 					t.Errorf("token %d: expected %q leading trivia line, got %q", i, line, tok.LeadingTrivia[j])
@@ -106,13 +109,14 @@ func TestSinglelineComments(t *testing.T) {
 	// Final comment`))
 	for i, expectedTok := range expectedToks {
 		tok := l.NextToken()
-		if tok.Type != expectedTok.Type {
+		switch {
+		case tok.Type != expectedTok.Type:
 			t.Errorf("token %d: expected type %v, got %v", i, expectedTok.Type, tok.Type)
-		} else if tok.Literal != expectedTok.Literal {
+		case tok.Literal != expectedTok.Literal:
 			t.Errorf("token %d: expected %q, got %q", i, expectedTok.Literal, tok.Literal)
-		} else if expectedTok.LeadingTrivia != nil && len(tok.LeadingTrivia) != len(expectedTok.LeadingTrivia) {
+		case len(tok.LeadingTrivia) != len(expectedTok.LeadingTrivia):
 			t.Errorf("token %d: expected %d leading trivia lines, got %d", i, len(expectedTok.LeadingTrivia), len(tok.LeadingTrivia))
-		} else {
+		default:
 			for j, line := range expectedTok.LeadingTrivia {
 				if tok.LeadingTrivia[j] != line {
 					t.Errorf("token %d: expected %q leading trivia line, got %q", i, line, tok.LeadingTrivia[j])
@@ -132,9 +136,10 @@ func TestScanContinuesAfterNullCharacter(t *testing.T) {
 	l := New(strings.NewReader("Hello\x00World"))
 	for i, expectedTok := range expectedToks {
 		tok := l.NextToken()
-		if tok.Type != expectedTok.Type {
+		switch {
+		case tok.Type != expectedTok.Type:
 			t.Errorf("token %d: expected type %v, got %v", i, expectedTok.Type, tok.Type)
-		} else if tok.Literal != expectedTok.Literal {
+		case tok.Literal != expectedTok.Literal:
 			t.Errorf("token %d: expected %q, got %q", i, expectedTok.Literal, tok.Literal)
 		}
 	}
@@ -161,9 +166,10 @@ func TestPunctuators(t *testing.T) {
 	l := New(strings.NewReader("; = == ! != < <= > >= () {} /"))
 	for i, expectedTok := range expectedToks {
 		tok := l.NextToken()
-		if tok.Type != expectedTok.Type {
+		switch {
+		case tok.Type != expectedTok.Type:
 			t.Errorf("token %d: expected type %v, got %v", i, expectedTok.Type, tok.Type)
-		} else if tok.Literal != expectedTok.Literal {
+		case tok.Literal != expectedTok.Literal:
 			t.Errorf("token %d: expected %q, got %q", i, expectedTok.Literal, tok.Literal)
 		}
 	}
@@ -181,9 +187,10 @@ func TestSkipWhitespaces(t *testing.T) {
 	l := New(strings.NewReader("  one\ntwo\rthree\tfour \r\n five "))
 	for i, expectedTok := range expectedToks {
 		tok := l.NextToken()
-		if tok.Type != expectedTok.Type {
+		switch {
+		case tok.Type != expectedTok.Type:
 			t.Errorf("token %d: expected type %v, got %v", i, expectedTok.Type, tok.Type)
-		} else if tok.Literal != expectedTok.Literal {
+		case tok.Literal != expectedTok.Literal:
 			t.Errorf("token %d: expected %q, got %q", i, expectedTok.Literal, tok.Literal)
 		}
 	}
@@ -199,9 +206,10 @@ func TestReadIdent(t *testing.T) {
 	l := New(strings.NewReader(" hello  hello123   _hello123 "))
 	for i, expectedTok := range expectedToks {
 		tok := l.NextToken()
-		if tok.Type != expectedTok.Type {
+		switch {
+		case tok.Type != expectedTok.Type:
 			t.Errorf("token %d: expected type %v, got %v", i, expectedTok.Type, tok.Type)
-		} else if tok.Literal != expectedTok.Literal {
+		case tok.Literal != expectedTok.Literal:
 			t.Errorf("token %d: expected %q, got %q", i, expectedTok.Literal, tok.Literal)
 		}
 	}
@@ -215,9 +223,10 @@ func TestReadNumber(t *testing.T) {
 	l := New(strings.NewReader("123"))
 	for i, expectedTok := range expectedToks {
 		tok := l.NextToken()
-		if tok.Type != expectedTok.Type {
+		switch {
+		case tok.Type != expectedTok.Type:
 			t.Errorf("token %d: expected type %v, got %v", i, expectedTok.Type, tok.Type)
-		} else if tok.Literal != expectedTok.Literal {
+		case tok.Literal != expectedTok.Literal:
 			t.Errorf("token %d: expected %q, got %q", i, expectedTok.Literal, tok.Literal)
 		}
 	}
@@ -233,9 +242,10 @@ func TestReadString(t *testing.T) {
 		l := New(strings.NewReader(" 'Hello, World!' \"Hello, World!\""))
 		for i, expectedTok := range expectedToks {
 			tok := l.NextToken()
-			if tok.Type != expectedTok.Type {
+			switch {
+			case tok.Type != expectedTok.Type:
 				t.Errorf("token %d: expected type %v, got %v", i, expectedTok.Type, tok.Type)
-			} else if tok.Literal != expectedTok.Literal {
+			case tok.Literal != expectedTok.Literal:
 				t.Errorf("token %d: expected %q, got %q", i, expectedTok.Literal, tok.Literal)
 			}
 		}
@@ -257,9 +267,10 @@ func TestReadString(t *testing.T) {
 		l := New(strings.NewReader(strings.Join(inputs, "\n")))
 		for i, expectedTok := range expectedToks {
 			tok := l.NextToken()
-			if tok.Type != expectedTok.Type {
+			switch {
+			case tok.Type != expectedTok.Type:
 				t.Errorf("token %d: expected type %v, got %v", i, expectedTok.Type, tok.Type)
-			} else if tok.Literal != expectedTok.Literal {
+			case tok.Literal != expectedTok.Literal:
 				t.Errorf("token %d: expected %q, got %q", i, expectedTok.Literal, tok.Literal)
 			}
 		}
