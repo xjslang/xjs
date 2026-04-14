@@ -32,7 +32,7 @@ func (p *Parser) AdvanceToken() {
 }
 
 // Expect checks that the current token matches the expected type,
-// advances the position, and returns the new current token.
+// advances the position, and returns the token.
 //
 // If the token does not match, it records an error and returns it.
 func (p *Parser) Expect(ttype token.TokenType) (token.Token, error) {
@@ -41,8 +41,22 @@ func (p *Parser) Expect(ttype token.TokenType) (token.Token, error) {
 		p.AddError(err)
 		return token.Token{}, err
 	}
+	tok := p.CurrentToken
 	p.AdvanceToken()
-	return p.CurrentToken, nil
+	return tok, nil
+}
+
+func (p *Parser) ExpectASI() error {
+	if p.CurrentToken.Type == token.SEMICOLON {
+		p.AdvanceToken()
+		return nil
+	}
+	if p.CurrentToken.Type == token.EOF || p.CurrentToken.AfterNewline {
+		return nil
+	}
+	err := errors.New("Expected semicolon, newline, or EOF, got " + p.CurrentToken.Type.String())
+	p.AddError(err)
+	return err
 }
 
 func (p *Parser) ParseProgram() *ast.BlockStatement {

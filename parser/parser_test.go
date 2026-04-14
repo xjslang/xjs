@@ -6,6 +6,7 @@ import (
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/token"
 )
 
 func TestParser(t *testing.T) {
@@ -33,6 +34,48 @@ func TestParser(t *testing.T) {
 			&ast.LetStatement{},
 			&ast.LetStatement{},
 		},
+	})
+}
+
+// Test Automatic Semicolon Insertion (ASI for short)
+func TestASI(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+	}{
+		{"newline in the middle", "let x = 100\nlet y = 200;"},
+		{"newline at the end", "let x = 100\n"},
+		{"eof at the end", "let x = 100"},
+		{"newline in block comment", "let x = 100/* block\ncomment */let y = 200;"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			l := lexer.New(strings.NewReader(test.input))
+			p := New(l)
+			if _, err := p.parseLetStatement(); err != nil {
+				t.Error(err)
+			}
+		})
+	}
+
+	t.Run("block comment without newlines", func(t *testing.T) {
+		l := lexer.New(strings.NewReader("let x = 100/* block comment */let y = 200"))
+		p := New(l)
+		if _, err := p.parseLetStatement(); err == nil {
+			t.Error("Expected ASI error, nothing happened")
+		}
+	})
+
+	t.Run("current token not advanced on implicit semicolon", func(t *testing.T) {
+		l := lexer.New(strings.NewReader("let x = 100\nlet y = 200"))
+		p := New(l)
+		_, err := p.parseLetStatement()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if p.CurrentToken.Type != token.LET {
+			t.Errorf("Expected %v, got %v", token.LET, p.CurrentToken.Type)
+		}
 	})
 }
 
