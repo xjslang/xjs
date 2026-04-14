@@ -38,8 +38,9 @@ const (
 	RBRACE    // }
 	NEWLINE   // \n
 
-	// single and multile comments
-	COMMENT
+	// line and block comments
+	LCOMMENT // //
+	BCOMMENT // /* ... */
 
 	// keywords
 	LET
@@ -69,7 +70,8 @@ var tokenLiterals = map[TokenType]string{
 	LBRACE:    "LBRACE",
 	RBRACE:    "RBRACE",
 	NEWLINE:   "NEWLINE",
-	COMMENT:   "COMMENT",
+	LCOMMENT:  "LCOMMENT",
+	BCOMMENT:  "BCOMMENT",
 	DIVIDE:    "DIVIDE",
 }
 

@@ -15,6 +15,8 @@ func expectTokenSequence(t *testing.T, input string, expectedToks []token.Token)
 			t.Errorf("token %d: expected type %v, got %v", i, expectedTok.Type, tok.Type)
 		} else if tok.Literal != expectedTok.Literal {
 			t.Errorf("token %d: expected %q, got %q", i, expectedTok.Literal, tok.Literal)
+		} else if tok.AfterNewline != expectedTok.AfterNewline {
+			t.Errorf("token %d: expected AfterNewline to be %t, got %t", i, expectedTok.AfterNewline, tok.AfterNewline)
 		} else if expectedTok.LeadingTrivia != nil && len(tok.LeadingTrivia) != len(expectedTok.LeadingTrivia) {
 			t.Errorf("token %d: expected %d leading trivia lines, got %d", i, len(expectedTok.LeadingTrivia), len(tok.LeadingTrivia))
 		} else {
@@ -27,11 +29,30 @@ func expectTokenSequence(t *testing.T, input string, expectedToks []token.Token)
 	}
 }
 
+func TestAfterNewline(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+	}{
+		{"newline before block comment", "hello\n/* block comment */world"},
+		{"block comment with newline", "hello/* block\ncomment */world"},
+		{"newline", "hello\nworld"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			expectTokenSequence(t, test.input, []token.Token{
+				{Type: token.IDENT, Literal: "hello"},
+				{Type: token.IDENT, Literal: "world", AfterNewline: true},
+			})
+		})
+	}
+}
+
 func TestEmptySinglelineComment(t *testing.T) {
 	expectTokenSequence(t, "//\nhello//\r\nthere//\rObi-Wan Kenobi", []token.Token{
-		{Type: token.IDENT, Literal: "hello", LeadingTrivia: []string{""}},
-		{Type: token.IDENT, Literal: "there", LeadingTrivia: []string{""}},
-		{Type: token.EOF, LeadingTrivia: []string{"\rObi-Wan Kenobi"}},
+		{Type: token.IDENT, Literal: "hello", LeadingTrivia: []string{""}, AfterNewline: true},
+		{Type: token.IDENT, Literal: "there", LeadingTrivia: []string{""}, AfterNewline: true},
+		{Type: token.EOF, LeadingTrivia: []string{"\rObi-Wan Kenobi"}, AfterNewline: true},
 	})
 }
 
@@ -40,8 +61,8 @@ func TestMultilineComments(t *testing.T) {
 ipsum dolor */
 
 hello/* unfinished comment`, []token.Token{
-		{Type: token.IDENT, Literal: "hello", LeadingTrivia: []string{" lorem\nipsum dolor ", "", ""}},
-		{Type: token.ILLEGAL, Literal: " unfinished comment"},
+		{Type: token.IDENT, Literal: "hello", LeadingTrivia: []string{" lorem\nipsum dolor ", "", ""}, AfterNewline: true},
+		{Type: token.ILLEGAL, Literal: " unfinished comment", AfterNewline: false},
 		{Type: token.EOF},
 	})
 }
@@ -55,9 +76,9 @@ func TestSinglelineComments(t *testing.T) {
   Smith
 	
 	// Final comment`, []token.Token{
-		{Type: token.IDENT, Literal: "John", LeadingTrivia: []string{"", " First Name"}},
-		{Type: token.IDENT, Literal: "Smith", LeadingTrivia: []string{"", "", " Last Name"}},
-		{Type: token.EOF, LeadingTrivia: []string{"", "", " Final comment"}},
+		{Type: token.IDENT, Literal: "John", LeadingTrivia: []string{"", " First Name"}, AfterNewline: true},
+		{Type: token.IDENT, Literal: "Smith", LeadingTrivia: []string{"", "", " Last Name"}, AfterNewline: true},
+		{Type: token.EOF, LeadingTrivia: []string{"", "", " Final comment"}, AfterNewline: true},
 	})
 }
 
@@ -93,10 +114,10 @@ func TestPunctuators(t *testing.T) {
 func TestSkipWhitespaces(t *testing.T) {
 	expectTokenSequence(t, "  one\ntwo\rthree\tfour \r\n five ", []token.Token{
 		{Type: token.IDENT, Literal: "one"},
-		{Type: token.IDENT, Literal: "two"},
+		{Type: token.IDENT, Literal: "two", AfterNewline: true},
 		{Type: token.IDENT, Literal: "three"},
 		{Type: token.IDENT, Literal: "four"},
-		{Type: token.IDENT, Literal: "five"},
+		{Type: token.IDENT, Literal: "five", AfterNewline: true},
 		{Type: token.EOF},
 	})
 }
@@ -133,10 +154,10 @@ func TestReadString(t *testing.T) {
 			"\"",             // missing "
 		}
 		expectTokenSequence(t, strings.Join(items, "\n"), []token.Token{
-			{Type: token.ILLEGAL, Literal: "'Hello, World"},
-			{Type: token.ILLEGAL, Literal: "'"},
-			{Type: token.ILLEGAL, Literal: "\"Hello, World"},
-			{Type: token.ILLEGAL, Literal: "\""},
+			{Type: token.ILLEGAL, Literal: "'Hello, World", AfterNewline: false},
+			{Type: token.ILLEGAL, Literal: "'", AfterNewline: true},
+			{Type: token.ILLEGAL, Literal: "\"Hello, World", AfterNewline: true},
+			{Type: token.ILLEGAL, Literal: "\"", AfterNewline: true},
 			{Type: token.EOF},
 		})
 	})
