@@ -17,5 +17,5 @@ func Lint() error {
 }
 
 func Test() error {
-	return sh.RunV("go", "test", "./...", "-v", "-timeout", "5s")
+	return sh.RunV("go", "test", "./...", "-timeout", "5s")
 }
