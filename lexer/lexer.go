@@ -57,7 +57,7 @@ triviaLoop:
 		case token.NEWLINE, token.LCOMMENT:
 			afterNewline = true
 		case token.BCOMMENT:
-			afterNewline = afterNewline || strings.ContainsRune(tok.Literal, '\n')
+			afterNewline = afterNewline || strings.ContainsAny(tok.Literal, "\n\r")
 		default:
 			break triviaLoop
 		}
@@ -70,7 +70,7 @@ triviaLoop:
 }
 
 func (l *Lexer) skipWhitespaces() {
-	for l.CurrentChar == ' ' || l.CurrentChar == '\t' || l.CurrentChar == '\r' {
+	for l.CurrentChar == ' ' || l.CurrentChar == '\t' {
 		l.AdvanceChar()
 	}
 }

@@ -25,21 +25,8 @@ func (l *Lexer) parseMultilineComment() (string, token.TokenType) {
 
 func (l *Lexer) parseSinglelineComment() string {
 	sb := strings.Builder{}
-	for {
-		if l.CurrentChar == '\r' && l.PeekChar == '\n' {
-			// skip "\r\n" (Windows newline style)
-			l.AdvanceChar()
-			l.AdvanceChar()
-			break
-		} else if l.CurrentChar == '\n' {
-			// skip "\n" (Unix newline style)
-			l.AdvanceChar()
-			break
-		} else if l.CurrentChar == eof {
-			break
-		}
+	for ; l.CurrentChar != '\n' && l.CurrentChar != '\r' && l.CurrentChar != eof; l.AdvanceChar() {
 		sb.WriteRune(l.CurrentChar)
-		l.AdvanceChar()
 	}
 	return sb.String()
 }
@@ -71,7 +58,7 @@ func (l *Lexer) parseString(delimiter rune) (string, token.TokenType) {
 			sb.WriteRune(l.CurrentChar)
 			l.AdvanceChar()
 			break
-		} else if l.CurrentChar == eof || l.CurrentChar == '\n' {
+		} else if l.CurrentChar == eof || l.CurrentChar == '\n' || l.CurrentChar == '\r' {
 			return sb.String(), token.ILLEGAL
 		}
 		sb.WriteRune(l.CurrentChar)
