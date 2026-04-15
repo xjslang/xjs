@@ -70,7 +70,7 @@ triviaLoop:
 }
 
 func (l *Lexer) skipWhitespaces() {
-	for l.CurrentChar == ' ' || l.CurrentChar == '\t' || l.CurrentChar == '\r' {
+	for l.CurrentChar == ' ' || l.CurrentChar == '\t' {
 		l.AdvanceChar()
 	}
 }

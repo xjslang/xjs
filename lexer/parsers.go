@@ -26,10 +26,12 @@ func (l *Lexer) parseMultilineComment() (string, token.TokenType) {
 func (l *Lexer) parseSinglelineComment() string {
 	sb := strings.Builder{}
 	for {
-		if l.CurrentChar == '\r' && l.PeekChar == '\n' {
-			// skip "\r\n" (Windows newline style)
+		if l.CurrentChar == '\r' {
 			l.AdvanceChar()
-			l.AdvanceChar()
+			if l.CurrentChar == '\n' {
+				// skip "\r\n" (Windows newline style)
+				l.AdvanceChar()
+			}
 			break
 		} else if l.CurrentChar == '\n' {
 			// skip "\n" (Unix newline style)

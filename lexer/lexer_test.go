@@ -76,10 +76,11 @@ func TestAfterNewline(t *testing.T) {
 }
 
 func TestEmptySinglelineComment(t *testing.T) {
-	assertTokens(t, "//\nhello//\r\nthere//\rObi-Wan Kenobi", []token.Token{
+	assertTokens(t, "//\nhello//\r\nthere//\r!", []token.Token{
 		{Type: token.IDENT, Literal: "hello", LeadingTrivia: []string{""}},
 		{Type: token.IDENT, Literal: "there", LeadingTrivia: []string{""}},
-		{Type: token.EOF, LeadingTrivia: []string{"\rObi-Wan Kenobi"}},
+		{Type: token.NOT, Literal: "!", LeadingTrivia: []string{""}},
+		{Type: token.EOF},
 	}, compareLeadingTrivia())
 }
 
