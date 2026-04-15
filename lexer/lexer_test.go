@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -61,9 +62,13 @@ func TestAfterNewline(t *testing.T) {
 		input string
 	}{
 		{"newline before block comment", "hello\n/* block comment */world"},
-		{"block comment with newline", "hello/* block\ncomment */world"},
+		{"block comment with \n in the middle", "hello/* block\ncomment */world"},
+		{"block comment with \r in the middle", "hello/* block\rcomment */world"},
+		{"block comment with \r\n in the middle", "hello/* block\r\ncomment */world"},
 		{"single-line comment", "hello// comment\nworld"},
 		{"newline", "hello\nworld"},
+		{"newline", "hello\rworld"},
+		{"newline", "hello\r\nworld"},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -76,10 +81,11 @@ func TestAfterNewline(t *testing.T) {
 }
 
 func TestEmptySinglelineComment(t *testing.T) {
-	assertTokens(t, "//\nhello//\r\nthere//\rObi-Wan Kenobi", []token.Token{
-		{Type: token.IDENT, Literal: "hello", LeadingTrivia: []string{""}},
-		{Type: token.IDENT, Literal: "there", LeadingTrivia: []string{""}},
-		{Type: token.EOF, LeadingTrivia: []string{"\rObi-Wan Kenobi"}},
+	assertTokens(t, "//\nhello//\r\nthere//\r!", []token.Token{
+		{Type: token.IDENT, Literal: "hello", LeadingTrivia: []string{"", ""}},
+		{Type: token.IDENT, Literal: "there", LeadingTrivia: []string{"", ""}},
+		{Type: token.NOT, Literal: "!", LeadingTrivia: []string{"", ""}},
+		{Type: token.EOF},
 	}, compareLeadingTrivia())
 }
 
@@ -105,8 +111,8 @@ func TestSinglelineComments(t *testing.T) {
 	
 	// Final comment`
 	assertTokens(t, input, []token.Token{
-		{Type: token.IDENT, Literal: "John", LeadingTrivia: []string{"", " First Name"}},
-		{Type: token.IDENT, Literal: "Smith", LeadingTrivia: []string{"", "", " Last Name"}},
+		{Type: token.IDENT, Literal: "John", LeadingTrivia: []string{"", " First Name", ""}},
+		{Type: token.IDENT, Literal: "Smith", LeadingTrivia: []string{"", "", " Last Name", ""}},
 		{Type: token.EOF, LeadingTrivia: []string{"", "", " Final comment"}},
 	}, compareLeadingTrivia())
 }
@@ -189,5 +195,20 @@ func TestReadString(t *testing.T) {
 			{Type: token.ILLEGAL, Literal: "\""},
 			{Type: token.EOF},
 		})
+	})
+	t.Run("illegal string with CR in the middle", func(t *testing.T) {
+		delimiters := []string{"'", "\""}
+		terminators := []string{"\n", "\r", "\r\n"}
+		for _, delimiter := range delimiters {
+			for _, terminator := range terminators {
+				input := fmt.Sprintf("%sHello%sWorld%s", delimiter, terminator, delimiter)
+				assertTokens(t, input, []token.Token{
+					{Type: token.ILLEGAL, Literal: delimiter + "Hello"},
+					{Type: token.IDENT, Literal: "World"},
+					{Type: token.ILLEGAL, Literal: delimiter},
+					{Type: token.EOF},
+				})
+			}
+		}
 	})
 }

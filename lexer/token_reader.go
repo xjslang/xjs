@@ -89,6 +89,12 @@ func defaultTokenReader(l *Lexer) token.Token {
 		c := l.CurrentChar
 		l.AdvanceChar()
 		return token.Token{Type: token.RBRACE, Literal: string(c)}
+	case '\r':
+		l.AdvanceChar()
+		if l.CurrentChar == '\n' {
+			l.AdvanceChar()
+		}
+		return token.Token{Type: token.NEWLINE, Literal: ""}
 	case '\n':
 		l.AdvanceChar()
 		return token.Token{Type: token.NEWLINE, Literal: ""}
