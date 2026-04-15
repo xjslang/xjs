@@ -1,8 +1,8 @@
 package lexer
 
 import (
-	"io"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/xjslang/xjs/token"
 )
@@ -10,14 +10,16 @@ import (
 const eof = rune(-1)
 
 type Lexer struct {
-	input       io.RuneReader
-	CurrentChar rune
-	PeekChar    rune
+	input  []byte
+	offset int
 
 	tokenReader func(l *Lexer) token.Token
+
+	CurrentChar rune
+	PeekChar    rune
 }
 
-func New(input io.RuneReader) *Lexer {
+func New(input []byte) *Lexer {
 	l := &Lexer{
 		input:       input,
 		CurrentChar: eof,
@@ -32,15 +34,13 @@ func New(input io.RuneReader) *Lexer {
 
 func (l *Lexer) AdvanceChar() {
 	l.CurrentChar = l.PeekChar
-	r, _, err := l.input.ReadRune()
-	if err == io.EOF {
+	if l.offset < len(l.input) {
+		r, size := utf8.DecodeRune(l.input[l.offset:])
+		l.PeekChar = r
+		l.offset += size
+	} else {
 		l.PeekChar = eof
-		return
 	}
-	if err != nil {
-		panic(err)
-	}
-	l.PeekChar = r
 }
 
 func (l *Lexer) NextToken() token.Token {

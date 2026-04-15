@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/xjslang/xjs/ast"
@@ -18,7 +17,7 @@ func TestParser(t *testing.T) {
 
 		let x = 100;
 		let y = 200;`
-	l := lexer.New(strings.NewReader(input))
+	l := lexer.New([]byte(input))
 	p := New(l)
 	pr := p.ParseProgram()
 	expectNode(t, pr, &ast.BlockStatement{
@@ -50,7 +49,7 @@ func TestASI(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			l := lexer.New(strings.NewReader(test.input))
+			l := lexer.New([]byte(test.input))
 			p := New(l)
 			if _, err := p.parseLetStatement(); err != nil {
 				t.Error(err)
@@ -59,7 +58,7 @@ func TestASI(t *testing.T) {
 	}
 
 	t.Run("block comment without newlines", func(t *testing.T) {
-		l := lexer.New(strings.NewReader("let x = 100/* block comment */let y = 200"))
+		l := lexer.New([]byte("let x = 100/* block comment */let y = 200"))
 		p := New(l)
 		if _, err := p.parseLetStatement(); err == nil {
 			t.Error("Expected ASI error, nothing happened")
@@ -67,7 +66,7 @@ func TestASI(t *testing.T) {
 	})
 
 	t.Run("current token not advanced on implicit semicolon", func(t *testing.T) {
-		l := lexer.New(strings.NewReader("let x = 100\nlet y = 200"))
+		l := lexer.New([]byte("let x = 100\nlet y = 200"))
 		p := New(l)
 		_, err := p.parseLetStatement()
 		if err != nil {

@@ -32,7 +32,7 @@ func assertTokens(t *testing.T, input string, expectedToks []token.Token, opts .
 	for _, opt := range opts {
 		opt(cfg)
 	}
-	l := New(strings.NewReader(input))
+	l := New([]byte(input))
 	for i, expectedTok := range expectedToks {
 		tok := l.NextToken()
 		switch {
