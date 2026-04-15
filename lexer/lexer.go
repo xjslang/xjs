@@ -54,9 +54,10 @@ func (l *Lexer) NextToken() token.Token {
 triviaLoop:
 	for {
 		switch tok.Type {
-		case token.NEWLINE, token.LCOMMENT:
+		case token.NEWLINE:
 			afterNewline = true
-		case token.BCOMMENT:
+		case token.LINE_COMMENT:
+		case token.BLOCK_COMMENT:
 			afterNewline = afterNewline || strings.ContainsAny(tok.Literal, "\n\r")
 		default:
 			break triviaLoop

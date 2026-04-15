@@ -39,8 +39,8 @@ const (
 	NEWLINE   // \n
 
 	// line and block comments
-	LCOMMENT // //
-	BCOMMENT // /* ... */
+	LINE_COMMENT  // //
+	BLOCK_COMMENT // /* ... */
 
 	// keywords
 	LET
@@ -48,31 +48,31 @@ const (
 )
 
 var tokenLiterals = map[TokenType]string{
-	EOF:       "EOF",
-	EQ:        "EQ",
-	NOT_EQ:    "NOT_EQ",
-	ASSIGN:    "ASSIGN",
-	NOT:       "NOT",
-	LT:        "LT",
-	LTE:       "LTE",
-	GT:        "GT",
-	GTE:       "GTE",
-	IDENT:     "IDENT",
-	NUMBER:    "NUMBER",
-	STRING:    "STRING",
-	UNKNOWN:   "UNKNOWN",
-	ILLEGAL:   "ILLEGAL",
-	LET:       "LET",
-	SEMICOLON: "SEMICOLON",
-	FUNCTION:  "FUNCTION",
-	LPAREN:    "LPAREN",
-	RPAREN:    "RPAREN",
-	LBRACE:    "LBRACE",
-	RBRACE:    "RBRACE",
-	NEWLINE:   "NEWLINE",
-	LCOMMENT:  "LCOMMENT",
-	BCOMMENT:  "BCOMMENT",
-	DIVIDE:    "DIVIDE",
+	EOF:           "EOF",
+	EQ:            "EQ",
+	NOT_EQ:        "NOT_EQ",
+	ASSIGN:        "ASSIGN",
+	NOT:           "NOT",
+	LT:            "LT",
+	LTE:           "LTE",
+	GT:            "GT",
+	GTE:           "GTE",
+	IDENT:         "IDENT",
+	NUMBER:        "NUMBER",
+	STRING:        "STRING",
+	UNKNOWN:       "UNKNOWN",
+	ILLEGAL:       "ILLEGAL",
+	LET:           "LET",
+	SEMICOLON:     "SEMICOLON",
+	FUNCTION:      "FUNCTION",
+	LPAREN:        "LPAREN",
+	RPAREN:        "RPAREN",
+	LBRACE:        "LBRACE",
+	RBRACE:        "RBRACE",
+	NEWLINE:       "NEWLINE",
+	LINE_COMMENT:  "LINE_COMMENT",
+	BLOCK_COMMENT: "BLOCK_COMMENT",
+	DIVIDE:        "DIVIDE",
 }
 
 func (tt TokenType) String() string {

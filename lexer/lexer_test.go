@@ -80,16 +80,7 @@ func TestAfterNewline(t *testing.T) {
 	}
 }
 
-func TestEmptySinglelineComment(t *testing.T) {
-	assertTokens(t, "//\nhello//\r\nthere//\r!", []token.Token{
-		{Type: token.IDENT, Literal: "hello", LeadingTrivia: []string{"", ""}},
-		{Type: token.IDENT, Literal: "there", LeadingTrivia: []string{"", ""}},
-		{Type: token.NOT, Literal: "!", LeadingTrivia: []string{"", ""}},
-		{Type: token.EOF},
-	}, compareLeadingTrivia())
-}
-
-func TestMultilineComments(t *testing.T) {
+func TestBlockComments(t *testing.T) {
 	input := `/* lorem
 ipsum dolor */
 
@@ -101,7 +92,7 @@ hello/* unfinished comment`
 	}, compareLeadingTrivia())
 }
 
-func TestSinglelineComments(t *testing.T) {
+func TestLineComments(t *testing.T) {
 	input := `
   // First Name
   John
@@ -115,6 +106,21 @@ func TestSinglelineComments(t *testing.T) {
 		{Type: token.IDENT, Literal: "Smith", LeadingTrivia: []string{"", "", " Last Name", ""}},
 		{Type: token.EOF, LeadingTrivia: []string{"", "", " Final comment"}},
 	}, compareLeadingTrivia())
+}
+
+func TestEmptySinglelineComment(t *testing.T) {
+	assertTokens(t, "//\nhello//\r\nthere//\r!//", []token.Token{
+		{Type: token.IDENT, Literal: "hello", LeadingTrivia: []string{"", ""}},
+		{Type: token.IDENT, Literal: "there", LeadingTrivia: []string{"", ""}},
+		{Type: token.NOT, Literal: "!", LeadingTrivia: []string{"", ""}},
+		{Type: token.EOF, Literal: "", LeadingTrivia: []string{""}},
+	}, compareLeadingTrivia())
+}
+
+func TestLastLineComment(t *testing.T) {
+	assertTokens(t, "// last comment", []token.Token{
+		{Type: token.EOF, Literal: "", LeadingTrivia: []string{" last comment"}, AfterNewline: false},
+	}, compareLeadingTrivia(), compareAfterNewline())
 }
 
 func TestScanContinuesAfterNullCharacter(t *testing.T) {

@@ -6,8 +6,9 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func (l *Lexer) parseMultilineComment() (string, token.TokenType) {
+func (l *Lexer) parseBlockComment() (string, token.TokenType) {
 	sb := strings.Builder{}
+	l.AdvanceChar() // consume "*"
 	for {
 		if l.CurrentChar == '*' && l.PeekChar == '/' {
 			// skip "*/"
@@ -20,12 +21,12 @@ func (l *Lexer) parseMultilineComment() (string, token.TokenType) {
 		sb.WriteRune(l.CurrentChar)
 		l.AdvanceChar()
 	}
-	return sb.String(), token.BCOMMENT
+	return sb.String(), token.BLOCK_COMMENT
 }
 
-func (l *Lexer) parseSinglelineComment() string {
+func (l *Lexer) parseLineComment() string {
 	sb := strings.Builder{}
-	for ; l.CurrentChar != '\n' && l.CurrentChar != '\r' && l.CurrentChar != eof; l.AdvanceChar() {
+	for l.AdvanceChar(); l.CurrentChar != '\n' && l.CurrentChar != '\r' && l.CurrentChar != eof; l.AdvanceChar() {
 		sb.WriteRune(l.CurrentChar)
 	}
 	return sb.String()
