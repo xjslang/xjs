@@ -56,6 +56,29 @@ func assertTokens(t *testing.T, input string, expectedToks []token.Token, opts .
 	}
 }
 
+func TestUnicodeChars(t *testing.T) {
+	tests := []struct {
+		name  string
+		items []string
+	}{
+		{"general", []string{"España", "Türkiye", "São Tomé e Príncipe", "Curaçao", "Réunion"}},
+		{"various diacritics", []string{"á", "é", "í", "ó", "ú", "ü", "ñ", "ç", "ø", "å", "ä", "ö"}},
+		{"emojis", []string{"🇪🇸", "👍", "🎉"}},
+		{"non-Latin alphabets", []string{"Россия", "مصر", "中国", "日本", "한국"}},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var expectedToks []token.Token
+			for _, item := range test.items {
+				expectedToks = append(expectedToks, token.Token{Type: token.STRING, Literal: fmt.Sprintf("'%s'", item)})
+			}
+			expectedToks = append(expectedToks, token.Token{Type: token.EOF})
+			item := "'" + strings.Join(test.items, "' '") + "'"
+			assertTokens(t, item, expectedToks)
+		})
+	}
+}
+
 func TestAfterNewline(t *testing.T) {
 	tests := []struct {
 		name  string
