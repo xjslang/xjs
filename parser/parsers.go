@@ -57,8 +57,8 @@ func (p *Parser) ParseExpression() ast.Expression {
 	return nil
 }
 
-func (p *Parser) parseFunction() (*ast.FunctionStatement, error) {
-	stmt := &ast.FunctionStatement{}
+func (p *Parser) parseFunction() (*ast.FunctionDeclaration, error) {
+	stmt := &ast.FunctionDeclaration{}
 	p.AdvanceToken() // consume token.FUNCTION
 	if _, err := p.Expect(token.IDENT); err != nil {
 		return stmt, err

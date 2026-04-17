@@ -26,11 +26,11 @@ type LetStatement struct {
 
 func (ls *LetStatement) statementNode() {}
 
-type FunctionStatement struct {
+type FunctionDeclaration struct {
 	Body *BlockStatement
 }
 
-func (fs *FunctionStatement) statementNode() {}
+func (fs *FunctionDeclaration) statementNode() {}
 
 // Implements Expression
 type IntegerLiteral struct {

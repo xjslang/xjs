@@ -22,7 +22,7 @@ func TestParser(t *testing.T) {
 	pr := p.ParseProgram()
 	expectNode(t, pr, &ast.BlockStatement{
 		Statements: []ast.Statement{
-			&ast.FunctionStatement{
+			&ast.FunctionDeclaration{
 				Body: &ast.BlockStatement{
 					Statements: []ast.Statement{
 						&ast.LetStatement{},
@@ -92,8 +92,8 @@ func expectNode(t *testing.T, a ast.Statement, b ast.Statement) {
 		for i, expectedStmt := range expected.Statements {
 			expectNode(t, got.Statements[i], expectedStmt)
 		}
-	case *ast.FunctionStatement:
-		got, ok := a.(*ast.FunctionStatement)
+	case *ast.FunctionDeclaration:
+		got, ok := a.(*ast.FunctionDeclaration)
 		if !ok {
 			t.Errorf("Expected %T, got %T", b, a)
 		}
