@@ -60,9 +60,11 @@ func (p *Parser) ParseExpression() ast.Expression {
 func (p *Parser) parseFunction() (*ast.FunctionDeclaration, error) {
 	stmt := &ast.FunctionDeclaration{}
 	p.AdvanceToken() // consume token.FUNCTION
-	if _, err := p.Expect(token.IDENT); err != nil {
+	ident, err := p.Expect(token.IDENT)
+	if err != nil {
 		return stmt, err
 	}
+	stmt.Name = &ast.Identifier{Value: ident.Literal}
 	if _, err := p.Expect(token.LPAREN); err != nil {
 		return stmt, err
 	}
