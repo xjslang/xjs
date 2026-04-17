@@ -30,11 +30,10 @@ type BlockStatement struct {
 func (bs *BlockStatement) statementNode() {}
 
 func (bs *BlockStatement) PrintTo(p *printer.Printer) {
-	for i, stmt := range bs.Statements {
-		if i > 0 {
-			p.PrintString(";")
-		}
+	for _, stmt := range bs.Statements {
+		p.PrintIndent()
 		stmt.PrintTo(p)
+		p.PrintNewline()
 	}
 }
 
@@ -48,8 +47,11 @@ func (ls *LetStatement) statementNode() {}
 func (ls *LetStatement) PrintTo(p *printer.Printer) {
 	p.PrintString("let ")
 	ls.Name.PrintTo(p)
-	p.PrintString(" = ")
+	p.PrintWhitespace()
+	p.PrintString("=")
+	p.PrintWhitespace()
 	ls.Value.PrintTo(p)
+	p.PrintSemicolon()
 }
 
 type FunctionDeclaration struct {
@@ -62,8 +64,16 @@ func (fd *FunctionDeclaration) statementNode() {}
 func (fd *FunctionDeclaration) PrintTo(p *printer.Printer) {
 	p.PrintString("function ")
 	fd.Name.PrintTo(p)
-	p.PrintString("() {")
-	fd.Body.PrintTo(p)
+	p.PrintString("()")
+	p.PrintWhitespace()
+	p.PrintRune('{')
+	if fd.Body != nil && len(fd.Body.Statements) > 0 {
+		p.PrintNewline()
+		p.IncreaseIndent()
+		fd.Body.PrintTo(p)
+		p.DecreaseIndent()
+		p.PrintIndent()
+	}
 	p.PrintRune('}')
 }
 

@@ -5,7 +5,17 @@ import (
 )
 
 type Printer struct {
-	doc strings.Builder
+	doc          strings.Builder
+	formatted    bool // show the result with tabs and newlines
+	semicolon    bool // whether to use explicit semicolons or no
+	indentString string
+	indentLevel  int
+}
+
+func New() *Printer {
+	return &Printer{
+		indentString: "  ",
+	}
 }
 
 func (p *Printer) PrintString(s string) {
