@@ -19,7 +19,10 @@ func TestParser(t *testing.T) {
 		let y = 200;`
 	l := lexer.New([]byte(input))
 	p := New(l)
-	pr := p.ParseProgram()
+	pr, err := p.ParseProgram()
+	if err != nil {
+		t.Fatal(err)
+	}
 	expectNode(t, pr, &ast.BlockStatement{
 		Statements: []ast.Statement{
 			&ast.FunctionDeclaration{
@@ -34,6 +37,37 @@ func TestParser(t *testing.T) {
 			&ast.LetStatement{},
 		},
 	})
+}
+
+func TestParseErrors(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{"missing token", "function hello({}", "Expected RPAREN, got LBRACE"},
+		{"missing semicolon", "let x = 100 let y = 200", "Expected semicolon, newline, or EOF, got LET"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			l := lexer.New([]byte(test.input))
+			p := New(l)
+			_, err := p.ParseProgram()
+			if err == nil {
+				t.Fatal("Expected an error, got nil")
+			}
+			list, ok := err.(ErrorList)
+			if !ok {
+				t.Fatalf("Expected ErrorList, got %T", err)
+			}
+			if n := len(list); n != 1 {
+				t.Errorf("Expected one error, got %d", n)
+			}
+			if list[0] != test.expected {
+				t.Errorf("Expected error %q, got %q", test.expected, list[0])
+			}
+		})
+	}
 }
 
 // Test Automatic Semicolon Insertion (ASI for short)
