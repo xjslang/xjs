@@ -2,16 +2,25 @@ package parser
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/lexer"
 	"github.com/xjslang/xjs/token"
 )
 
+type ErrorList []string
+
+func (list ErrorList) Error() string {
+	return strings.Join(list, "\n")
+}
+
 type Parser struct {
 	lexer        *lexer.Lexer
 	CurrentToken token.Token
 	PeekToken    token.Token
+
+	errors ErrorList
 }
 
 func New(l *lexer.Lexer) *Parser {
@@ -22,8 +31,12 @@ func New(l *lexer.Lexer) *Parser {
 	return p
 }
 
-func (p *Parser) ParseProgram() *ast.BlockStatement {
-	return p.parseBody()
+func (p *Parser) ParseProgram() (*ast.BlockStatement, error) {
+	result := p.parseBody()
+	if len(p.errors) > 0 {
+		return result, p.errors
+	}
+	return result, nil
 }
 
 func (p *Parser) ParseExpression() ast.Expression {
@@ -40,8 +53,8 @@ func (p *Parser) ParseExpression() ast.Expression {
 	return nil
 }
 
-func (p *Parser) addError(err error) {
-	// TODO: implement
+func (p *Parser) addError(msg string) {
+	p.errors = append(p.errors, msg)
 }
 
 func (p *Parser) advanceToken() {
@@ -55,9 +68,9 @@ func (p *Parser) advanceToken() {
 // If the token does not match, it records an error and returns it.
 func (p *Parser) expect(ttype token.TokenType) (token.Token, error) {
 	if p.CurrentToken.Type != ttype {
-		err := errors.New("Expected " + ttype.String() + ", got " + p.CurrentToken.Type.String())
-		p.addError(err)
-		return token.Token{}, err
+		msg := "Expected " + ttype.String() + ", got " + p.CurrentToken.Type.String()
+		p.addError(msg)
+		return token.Token{}, errors.New(msg)
 	}
 	tok := p.CurrentToken
 	p.advanceToken()
@@ -72,9 +85,9 @@ func (p *Parser) expectASI() error {
 	if p.CurrentToken.Type == token.EOF || p.CurrentToken.AfterNewline {
 		return nil
 	}
-	err := errors.New("Expected semicolon, newline, or EOF, got " + p.CurrentToken.Type.String())
-	p.addError(err)
-	return err
+	msg := "Expected semicolon, newline, or EOF, got " + p.CurrentToken.Type.String()
+	p.addError(msg)
+	return errors.New(msg)
 }
 
 func (p *Parser) parseBody() *ast.BlockStatement {
