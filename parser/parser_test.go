@@ -1,11 +1,32 @@
 package parser
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/printer"
 )
+
+func ExampleParse() {
+	result, err := Parse([]byte(`function hello() {
+	let x = 100
+	let y = 200
+}`))
+	if err != nil {
+		panic(err)
+	}
+
+	pr := printer.New()
+	result.PrintTo(pr)
+	fmt.Print(pr.String())
+	// Output:
+	// function hello() {
+	//   let x = 100;
+	//   let y = 200;
+	// }
+}
 
 func TestParser(t *testing.T) {
 	input := `
@@ -17,8 +38,8 @@ func TestParser(t *testing.T) {
 		let x = 100;
 		let y = 200;`
 	l := lexer.New([]byte(input))
-	p := New(l)
-	pr, err := p.ParseProgram()
+	p := newParser(l)
+	pr, err := p.parseProgram()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,8 +71,8 @@ func TestParseErrors(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			l := lexer.New([]byte(test.input))
-			p := New(l)
-			_, err := p.ParseProgram()
+			p := newParser(l)
+			_, err := p.parseProgram()
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
 			}
