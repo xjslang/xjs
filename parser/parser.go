@@ -17,16 +17,16 @@ type Parser struct {
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{lexer: l}
 	// call twice to update CurrentToken and PeekToken
-	p.AdvanceToken()
-	p.AdvanceToken()
+	p.advanceToken()
+	p.advanceToken()
 	return p
 }
 
-func (p *Parser) AddError(err error) {
+func (p *Parser) addError(err error) {
 	// TODO: implement
 }
 
-func (p *Parser) AdvanceToken() {
+func (p *Parser) advanceToken() {
 	p.CurrentToken = p.PeekToken
 	p.PeekToken = p.lexer.NextToken()
 }
@@ -35,27 +35,27 @@ func (p *Parser) AdvanceToken() {
 // advances the position, and returns the token.
 //
 // If the token does not match, it records an error and returns it.
-func (p *Parser) Expect(ttype token.TokenType) (token.Token, error) {
+func (p *Parser) expect(ttype token.TokenType) (token.Token, error) {
 	if p.CurrentToken.Type != ttype {
 		err := errors.New("Expected " + ttype.String() + ", got " + p.CurrentToken.Type.String())
-		p.AddError(err)
+		p.addError(err)
 		return token.Token{}, err
 	}
 	tok := p.CurrentToken
-	p.AdvanceToken()
+	p.advanceToken()
 	return tok, nil
 }
 
-func (p *Parser) ExpectASI() error {
+func (p *Parser) expectASI() error {
 	if p.CurrentToken.Type == token.SEMICOLON {
-		p.AdvanceToken()
+		p.advanceToken()
 		return nil
 	}
 	if p.CurrentToken.Type == token.EOF || p.CurrentToken.AfterNewline {
 		return nil
 	}
 	err := errors.New("Expected semicolon, newline, or EOF, got " + p.CurrentToken.Type.String())
-	p.AddError(err)
+	p.addError(err)
 	return err
 }
 
@@ -67,11 +67,11 @@ func (p *Parser) ParseExpression() ast.Expression {
 	switch p.CurrentToken.Type {
 	case token.NUMBER:
 		val := p.CurrentToken.Literal
-		p.AdvanceToken()
+		p.advanceToken()
 		return &ast.IntegerLiteral{Value: val}
 	case token.STRING:
 		val := p.CurrentToken.Literal
-		p.AdvanceToken()
+		p.advanceToken()
 		return &ast.StringLiteral{Value: val}
 	}
 	return nil
@@ -97,17 +97,17 @@ func (p *Parser) parseStatement() (ast.Statement, error) {
 
 func (p *Parser) parseLetStatement() (*ast.LetStatement, error) {
 	stmt := &ast.LetStatement{}
-	p.AdvanceToken() // consume token.LET
-	ident, err := p.Expect(token.IDENT)
+	p.advanceToken() // consume token.LET
+	ident, err := p.expect(token.IDENT)
 	if err != nil {
 		return stmt, err
 	}
 	stmt.Name = &ast.Identifier{Value: ident.Literal}
-	if _, err := p.Expect(token.ASSIGN); err != nil {
+	if _, err := p.expect(token.ASSIGN); err != nil {
 		return stmt, err
 	}
 	stmt.Value = p.ParseExpression()
-	if err := p.ExpectASI(); err != nil {
+	if err := p.expectASI(); err != nil {
 		return stmt, err
 	}
 	return stmt, nil
@@ -115,23 +115,23 @@ func (p *Parser) parseLetStatement() (*ast.LetStatement, error) {
 
 func (p *Parser) parseFunction() (*ast.FunctionDeclaration, error) {
 	stmt := &ast.FunctionDeclaration{}
-	p.AdvanceToken() // consume token.FUNCTION
-	ident, err := p.Expect(token.IDENT)
+	p.advanceToken() // consume token.FUNCTION
+	ident, err := p.expect(token.IDENT)
 	if err != nil {
 		return stmt, err
 	}
 	stmt.Name = &ast.Identifier{Value: ident.Literal}
-	if _, err := p.Expect(token.LPAREN); err != nil {
+	if _, err := p.expect(token.LPAREN); err != nil {
 		return stmt, err
 	}
-	if _, err := p.Expect(token.RPAREN); err != nil {
+	if _, err := p.expect(token.RPAREN); err != nil {
 		return stmt, err
 	}
-	if _, err := p.Expect(token.LBRACE); err != nil {
+	if _, err := p.expect(token.LBRACE); err != nil {
 		return stmt, err
 	}
 	stmt.Body = p.parseBody()
-	if _, err := p.Expect(token.RBRACE); err != nil {
+	if _, err := p.expect(token.RBRACE); err != nil {
 		return stmt, err
 	}
 	return stmt, nil
