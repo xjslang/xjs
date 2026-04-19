@@ -39,20 +39,6 @@ func (p *Parser) ParseProgram() (*ast.BlockStatement, error) {
 	return result, nil
 }
 
-func (p *Parser) ParseExpression() ast.Expression {
-	switch p.CurrentToken.Type {
-	case token.NUMBER:
-		val := p.CurrentToken.Literal
-		p.advanceToken()
-		return &ast.IntegerLiteral{Value: val}
-	case token.STRING:
-		val := p.CurrentToken.Literal
-		p.advanceToken()
-		return &ast.StringLiteral{Value: val}
-	}
-	return nil
-}
-
 func (p *Parser) addError(msg string) {
 	p.errors = append(p.errors, msg)
 }
@@ -108,6 +94,20 @@ func (p *Parser) parseStatement() ast.Statement {
 	return nil
 }
 
+func (p *Parser) parseExpression() ast.Expression {
+	switch p.CurrentToken.Type {
+	case token.NUMBER:
+		val := p.CurrentToken.Literal
+		p.advanceToken()
+		return &ast.IntegerLiteral{Value: val}
+	case token.STRING:
+		val := p.CurrentToken.Literal
+		p.advanceToken()
+		return &ast.StringLiteral{Value: val}
+	}
+	return nil
+}
+
 func (p *Parser) parseLetStatement() *ast.LetStatement {
 	stmt := &ast.LetStatement{}
 	p.advanceToken() // consume token.LET
@@ -118,7 +118,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	if _, err := p.expect(token.ASSIGN); err != nil {
 		return nil
 	}
-	stmt.Value = p.ParseExpression()
+	stmt.Value = p.parseExpression()
 	if err := p.expectASI(); err != nil {
 		return nil
 	}
