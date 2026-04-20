@@ -69,7 +69,7 @@ func (p *parser) expect(ttype token.TokenType) (token.Token, error) {
 	return tok, nil
 }
 
-func (p *parser) expectASI() error {
+func (p *parser) expectStatementTerminator() error {
 	if p.CurrentToken.Type == token.SEMICOLON {
 		p.advanceToken()
 		return nil
@@ -126,7 +126,7 @@ func (p *parser) parseLetStatement() *ast.LetStatement {
 		return nil
 	}
 	stmt.Value = p.parseExpression()
-	if err := p.expectASI(); err != nil {
+	if err := p.expectStatementTerminator(); err != nil {
 		return nil
 	}
 	return stmt
