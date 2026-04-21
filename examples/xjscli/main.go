@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -14,22 +15,24 @@ func usage() {
 	fmt.Printf("xjscli is a tool for testing the different capabilities of the XJS parser.\n\n")
 	fmt.Printf("Usage:\n\n")
 	fmt.Println("\txjscli example.js")
-	fmt.Println("\techo \"code\" | xjscli -stdin ")
+	fmt.Println("\techo \"code\" | xjscli -stdin")
 	fmt.Printf("\nOptions:\n\n")
 	fmt.Println("\t-help  show this help")
 	fmt.Println("\t-stdin read input from stdin (pipe or redirect)")
+	fmt.Println("\t-check display only errors")
 	fmt.Printf("\nExamples:\n\n")
-	fmt.Println("\txjscli examples.js")
-	fmt.Println("\techo 'function foo(){}' | xjscli -stdin")
+	fmt.Println("\txjscli example.js")
+	fmt.Println("\txjscli -check example.js")
+	fmt.Println("\techo \"code\" | xjscli -stdin")
+	fmt.Println("\techo \"code\" | xjscli -stdin -check")
 	fmt.Println()
 }
 
 func main() {
-	var helpFlag bool
-	var stdinFlag bool
-
+	var helpFlag, stdinFlag, checkFlag bool
 	flag.BoolVar(&helpFlag, "help", false, "show help")
 	flag.BoolVar(&stdinFlag, "stdin", false, "read from stdin")
+	flag.BoolVar(&checkFlag, "check", false, "display only errors")
 	flag.Parse()
 
 	if helpFlag {
@@ -65,11 +68,26 @@ func main() {
 	}
 
 	program, err := parser.Parse(data)
+
+	// prints errors
+	if checkFlag {
+		list := []string{}
+		if l, ok := err.(parser.ErrorList); ok {
+			list = l
+		}
+		result, err := json.Marshal(list)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
+		fmt.Println(string(result))
+		return
+	}
+
+	// prints the formatted output
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-
 	pr := printer.New()
 	program.PrintTo(pr)
 	fmt.Print(pr.String())
