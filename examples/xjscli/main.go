@@ -13,21 +13,26 @@ import (
 func usage() {
 	fmt.Printf("xjscli is a tool for testing the different capabilities of the XJS parser.\n\n")
 	fmt.Printf("Usage:\n\n")
-	fmt.Printf("\txjscli example.js - parse \"example.js\" and display the formatted output\n")
-	fmt.Printf("\txjscli -h         - show help\n")
-	fmt.Printf("\txjscli -stdin     - read data from stdin (pipe or redirect)\n")
+	fmt.Println("\txjscli example.js")
+	fmt.Println("\techo \"code\" | xjscli -stdin ")
+	fmt.Printf("\nOptions:\n\n")
+	fmt.Println("\t-help  show this help")
+	fmt.Println("\t-stdin read input from stdin (pipe or redirect)")
+	fmt.Printf("\nExamples:\n\n")
+	fmt.Println("\txjscli examples.js")
+	fmt.Println("\techo 'function foo(){}' | xjscli -stdin")
 	fmt.Println()
 }
 
 func main() {
-	var help bool
+	var helpFlag bool
 	var stdinFlag bool
 
-	flag.BoolVar(&help, "h", false, "show help")
+	flag.BoolVar(&helpFlag, "help", false, "show help")
 	flag.BoolVar(&stdinFlag, "stdin", false, "read from stdin")
 	flag.Parse()
 
-	if help {
+	if helpFlag {
 		usage()
 		os.Exit(0)
 	}
