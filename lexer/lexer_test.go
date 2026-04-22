@@ -11,6 +11,7 @@ import (
 type tokenCompareConfig struct {
 	afterNewline  bool
 	leadingTrivia bool
+	tokenPosition bool
 }
 
 type tokenCompareOption func(cfg *tokenCompareConfig)
@@ -24,6 +25,12 @@ func compareAfterNewline() tokenCompareOption {
 func compareLeadingTrivia() tokenCompareOption {
 	return func(cfg *tokenCompareConfig) {
 		cfg.leadingTrivia = true
+	}
+}
+
+func compareTokenPosition() tokenCompareOption {
+	return func(cfg *tokenCompareConfig) {
+		cfg.tokenPosition = true
 	}
 }
 
@@ -52,6 +59,8 @@ func assertTokens(t *testing.T, input string, expectedToks []token.Token, opts .
 					}
 				}
 			}
+		case cfg.tokenPosition && (tok.Line != expectedTok.Line || tok.Column != expectedTok.Column):
+			t.Errorf("token %d: expected position to be (%d, %d), got (%d, %d)", i, expectedTok.Line, expectedTok.Column, tok.Line, tok.Column)
 		}
 	}
 }
@@ -65,6 +74,19 @@ func BenchmarkLexer(b *testing.B) {
 		l.Reset()
 	}
 	_ = tok
+}
+
+func TestTokenPosition(t *testing.T) {
+	input := " aaa   bbb /* block comment*/ ccc\n// comment\rddd\r\ne!\n"
+	assertTokens(t, input, []token.Token{
+		{Type: token.IDENT, Literal: "aaa", Line: 0, Column: 1},
+		{Type: token.IDENT, Literal: "bbb", Line: 0, Column: 7},
+		{Type: token.IDENT, Literal: "ccc", Line: 0, Column: 30},
+		{Type: token.IDENT, Literal: "ddd", Line: 2, Column: 0},
+		{Type: token.IDENT, Literal: "e", Line: 3, Column: 0},
+		{Type: token.NOT, Literal: "!", Line: 3, Column: 1},
+		{Type: token.EOF, Line: 4, Column: 0},
+	}, compareTokenPosition())
 }
 
 func TestReset(t *testing.T) {

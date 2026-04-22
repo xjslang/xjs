@@ -10,7 +10,7 @@ func (l *Lexer) parseBlockComment() (string, token.TokenType) {
 	sb := strings.Builder{}
 	l.AdvanceChar() // consume "*"
 	for {
-		if l.CurrentChar == '*' && l.PeekChar == '/' {
+		if l.CurrentChar == '*' && l.PeekChar() == '/' {
 			// skip "*/"
 			l.AdvanceChar()
 			l.AdvanceChar()
