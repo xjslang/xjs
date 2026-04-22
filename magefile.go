@@ -19,3 +19,7 @@ func Lint() error {
 func Test() error {
 	return sh.RunV("go", "test", "./...", "-timeout", "5s")
 }
+
+func Bench() error {
+	return sh.RunV("go", "test", "./...", "-bench=.", "-benchtime=3s", "-run=^$")
+}

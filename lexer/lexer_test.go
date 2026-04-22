@@ -56,6 +56,40 @@ func assertTokens(t *testing.T, input string, expectedToks []token.Token, opts .
 	}
 }
 
+func BenchmarkLexer(b *testing.B) {
+	l := New([]byte("lorem ipsum dolor"))
+	var tok token.Token // prevent dead code elimination
+	for b.Loop() {
+		for tok = l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
+		}
+		l.Reset()
+	}
+	_ = tok
+}
+
+func TestReset(t *testing.T) {
+	items := []string{"lorem", "ipsum", "dolor"}
+	l := New([]byte(strings.Join(items, " ")))
+	for range 2 {
+		var toks []token.Token
+		for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
+			toks = append(toks, tok)
+		}
+		if l := len(toks); l != len(items) {
+			t.Fatalf("Expected len(toks)=%d, got %d", len(items), l)
+		}
+		for i, tok := range toks {
+			if tok.Type != token.IDENT {
+				t.Fatalf("token %d: expected type %v, got %v", i, token.IDENT, tok.Type)
+			}
+			if tok.Literal != items[i] {
+				t.Fatalf("token %d: expected %q, got %q", i, items[i], tok.Literal)
+			}
+		}
+		l.Reset()
+	}
+}
+
 func TestUnicodeChars(t *testing.T) {
 	tests := []struct {
 		name  string

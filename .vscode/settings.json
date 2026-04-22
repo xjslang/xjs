@@ -1,4 +1,5 @@
 {
   "go.testTimeout": "5s",
-  "go.buildTags": "mage"
+  "go.buildTags": "mage",
+  "go.testFlags": ["-benchtime=1s"]
 }
