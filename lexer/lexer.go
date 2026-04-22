@@ -22,14 +22,18 @@ type Lexer struct {
 func New(input []byte) *Lexer {
 	l := &Lexer{
 		input:       input,
-		CurrentChar: eof,
-		PeekChar:    eof,
 		tokenReader: defaultTokenReader,
 	}
-	// call twice to update CurrentChar and PeekChar
-	l.AdvanceChar()
-	l.AdvanceChar()
+	l.Reset()
 	return l
+}
+
+func (l *Lexer) Reset() {
+	l.offset = 0
+	l.CurrentChar = eof
+	l.PeekChar = eof
+	l.AdvanceChar()
+	l.AdvanceChar()
 }
 
 func (l *Lexer) AdvanceChar() {
