@@ -5,4 +5,5 @@ type Token struct {
 	Literal       string
 	LeadingTrivia []string
 	AfterNewline  bool
+	Line, Column  int
 }
