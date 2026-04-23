@@ -7,8 +7,6 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-const eof = rune(-1)
-
 type Lexer struct {
 	input        []byte
 	offset       int
@@ -30,7 +28,7 @@ func New(input []byte) *Lexer {
 
 func (l *Lexer) Reset() {
 	l.offset = 0
-	l.CurrentChar = eof
+	l.CurrentChar = utf8.RuneError
 	l.line = 0
 	l.column = -1
 	l.AdvanceChar()
@@ -41,27 +39,20 @@ func (l *Lexer) PeekChar() rune {
 		r, _ := utf8.DecodeRune(l.input[l.offset:])
 		return r
 	}
-	return eof
+	return utf8.RuneError
 }
 
 func (l *Lexer) AdvanceChar() {
-	if l.offset < len(l.input) {
-		r, size := utf8.DecodeRune(l.input[l.offset:])
-		l.offset += size
-		// the following condition covers "\r", "\n" and "\r\n"
-		if r == '\r' || (l.CurrentChar != '\r' && r == '\n') {
-			l.line++
-			l.column = -1
-		} else if r != '\n' {
-			l.column++
-		}
-		l.CurrentChar = r
-	} else {
-		if l.column < 0 {
-			l.column = 0
-		}
-		l.CurrentChar = eof
+	r, size := utf8.DecodeRune(l.input[l.offset:])
+	l.offset += size
+	// the following condition covers "\r", "\n" and "\r\n"
+	if r == '\r' || (l.CurrentChar != '\r' && r == '\n') {
+		l.line++
+		l.column = -1
+	} else if r != '\n' {
+		l.column++
 	}
+	l.CurrentChar = r
 }
 
 func (l *Lexer) NextToken() token.Token {

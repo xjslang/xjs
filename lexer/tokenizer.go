@@ -1,6 +1,8 @@
 package lexer
 
 import (
+	"unicode/utf8"
+
 	"github.com/xjslang/xjs/token"
 )
 
@@ -104,7 +106,7 @@ func defaultTokenizer(l *Lexer) token.Token {
 		} else if isDigit(l.CurrentChar) {
 			lit := l.parseNumber()
 			return token.Token{Type: token.NUMBER, Literal: lit}
-		} else if l.CurrentChar == eof {
+		} else if l.CurrentChar == utf8.RuneError {
 			return token.Token{Type: token.EOF, Literal: ""}
 		}
 	}

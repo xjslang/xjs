@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"strings"
+	"unicode/utf8"
 
 	"github.com/xjslang/xjs/token"
 )
@@ -15,7 +16,7 @@ func (l *Lexer) parseBlockComment() (string, token.TokenType) {
 			l.AdvanceChar()
 			l.AdvanceChar()
 			break
-		} else if l.CurrentChar == eof {
+		} else if l.CurrentChar == utf8.RuneError {
 			return sb.String(), token.ILLEGAL
 		}
 		sb.WriteRune(l.CurrentChar)
@@ -26,7 +27,7 @@ func (l *Lexer) parseBlockComment() (string, token.TokenType) {
 
 func (l *Lexer) parseLineComment() string {
 	sb := strings.Builder{}
-	for l.AdvanceChar(); l.CurrentChar != '\n' && l.CurrentChar != '\r' && l.CurrentChar != eof; l.AdvanceChar() {
+	for l.AdvanceChar(); l.CurrentChar != '\n' && l.CurrentChar != '\r' && l.CurrentChar != utf8.RuneError; l.AdvanceChar() {
 		sb.WriteRune(l.CurrentChar)
 	}
 	return sb.String()
@@ -59,7 +60,7 @@ func (l *Lexer) parseString(delimiter rune) (string, token.TokenType) {
 			sb.WriteRune(l.CurrentChar)
 			l.AdvanceChar()
 			break
-		} else if l.CurrentChar == eof || l.CurrentChar == '\n' || l.CurrentChar == '\r' {
+		} else if l.CurrentChar == utf8.RuneError || l.CurrentChar == '\n' || l.CurrentChar == '\r' {
 			return sb.String(), token.ILLEGAL
 		}
 		sb.WriteRune(l.CurrentChar)
