@@ -3,9 +3,11 @@ package parser
 import (
 	"errors"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/lexer"
+	"github.com/xjslang/xjs/source"
 	"github.com/xjslang/xjs/token"
 )
 
@@ -15,10 +17,19 @@ func Parse(input []byte) (*ast.BlockStatement, error) {
 	return p.parseProgram()
 }
 
-type ErrorList []string
+type Error struct {
+	Range   source.Range `json:"range"`
+	Message string       `json:"message"`
+}
+
+type ErrorList []Error
 
 func (list ErrorList) Error() string {
-	return strings.Join(list, "\n")
+	var result []string
+	for _, err := range list {
+		result = append(result, err.Message)
+	}
+	return strings.Join(result, "\n")
 }
 
 type parser struct {
@@ -46,7 +57,21 @@ func (p *parser) parseProgram() (*ast.BlockStatement, error) {
 }
 
 func (p *parser) addError(msg string) {
-	p.errors = append(p.errors, msg)
+	line := p.CurrentToken.Line
+	column := p.CurrentToken.Column
+	p.errors = append(p.errors, Error{
+		Range: source.Range{
+			Start: source.Position{
+				Line:   line,
+				Column: column,
+			},
+			End: source.Position{
+				Line:   line,
+				Column: column + utf8.RuneCountInString(p.CurrentToken.Literal),
+			},
+		},
+		Message: msg,
+	})
 }
 
 func (p *parser) advanceToken() {

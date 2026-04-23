@@ -71,7 +71,7 @@ func main() {
 
 	// prints errors
 	if checkFlag {
-		list := []string{}
+		list := parser.ErrorList{}
 		if l, ok := err.(parser.ErrorList); ok {
 			list = l
 		}
