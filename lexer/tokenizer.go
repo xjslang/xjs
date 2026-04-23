@@ -4,16 +4,16 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func (l *Lexer) UseTokenReader(reader func(l *Lexer, next func() token.Token) token.Token) {
-	next := l.tokenReader
-	l.tokenReader = func(l *Lexer) token.Token {
+func (l *Lexer) UseTokenizer(reader func(l *Lexer, next func() token.Token) token.Token) {
+	next := l.tokenizer
+	l.tokenizer = func(l *Lexer) token.Token {
 		return reader(l, func() token.Token {
 			return next(l)
 		})
 	}
 }
 
-func defaultTokenReader(l *Lexer) token.Token {
+func defaultTokenizer(l *Lexer) token.Token {
 	switch l.CurrentChar {
 	case ';':
 		c := l.CurrentChar
