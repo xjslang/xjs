@@ -14,15 +14,15 @@ type Lexer struct {
 	offset       int
 	line, column int
 
-	tokenReader func(l *Lexer) token.Token
+	tokenizer func(l *Lexer) token.Token
 
 	CurrentChar rune
 }
 
 func New(input []byte) *Lexer {
 	l := &Lexer{
-		input:       input,
-		tokenReader: defaultTokenReader,
+		input:     input,
+		tokenizer: defaultTokenizer,
 	}
 	l.Reset()
 	return l
@@ -68,7 +68,7 @@ func (l *Lexer) NextToken() token.Token {
 	next := func() token.Token {
 		l.skipWhitespaces()
 		line, column := l.line, l.column
-		tok := l.tokenReader(l)
+		tok := l.tokenizer(l)
 		tok.Line = line
 		tok.Column = column
 		return tok
