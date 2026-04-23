@@ -85,7 +85,7 @@ func (p *parser) advanceToken() {
 // If the token does not match, it records an error and returns it.
 func (p *parser) expect(ttype token.TokenType) (token.Token, error) {
 	if p.CurrentToken.Type != ttype {
-		msg := "Expected " + ttype.String() + ", got " + p.CurrentToken.Type.String()
+		msg := "Expected " + ttype.String()
 		p.addError(msg)
 		return token.Token{}, errors.New(msg)
 	}
@@ -102,7 +102,7 @@ func (p *parser) expectStatementTerminator() error {
 	if p.CurrentToken.Type == token.EOF || p.CurrentToken.AfterNewline {
 		return nil
 	}
-	msg := "Expected semicolon, newline, or EOF, got " + p.CurrentToken.Type.String()
+	msg := "Expected statement terminator"
 	p.addError(msg)
 	return errors.New(msg)
 }

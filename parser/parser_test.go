@@ -71,14 +71,14 @@ func TestParseErrors(t *testing.T) {
 				Start: source.Position{Line: 1, Column: 6},
 				End:   source.Position{Line: 1, Column: 7},
 			},
-			Message: "Expected RPAREN, got LBRACE"},
+			Message: "Expected )"},
 		},
 		{"missing semicolon", "let x = 100 let y = 200", Error{
 			Range: source.Range{
 				Start: source.Position{Line: 0, Column: 12},
 				End:   source.Position{Line: 0, Column: 15},
 			},
-			Message: "Expected semicolon, newline, or EOF, got LET"},
+			Message: "Expected statement terminator"},
 		},
 	}
 	for _, test := range tests {
