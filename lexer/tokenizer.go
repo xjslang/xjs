@@ -1,19 +1,21 @@
 package lexer
 
 import (
+	"unicode/utf8"
+
 	"github.com/xjslang/xjs/token"
 )
 
-func (l *Lexer) UseTokenReader(reader func(l *Lexer, next func() token.Token) token.Token) {
-	next := l.tokenReader
-	l.tokenReader = func(l *Lexer) token.Token {
+func (l *Lexer) UseTokenizer(reader func(l *Lexer, next func() token.Token) token.Token) {
+	next := l.tokenizer
+	l.tokenizer = func(l *Lexer) token.Token {
 		return reader(l, func() token.Token {
 			return next(l)
 		})
 	}
 }
 
-func defaultTokenReader(l *Lexer) token.Token {
+func defaultTokenizer(l *Lexer) token.Token {
 	switch l.CurrentChar {
 	case ';':
 		c := l.CurrentChar
@@ -104,6 +106,10 @@ func defaultTokenReader(l *Lexer) token.Token {
 		} else if isDigit(l.CurrentChar) {
 			lit := l.parseNumber()
 			return token.Token{Type: token.NUMBER, Literal: lit}
+		} else if l.CurrentChar == utf8.RuneError {
+			c := l.CurrentChar
+			l.AdvanceChar()
+			return token.Token{Type: token.ILLEGAL, Literal: string(c)}
 		} else if l.CurrentChar == eof {
 			return token.Token{Type: token.EOF, Literal: ""}
 		}
