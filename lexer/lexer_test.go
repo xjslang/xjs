@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"unicode/utf8"
 
 	"github.com/xjslang/xjs/source"
 	"github.com/xjslang/xjs/token"
@@ -88,6 +89,32 @@ func TestTokenPosition(t *testing.T) {
 		{Type: token.NOT, Literal: "!", Position: source.Position{Line: 3, Column: 1}},
 		{Type: token.EOF, Position: source.Position{Line: 4, Column: 0}},
 	}, compareTokenPosition())
+}
+
+func TestAdvanceChar(t *testing.T) {
+	t.Run("column stops at last position", func(t *testing.T) {
+		input := "hello"
+		l := New([]byte(input))
+		for range len(input) {
+			l.AdvanceChar()
+		}
+		if l.column != len(input)-1 {
+			t.Errorf("Expected column to be %d, got %d", len(input)-1, l.column)
+		}
+	})
+	t.Run("token column is never negative", func(t *testing.T) {
+		assertTokens(t, "hello\n", []token.Token{
+			{Type: token.IDENT, Literal: "hello", Position: source.Position{Line: 0, Column: 0}},
+			{Type: token.EOF, Literal: "", Position: source.Position{Line: 1, Column: 0}},
+		}, compareTokenPosition())
+	})
+	t.Run("invalid byte at end is not EOF", func(t *testing.T) {
+		assertTokens(t, "hello\xff", []token.Token{
+			{Type: token.IDENT, Literal: "hello"},
+			{Type: token.ILLEGAL, Literal: string(utf8.RuneError)},
+			{Type: token.EOF},
+		})
+	})
 }
 
 func TestReset(t *testing.T) {

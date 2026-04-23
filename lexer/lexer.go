@@ -45,23 +45,30 @@ func (l *Lexer) PeekChar() rune {
 }
 
 func (l *Lexer) AdvanceChar() {
-	if l.offset < len(l.input) {
-		r, size := utf8.DecodeRune(l.input[l.offset:])
-		l.offset += size
-		// the following condition covers "\r", "\n" and "\r\n"
-		if r == '\r' || (l.CurrentChar != '\r' && r == '\n') {
+	r, size := utf8.DecodeRune(l.input[l.offset:])
+	l.offset += size
+	// covers "\r", "\n" and "\r\n"
+	switch r {
+	case '\r':
+		l.line++
+		l.column = -1
+	case '\n':
+		if l.CurrentChar != '\r' {
 			l.line++
 			l.column = -1
-		} else if r != '\n' {
+		}
+	case utf8.RuneError:
+		if size > 0 {
+			// just an illegal character; keep going
 			l.column++
+		} else {
+			// reached the end of the file
+			r = eof
 		}
-		l.CurrentChar = r
-	} else {
-		if l.column < 0 {
-			l.column = 0
-		}
-		l.CurrentChar = eof
+	default:
+		l.column++
 	}
+	l.CurrentChar = r
 }
 
 func (l *Lexer) NextToken() token.Token {
@@ -70,7 +77,7 @@ func (l *Lexer) NextToken() token.Token {
 		line, column := l.line, l.column
 		tok := l.tokenizer(l)
 		tok.Line = line
-		tok.Column = column
+		tok.Column = max(0, column)
 		return tok
 	}
 	var trivia []string
