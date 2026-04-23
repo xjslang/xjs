@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/xjslang/xjs/source"
 	"github.com/xjslang/xjs/token"
 )
 
@@ -79,13 +80,13 @@ func BenchmarkLexer(b *testing.B) {
 func TestTokenPosition(t *testing.T) {
 	input := " aaa   bbb /* block comment*/ ccc\n// comment\rddd\r\ne!\n"
 	assertTokens(t, input, []token.Token{
-		{Type: token.IDENT, Literal: "aaa", Line: 0, Column: 1},
-		{Type: token.IDENT, Literal: "bbb", Line: 0, Column: 7},
-		{Type: token.IDENT, Literal: "ccc", Line: 0, Column: 30},
-		{Type: token.IDENT, Literal: "ddd", Line: 2, Column: 0},
-		{Type: token.IDENT, Literal: "e", Line: 3, Column: 0},
-		{Type: token.NOT, Literal: "!", Line: 3, Column: 1},
-		{Type: token.EOF, Line: 4, Column: 0},
+		{Type: token.IDENT, Literal: "aaa", Position: source.Position{Line: 0, Column: 1}},
+		{Type: token.IDENT, Literal: "bbb", Position: source.Position{Line: 0, Column: 7}},
+		{Type: token.IDENT, Literal: "ccc", Position: source.Position{Line: 0, Column: 30}},
+		{Type: token.IDENT, Literal: "ddd", Position: source.Position{Line: 2, Column: 0}},
+		{Type: token.IDENT, Literal: "e", Position: source.Position{Line: 3, Column: 0}},
+		{Type: token.NOT, Literal: "!", Position: source.Position{Line: 3, Column: 1}},
+		{Type: token.EOF, Position: source.Position{Line: 4, Column: 0}},
 	}, compareTokenPosition())
 }
 

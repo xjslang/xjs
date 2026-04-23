@@ -63,10 +63,10 @@ func TestParseErrors(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
-		expected string
+		expected Error
 	}{
-		{"missing token", "function hello({}", "Expected RPAREN, got LBRACE"},
-		{"missing semicolon", "let x = 100 let y = 200", "Expected semicolon, newline, or EOF, got LET"},
+		{"missing token", "function hello({}", Error{Message: "Expected RPAREN, got LBRACE"}},
+		{"missing semicolon", "let x = 100 let y = 200", Error{Message: "Expected semicolon, newline, or EOF, got LET"}},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -82,8 +82,8 @@ func TestParseErrors(t *testing.T) {
 			}
 			if n := len(list); n != 1 {
 				t.Errorf("Expected one error, got %d", n)
-			} else if list[0] != test.expected {
-				t.Errorf("Expected error %q, got %q", test.expected, list[0])
+			} else if list[0].Message != test.expected.Message {
+				t.Errorf("Expected error %q, got %q", test.expected, list[0].Message)
 			}
 		})
 	}
