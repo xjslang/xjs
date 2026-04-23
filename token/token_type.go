@@ -48,37 +48,37 @@ const (
 )
 
 var tokenLiterals = map[TokenType]string{
-	EOF:           "EOF",
-	EQ:            "EQ",
-	NOT_EQ:        "NOT_EQ",
-	ASSIGN:        "ASSIGN",
-	NOT:           "NOT",
-	LT:            "LT",
-	LTE:           "LTE",
-	GT:            "GT",
-	GTE:           "GTE",
-	IDENT:         "IDENT",
-	NUMBER:        "NUMBER",
-	STRING:        "STRING",
-	UNKNOWN:       "UNKNOWN",
-	ILLEGAL:       "ILLEGAL",
-	LET:           "LET",
-	SEMICOLON:     "SEMICOLON",
-	FUNCTION:      "FUNCTION",
-	LPAREN:        "LPAREN",
-	RPAREN:        "RPAREN",
-	LBRACE:        "LBRACE",
-	RBRACE:        "RBRACE",
-	NEWLINE:       "NEWLINE",
-	LINE_COMMENT:  "LINE_COMMENT",
-	BLOCK_COMMENT: "BLOCK_COMMENT",
-	DIVIDE:        "DIVIDE",
+	EOF:           "end of file",
+	EQ:            "==",
+	NOT_EQ:        "!=",
+	ASSIGN:        "=",
+	NOT:           "!",
+	LT:            "<",
+	LTE:           "<=",
+	GT:            ">",
+	GTE:           ">=",
+	IDENT:         "identifier",
+	NUMBER:        "number",
+	STRING:        "string",
+	UNKNOWN:       "unknown",
+	ILLEGAL:       "illegal",
+	LET:           "let",
+	SEMICOLON:     ";",
+	FUNCTION:      "function",
+	LPAREN:        "(",
+	RPAREN:        ")",
+	LBRACE:        "{",
+	RBRACE:        "}",
+	NEWLINE:       "new line",
+	LINE_COMMENT:  "line comment",
+	BLOCK_COMMENT: "block comment",
+	DIVIDE:        "/",
 }
 
 func (tt TokenType) String() string {
 	lit, ok := tokenLiterals[tt]
 	if !ok {
-		return "UNKNOWN(" + strconv.Itoa(int(tt)) + ")"
+		return "unknown(" + strconv.Itoa(int(tt)) + ")"
 	}
 	return lit
 }
