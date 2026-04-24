@@ -19,16 +19,16 @@ type Lexer struct {
 	CurrentChar rune
 }
 
-func New(input []byte) *Lexer {
-	l := &Lexer{
-		input:     input,
-		tokenizer: defaultTokenizer,
-	}
+func (l *Lexer) Init(input []byte) {
+	l.input = input
+	l.tokenizer = defaultTokenizer
 	l.Reset()
-	return l
 }
 
 func (l *Lexer) Reset() {
+	if l.tokenizer == nil {
+		l.tokenizer = defaultTokenizer
+	}
 	l.offset = 0
 	l.CurrentChar = eof
 	l.line = 0
