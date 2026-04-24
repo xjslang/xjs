@@ -21,7 +21,6 @@ type Lexer struct {
 
 func (l *Lexer) Init(input []byte) {
 	l.input = input
-	l.tokenizer = defaultTokenizer
 	l.Reset()
 }
 

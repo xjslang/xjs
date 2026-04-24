@@ -1,6 +1,6 @@
 #!/bin/bash
 
 mage lint || { echo "Linting failed, aborting push"; exit 1; }
-mage test || { echo "Testing failed, aborting push"; exit 1; }
+mage testRace || { echo "Testing failed, aborting push"; exit 1; }
 
 exit 0

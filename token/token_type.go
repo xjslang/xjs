@@ -1,6 +1,9 @@
 package token
 
-import "strconv"
+import (
+	"strconv"
+	"sync"
+)
 
 type TokenType int
 
@@ -47,6 +50,9 @@ const (
 	FUNCTION
 )
 
+// initial value of "custom types" created by RegisterType()
+const initCustomType TokenType = 1000
+
 var tokenLiterals = map[TokenType]string{
 	EOF:           "end of file",
 	EQ:            "==",
@@ -75,7 +81,14 @@ var tokenLiterals = map[TokenType]string{
 	DIVIDE:        "/",
 }
 
+var (
+	nextType   TokenType = initCustomType
+	registerMu sync.RWMutex
+)
+
 func (tt TokenType) String() string {
+	registerMu.RLock()
+	defer registerMu.RUnlock()
 	lit, ok := tokenLiterals[tt]
 	if !ok {
 		return "unknown(" + strconv.Itoa(int(tt)) + ")"
@@ -91,4 +104,13 @@ func Lookup(lit string) TokenType {
 		return FUNCTION
 	}
 	return IDENT
+}
+
+func RegisterType(lit string) TokenType {
+	registerMu.Lock()
+	defer registerMu.Unlock()
+	typ := nextType
+	tokenLiterals[typ] = lit
+	nextType++
+	return typ
 }

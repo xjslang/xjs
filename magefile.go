@@ -20,6 +20,10 @@ func Test() error {
 	return sh.RunV("go", "test", "./...", "-timeout", "5s")
 }
 
+func TestRace() error {
+	return sh.RunV("go", "test", "./...", "-race", "-timeout", "30s")
+}
+
 func Bench() error {
 	return sh.RunV("go", "test", "./...", "-bench=.", "-benchtime=3s", "-run=^$")
 }
