@@ -38,7 +38,8 @@ func TestParser(t *testing.T) {
 
 		let x = 100;
 		let y = 200;`
-	l := lexer.New([]byte(input))
+	l := &lexer.Lexer{}
+	l.Init([]byte(input))
 	p := newParser(l)
 	pr, err := p.parseProgram()
 	if err != nil {
@@ -83,7 +84,8 @@ func TestParseErrors(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			l := lexer.New([]byte(test.input))
+			l := &lexer.Lexer{}
+			l.Init([]byte(test.input))
 			p := newParser(l)
 			_, err := p.parseProgram()
 			if err == nil {

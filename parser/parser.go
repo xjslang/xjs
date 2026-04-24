@@ -12,7 +12,8 @@ import (
 )
 
 func Parse(input []byte) (*ast.BlockStatement, error) {
-	l := lexer.New(input)
+	l := &lexer.Lexer{}
+	l.Init(input)
 	p := newParser(l)
 	return p.parseProgram()
 }
