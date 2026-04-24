@@ -6,7 +6,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func (l *Lexer) parseBlockComment() (string, token.TokenType) {
+func (l *Lexer) consumeBlockComment() (string, token.TokenType) {
 	sb := strings.Builder{}
 	l.AdvanceChar() // consume "*"
 	for {
@@ -24,7 +24,7 @@ func (l *Lexer) parseBlockComment() (string, token.TokenType) {
 	return sb.String(), token.BLOCK_COMMENT
 }
 
-func (l *Lexer) parseLineComment() string {
+func (l *Lexer) consumeLineComment() string {
 	sb := strings.Builder{}
 	for l.AdvanceChar(); l.CurrentChar != '\n' && l.CurrentChar != '\r' && l.CurrentChar != eof; l.AdvanceChar() {
 		sb.WriteRune(l.CurrentChar)
@@ -32,7 +32,7 @@ func (l *Lexer) parseLineComment() string {
 	return sb.String()
 }
 
-func (l *Lexer) parseIdentifier() string {
+func (l *Lexer) consumeIdentifier() string {
 	sb := strings.Builder{}
 	sb.WriteRune(l.CurrentChar)
 	for l.AdvanceChar(); isLetter(l.CurrentChar) || isDigit(l.CurrentChar); l.AdvanceChar() {
@@ -41,7 +41,7 @@ func (l *Lexer) parseIdentifier() string {
 	return sb.String()
 }
 
-func (l *Lexer) parseNumber() string {
+func (l *Lexer) consumeNumber() string {
 	sb := strings.Builder{}
 	sb.WriteRune(l.CurrentChar)
 	for l.AdvanceChar(); isDigit(l.CurrentChar); l.AdvanceChar() {
@@ -50,7 +50,7 @@ func (l *Lexer) parseNumber() string {
 	return sb.String()
 }
 
-func (l *Lexer) parseString(delimiter rune) (string, token.TokenType) {
+func (l *Lexer) consumeString(delimiter rune) (string, token.TokenType) {
 	sb := strings.Builder{}
 	sb.WriteRune(l.CurrentChar)
 	for {

@@ -61,17 +61,17 @@ func defaultTokenizer(l *Lexer) token.Token {
 		c1 := l.CurrentChar
 		l.AdvanceChar()
 		if l.CurrentChar == '/' {
-			comment := l.parseLineComment()
+			comment := l.consumeLineComment()
 			return token.Token{Type: token.LINE_COMMENT, Literal: comment}
 		}
 		if l.CurrentChar == '*' {
-			comment, typ := l.parseBlockComment()
+			comment, typ := l.consumeBlockComment()
 			return token.Token{Type: typ, Literal: comment}
 		}
 
 		return token.Token{Type: token.DIVIDE, Literal: string(c1)}
 	case '\'', '"':
-		lit, typ := l.parseString(l.CurrentChar)
+		lit, typ := l.consumeString(l.CurrentChar)
 		return token.Token{Type: typ, Literal: lit}
 	case '(':
 		c := l.CurrentChar
@@ -100,11 +100,11 @@ func defaultTokenizer(l *Lexer) token.Token {
 		return token.Token{Type: token.NEWLINE, Literal: ""}
 	default:
 		if isLetter(l.CurrentChar) {
-			lit := l.parseIdentifier()
+			lit := l.consumeIdentifier()
 			typ := token.Lookup(lit)
 			return token.Token{Type: typ, Literal: lit}
 		} else if isDigit(l.CurrentChar) {
-			lit := l.parseNumber()
+			lit := l.consumeNumber()
 			return token.Token{Type: token.NUMBER, Literal: lit}
 		} else if l.CurrentChar == utf8.RuneError {
 			c := l.CurrentChar
