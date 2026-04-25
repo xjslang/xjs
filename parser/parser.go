@@ -65,6 +65,21 @@ func (p *Parser) ParseProgram() (*ast.BlockStatement, error) {
 	return result, nil
 }
 
+// TODO: ParseExpression is now exported but can return nil for unsupported tokens without recording an error (See: https://github.com/xjslang/xjs/pull/72#discussion_r3141738293)
+func (p *Parser) ParseExpression() ast.Expression {
+	switch p.CurrentToken.Type {
+	case token.NUMBER:
+		val := p.CurrentToken.Literal
+		p.AdvanceToken()
+		return &ast.IntegerLiteral{Value: val}
+	case token.STRING:
+		val := p.CurrentToken.Literal
+		p.AdvanceToken()
+		return &ast.StringLiteral{Value: val}
+	}
+	return nil
+}
+
 func (p *Parser) AddError(msg string) {
 	line := p.CurrentToken.Line
 	column := p.CurrentToken.Column
@@ -122,21 +137,6 @@ func (p *Parser) parseBody() *ast.BlockStatement {
 		bodyStmt.Statements = append(bodyStmt.Statements, stmt)
 	}
 	return bodyStmt
-}
-
-// TODO: ParseExpression is now exported but can return nil for unsupported tokens without recording an error (See: https://github.com/xjslang/xjs/pull/72#discussion_r3141738293)
-func (p *Parser) ParseExpression() ast.Expression {
-	switch p.CurrentToken.Type {
-	case token.NUMBER:
-		val := p.CurrentToken.Literal
-		p.AdvanceToken()
-		return &ast.IntegerLiteral{Value: val}
-	case token.STRING:
-		val := p.CurrentToken.Literal
-		p.AdvanceToken()
-		return &ast.StringLiteral{Value: val}
-	}
-	return nil
 }
 
 func (p *Parser) parseLetStatement() *ast.LetStatement {
