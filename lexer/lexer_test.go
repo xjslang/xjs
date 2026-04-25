@@ -146,29 +146,28 @@ func TestAdvanceChar(t *testing.T) {
 }
 
 func TestReset(t *testing.T) {
-	t.Run("with init", func(t *testing.T) {
-		items := []string{"lorem", "ipsum", "dolor"}
-		l := &Lexer{}
-		l.Init([]byte(strings.Join(items, " ")))
-		for range 2 {
-			var toks []token.Token
-			for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
-				toks = append(toks, tok)
-			}
-			if l := len(toks); l != len(items) {
-				t.Fatalf("Expected len(toks)=%d, got %d", len(items), l)
-			}
-			for i, tok := range toks {
-				if tok.Type != token.IDENT {
-					t.Fatalf("token %d: expected type %v, got %v", i, token.IDENT, tok.Type)
-				}
-				if tok.Literal != items[i] {
-					t.Fatalf("token %d: expected %q, got %q", i, items[i], tok.Literal)
-				}
-			}
-			l.Reset()
+	items := []string{"lorem", "ipsum", "dolor"}
+	l := &Lexer{}
+	l.Init([]byte(strings.Join(items, " ")))
+	for range 2 {
+		var toks []token.Token
+		for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
+			toks = append(toks, tok)
 		}
-	})
+		if l := len(toks); l != len(items) {
+			t.Fatalf("Expected len(toks)=%d, got %d", len(items), l)
+		}
+		for i, tok := range toks {
+			if tok.Type != token.IDENT {
+				t.Fatalf("token %d: expected type %v, got %v", i, token.IDENT, tok.Type)
+			}
+			if tok.Literal != items[i] {
+				t.Fatalf("token %d: expected %q, got %q", i, items[i], tok.Literal)
+			}
+		}
+		l.Reset()
+	}
+
 	t.Run("without init", func(t *testing.T) {
 		l := &Lexer{}
 		l.Reset()
