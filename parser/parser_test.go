@@ -40,8 +40,9 @@ func TestParser(t *testing.T) {
 		let y = 200;`
 	l := &lexer.Lexer{}
 	l.Init([]byte(input))
-	p := newParser(l)
-	pr, err := p.parseProgram()
+	p := Parser{}
+	p.Init(l)
+	pr, err := p.ParseProgram()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -86,8 +87,9 @@ func TestParseErrors(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			l := &lexer.Lexer{}
 			l.Init([]byte(test.input))
-			p := newParser(l)
-			_, err := p.parseProgram()
+			p := Parser{}
+			p.Init(l)
+			_, err := p.ParseProgram()
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
 			}

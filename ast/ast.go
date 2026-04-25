@@ -8,11 +8,9 @@ type Node interface {
 
 type Statement interface {
 	Node
-	statementNode()
 }
 type Expression interface {
 	Node
-	expressionNode()
 }
 
 type Identifier struct {
@@ -27,8 +25,6 @@ type BlockStatement struct {
 	Statements []Statement
 }
 
-func (bs *BlockStatement) statementNode() {}
-
 func (bs *BlockStatement) PrintTo(p *printer.Printer) {
 	for _, stmt := range bs.Statements {
 		p.PrintIndent()
@@ -42,8 +38,6 @@ type LetStatement struct {
 	Value Expression
 }
 
-func (ls *LetStatement) statementNode() {}
-
 func (ls *LetStatement) PrintTo(p *printer.Printer) {
 	p.PrintString("let ")
 	ls.Name.PrintTo(p)
@@ -56,8 +50,6 @@ type FunctionDeclaration struct {
 	Name *Identifier
 	Body *BlockStatement
 }
-
-func (fd *FunctionDeclaration) statementNode() {}
 
 func (fd *FunctionDeclaration) PrintTo(p *printer.Printer) {
 	p.PrintString("function ")
@@ -78,8 +70,6 @@ type IntegerLiteral struct {
 	Value string
 }
 
-func (il *IntegerLiteral) expressionNode() {}
-
 func (il *IntegerLiteral) PrintTo(p *printer.Printer) {
 	p.PrintString(il.Value)
 }
@@ -88,8 +78,6 @@ func (il *IntegerLiteral) PrintTo(p *printer.Printer) {
 type StringLiteral struct {
 	Value string
 }
-
-func (sl *StringLiteral) expressionNode() {}
 
 func (sl *StringLiteral) PrintTo(p *printer.Printer) {
 	p.PrintString(sl.Value)
