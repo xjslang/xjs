@@ -6,13 +6,13 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func (l *Lexer) UseTokenizer(reader func(l *Lexer, next func() token.Token) token.Token) {
+func (l *Lexer) UseTokenizer(tokenizer func(l *Lexer, next func() token.Token) token.Token) {
 	next := l.tokenizer
 	if next == nil {
 		next = defaultTokenizer
 	}
 	l.tokenizer = func(l *Lexer) token.Token {
-		return reader(l, func() token.Token {
+		return tokenizer(l, func() token.Token {
 			return next(l)
 		})
 	}
