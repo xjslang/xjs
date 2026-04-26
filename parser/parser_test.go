@@ -106,6 +106,38 @@ func TestParseErrors(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("multiple errors", func(t *testing.T) {
+		expectedErrors := []string{
+			"Expected expression",
+			"Expected =",
+			"Expected statement terminator",
+			"Expected )",
+		}
+
+		l := &lexer.Lexer{}
+		l.Init([]byte(`
+		let x = !
+		let y
+		let x = 100.
+
+		function print(`))
+		p := Parser{}
+		p.Init(l)
+		_, err := p.ParseProgram()
+		errors, ok := err.(ErrorList)
+		if !ok {
+			t.Fatalf("Expected ErrorList, got %T", err)
+		}
+		if n := len(errors); n != len(expectedErrors) {
+			t.Fatalf("Expected %d errors, got %d", len(expectedErrors), n)
+		}
+		for i, expectedError := range expectedErrors {
+			if errors[i].Message != expectedError {
+				t.Errorf("Expected %q, got %q", expectedError, errors[i].Message)
+			}
+		}
+	})
 }
 
 func expectNode(t *testing.T, a ast.Statement, b ast.Statement) {

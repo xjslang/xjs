@@ -39,7 +39,7 @@ type Parser struct {
 	CurrentToken token.Token
 	PeekToken    token.Token
 
-	statementParser func(p *Parser) ast.Statement
+	statementParser func(p *Parser) (ast.Statement, error)
 
 	errors ErrorList
 }
@@ -65,19 +65,20 @@ func (p *Parser) ParseProgram() (*ast.BlockStatement, error) {
 	return result, nil
 }
 
-// TODO: ParseExpression is now exported but can return nil for unsupported tokens without recording an error (See: https://github.com/xjslang/xjs/pull/72#discussion_r3141738293)
-func (p *Parser) ParseExpression() ast.Expression {
+func (p *Parser) ParseExpression() (ast.Expression, error) {
 	switch p.CurrentToken.Type {
 	case token.NUMBER:
 		val := p.CurrentToken.Literal
 		p.AdvanceToken()
-		return &ast.IntegerLiteral{Value: val}
+		return &ast.IntegerLiteral{Value: val}, nil
 	case token.STRING:
 		val := p.CurrentToken.Literal
 		p.AdvanceToken()
-		return &ast.StringLiteral{Value: val}
+		return &ast.StringLiteral{Value: val}, nil
 	}
-	return nil
+	msg := "Expected expression"
+	p.AddError(msg)
+	return nil, errors.New(msg)
 }
 
 func (p *Parser) AddError(msg string) {
@@ -131,52 +132,76 @@ func (p *Parser) expectStatementTerminator() error {
 	return errors.New(msg)
 }
 
+func (p *Parser) advanceToStatementEnd() {
+	for {
+		if p.CurrentToken.Type == token.SEMICOLON {
+			p.AdvanceToken()
+			break
+		}
+		if p.CurrentToken.Type == token.EOF || p.CurrentToken.AfterNewline {
+			break
+		}
+		p.AdvanceToken()
+	}
+}
+
 func (p *Parser) parseBody() *ast.BlockStatement {
 	bodyStmt := &ast.BlockStatement{}
-	for stmt := p.statementParser(p); stmt != nil; stmt = p.statementParser(p) {
+	for {
+		stmt, err := p.statementParser(p)
+		if err != nil {
+			p.advanceToStatementEnd()
+			continue
+		}
+		if stmt == nil {
+			break
+		}
 		bodyStmt.Statements = append(bodyStmt.Statements, stmt)
 	}
 	return bodyStmt
 }
 
-func (p *Parser) parseLetStatement() *ast.LetStatement {
+func (p *Parser) parseLetStatement() (*ast.LetStatement, error) {
 	stmt := &ast.LetStatement{}
 	p.AdvanceToken() // consume token.LET
 	ident, err := p.expect(token.IDENT)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	stmt.Name = &ast.Identifier{Value: ident.Literal}
 	if _, err := p.expect(token.ASSIGN); err != nil {
-		return nil
+		return nil, err
 	}
-	stmt.Value = p.ParseExpression()
+	stmt.Value, err = p.ParseExpression()
+	if err != nil {
+		return nil, err
+	}
 	if err := p.expectStatementTerminator(); err != nil {
-		return nil
+		return nil, err
 	}
-	return stmt
+	return stmt, nil
 }
 
-func (p *Parser) parseFunction() *ast.FunctionDeclaration {
+func (p *Parser) parseFunction() (*ast.FunctionDeclaration, error) {
 	stmt := &ast.FunctionDeclaration{}
 	p.AdvanceToken() // consume token.FUNCTION
 	ident, err := p.expect(token.IDENT)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	stmt.Name = &ast.Identifier{Value: ident.Literal}
 	if _, err := p.expect(token.LPAREN); err != nil {
-		return nil
+		return nil, err
 	}
 	if _, err := p.expect(token.RPAREN); err != nil {
-		return nil
+		return nil, err
 	}
 	if _, err := p.expect(token.LBRACE); err != nil {
-		return nil
+		return nil, err
 	}
 	stmt.Body = p.parseBody()
 	if _, err := p.expect(token.RBRACE); err != nil {
-		return nil
+		return nil, err
 	}
-	return stmt
+	return stmt, nil
 }

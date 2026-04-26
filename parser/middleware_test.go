@@ -1,6 +1,7 @@
 package parser_test
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -28,33 +29,39 @@ func TestUseStatementParser(t *testing.T) {
 	l := &lexer.Lexer{}
 	l.Init([]byte("var x = 100"))
 	p := parser.Parser{}
-	p.UseStatementParser(func(p *parser.Parser, next func() ast.Statement) ast.Statement {
+	p.UseStatementParser(func(p *parser.Parser, next func() (ast.Statement, error)) (ast.Statement, error) {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "var" {
 			p.AdvanceToken() // consume "var"
 
 			if p.CurrentToken.Type != token.IDENT {
-				p.AddError(fmt.Sprintf("Expected %v", token.IDENT))
-				return nil
+				msg := fmt.Sprintf("Expected %v", token.IDENT)
+				p.AddError(msg)
+				return nil, errors.New(msg)
 			}
 			name := &ast.Identifier{Value: p.CurrentToken.Literal}
 			p.AdvanceToken()
 
 			if p.CurrentToken.Type != token.ASSIGN {
-				p.AddError(fmt.Sprintf("Expected %v", token.ASSIGN))
-				return nil
+				msg := fmt.Sprintf("Expected %v", token.ASSIGN)
+				p.AddError(msg)
+				return nil, errors.New(msg)
 			}
 			p.AdvanceToken()
 
-			value := p.ParseExpression()
+			value, err := p.ParseExpression()
+			if err != nil {
+				return nil, err
+			}
 
 			if p.CurrentToken.Type == token.SEMICOLON {
 				p.AdvanceToken()
 			} else if p.CurrentToken.Type != token.EOF && !p.CurrentToken.AfterNewline {
-				p.AddError("Expected statement terminator")
-				return nil
+				msg := "Expected statement terminator"
+				p.AddError(msg)
+				return nil, errors.New(msg)
 			}
 
-			return &VarStatement{Name: name, Value: value}
+			return &VarStatement{Name: name, Value: value}, nil
 		}
 		return next()
 	})
