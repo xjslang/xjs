@@ -62,6 +62,24 @@ func TestParser(t *testing.T) {
 	})
 }
 
+func TestExpression(t *testing.T) {
+	input := `let x = 100 + 200 * 3%2`
+	l := &lexer.Lexer{}
+	l.Init([]byte(input))
+	p := Parser{}
+	p.Init(l)
+	pr, err := p.ParseProgram()
+	if err != nil {
+		t.Fatal(err)
+	}
+	prt := printer.New()
+	pr.PrintTo(prt)
+	want := "let x = 100 + 200 * 3 % 2;\n"
+	if got := prt.String(); got != want {
+		t.Errorf("Expected %q, got %q", want, got)
+	}
+}
+
 func TestParseErrors(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -140,7 +158,7 @@ func TestParseErrors(t *testing.T) {
 	})
 }
 
-func expectNode(t *testing.T, a ast.Statement, b ast.Statement) {
+func expectNode(t *testing.T, a ast.Node, b ast.Node) {
 	switch expected := b.(type) {
 	case *ast.BlockStatement:
 		got, ok := a.(*ast.BlockStatement)

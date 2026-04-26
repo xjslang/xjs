@@ -19,8 +19,12 @@ const (
 	NUMBER
 
 	// operators
-	ASSIGN // =
-	DIVIDE // /
+	ASSIGN   // =
+	PLUS     // +
+	MINUS    // -
+	MULTIPLY // *
+	DIVIDE   // /
+	MODULO   // %
 
 	// comparison operators
 	EQ     // ==
@@ -58,6 +62,11 @@ var tokenLiterals = map[TokenType]string{
 	EQ:            "==",
 	NOT_EQ:        "!=",
 	ASSIGN:        "=",
+	PLUS:          "+",
+	MINUS:         "-",
+	MULTIPLY:      "*",
+	DIVIDE:        "/",
+	MODULO:        "%",
 	NOT:           "!",
 	LT:            "<",
 	LTE:           "<=",
@@ -78,7 +87,6 @@ var tokenLiterals = map[TokenType]string{
 	NEWLINE:       "new line",
 	LINE_COMMENT:  "line comment",
 	BLOCK_COMMENT: "block comment",
-	DIVIDE:        "/",
 }
 
 var (

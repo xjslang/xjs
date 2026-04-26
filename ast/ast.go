@@ -1,6 +1,9 @@
 package ast
 
-import "github.com/xjslang/xjs/printer"
+import (
+	"github.com/xjslang/xjs/printer"
+	"github.com/xjslang/xjs/token"
+)
 
 type Node interface {
 	PrintTo(p *printer.Printer)
@@ -81,4 +84,19 @@ type StringLiteral struct {
 
 func (sl *StringLiteral) PrintTo(p *printer.Printer) {
 	p.PrintString(sl.Value)
+}
+
+// Implements Expression
+type InfixOperator struct {
+	LeftValue  Expression
+	Operator   token.Token
+	RightValue Expression
+}
+
+func (node *InfixOperator) PrintTo(p *printer.Printer) {
+	node.LeftValue.PrintTo(p)
+	p.PrintRune(' ')
+	p.PrintString(node.Operator.Literal)
+	p.PrintRune(' ')
+	node.RightValue.PrintTo(p)
 }

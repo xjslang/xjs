@@ -66,19 +66,24 @@ func (p *Parser) ParseProgram() (*ast.BlockStatement, error) {
 }
 
 func (p *Parser) ParseExpression() (ast.Expression, error) {
-	switch p.CurrentToken.Type {
-	case token.NUMBER:
-		val := p.CurrentToken.Literal
-		p.AdvanceToken()
-		return &ast.IntegerLiteral{Value: val}, nil
-	case token.STRING:
-		val := p.CurrentToken.Literal
-		p.AdvanceToken()
-		return &ast.StringLiteral{Value: val}, nil
+	leftVal, err := p.parseLiteral()
+	if err != nil {
+		return nil, err
 	}
-	msg := "Expected expression"
-	p.AddError(msg)
-	return nil, errors.New(msg)
+	for {
+		op := p.CurrentToken
+		typ := op.Type
+		if typ != token.PLUS && typ != token.MINUS && typ != token.MULTIPLY && typ != token.DIVIDE && typ != token.MODULO {
+			break
+		}
+		p.AdvanceToken()
+		rightVal, err := p.parseLiteral()
+		if err != nil {
+			return nil, err
+		}
+		leftVal = &ast.InfixOperator{LeftValue: leftVal, Operator: op, RightValue: rightVal}
+	}
+	return leftVal, nil
 }
 
 func (p *Parser) AddError(msg string) {
@@ -204,4 +209,20 @@ func (p *Parser) parseFunction() (*ast.FunctionDeclaration, error) {
 		return nil, err
 	}
 	return stmt, nil
+}
+
+func (p *Parser) parseLiteral() (ast.Expression, error) {
+	switch p.CurrentToken.Type {
+	case token.NUMBER:
+		val := p.CurrentToken.Literal
+		p.AdvanceToken()
+		return &ast.IntegerLiteral{Value: val}, nil
+	case token.STRING:
+		val := p.CurrentToken.Literal
+		p.AdvanceToken()
+		return &ast.StringLiteral{Value: val}, nil
+	}
+	msg := "Expected expression"
+	p.AddError(msg)
+	return nil, errors.New(msg)
 }
