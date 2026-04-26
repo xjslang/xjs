@@ -6,6 +6,7 @@ import (
 	"testing"
 	"unicode/utf8"
 
+	"github.com/xjslang/xjs/internal/debug"
 	"github.com/xjslang/xjs/source"
 	"github.com/xjslang/xjs/token"
 )
@@ -87,6 +88,7 @@ func BenchmarkLexer(b *testing.B) {
 func TestUseTokenizer(t *testing.T) {
 	l := &Lexer{}
 	powType := token.RegisterType("**")
+	debug.Print(l)
 	l.UseTokenizer(func(l *Lexer, next func() token.Token) token.Token {
 		if l.CurrentChar == '*' && l.PeekChar() == '*' {
 			// consume **

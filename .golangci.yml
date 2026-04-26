@@ -16,8 +16,8 @@ linters-settings:
             desc: "fmt uses reflection"
           - pkg: "github.com/davecgh/go-spew/spew"
             desc: "spew uses reflection"
-          - pkg: "github.com/xjslang/xjs/debug"
-            desc: "debug package is for tests only"
+          - pkg: "github.com/xjslang/xjs/internal"
+            desc: "internal package is for tests only"
 
 run:
   timeout: 5m
@@ -32,7 +32,7 @@ issues:
     - path: _test\.go
       linters:
         - depguard
-    # Allow debug package to use reflection internally
-    - path: debug/
+    # Allow internal package to use reflection internally
+    - path: internal/
       linters:
         - depguard
