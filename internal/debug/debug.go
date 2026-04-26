@@ -1,6 +1,8 @@
 package debug
 
-import "github.com/davecgh/go-spew/spew"
+import (
+	"github.com/davecgh/go-spew/spew"
+)
 
 var cfg = &spew.ConfigState{
 	Indent:                  "   ",

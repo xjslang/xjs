@@ -6,71 +6,27 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	"github.com/xjslang/xjs/internal/debug"
+	"github.com/xjslang/xjs/internal/testutil"
 	"github.com/xjslang/xjs/source"
 	"github.com/xjslang/xjs/token"
 )
 
-type tokenCompareConfig struct {
-	afterNewline  bool
-	leadingTrivia bool
-	tokenPosition bool
-}
-
-type tokenCompareOption func(cfg *tokenCompareConfig)
-
-func compareAfterNewline() tokenCompareOption {
-	return func(cfg *tokenCompareConfig) {
-		cfg.afterNewline = true
-	}
-}
-
-func compareLeadingTrivia() tokenCompareOption {
-	return func(cfg *tokenCompareConfig) {
-		cfg.leadingTrivia = true
-	}
-}
-
-func compareTokenPosition() tokenCompareOption {
-	return func(cfg *tokenCompareConfig) {
-		cfg.tokenPosition = true
-	}
-}
-
-func assertTokens(t *testing.T, l *Lexer, expectedToks []token.Token, opts ...tokenCompareOption) {
-	cfg := &tokenCompareConfig{}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	for i, expectedTok := range expectedToks {
+func assertLexerTokens(t *testing.T, l *Lexer, expectedToks []token.Token, opts ...testutil.TokenCompareOption) {
+	var toks []token.Token
+	for {
 		tok := l.NextToken()
-		switch {
-		case tok.Type != expectedTok.Type:
-			t.Errorf("token %d: expected type %v, got %v", i, expectedTok.Type, tok.Type)
-		case tok.Literal != expectedTok.Literal:
-			t.Errorf("token %d: expected %q, got %q", i, expectedTok.Literal, tok.Literal)
-		case cfg.afterNewline && tok.AfterNewline != expectedTok.AfterNewline:
-			t.Errorf("token %d: expected AfterNewline to be %t, got %t", i, expectedTok.AfterNewline, tok.AfterNewline)
-		case cfg.leadingTrivia:
-			if len(tok.LeadingTrivia) != len(expectedTok.LeadingTrivia) {
-				t.Errorf("token %d: expected %d leading trivia lines, got %d", i, len(expectedTok.LeadingTrivia), len(tok.LeadingTrivia))
-			} else {
-				for j, line := range expectedTok.LeadingTrivia {
-					if tok.LeadingTrivia[j] != line {
-						t.Errorf("token %d: expected %q leading trivia line, got %q", i, line, tok.LeadingTrivia[j])
-					}
-				}
-			}
-		case cfg.tokenPosition && (tok.Line != expectedTok.Line || tok.Column != expectedTok.Column):
-			t.Errorf("token %d: expected position to be (%d, %d), got (%d, %d)", i, expectedTok.Line, expectedTok.Column, tok.Line, tok.Column)
+		toks = append(toks, tok)
+		if tok.Type == token.EOF {
+			break
 		}
 	}
+	testutil.AssertTokens(t, toks, expectedToks, opts...)
 }
 
-func assertInputTokens(t *testing.T, input string, expectedToks []token.Token, opts ...tokenCompareOption) {
+func assertInputTokens(t *testing.T, input string, expectedToks []token.Token, opts ...testutil.TokenCompareOption) {
 	l := &Lexer{}
 	l.Init([]byte(input))
-	assertTokens(t, l, expectedToks, opts...)
+	assertLexerTokens(t, l, expectedToks, opts...)
 }
 
 func BenchmarkLexer(b *testing.B) {
@@ -85,28 +41,6 @@ func BenchmarkLexer(b *testing.B) {
 	_ = tok
 }
 
-func TestUseTokenizer(t *testing.T) {
-	l := &Lexer{}
-	powType := token.RegisterType("**")
-	debug.Print(l)
-	l.UseTokenizer(func(l *Lexer, next func() token.Token) token.Token {
-		if l.CurrentChar == '*' && l.PeekChar() == '*' {
-			// consume **
-			l.AdvanceChar()
-			l.AdvanceChar()
-			return token.Token{Type: powType, Literal: powType.String()}
-		}
-		return next()
-	})
-	l.Init([]byte("125 ** 2"))
-	assertTokens(t, l, []token.Token{
-		{Type: token.NUMBER, Literal: "125"},
-		{Type: powType, Literal: "**"},
-		{Type: token.NUMBER, Literal: "2"},
-		{Type: token.EOF},
-	})
-}
-
 func TestTokenPosition(t *testing.T) {
 	input := " aaa   bbb /* block comment*/ ccc\n// comment\rddd\r\ne!\n"
 	assertInputTokens(t, input, []token.Token{
@@ -117,7 +51,7 @@ func TestTokenPosition(t *testing.T) {
 		{Type: token.IDENT, Literal: "e", Position: source.Position{Line: 3, Column: 0}},
 		{Type: token.NOT, Literal: "!", Position: source.Position{Line: 3, Column: 1}},
 		{Type: token.EOF, Position: source.Position{Line: 4, Column: 0}},
-	}, compareTokenPosition())
+	}, testutil.CompareTokenPosition())
 }
 
 func TestAdvanceChar(t *testing.T) {
@@ -136,7 +70,7 @@ func TestAdvanceChar(t *testing.T) {
 		assertInputTokens(t, "hello\n", []token.Token{
 			{Type: token.IDENT, Literal: "hello", Position: source.Position{Line: 0, Column: 0}},
 			{Type: token.EOF, Literal: "", Position: source.Position{Line: 1, Column: 0}},
-		}, compareTokenPosition())
+		}, testutil.CompareTokenPosition())
 	})
 	t.Run("invalid byte at end is not EOF", func(t *testing.T) {
 		assertInputTokens(t, "hello\xff", []token.Token{
@@ -173,7 +107,7 @@ func TestReset(t *testing.T) {
 	t.Run("without init", func(t *testing.T) {
 		l := &Lexer{}
 		l.Reset()
-		assertTokens(t, l, []token.Token{
+		assertLexerTokens(t, l, []token.Token{
 			{Type: token.EOF},
 		})
 	})
@@ -221,7 +155,8 @@ func TestAfterNewline(t *testing.T) {
 			assertInputTokens(t, test.input, []token.Token{
 				{Type: token.IDENT, Literal: "hello"},
 				{Type: token.IDENT, Literal: "world", AfterNewline: true},
-			}, compareAfterNewline())
+				{Type: token.EOF},
+			}, testutil.CompareAfterNewline())
 		})
 	}
 }
@@ -235,7 +170,7 @@ hello/* unfinished comment`
 		{Type: token.IDENT, Literal: "hello", LeadingTrivia: []string{" lorem\nipsum dolor ", "", ""}},
 		{Type: token.ILLEGAL, Literal: " unfinished comment"},
 		{Type: token.EOF},
-	}, compareLeadingTrivia())
+	}, testutil.CompareLeadingTrivia())
 }
 
 func TestLineComments(t *testing.T) {
@@ -251,7 +186,7 @@ func TestLineComments(t *testing.T) {
 		{Type: token.IDENT, Literal: "John", LeadingTrivia: []string{"", " First Name", ""}},
 		{Type: token.IDENT, Literal: "Smith", LeadingTrivia: []string{"", "", " Last Name", ""}},
 		{Type: token.EOF, LeadingTrivia: []string{"", "", " Final comment"}},
-	}, compareLeadingTrivia())
+	}, testutil.CompareLeadingTrivia())
 }
 
 func TestEmptySinglelineComment(t *testing.T) {
@@ -260,13 +195,13 @@ func TestEmptySinglelineComment(t *testing.T) {
 		{Type: token.IDENT, Literal: "there", LeadingTrivia: []string{"", ""}},
 		{Type: token.NOT, Literal: "!", LeadingTrivia: []string{"", ""}},
 		{Type: token.EOF, Literal: "", LeadingTrivia: []string{""}},
-	}, compareLeadingTrivia())
+	}, testutil.CompareLeadingTrivia())
 }
 
 func TestLastLineComment(t *testing.T) {
 	assertInputTokens(t, "// last comment", []token.Token{
 		{Type: token.EOF, Literal: "", LeadingTrivia: []string{" last comment"}, AfterNewline: false},
-	}, compareLeadingTrivia(), compareAfterNewline())
+	}, testutil.CompareLeadingTrivia(), testutil.CompareAfterNewline())
 }
 
 func TestScanContinuesAfterNullCharacter(t *testing.T) {

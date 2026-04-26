@@ -1,4 +1,4 @@
-package parser_test
+package parser
 
 import (
 	"errors"
@@ -7,7 +7,6 @@ import (
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/lexer"
-	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/token"
 )
@@ -28,8 +27,8 @@ func (ls *VarStatement) PrintTo(p *printer.Printer) {
 func TestUseStatementParser(t *testing.T) {
 	l := &lexer.Lexer{}
 	l.Init([]byte("var x = 100"))
-	p := parser.Parser{}
-	p.UseStatementParser(func(p *parser.Parser, next func() (ast.Statement, error)) (ast.Statement, error) {
+	p := Parser{}
+	p.UseStatementParser(func(p *Parser, next func() (ast.Statement, error)) (ast.Statement, error) {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "var" {
 			p.AdvanceToken() // consume "var"
 
