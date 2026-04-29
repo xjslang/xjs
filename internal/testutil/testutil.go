@@ -1,8 +1,11 @@
 package testutil
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
+	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/token"
 )
 
@@ -63,4 +66,31 @@ func AssertTokens(t *testing.T, toks []token.Token, expectedToks []token.Token, 
 			t.Errorf("token %d: expected position to be (%d, %d), got (%d, %d)", i, expectedTok.Line, expectedTok.Column, tok.Line, tok.Column)
 		}
 	}
+}
+
+func NodeString(node ast.Node) string {
+	indentLevel := 0
+
+	var print func(node ast.Node) string
+	print = func(node ast.Node) string {
+		s := strings.Builder{}
+		switch v := node.(type) {
+		case *ast.InfixOperator:
+			fmt.Fprintf(&s, "%T\n", node)
+			indentLevel++
+			indent := strings.Repeat("\t", indentLevel)
+			fmt.Fprintf(&s, "%sLeftValue: %s\n", indent, print(v.LeftValue))
+			fmt.Fprintf(&s, "%sOperator: %q\n", indent, v.Operator.Type.String())
+			fmt.Fprintf(&s, "%sRightValue: %s", indent, print(v.RightValue))
+			indentLevel--
+		case *ast.IntegerLiteral:
+			fmt.Fprintf(&s, "%T{Value: %q}", node, v.Value)
+		case *ast.StringLiteral:
+			fmt.Fprintf(&s, "%T{Value: %q}", node, v.Value)
+		default:
+			fmt.Fprintf(&s, "%T", node)
+		}
+		return s.String()
+	}
+	return print(node)
 }

@@ -60,6 +60,22 @@ func defaultTokenizer(l *Lexer) token.Token {
 			return token.Token{Type: token.GTE, Literal: string([]rune{c1, c2})}
 		}
 		return token.Token{Type: token.GT, Literal: string(c1)}
+	case '+':
+		c := l.CurrentChar
+		l.AdvanceChar()
+		return token.Token{Type: token.PLUS, Literal: string(c)}
+	case '-':
+		c := l.CurrentChar
+		l.AdvanceChar()
+		return token.Token{Type: token.MINUS, Literal: string(c)}
+	case '*':
+		c := l.CurrentChar
+		l.AdvanceChar()
+		return token.Token{Type: token.MULTIPLY, Literal: string(c)}
+	case '%':
+		c := l.CurrentChar
+		l.AdvanceChar()
+		return token.Token{Type: token.MODULO, Literal: string(c)}
 	case '/':
 		c1 := l.CurrentChar
 		l.AdvanceChar()
