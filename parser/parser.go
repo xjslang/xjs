@@ -66,19 +66,52 @@ func (p *Parser) ParseProgram() (*ast.BlockStatement, error) {
 }
 
 func (p *Parser) ParseExpression() (ast.Expression, error) {
-	switch p.CurrentToken.Type {
-	case token.NUMBER:
-		val := p.CurrentToken.Literal
-		p.AdvanceToken()
-		return &ast.IntegerLiteral{Value: val}, nil
-	case token.STRING:
-		val := p.CurrentToken.Literal
-		p.AdvanceToken()
-		return &ast.StringLiteral{Value: val}, nil
+	parseTerm := func() (ast.Expression, token.Token, error) {
+		// parse val
+		val, err := p.parseValue()
+		if err != nil {
+			return nil, token.Token{}, err
+		}
+		// parse op
+		op := p.CurrentToken
+		if op.Type.IsOperator() {
+			p.AdvanceToken()
+		}
+		return val, op, nil
 	}
-	msg := "Expected expression"
-	p.AddError(msg)
-	return nil, errors.New(msg)
+
+	var parseRightExp func(ast.Expression, token.Token) (ast.Expression, token.Token, error)
+	parseRightExp = func(v0 ast.Expression, op0 token.Token) (ast.Expression, token.Token, error) {
+		for {
+			v1, op1, err := parseTerm()
+			if err != nil {
+				return nil, token.Token{}, err
+			}
+			if op0.Type.Precedence() < op1.Type.Precedence() {
+				v1, op1, err = parseRightExp(v1, op1)
+				if err != nil {
+					return nil, token.Token{}, err
+				}
+			}
+			v0 = &ast.InfixOperator{LeftValue: v0, Operator: op0, RightValue: v1}
+			if op0.Type.Precedence() > op1.Type.Precedence() {
+				return v0, op1, nil
+			}
+			op0 = op1
+		}
+	}
+
+	v, op, err := parseTerm()
+	if err != nil {
+		return nil, err
+	}
+	for op.Type.IsOperator() {
+		v, op, err = parseRightExp(v, op)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return v, nil
 }
 
 func (p *Parser) AddError(msg string) {
@@ -204,4 +237,20 @@ func (p *Parser) parseFunction() (*ast.FunctionDeclaration, error) {
 		return nil, err
 	}
 	return stmt, nil
+}
+
+func (p *Parser) parseValue() (ast.Expression, error) {
+	switch p.CurrentToken.Type {
+	case token.NUMBER:
+		val := p.CurrentToken.Literal
+		p.AdvanceToken()
+		return &ast.IntegerLiteral{Value: val}, nil
+	case token.STRING:
+		val := p.CurrentToken.Literal
+		p.AdvanceToken()
+		return &ast.StringLiteral{Value: val}, nil
+	}
+	msg := "Expected value"
+	p.AddError(msg)
+	return nil, errors.New(msg)
 }
