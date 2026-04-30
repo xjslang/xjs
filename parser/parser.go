@@ -201,7 +201,7 @@ func (p *Parser) parseLetStatement() (*ast.LetStatement, error) {
 	if err != nil {
 		return nil, err
 	}
-	stmt.Name = &ast.Identifier{Value: ident.Literal}
+	stmt.Name = ident
 	if _, err := p.expect(token.ASSIGN); err != nil {
 		return nil, err
 	}
@@ -222,7 +222,7 @@ func (p *Parser) parseFunction() (*ast.FunctionDeclaration, error) {
 	if err != nil {
 		return nil, err
 	}
-	stmt.Name = &ast.Identifier{Value: ident.Literal}
+	stmt.Name = ident
 	if _, err := p.expect(token.LPAREN); err != nil {
 		return nil, err
 	}
