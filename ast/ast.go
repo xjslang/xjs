@@ -20,8 +20,8 @@ type BlockStatement struct {
 	Statements []Statement
 }
 
-func (bs *BlockStatement) PrintTo(p *printer.Printer) {
-	for _, stmt := range bs.Statements {
+func (node *BlockStatement) PrintTo(p *printer.Printer) {
+	for _, stmt := range node.Statements {
 		p.PrintIndent()
 		stmt.PrintTo(p)
 		p.PrintRune('\n')
@@ -33,11 +33,11 @@ type LetStatement struct {
 	Value Expression
 }
 
-func (ls *LetStatement) PrintTo(p *printer.Printer) {
+func (node *LetStatement) PrintTo(p *printer.Printer) {
 	p.PrintString("let ")
-	p.PrintString(ls.Name.Literal)
+	p.PrintString(node.Name.Literal)
 	p.PrintString(" = ")
-	ls.Value.PrintTo(p)
+	node.Value.PrintTo(p)
 	p.PrintRune(';')
 }
 
@@ -46,14 +46,14 @@ type FunctionDeclaration struct {
 	Body *BlockStatement
 }
 
-func (fd *FunctionDeclaration) PrintTo(p *printer.Printer) {
+func (node *FunctionDeclaration) PrintTo(p *printer.Printer) {
 	p.PrintString("function ")
-	p.PrintString(fd.Name.Literal)
+	p.PrintString(node.Name.Literal)
 	p.PrintString("() {")
-	if fd.Body != nil && len(fd.Body.Statements) > 0 {
+	if node.Body != nil && len(node.Body.Statements) > 0 {
 		p.PrintRune('\n')
 		p.IncreaseIndent()
-		fd.Body.PrintTo(p)
+		node.Body.PrintTo(p)
 		p.DecreaseIndent()
 		p.PrintIndent()
 	}
@@ -65,8 +65,8 @@ type IntegerLiteral struct {
 	Value string
 }
 
-func (il *IntegerLiteral) PrintTo(p *printer.Printer) {
-	p.PrintString(il.Value)
+func (node *IntegerLiteral) PrintTo(p *printer.Printer) {
+	p.PrintString(node.Value)
 }
 
 // Implements Expression
@@ -74,8 +74,8 @@ type StringLiteral struct {
 	Value string
 }
 
-func (sl *StringLiteral) PrintTo(p *printer.Printer) {
-	p.PrintString(sl.Value)
+func (node *StringLiteral) PrintTo(p *printer.Printer) {
+	p.PrintString(node.Value)
 }
 
 // Implements Expression
