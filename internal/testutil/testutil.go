@@ -75,6 +75,31 @@ func NodeString(node ast.Node) string {
 	print = func(node ast.Node) string {
 		s := strings.Builder{}
 		switch v := node.(type) {
+		case *ast.BlockStatement:
+			fmt.Fprintf(&s, "%T\n", node)
+			indentLevel++
+			indent := strings.Repeat("\t", indentLevel)
+			for i, stmt := range v.Statements {
+				if i > 0 {
+					s.WriteRune('\n')
+				}
+				fmt.Fprintf(&s, "%s%s", indent, print(stmt))
+			}
+			indentLevel--
+		case *ast.LetStatement:
+			fmt.Fprintf(&s, "%T\n", node)
+			indentLevel++
+			indent := strings.Repeat("\t", indentLevel)
+			fmt.Fprintf(&s, "%sName: %s\n", indent, v.Name.Literal)
+			fmt.Fprintf(&s, "%sValue: %s", indent, print(v.Value))
+			indentLevel--
+		case *ast.FunctionDeclaration:
+			fmt.Fprintf(&s, "%T\n", node)
+			indentLevel++
+			indent := strings.Repeat("\t", indentLevel)
+			fmt.Fprintf(&s, "%sName: %s\n", indent, v.Name.Literal)
+			fmt.Fprintf(&s, "%sBody: %s", indent, print(v.Body))
+			indentLevel--
 		case *ast.GroupedExpression:
 			fmt.Fprintf(&s, "%T\n", node)
 			indentLevel++
