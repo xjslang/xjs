@@ -100,3 +100,14 @@ func (node *InfixOperator) PrintTo(p *printer.Printer) {
 	p.PrintRune(' ')
 	node.RightValue.PrintTo(p)
 }
+
+// Implements Expression
+type GroupedExpression struct {
+	Value Expression
+}
+
+func (node *GroupedExpression) PrintTo(p *printer.Printer) {
+	p.PrintRune('(')
+	node.Value.PrintTo(p)
+	p.PrintRune(')')
+}

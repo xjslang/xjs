@@ -241,6 +241,16 @@ func (p *Parser) parseFunction() (*ast.FunctionDeclaration, error) {
 
 func (p *Parser) parseValue() (ast.Expression, error) {
 	switch p.CurrentToken.Type {
+	case token.LPAREN:
+		p.AdvanceToken() // consume (
+		exp, err := p.ParseExpression()
+		if err != nil {
+			return nil, err
+		}
+		if _, err := p.expect(token.RPAREN); err != nil {
+			return nil, err
+		}
+		return &ast.GroupedExpression{Value: exp}, nil
 	case token.NUMBER:
 		val := p.CurrentToken.Literal
 		p.AdvanceToken()

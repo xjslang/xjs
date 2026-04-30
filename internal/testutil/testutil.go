@@ -75,6 +75,12 @@ func NodeString(node ast.Node) string {
 	print = func(node ast.Node) string {
 		s := strings.Builder{}
 		switch v := node.(type) {
+		case *ast.GroupedExpression:
+			fmt.Fprintf(&s, "%T\n", node)
+			indentLevel++
+			indent := strings.Repeat("\t", indentLevel)
+			fmt.Fprintf(&s, "%sValue: %s", indent, print(v.Value))
+			indentLevel--
 		case *ast.InfixOperator:
 			fmt.Fprintf(&s, "%T\n", node)
 			indentLevel++
