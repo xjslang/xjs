@@ -12,13 +12,13 @@ import (
 )
 
 type VarStatement struct {
-	Name  *ast.Identifier
+	Name  token.Token
 	Value ast.Expression
 }
 
 func (ls *VarStatement) PrintTo(p *printer.Printer) {
 	p.PrintString("var ")
-	ls.Name.PrintTo(p)
+	p.PrintString(ls.Name.Literal)
 	p.PrintString(" = ")
 	ls.Value.PrintTo(p)
 	p.PrintRune(';')
@@ -37,7 +37,7 @@ func TestUseStatementParser(t *testing.T) {
 				p.AddError(msg)
 				return nil, errors.New(msg)
 			}
-			name := &ast.Identifier{Value: p.CurrentToken.Literal}
+			name := p.CurrentToken
 			p.AdvanceToken()
 
 			if p.CurrentToken.Type != token.ASSIGN {

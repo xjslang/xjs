@@ -16,14 +16,6 @@ type Expression interface {
 	Node
 }
 
-type Identifier struct {
-	Value string
-}
-
-func (id *Identifier) PrintTo(p *printer.Printer) {
-	p.PrintString(id.Value)
-}
-
 type BlockStatement struct {
 	Statements []Statement
 }
@@ -37,26 +29,26 @@ func (bs *BlockStatement) PrintTo(p *printer.Printer) {
 }
 
 type LetStatement struct {
-	Name  *Identifier
+	Name  token.Token
 	Value Expression
 }
 
 func (ls *LetStatement) PrintTo(p *printer.Printer) {
 	p.PrintString("let ")
-	ls.Name.PrintTo(p)
+	p.PrintString(ls.Name.Literal)
 	p.PrintString(" = ")
 	ls.Value.PrintTo(p)
 	p.PrintRune(';')
 }
 
 type FunctionDeclaration struct {
-	Name *Identifier
+	Name token.Token
 	Body *BlockStatement
 }
 
 func (fd *FunctionDeclaration) PrintTo(p *printer.Printer) {
 	p.PrintString("function ")
-	fd.Name.PrintTo(p)
+	p.PrintString(fd.Name.Literal)
 	p.PrintString("() {")
 	if fd.Body != nil && len(fd.Body.Statements) > 0 {
 		p.PrintRune('\n')
