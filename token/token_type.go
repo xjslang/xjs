@@ -122,17 +122,3 @@ func RegisterType(lit string) TokenType {
 	nextType++
 	return typ
 }
-
-func (tt TokenType) Precedence() int {
-	switch tt {
-	case PLUS, MINUS:
-		return 1
-	case DIVIDE, MULTIPLY, MODULO:
-		return 2
-	}
-	return 0
-}
-
-func (tt TokenType) IsOperator() bool {
-	return tt == PLUS || tt == MINUS || tt == MULTIPLY || tt == DIVIDE || tt == MODULO
-}

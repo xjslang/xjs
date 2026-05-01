@@ -2,6 +2,7 @@ package parser
 
 import (
 	"errors"
+	"maps"
 	"strings"
 	"unicode/utf8"
 
@@ -10,6 +11,14 @@ import (
 	"github.com/xjslang/xjs/source"
 	"github.com/xjslang/xjs/token"
 )
+
+var operatorPrecedence map[token.TokenType]int = map[token.TokenType]int{
+	token.PLUS:     1,
+	token.MINUS:    1,
+	token.MULTIPLY: 2,
+	token.DIVIDE:   2,
+	token.MODULO:   2,
+}
 
 func Parse(input []byte) (*ast.BlockStatement, error) {
 	l := &lexer.Lexer{}
@@ -38,6 +47,7 @@ type Parser struct {
 	lexer        *lexer.Lexer
 	CurrentToken token.Token
 	PeekToken    token.Token
+	precedence   map[token.TokenType]int
 
 	statementParser func(p *Parser) (ast.Statement, error)
 
@@ -51,6 +61,8 @@ func (p *Parser) Init(l *lexer.Lexer) {
 	}
 	p.CurrentToken = token.Token{}
 	p.PeekToken = token.Token{}
+	p.precedence = make(map[token.TokenType]int)
+	maps.Copy(p.precedence, operatorPrecedence)
 	p.errors = []Error{}
 	// call twice to update CurrentToken and PeekToken
 	p.AdvanceToken()
@@ -74,12 +86,11 @@ func (p *Parser) ParseExpression() (ast.Expression, error) {
 		}
 		// parse op
 		op := p.CurrentToken
-		if op.Type.IsOperator() {
+		if _, ok := p.precedence[op.Type]; ok {
 			p.AdvanceToken()
 		}
 		return val, op, nil
 	}
-
 	var parseRightExp func(ast.Expression, token.Token) (ast.Expression, token.Token, error)
 	parseRightExp = func(v0 ast.Expression, op0 token.Token) (ast.Expression, token.Token, error) {
 		for {
@@ -87,14 +98,14 @@ func (p *Parser) ParseExpression() (ast.Expression, error) {
 			if err != nil {
 				return nil, token.Token{}, err
 			}
-			if op0.Type.Precedence() < op1.Type.Precedence() {
+			if p.precedence[op0.Type] < p.precedence[op1.Type] {
 				v1, op1, err = parseRightExp(v1, op1)
 				if err != nil {
 					return nil, token.Token{}, err
 				}
 			}
 			v0 = &ast.InfixOperator{LeftValue: v0, Operator: op0, RightValue: v1}
-			if op0.Type.Precedence() > op1.Type.Precedence() {
+			if p.precedence[op0.Type] > p.precedence[op1.Type] {
 				return v0, op1, nil
 			}
 			op0 = op1
@@ -105,7 +116,10 @@ func (p *Parser) ParseExpression() (ast.Expression, error) {
 	if err != nil {
 		return nil, err
 	}
-	for op.Type.IsOperator() {
+	for {
+		if _, ok := p.precedence[op.Type]; !ok {
+			break
+		}
 		v, op, err = parseRightExp(v, op)
 		if err != nil {
 			return nil, err
