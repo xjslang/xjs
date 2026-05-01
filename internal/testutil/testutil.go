@@ -70,56 +70,36 @@ func AssertTokens(t *testing.T, toks []token.Token, expectedToks []token.Token, 
 
 func NodeString(node ast.Node) string {
 	indentLevel := 0
-
 	var print func(node ast.Node) string
 	print = func(node ast.Node) string {
-		s := strings.Builder{}
+		s := &strings.Builder{}
+		indentLevel++
+		defer func() {
+			indentLevel--
+		}()
+		indent := strings.Repeat("\t", indentLevel)
+		fmt.Fprintf(s, "%T", node)
 		switch v := node.(type) {
 		case *ast.BlockStatement:
-			fmt.Fprintf(&s, "%T\n", node)
-			indentLevel++
-			indent := strings.Repeat("\t", indentLevel)
-			for i, stmt := range v.Statements {
-				if i > 0 {
-					s.WriteRune('\n')
-				}
-				fmt.Fprintf(&s, "%s%s", indent, print(stmt))
+			for _, stmt := range v.Statements {
+				fmt.Fprintf(s, "\n%s%s", indent, print(stmt))
 			}
-			indentLevel--
 		case *ast.LetStatement:
-			fmt.Fprintf(&s, "%T\n", node)
-			indentLevel++
-			indent := strings.Repeat("\t", indentLevel)
-			fmt.Fprintf(&s, "%sName: %s\n", indent, v.Name.Literal)
-			fmt.Fprintf(&s, "%sValue: %s", indent, print(v.Value))
-			indentLevel--
+			fmt.Fprintf(s, "\n%sName: %s", indent, v.Name.Literal)
+			fmt.Fprintf(s, "\n%sValue: %s", indent, print(v.Value))
 		case *ast.FunctionDeclaration:
-			fmt.Fprintf(&s, "%T\n", node)
-			indentLevel++
-			indent := strings.Repeat("\t", indentLevel)
-			fmt.Fprintf(&s, "%sName: %s\n", indent, v.Name.Literal)
-			fmt.Fprintf(&s, "%sBody: %s", indent, print(v.Body))
-			indentLevel--
+			fmt.Fprintf(s, "\n%sName: %s", indent, v.Name.Literal)
+			fmt.Fprintf(s, "\n%sBody: %s", indent, print(v.Body))
 		case *ast.GroupedExpression:
-			fmt.Fprintf(&s, "%T\n", node)
-			indentLevel++
-			indent := strings.Repeat("\t", indentLevel)
-			fmt.Fprintf(&s, "%sValue: %s", indent, print(v.Value))
-			indentLevel--
+			fmt.Fprintf(s, "\n%sValue: %s", indent, print(v.Value))
 		case *ast.InfixOperator:
-			fmt.Fprintf(&s, "%T\n", node)
-			indentLevel++
-			indent := strings.Repeat("\t", indentLevel)
-			fmt.Fprintf(&s, "%sLeftValue: %s\n", indent, print(v.LeftValue))
-			fmt.Fprintf(&s, "%sOperator: %q\n", indent, v.Operator.Type.String())
-			fmt.Fprintf(&s, "%sRightValue: %s", indent, print(v.RightValue))
-			indentLevel--
+			fmt.Fprintf(s, "\n%sLeftValue: %s", indent, print(v.LeftValue))
+			fmt.Fprintf(s, "\n%sOperator: %q", indent, v.Operator.Type.String())
+			fmt.Fprintf(s, "\n%sRightValue: %s", indent, print(v.RightValue))
 		case *ast.IntegerLiteral:
-			fmt.Fprintf(&s, "%T{Value: %q}", node, v.Value)
+			fmt.Fprintf(s, "{Value: %q}", v.Value)
 		case *ast.StringLiteral:
-			fmt.Fprintf(&s, "%T{Value: %q}", node, v.Value)
-		default:
-			fmt.Fprintf(&s, "%T", node)
+			fmt.Fprintf(s, "{Value: %q}", v.Value)
 		}
 		return s.String()
 	}
