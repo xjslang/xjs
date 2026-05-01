@@ -2,7 +2,6 @@ package parser
 
 import (
 	"errors"
-	"maps"
 	"strings"
 	"unicode/utf8"
 
@@ -43,11 +42,16 @@ func (list ErrorList) Error() string {
 	return strings.Join(result, "\n")
 }
 
+type infixOperator struct {
+	precedence int
+	fn         func(op token.Token, left, right ast.Expression) ast.Expression
+}
+
 type Parser struct {
-	lexer        *lexer.Lexer
-	CurrentToken token.Token
-	PeekToken    token.Token
-	precedence   map[token.TokenType]int
+	lexer          *lexer.Lexer
+	CurrentToken   token.Token
+	PeekToken      token.Token
+	infixOperators map[token.TokenType]infixOperator
 
 	statementParser func(p *Parser) (ast.Statement, error)
 
@@ -61,9 +65,19 @@ func (p *Parser) Init(l *lexer.Lexer) {
 	}
 	p.CurrentToken = token.Token{}
 	p.PeekToken = token.Token{}
-	p.precedence = make(map[token.TokenType]int)
-	maps.Copy(p.precedence, operatorPrecedence)
-	p.errors = []Error{}
+	if p.infixOperators == nil {
+		p.infixOperators = make(map[token.TokenType]infixOperator)
+	}
+	for op, precedence := range operatorPrecedence {
+		if _, ok := p.infixOperators[op]; ok {
+			continue
+		}
+		p.infixOperators[op] = infixOperator{
+			precedence: precedence,
+			fn:         defaultInfixOperator,
+		}
+	}
+	p.errors = ErrorList{}
 	// call twice to update CurrentToken and PeekToken
 	p.AdvanceToken()
 	p.AdvanceToken()
@@ -78,6 +92,16 @@ func (p *Parser) ParseProgram() (*ast.BlockStatement, error) {
 }
 
 func (p *Parser) ParseExpression() (ast.Expression, error) {
+	registered := func(tt token.TokenType) bool {
+		_, ok := p.infixOperators[tt]
+		return ok
+	}
+	precedence := func(tt token.TokenType) int {
+		if op, ok := p.infixOperators[tt]; ok {
+			return op.precedence
+		}
+		return -1
+	}
 	parseTerm := func() (ast.Expression, token.Token, error) {
 		// parse val
 		val, err := p.parseValue()
@@ -86,7 +110,7 @@ func (p *Parser) ParseExpression() (ast.Expression, error) {
 		}
 		// parse op
 		op := p.CurrentToken
-		if _, ok := p.precedence[op.Type]; ok {
+		if registered(op.Type) {
 			p.AdvanceToken()
 		}
 		return val, op, nil
@@ -98,14 +122,14 @@ func (p *Parser) ParseExpression() (ast.Expression, error) {
 			if err != nil {
 				return nil, token.Token{}, err
 			}
-			if p.precedence[op0.Type] < p.precedence[op1.Type] {
+			if precedence(op0.Type) < precedence(op1.Type) {
 				v1, op1, err = parseRightExp(v1, op1)
 				if err != nil {
 					return nil, token.Token{}, err
 				}
 			}
-			v0 = &ast.InfixOperator{LeftValue: v0, Operator: op0, RightValue: v1}
-			if p.precedence[op0.Type] > p.precedence[op1.Type] {
+			v0 = p.infixOperators[op0.Type].fn(op0, v0, v1)
+			if precedence(op0.Type) > precedence(op1.Type) {
 				return v0, op1, nil
 			}
 			op0 = op1
@@ -116,10 +140,7 @@ func (p *Parser) ParseExpression() (ast.Expression, error) {
 	if err != nil {
 		return nil, err
 	}
-	for {
-		if _, ok := p.precedence[op.Type]; !ok {
-			break
-		}
+	for registered(op.Type) {
 		v, op, err = parseRightExp(v, op)
 		if err != nil {
 			return nil, err
