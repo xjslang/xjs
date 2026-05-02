@@ -17,6 +17,7 @@ const (
 	// literals
 	STRING
 	NUMBER
+	BOOLEAN
 
 	// operators
 	ASSIGN   // =
@@ -110,6 +111,8 @@ func Lookup(lit string) TokenType {
 		return LET
 	case "function":
 		return FUNCTION
+	case "true", "false":
+		return BOOLEAN
 	}
 	return IDENT
 }
