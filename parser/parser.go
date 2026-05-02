@@ -294,6 +294,10 @@ func (p *Parser) parseValue() (ast.Expression, error) {
 		val := p.CurrentToken.Literal
 		p.AdvanceToken()
 		return &ast.StringLiteral{Value: val}, nil
+	case token.BOOLEAN:
+		val := p.CurrentToken.Literal
+		p.AdvanceToken()
+		return &ast.BooleanLiteral{Value: val}, nil
 	}
 	msg := "Expected value"
 	p.AddError(msg)

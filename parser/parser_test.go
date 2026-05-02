@@ -37,6 +37,13 @@ func TestParseExpression(t *testing.T) {
 	}{
 		{"single value", "3", `*ast.IntegerLiteral{Value: "3"}`},
 		{
+			name:  "boolean values",
+			input: "true + false",
+			expected: `*ast.InfixOperator
+	LeftValue: *ast.BooleanLiteral{Value: "true"}
+	Operator: "+"
+	RightValue: *ast.BooleanLiteral{Value: "false"}`},
+		{
 			name:  "basic",
 			input: "1 + 2 - 3",
 			expected: `*ast.InfixOperator

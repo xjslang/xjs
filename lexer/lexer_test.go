@@ -260,6 +260,14 @@ func TestReadNumber(t *testing.T) {
 	})
 }
 
+func TestReadBoolean(t *testing.T) {
+	assertInputTokens(t, "true false", []token.Token{
+		{Type: token.BOOLEAN, Literal: "true"},
+		{Type: token.BOOLEAN, Literal: "false"},
+		{Type: token.EOF},
+	})
+}
+
 func TestReadString(t *testing.T) {
 	t.Run("legal string", func(t *testing.T) {
 		assertInputTokens(t, " 'Hello, World!' \"Hello, World!\"", []token.Token{

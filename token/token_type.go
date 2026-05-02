@@ -17,6 +17,7 @@ const (
 	// literals
 	STRING
 	NUMBER
+	BOOLEAN
 
 	// operators
 	ASSIGN   // =
@@ -75,6 +76,7 @@ var tokenLiterals = map[TokenType]string{
 	IDENT:         "identifier",
 	NUMBER:        "number",
 	STRING:        "string",
+	BOOLEAN:       "boolean",
 	UNKNOWN:       "unknown",
 	ILLEGAL:       "illegal",
 	LET:           "let",
@@ -110,6 +112,8 @@ func Lookup(lit string) TokenType {
 		return LET
 	case "function":
 		return FUNCTION
+	case "true", "false":
+		return BOOLEAN
 	}
 	return IDENT
 }

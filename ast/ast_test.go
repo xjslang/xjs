@@ -25,11 +25,11 @@ func TestPrintTo(t *testing.T) {
 						},
 						&LetStatement{
 							Name:  token.Token{Type: token.IDENT, Literal: "a"},
-							Value: &StringLiteral{Value: "'aaa'"},
+							Value: &BooleanLiteral{Value: "true"},
 						},
 						&LetStatement{
 							Name:  token.Token{Type: token.IDENT, Literal: "b"},
-							Value: &StringLiteral{Value: "'bbb'"},
+							Value: &BooleanLiteral{Value: "false"},
 						},
 					},
 				},
@@ -46,8 +46,8 @@ func TestPrintTo(t *testing.T) {
 	}
 	pr := printer.New(printer.WithIndent("\t"))
 	program.PrintTo(pr)
-	expected := "function foo() {\n\tfunction boo() {\n\t\tlet m = 'mmm';\n\t\tlet n = 'nnn';\n\t}\n\tlet a = 'aaa';\n\tlet b = 'bbb';\n}\nlet x = 100;\nlet y = 200;\n"
+	expected := "function foo() {\n\tfunction boo() {\n\t\tlet m = 'mmm';\n\t\tlet n = 'nnn';\n\t}\n\tlet a = true;\n\tlet b = false;\n}\nlet x = 100;\nlet y = 200;\n"
 	if result := pr.String(); result != expected {
-		t.Errorf("Expected %q, got %q", expected, result)
+		t.Errorf("Invalid node:\nExpected:\n%s\nGot:\n%s", expected, result)
 	}
 }
