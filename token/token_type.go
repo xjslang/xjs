@@ -76,6 +76,7 @@ var tokenLiterals = map[TokenType]string{
 	IDENT:         "identifier",
 	NUMBER:        "number",
 	STRING:        "string",
+	BOOLEAN:       "boolean",
 	UNKNOWN:       "unknown",
 	ILLEGAL:       "illegal",
 	LET:           "let",
