@@ -5,24 +5,24 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func (p *Parser) UseStatementParser(parser func(p *Parser, next func() (ast.Statement, error)) (ast.Statement, error)) {
+func (p *Parser) UseStatementParser(parser func(p *Parser, next func() ast.Statement) ast.Statement) {
 	next := p.statementParser
 	if next == nil {
 		next = defaultStatementParser
 	}
-	p.statementParser = func(p *Parser) (ast.Statement, error) {
-		return parser(p, func() (ast.Statement, error) {
+	p.statementParser = func(p *Parser) ast.Statement {
+		return parser(p, func() ast.Statement {
 			return next(p)
 		})
 	}
 }
 
-func defaultStatementParser(p *Parser) (ast.Statement, error) {
+func defaultStatementParser(p *Parser) ast.Statement {
 	switch p.CurrentToken.Type {
 	case token.LET:
 		return p.parseLetStatement()
 	case token.FUNCTION:
 		return p.parseFunction()
 	}
-	return nil, nil
+	return nil
 }

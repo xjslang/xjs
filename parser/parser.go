@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"errors"
 	"strings"
 	"unicode/utf8"
 
@@ -32,6 +31,10 @@ type Error struct {
 	Message string       `json:"message"`
 }
 
+func (err Error) Error() string {
+	return err.Message
+}
+
 type ErrorList []Error
 
 func (list ErrorList) Error() string {
@@ -53,7 +56,7 @@ type Parser struct {
 	PeekToken      token.Token
 	infixOperators map[token.TokenType]infixOperator
 
-	statementParser func(p *Parser) (ast.Statement, error)
+	statementParser func(p *Parser) ast.Statement
 
 	errors ErrorList
 }
@@ -92,6 +95,14 @@ func (p *Parser) ParseProgram() (*ast.BlockStatement, error) {
 }
 
 func (p *Parser) ParseExpression() (ast.Expression, error) {
+	result := p.parseExpression()
+	if len(p.errors) > 0 {
+		return result, p.errors
+	}
+	return result, nil
+}
+
+func (p *Parser) parseExpression() ast.Expression {
 	registered := func(tt token.TokenType) bool {
 		_, ok := p.infixOperators[tt]
 		return ok
@@ -102,51 +113,51 @@ func (p *Parser) ParseExpression() (ast.Expression, error) {
 		}
 		return -1
 	}
-	parseTerm := func() (ast.Expression, token.Token, error) {
+	parseTerm := func() (ast.Expression, token.Token) {
 		// parse val
-		val, err := p.parseValue()
-		if err != nil {
-			return nil, token.Token{}, err
+		val := p.parseValue()
+		if val == nil {
+			return nil, token.Token{}
 		}
 		// parse op
 		op := p.CurrentToken
 		if registered(op.Type) {
 			p.AdvanceToken()
 		}
-		return val, op, nil
+		return val, op
 	}
-	var parseRightExp func(ast.Expression, token.Token) (ast.Expression, token.Token, error)
-	parseRightExp = func(v0 ast.Expression, op0 token.Token) (ast.Expression, token.Token, error) {
+	var parseRightExp func(ast.Expression, token.Token) (ast.Expression, token.Token)
+	parseRightExp = func(v0 ast.Expression, op0 token.Token) (ast.Expression, token.Token) {
 		for {
-			v1, op1, err := parseTerm()
-			if err != nil {
-				return nil, token.Token{}, err
+			v1, op1 := parseTerm()
+			if v1 == nil {
+				return nil, token.Token{}
 			}
 			if precedence(op0.Type) < precedence(op1.Type) {
-				v1, op1, err = parseRightExp(v1, op1)
-				if err != nil {
-					return nil, token.Token{}, err
+				v1, op1 = parseRightExp(v1, op1)
+				if v1 == nil {
+					return nil, token.Token{}
 				}
 			}
 			v0 = p.infixOperators[op0.Type].fn(op0, v0, v1)
 			if precedence(op0.Type) > precedence(op1.Type) {
-				return v0, op1, nil
+				return v0, op1
 			}
 			op0 = op1
 		}
 	}
 
-	v, op, err := parseTerm()
-	if err != nil {
-		return nil, err
+	v, op := parseTerm()
+	if v == nil {
+		return nil
 	}
 	for registered(op.Type) {
-		v, op, err = parseRightExp(v, op)
-		if err != nil {
-			return nil, err
+		v, op = parseRightExp(v, op)
+		if v == nil {
+			return nil
 		}
 	}
-	return v, nil
+	return v
 }
 
 func (p *Parser) AddError(msg string) {
@@ -172,32 +183,29 @@ func (p *Parser) AdvanceToken() {
 	p.PeekToken = p.lexer.NextToken()
 }
 
-// Expect checks that the current token matches the expected type,
+// got checks that the current token matches the expected type,
 // advances the position, and returns the token.
 //
 // If the token does not match, it records an error and returns it.
-func (p *Parser) expect(ttype token.TokenType) (token.Token, error) {
+func (p *Parser) got(ttype token.TokenType) bool {
 	if p.CurrentToken.Type != ttype {
-		msg := "Expected " + ttype.String()
-		p.AddError(msg)
-		return token.Token{}, errors.New(msg)
+		p.AddError("Expected " + ttype.String())
+		return false
 	}
-	tok := p.CurrentToken
 	p.AdvanceToken()
-	return tok, nil
+	return true
 }
 
-func (p *Parser) expectStatementTerminator() error {
+func (p *Parser) gotStatementTerminator() bool {
 	if p.CurrentToken.Type == token.SEMICOLON {
 		p.AdvanceToken()
-		return nil
+		return true
 	}
 	if p.CurrentToken.Type == token.EOF || p.CurrentToken.AfterNewline {
-		return nil
+		return true
 	}
-	msg := "Expected statement terminator"
-	p.AddError(msg)
-	return errors.New(msg)
+	p.AddError("Expected statement terminator")
+	return false
 }
 
 func (p *Parser) advanceToStatementEnd() {
@@ -215,95 +223,87 @@ func (p *Parser) advanceToStatementEnd() {
 
 func (p *Parser) parseBody() *ast.BlockStatement {
 	bodyStmt := &ast.BlockStatement{}
-	for {
-		stmt, err := p.statementParser(p)
-		if err != nil {
-			p.advanceToStatementEnd()
-			continue
-		}
-		if stmt == nil {
-			break
-		}
+	for stmt := p.statementParser(p); stmt != nil; stmt = p.statementParser(p) {
+		p.advanceToStatementEnd()
 		bodyStmt.Statements = append(bodyStmt.Statements, stmt)
 	}
 	return bodyStmt
 }
 
-func (p *Parser) parseLetStatement() (*ast.LetStatement, error) {
+func (p *Parser) parseLetStatement() *ast.LetStatement {
 	stmt := &ast.LetStatement{}
 	p.AdvanceToken() // consume token.LET
-	ident, err := p.expect(token.IDENT)
-	if err != nil {
-		return nil, err
+	ident := p.CurrentToken
+	if !p.got(token.IDENT) {
+		return nil
 	}
 	stmt.Name = ident
-	if _, err := p.expect(token.ASSIGN); err != nil {
-		return nil, err
+	if !p.got(token.ASSIGN) {
+		return nil
 	}
-	stmt.Value, err = p.ParseExpression()
-	if err != nil {
-		return nil, err
+	stmt.Value = p.parseExpression()
+	if stmt.Value == nil {
+		return nil
 	}
-	if err := p.expectStatementTerminator(); err != nil {
-		return nil, err
+	if !p.gotStatementTerminator() {
+		return nil
 	}
-	return stmt, nil
+	return stmt
 }
 
-func (p *Parser) parseFunction() (*ast.FunctionDeclaration, error) {
+func (p *Parser) parseFunction() *ast.FunctionDeclaration {
 	stmt := &ast.FunctionDeclaration{}
 	p.AdvanceToken() // consume token.FUNCTION
-	ident, err := p.expect(token.IDENT)
-	if err != nil {
-		return nil, err
+	ident := p.CurrentToken
+	if !p.got(token.IDENT) {
+		return nil
 	}
 	stmt.Name = ident
-	if _, err := p.expect(token.LPAREN); err != nil {
-		return nil, err
+	if !p.got(token.LPAREN) {
+		return nil
 	}
-	if _, err := p.expect(token.RPAREN); err != nil {
-		return nil, err
+	if !p.got(token.RPAREN) {
+		return nil
 	}
-	if _, err := p.expect(token.LBRACE); err != nil {
-		return nil, err
+	if !p.got(token.LBRACE) {
+		return nil
 	}
 	stmt.Body = p.parseBody()
-	if _, err := p.expect(token.RBRACE); err != nil {
-		return nil, err
+	if !p.got(token.RBRACE) {
+		return nil
 	}
-	return stmt, nil
+	return stmt
 }
 
-func (p *Parser) parseValue() (ast.Expression, error) {
+func (p *Parser) parseValue() ast.Expression {
 	switch p.CurrentToken.Type {
 	case token.LPAREN:
 		p.AdvanceToken() // consume (
-		exp, err := p.ParseExpression()
-		if err != nil {
-			return nil, err
+		exp := p.parseExpression()
+		if exp == nil {
+			return nil
 		}
-		if _, err := p.expect(token.RPAREN); err != nil {
-			return nil, err
+		if !p.got(token.RPAREN) {
+			return nil
 		}
-		return &ast.GroupedExpression{Value: exp}, nil
+		return &ast.GroupedExpression{Value: exp}
 	case token.NUMBER:
 		val := p.CurrentToken.Literal
 		p.AdvanceToken()
-		return &ast.IntegerLiteral{Value: val}, nil
+		return &ast.IntegerLiteral{Value: val}
 	case token.STRING:
 		val := p.CurrentToken.Literal
 		p.AdvanceToken()
-		return &ast.StringLiteral{Value: val}, nil
+		return &ast.StringLiteral{Value: val}
 	case token.BOOLEAN:
 		val := p.CurrentToken.Literal
 		p.AdvanceToken()
-		return &ast.BooleanLiteral{Value: val}, nil
+		return &ast.BooleanLiteral{Value: val}
 	case token.IDENT:
 		val := p.CurrentToken.Literal
 		p.AdvanceToken()
-		return &ast.Identifier{Value: val}, nil
+		return &ast.Identifier{Value: val}
 	}
-	msg := "Expected value"
-	p.AddError(msg)
-	return nil, errors.New(msg)
+	p.AddError("Expected value")
+	return nil
 }
