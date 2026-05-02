@@ -102,6 +102,8 @@ func NodeString(node ast.Node) string {
 			fmt.Fprintf(s, "{Value: %q}", v.Value)
 		case *ast.BooleanLiteral:
 			fmt.Fprintf(s, "{Value: %q}", v.Value)
+		case *ast.Identifier:
+			fmt.Fprintf(s, "{Value: %q}", v.Value)
 		}
 		return s.String()
 	}
