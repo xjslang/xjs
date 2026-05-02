@@ -88,6 +88,15 @@ func (node *BooleanLiteral) PrintTo(p *printer.Printer) {
 }
 
 // Implements Expression
+type Identifier struct {
+	Value string
+}
+
+func (node *Identifier) PrintTo(p *printer.Printer) {
+	p.PrintString(node.Value)
+}
+
+// Implements Expression
 type InfixOperator struct {
 	LeftValue  Expression
 	Operator   token.Token

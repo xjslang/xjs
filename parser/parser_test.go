@@ -42,7 +42,19 @@ func TestParseExpression(t *testing.T) {
 			expected: `*ast.InfixOperator
 	LeftValue: *ast.BooleanLiteral{Value: "true"}
 	Operator: "+"
-	RightValue: *ast.BooleanLiteral{Value: "false"}`},
+	RightValue: *ast.BooleanLiteral{Value: "false"}`,
+		},
+		{
+			name:  "identifiers",
+			input: "x + 2*y",
+			expected: `*ast.InfixOperator
+	LeftValue: *ast.Identifier{Value: "x"}
+	Operator: "+"
+	RightValue: *ast.InfixOperator
+		LeftValue: *ast.IntegerLiteral{Value: "2"}
+		Operator: "*"
+		RightValue: *ast.Identifier{Value: "y"}`,
+		},
 		{
 			name:  "basic",
 			input: "1 + 2 - 3",
