@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"errors"
+
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/token"
 )
@@ -24,5 +26,8 @@ func defaultStatementParser(p *Parser) (ast.Statement, error) {
 	case token.FUNCTION:
 		return p.parseFunction()
 	}
-	return nil, nil
+	msg := "Unknown statement"
+	p.AddError(msg)
+	p.AdvanceToken() // consume unrecognizable token
+	return nil, errors.New(msg)
 }
