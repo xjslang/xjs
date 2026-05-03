@@ -84,7 +84,15 @@ func (p *Parser) Init(l *lexer.Lexer) {
 }
 
 func (p *Parser) ParseProgram() (*ast.BlockStatement, error) {
-	result := p.parseBody()
+	result := &ast.BlockStatement{}
+	for p.CurrentToken.Type != token.EOF {
+		stmt, err := p.statementParser(p)
+		if err != nil {
+			p.advanceToStatementEnd()
+			continue
+		}
+		result.Statements = append(result.Statements, stmt)
+	}
 	if len(p.errors) > 0 {
 		return result, p.errors
 	}
@@ -215,14 +223,11 @@ func (p *Parser) advanceToStatementEnd() {
 
 func (p *Parser) parseBody() *ast.BlockStatement {
 	bodyStmt := &ast.BlockStatement{}
-	for {
+	for p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE {
 		stmt, err := p.statementParser(p)
 		if err != nil {
 			p.advanceToStatementEnd()
 			continue
-		}
-		if stmt == nil {
-			break
 		}
 		bodyStmt.Statements = append(bodyStmt.Statements, stmt)
 	}

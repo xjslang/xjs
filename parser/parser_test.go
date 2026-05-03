@@ -29,6 +29,112 @@ func ExampleParse() {
 	// }
 }
 
+func TestKeepParsing(t *testing.T) {
+	tests := []struct {
+		input          string
+		expectedAST    string
+		expectedErrors int
+		expectedMsg    string
+	}{
+		{
+			input: `
+			let x = 100
+			aaa // unknown statement
+			let y = 200
+			bbb // unknown statement
+			let z = 300`,
+			expectedAST: `*ast.BlockStatement
+	*ast.LetStatement
+		Name: x
+		Value: *ast.IntegerLiteral{Value: "100"}
+	*ast.LetStatement
+		Name: y
+		Value: *ast.IntegerLiteral{Value: "200"}
+	*ast.LetStatement
+		Name: z
+		Value: *ast.IntegerLiteral{Value: "300"}`,
+			expectedErrors: 2,
+			expectedMsg:    "Unknown statement",
+		},
+		{
+			input: `
+			let x = 100
+			aaa // unknown statement at the end of file`,
+			expectedAST: `*ast.BlockStatement
+	*ast.LetStatement
+		Name: x
+		Value: *ast.IntegerLiteral{Value: "100"}`,
+			expectedErrors: 1,
+			expectedMsg:    "Unknown statement",
+		},
+		{
+			input: "let x = 100; aaa // unknown statement at the end of line",
+			expectedAST: `*ast.BlockStatement
+	*ast.LetStatement
+		Name: x
+		Value: *ast.IntegerLiteral{Value: "100"}`,
+			expectedErrors: 1,
+			expectedMsg:    "Unknown statement",
+		},
+		{
+			input:          "let x = ;",
+			expectedAST:    "*ast.BlockStatement",
+			expectedErrors: 1,
+			expectedMsg:    "Expected value",
+		},
+		{
+			input: `
+			let x = 100; let y =
+			let z = 200`,
+			expectedAST: `*ast.BlockStatement
+	*ast.LetStatement
+		Name: x
+		Value: *ast.IntegerLiteral{Value: "100"}
+	*ast.LetStatement
+		Name: z
+		Value: *ast.IntegerLiteral{Value: "200"}`,
+			expectedErrors: 1,
+			expectedMsg:    "Expected value",
+		},
+	}
+	for i, test := range tests {
+		for j := range 2 {
+			testname := fmt.Sprintf("test %d", i)
+			if j > 0 {
+				testname += " function wrap"
+			}
+			t.Run(testname, func(t *testing.T) {
+				input := test.input
+				if j > 0 {
+					input = fmt.Sprintf("function main(){\n%s\n}", input)
+				}
+				l := &lexer.Lexer{}
+				l.Init([]byte(input))
+				p := &Parser{}
+				p.Init(l)
+				pr, err := p.ParseProgram()
+				if j == 0 {
+					if result := testutil.NodeString(pr); result != test.expectedAST {
+						t.Fatalf("Invalid node:\nExpected:\n%s\nGot:\n%s", test.expectedAST, result)
+					}
+				}
+				list, ok := err.(ErrorList)
+				if !ok {
+					t.Fatalf("Expected %T, got %T", list, err)
+				}
+				if n := len(list); n != test.expectedErrors {
+					t.Fatalf("Expected %d errors, got %d", test.expectedErrors, n)
+				}
+				for _, err := range list {
+					if msg := err.Message; msg != test.expectedMsg {
+						t.Fatalf("Expected %q, got %q", test.expectedMsg, msg)
+					}
+				}
+			})
+		}
+	}
+}
+
 func TestParseExpression(t *testing.T) {
 	tests := []struct {
 		name     string
