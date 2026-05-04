@@ -59,7 +59,7 @@ func TestKeepParsing(t *testing.T) {
 		{
 			input: `
 			let x = 100
-			aaa // unknown statement at the end of file`,
+			/* unknown statement at the end of file */ aaa`,
 			expectedAST: `*ast.BlockStatement
 	*ast.LetStatement
 		Name: x
@@ -68,7 +68,7 @@ func TestKeepParsing(t *testing.T) {
 			expectedMsg:    "Unknown statement",
 		},
 		{
-			input: "let x = 100; aaa // unknown statement at the end of line",
+			input: "let x = 100; /* unknown statement at the end of line */ aaa",
 			expectedAST: `*ast.BlockStatement
 	*ast.LetStatement
 		Name: x
@@ -106,7 +106,7 @@ func TestKeepParsing(t *testing.T) {
 			t.Run(testname, func(t *testing.T) {
 				input := test.input
 				if j > 0 {
-					input = fmt.Sprintf("function main(){\n%s\n}", input)
+					input = fmt.Sprintf("function main(){\n%s}", input)
 				}
 				l := &lexer.Lexer{}
 				l.Init([]byte(input))

@@ -48,6 +48,7 @@ type infixOperator struct {
 }
 
 type Parser struct {
+	scopes         scopeTracker
 	lexer          *lexer.Lexer
 	CurrentToken   token.Token
 	PeekToken      token.Token
@@ -59,6 +60,7 @@ type Parser struct {
 }
 
 func (p *Parser) Init(l *lexer.Lexer) {
+	p.scopes = make(scopeTracker)
 	p.lexer = l
 	if p.statementParser == nil {
 		p.statementParser = defaultStatementParser
@@ -195,12 +197,22 @@ func (p *Parser) expect(ttype token.TokenType) (token.Token, error) {
 	return tok, nil
 }
 
-func (p *Parser) expectStatementTerminator() error {
+func (p *Parser) consumeStatementTerminator() bool {
 	if p.CurrentToken.Type == token.SEMICOLON {
 		p.AdvanceToken()
-		return nil
+		return true
 	}
 	if p.CurrentToken.Type == token.EOF || p.CurrentToken.AfterNewline {
+		return true
+	}
+	if p.scopes.in(blockScope) && p.CurrentToken.Type == token.RBRACE {
+		return true
+	}
+	return false
+}
+
+func (p *Parser) expectStatementTerminator() error {
+	if p.consumeStatementTerminator() {
 		return nil
 	}
 	msg := "Expected statement terminator"
@@ -209,19 +221,16 @@ func (p *Parser) expectStatementTerminator() error {
 }
 
 func (p *Parser) advanceToStatementEnd() {
-	for {
-		if p.CurrentToken.Type == token.SEMICOLON {
-			p.AdvanceToken()
-			break
-		}
-		if p.CurrentToken.Type == token.EOF || p.CurrentToken.AfterNewline {
-			break
-		}
+	for !p.consumeStatementTerminator() {
 		p.AdvanceToken()
 	}
 }
 
 func (p *Parser) parseBody() *ast.BlockStatement {
+	p.scopes.enter(blockScope)
+	defer func() {
+		p.scopes.exit(blockScope)
+	}()
 	bodyStmt := &ast.BlockStatement{}
 	for p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE {
 		stmt, err := p.statementParser(p)
