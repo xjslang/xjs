@@ -182,8 +182,7 @@ func (p *Parser) AdvanceToken() {
 	p.PeekToken = p.lexer.NextToken()
 }
 
-// Expect checks that the current token matches the expected type,
-// advances the position, and returns the token.
+// Expect checks that the current token matches the expected type and advances the position.
 //
 // If the token does not match, it records an error and returns it.
 func (p *Parser) Expect(ttype token.TokenType) error {
