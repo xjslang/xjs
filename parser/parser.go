@@ -186,15 +186,14 @@ func (p *Parser) AdvanceToken() {
 // advances the position, and returns the token.
 //
 // If the token does not match, it records an error and returns it.
-func (p *Parser) expect(ttype token.TokenType) (token.Token, error) {
+func (p *Parser) Expect(ttype token.TokenType) error {
 	if p.CurrentToken.Type != ttype {
 		msg := "Expected " + ttype.String()
 		p.AddError(msg)
-		return token.Token{}, errors.New(msg)
+		return errors.New(msg)
 	}
-	tok := p.CurrentToken
 	p.AdvanceToken()
-	return tok, nil
+	return nil
 }
 
 func (p *Parser) consumeStatementTerminator() bool {
@@ -211,7 +210,7 @@ func (p *Parser) consumeStatementTerminator() bool {
 	return false
 }
 
-func (p *Parser) expectStatementTerminator() error {
+func (p *Parser) ExpectSemi() error {
 	if p.consumeStatementTerminator() {
 		return nil
 	}
@@ -246,19 +245,20 @@ func (p *Parser) parseBody() *ast.BlockStatement {
 func (p *Parser) parseLetStatement() (*ast.LetStatement, error) {
 	stmt := &ast.LetStatement{}
 	p.AdvanceToken() // consume token.LET
-	ident, err := p.expect(token.IDENT)
-	if err != nil {
+	ident := p.CurrentToken
+	if err := p.Expect(token.IDENT); err != nil {
 		return nil, err
 	}
 	stmt.Name = ident
-	if _, err := p.expect(token.ASSIGN); err != nil {
+	if err := p.Expect(token.ASSIGN); err != nil {
 		return nil, err
 	}
-	stmt.Value, err = p.ParseExpression()
+	val, err := p.ParseExpression()
 	if err != nil {
 		return nil, err
 	}
-	if err := p.expectStatementTerminator(); err != nil {
+	stmt.Value = val
+	if err := p.ExpectSemi(); err != nil {
 		return nil, err
 	}
 	return stmt, nil
@@ -267,22 +267,22 @@ func (p *Parser) parseLetStatement() (*ast.LetStatement, error) {
 func (p *Parser) parseFunction() (*ast.FunctionDeclaration, error) {
 	stmt := &ast.FunctionDeclaration{}
 	p.AdvanceToken() // consume token.FUNCTION
-	ident, err := p.expect(token.IDENT)
-	if err != nil {
+	ident := p.CurrentToken
+	if err := p.Expect(token.IDENT); err != nil {
 		return nil, err
 	}
 	stmt.Name = ident
-	if _, err := p.expect(token.LPAREN); err != nil {
+	if err := p.Expect(token.LPAREN); err != nil {
 		return nil, err
 	}
-	if _, err := p.expect(token.RPAREN); err != nil {
+	if err := p.Expect(token.RPAREN); err != nil {
 		return nil, err
 	}
-	if _, err := p.expect(token.LBRACE); err != nil {
+	if err := p.Expect(token.LBRACE); err != nil {
 		return nil, err
 	}
 	stmt.Body = p.parseBody()
-	if _, err := p.expect(token.RBRACE); err != nil {
+	if err := p.Expect(token.RBRACE); err != nil {
 		return nil, err
 	}
 	return stmt, nil
@@ -296,7 +296,7 @@ func (p *Parser) parseValue() (ast.Expression, error) {
 		if err != nil {
 			return nil, err
 		}
-		if _, err := p.expect(token.RPAREN); err != nil {
+		if err := p.Expect(token.RPAREN); err != nil {
 			return nil, err
 		}
 		return &ast.GroupedExpression{Value: exp}, nil

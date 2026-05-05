@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/xjslang/xjs/ast"
@@ -31,35 +29,20 @@ func TestUseStatementParser(t *testing.T) {
 	p.UseStatementParser(func(p *Parser, next func() (ast.Statement, error)) (ast.Statement, error) {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "var" {
 			p.AdvanceToken() // consume "var"
-
-			if p.CurrentToken.Type != token.IDENT {
-				msg := fmt.Sprintf("Expected %v", token.IDENT)
-				p.AddError(msg)
-				return nil, errors.New(msg)
-			}
 			name := p.CurrentToken
-			p.AdvanceToken()
-
-			if p.CurrentToken.Type != token.ASSIGN {
-				msg := fmt.Sprintf("Expected %v", token.ASSIGN)
-				p.AddError(msg)
-				return nil, errors.New(msg)
+			if err := p.Expect(token.IDENT); err != nil {
+				return nil, err
 			}
-			p.AdvanceToken()
-
+			if err := p.Expect(token.ASSIGN); err != nil {
+				return nil, err
+			}
 			value, err := p.ParseExpression()
 			if err != nil {
 				return nil, err
 			}
-
-			if p.CurrentToken.Type == token.SEMICOLON {
-				p.AdvanceToken()
-			} else if p.CurrentToken.Type != token.EOF && !p.CurrentToken.AfterNewline {
-				msg := "Expected statement terminator"
-				p.AddError(msg)
-				return nil, errors.New(msg)
+			if err := p.ExpectSemi(); err != nil {
+				return nil, err
 			}
-
 			return &VarStatement{Name: name, Value: value}, nil
 		}
 		return next()
