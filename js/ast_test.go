@@ -1,50 +1,51 @@
-package ast
+package js
 
 import (
 	"testing"
 
+	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/token"
 )
 
 func TestPrintTo(t *testing.T) {
 	program := &BlockStatement{
-		Statements: []Statement{
+		Statements: []ast.Statement{
 			&FunctionDeclaration{
 				Name: token.Token{Type: token.IDENT, Literal: "foo"},
 				Body: &BlockStatement{
-					Statements: []Statement{
+					Statements: []ast.Statement{
 						&FunctionDeclaration{
 							Name: token.Token{Type: token.IDENT, Literal: "boo"},
 							Body: &BlockStatement{
-								Statements: []Statement{
-									&LetStatement{Name: token.Token{Type: token.IDENT, Literal: "m"}, Value: &StringLiteral{Value: "'mmm'"}},
-									&LetStatement{Name: token.Token{Type: token.IDENT, Literal: "n"}, Value: &StringLiteral{Value: "'nnn'"}},
+								Statements: []ast.Statement{
+									&LetStatement{Name: token.Token{Type: token.IDENT, Literal: "m"}, Value: &ast.StringLiteral{Value: "'mmm'"}},
+									&LetStatement{Name: token.Token{Type: token.IDENT, Literal: "n"}, Value: &ast.StringLiteral{Value: "'nnn'"}},
 								},
 							},
 						},
 						&LetStatement{
 							Name:  token.Token{Type: token.IDENT, Literal: "a"},
-							Value: &BooleanLiteral{Value: "true"},
+							Value: &ast.BooleanLiteral{Value: "true"},
 						},
 						&LetStatement{
 							Name:  token.Token{Type: token.IDENT, Literal: "b"},
-							Value: &BooleanLiteral{Value: "false"},
+							Value: &ast.BooleanLiteral{Value: "false"},
 						},
 						&LetStatement{
 							Name:  token.Token{Type: token.IDENT, Literal: "c"},
-							Value: &Identifier{Value: "x"},
+							Value: &ast.Identifier{Value: "x"},
 						},
 					},
 				},
 			},
 			&LetStatement{
 				Name:  token.Token{Type: token.IDENT, Literal: "x"},
-				Value: &IntegerLiteral{Value: "100"},
+				Value: &ast.IntegerLiteral{Value: "100"},
 			},
 			&LetStatement{
 				Name:  token.Token{Type: token.IDENT, Literal: "y"},
-				Value: &IntegerLiteral{Value: "200"},
+				Value: &ast.IntegerLiteral{Value: "200"},
 			},
 		},
 	}

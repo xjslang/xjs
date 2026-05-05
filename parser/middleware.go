@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/token"
 )
 
 func (p *Parser) UseStatementParser(parser func(p *Parser, next func() (ast.Statement, error)) (ast.Statement, error)) {
@@ -20,12 +19,6 @@ func (p *Parser) UseStatementParser(parser func(p *Parser, next func() (ast.Stat
 }
 
 func defaultStatementParser(p *Parser) (ast.Statement, error) {
-	switch p.CurrentToken.Type {
-	case token.LET:
-		return p.parseLetStatement()
-	case token.FUNCTION:
-		return p.parseFunction()
-	}
 	msg := "Unknown statement"
 	p.AddError(msg)
 	p.AdvanceToken() // consume unrecognizable token

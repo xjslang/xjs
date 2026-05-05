@@ -4,18 +4,18 @@ import (
 	"testing"
 )
 
-func TestXxx(t *testing.T) {
+func TestScopeTracker(t *testing.T) {
 	st := scopeTracker{}
-	if st.in(blockScope) {
+	if st.In(BlockScope) {
 		t.Errorf("Expected not to be in blockScope")
 	}
 	for range 2 {
-		st.enter(blockScope)
-		if !st.in(blockScope) {
+		st.Enter(BlockScope)
+		if !st.In(BlockScope) {
 			t.Errorf("Expected to be in blockScope")
 		}
 		// exit twice to verify that counter is not negative
-		st.exit(blockScope)
-		st.exit(blockScope)
+		st.Exit(BlockScope)
+		st.Exit(BlockScope)
 	}
 }

@@ -19,14 +19,6 @@ var operatorPrecedence map[token.TokenType]int = map[token.TokenType]int{
 	token.MODULO:   2,
 }
 
-func Parse(input []byte) (*ast.BlockStatement, error) {
-	l := &lexer.Lexer{}
-	l.Init(input)
-	p := Parser{}
-	p.Init(l)
-	return p.ParseProgram()
-}
-
 type Error struct {
 	Range   source.Range `json:"range"`
 	Message string       `json:"message"`
@@ -85,20 +77,8 @@ func (p *Parser) Init(l *lexer.Lexer) {
 	p.AdvanceToken()
 }
 
-func (p *Parser) ParseProgram() (*ast.BlockStatement, error) {
-	result := &ast.BlockStatement{}
-	for p.CurrentToken.Type != token.EOF {
-		stmt, err := p.statementParser(p)
-		if err != nil {
-			p.advanceToStatementEnd()
-			continue
-		}
-		result.Statements = append(result.Statements, stmt)
-	}
-	if len(p.errors) > 0 {
-		return result, p.errors
-	}
-	return result, nil
+func (p *Parser) ParseStatement() (ast.Statement, error) {
+	return p.statementParser(p)
 }
 
 func (p *Parser) ParseExpression() (ast.Expression, error) {
@@ -195,96 +175,20 @@ func (p *Parser) Expect(ttype token.TokenType) error {
 	return nil
 }
 
-func (p *Parser) consumeStatementTerminator() bool {
-	if p.CurrentToken.Type == token.SEMICOLON {
-		p.AdvanceToken()
-		return true
-	}
-	if p.CurrentToken.Type == token.EOF || p.CurrentToken.AfterNewline {
-		return true
-	}
-	if p.scopes.in(blockScope) && p.CurrentToken.Type == token.RBRACE {
-		return true
-	}
-	return false
+func (p *Parser) EnterScope(sc scope) {
+	p.scopes.Enter(sc)
 }
 
-func (p *Parser) ExpectSemi() error {
-	if p.consumeStatementTerminator() {
-		return nil
-	}
-	msg := "Expected statement terminator"
-	p.AddError(msg)
-	return errors.New(msg)
+func (p *Parser) ExitScope(sc scope) {
+	p.scopes.Exit(sc)
 }
 
-func (p *Parser) advanceToStatementEnd() {
-	for !p.consumeStatementTerminator() {
-		p.AdvanceToken()
-	}
+func (p *Parser) InScope(sc scope) bool {
+	return p.scopes.In(sc)
 }
 
-func (p *Parser) parseBody() *ast.BlockStatement {
-	p.scopes.enter(blockScope)
-	defer func() {
-		p.scopes.exit(blockScope)
-	}()
-	bodyStmt := &ast.BlockStatement{}
-	for p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE {
-		stmt, err := p.statementParser(p)
-		if err != nil {
-			p.advanceToStatementEnd()
-			continue
-		}
-		bodyStmt.Statements = append(bodyStmt.Statements, stmt)
-	}
-	return bodyStmt
-}
-
-func (p *Parser) parseLetStatement() (*ast.LetStatement, error) {
-	stmt := &ast.LetStatement{}
-	p.AdvanceToken() // consume token.LET
-	ident := p.CurrentToken
-	if err := p.Expect(token.IDENT); err != nil {
-		return nil, err
-	}
-	stmt.Name = ident
-	if err := p.Expect(token.ASSIGN); err != nil {
-		return nil, err
-	}
-	val, err := p.ParseExpression()
-	if err != nil {
-		return nil, err
-	}
-	stmt.Value = val
-	if err := p.ExpectSemi(); err != nil {
-		return nil, err
-	}
-	return stmt, nil
-}
-
-func (p *Parser) parseFunction() (*ast.FunctionDeclaration, error) {
-	stmt := &ast.FunctionDeclaration{}
-	p.AdvanceToken() // consume token.FUNCTION
-	ident := p.CurrentToken
-	if err := p.Expect(token.IDENT); err != nil {
-		return nil, err
-	}
-	stmt.Name = ident
-	if err := p.Expect(token.LPAREN); err != nil {
-		return nil, err
-	}
-	if err := p.Expect(token.RPAREN); err != nil {
-		return nil, err
-	}
-	if err := p.Expect(token.LBRACE); err != nil {
-		return nil, err
-	}
-	stmt.Body = p.parseBody()
-	if err := p.Expect(token.RBRACE); err != nil {
-		return nil, err
-	}
-	return stmt, nil
+func (p *Parser) Errors() ErrorList {
+	return append(ErrorList{}, p.errors...)
 }
 
 func (p *Parser) parseValue() (ast.Expression, error) {
