@@ -16,50 +16,6 @@ type Expression interface {
 	Node
 }
 
-type BlockStatement struct {
-	Statements []Statement
-}
-
-func (node *BlockStatement) PrintTo(p *printer.Printer) {
-	for _, stmt := range node.Statements {
-		p.PrintIndent()
-		stmt.PrintTo(p)
-		p.PrintRune('\n')
-	}
-}
-
-type LetStatement struct {
-	Name  token.Token
-	Value Expression
-}
-
-func (node *LetStatement) PrintTo(p *printer.Printer) {
-	p.PrintString("let ")
-	p.PrintString(node.Name.Literal)
-	p.PrintString(" = ")
-	node.Value.PrintTo(p)
-	p.PrintRune(';')
-}
-
-type FunctionDeclaration struct {
-	Name token.Token
-	Body *BlockStatement
-}
-
-func (node *FunctionDeclaration) PrintTo(p *printer.Printer) {
-	p.PrintString("function ")
-	p.PrintString(node.Name.Literal)
-	p.PrintString("() {")
-	if node.Body != nil && len(node.Body.Statements) > 0 {
-		p.PrintRune('\n')
-		p.IncreaseIndent()
-		node.Body.PrintTo(p)
-		p.DecreaseIndent()
-		p.PrintIndent()
-	}
-	p.PrintRune('}')
-}
-
 // Implements Expression
 type IntegerLiteral struct {
 	Value string

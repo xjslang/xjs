@@ -49,10 +49,6 @@ const (
 	// line and block comments
 	LINE_COMMENT  // //
 	BLOCK_COMMENT // /* ... */
-
-	// keywords
-	LET
-	FUNCTION
 )
 
 // initial value of "custom types" created by RegisterType()
@@ -79,9 +75,7 @@ var tokenLiterals = map[TokenType]string{
 	BOOLEAN:       "boolean",
 	UNKNOWN:       "unknown",
 	ILLEGAL:       "illegal",
-	LET:           "let",
 	SEMICOLON:     ";",
-	FUNCTION:      "function",
 	LPAREN:        "(",
 	RPAREN:        ")",
 	LBRACE:        "{",
@@ -108,10 +102,6 @@ func (tt TokenType) String() string {
 
 func Lookup(lit string) TokenType {
 	switch lit {
-	case "let":
-		return LET
-	case "function":
-		return FUNCTION
 	case "true", "false":
 		return BOOLEAN
 	}

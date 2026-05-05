@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
 )
@@ -67,7 +68,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	program, err := parser.Parse(data)
+	program, err := js.Parse(data)
 
 	// prints errors
 	if checkFlag {
