@@ -2,7 +2,6 @@ package ast
 
 import (
 	"github.com/xjslang/xjs/printer"
-	"github.com/xjslang/xjs/token"
 )
 
 type Node interface {
@@ -50,21 +49,6 @@ type Identifier struct {
 
 func (node *Identifier) PrintTo(p *printer.Printer) {
 	p.PrintString(node.Value)
-}
-
-// Implements Expression
-type InfixOperator struct {
-	LeftValue  Expression
-	Operator   token.Token
-	RightValue Expression
-}
-
-func (node *InfixOperator) PrintTo(p *printer.Printer) {
-	node.LeftValue.PrintTo(p)
-	p.PrintRune(' ')
-	p.PrintString(node.Operator.Type.String())
-	p.PrintRune(' ')
-	node.RightValue.PrintTo(p)
 }
 
 // Implements Expression

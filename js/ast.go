@@ -6,6 +6,20 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
+type InfixOperator struct {
+	LeftValue  ast.Expression
+	Operator   token.Token
+	RightValue ast.Expression
+}
+
+func (node *InfixOperator) PrintTo(p *printer.Printer) {
+	node.LeftValue.PrintTo(p)
+	p.PrintRune(' ')
+	p.PrintString(node.Operator.Type.String())
+	p.PrintRune(' ')
+	node.RightValue.PrintTo(p)
+}
+
 type LetStatement struct {
 	Name  token.Token
 	Value ast.Expression

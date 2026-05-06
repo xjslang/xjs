@@ -11,14 +11,6 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var operatorPrecedence map[token.TokenType]int = map[token.TokenType]int{
-	token.PLUS:     1,
-	token.MINUS:    1,
-	token.MULTIPLY: 2,
-	token.DIVIDE:   2,
-	token.MODULO:   2,
-}
-
 type Error struct {
 	Range   source.Range `json:"range"`
 	Message string       `json:"message"`
@@ -61,15 +53,6 @@ func (p *Parser) Init(l *lexer.Lexer) {
 	p.PeekToken = token.Token{}
 	if p.infixOperators == nil {
 		p.infixOperators = make(map[token.TokenType]infixOperator)
-	}
-	for op, precedence := range operatorPrecedence {
-		if _, ok := p.infixOperators[op]; ok {
-			continue
-		}
-		p.infixOperators[op] = infixOperator{
-			precedence: precedence,
-			fn:         defaultInfixOperator,
-		}
 	}
 	p.errors = ErrorList{}
 	// call twice to update CurrentToken and PeekToken
