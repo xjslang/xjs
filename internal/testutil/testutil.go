@@ -82,10 +82,6 @@ func NodeString(node ast.Node) string {
 		switch v := node.(type) {
 		case *ast.GroupedExpression:
 			fmt.Fprintf(s, "\n%sValue: %s", indent, print(v.Value))
-		case *ast.InfixOperator:
-			fmt.Fprintf(s, "\n%sLeftValue: %s", indent, print(v.LeftValue))
-			fmt.Fprintf(s, "\n%sOperator: %q", indent, v.Operator.Type.String())
-			fmt.Fprintf(s, "\n%sRightValue: %s", indent, print(v.RightValue))
 		case *ast.IntegerLiteral:
 			fmt.Fprintf(s, "{Value: %q}", v.Value)
 		case *ast.StringLiteral:

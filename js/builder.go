@@ -9,6 +9,7 @@ type Builder struct {
 }
 
 func (b *Builder) InstallCorePlugins() {
+	b.Install(MathPlugin)
 	b.Install(LetPlugin)
 	b.Install(FunctionPlugin)
 }

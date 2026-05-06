@@ -8,9 +8,65 @@ import (
 )
 
 var (
+	// maths infix operators
+	plusType     = token.RegisterType("+")
+	minusType    = token.RegisterType("-")
+	multiplyType = token.RegisterType("*")
+	divideType   = token.RegisterType("/")
+	moduloType   = token.RegisterType("%")
+
+	// keywords
 	letType  = token.RegisterType("let")
 	funcType = token.RegisterType("function")
 )
+
+func opPrecedence(tt token.TokenType) int {
+	switch tt {
+	case plusType, minusType:
+		return 1
+	case multiplyType, divideType, moduloType:
+		return 2
+	}
+	return 0
+}
+
+func MathPlugin(b *parser.Builder) {
+	b.UseTokenizer(func(l *lexer.Lexer, next func() token.Token) token.Token {
+		switch l.CurrentChar {
+		case '+':
+			l.AdvanceChar()
+			return token.Token{Type: plusType, Literal: plusType.String()}
+		case '-':
+			l.AdvanceChar()
+			return token.Token{Type: minusType, Literal: minusType.String()}
+		case '*':
+			l.AdvanceChar()
+			return token.Token{Type: multiplyType, Literal: multiplyType.String()}
+		case '/':
+			if c := l.PeekChar(); c == '/' || c == '*' {
+				break
+			}
+			l.AdvanceChar()
+			return token.Token{Type: divideType, Literal: divideType.String()}
+		case '%':
+			l.AdvanceChar()
+			return token.Token{Type: moduloType, Literal: moduloType.String()}
+		}
+		return next()
+	})
+	fn := func(op token.Token, left, right ast.Expression) ast.Expression {
+		return &InfixOperator{
+			LeftValue:  left,
+			Operator:   op,
+			RightValue: right,
+		}
+	}
+	b.RegisterInfixOperator(plusType, opPrecedence(plusType), fn)
+	b.RegisterInfixOperator(minusType, opPrecedence(minusType), fn)
+	b.RegisterInfixOperator(multiplyType, opPrecedence(multiplyType), fn)
+	b.RegisterInfixOperator(divideType, opPrecedence(divideType), fn)
+	b.RegisterInfixOperator(moduloType, opPrecedence(moduloType), fn)
+}
 
 func LetPlugin(b *parser.Builder) {
 	b.UseTokenizer(func(l *lexer.Lexer, next func() token.Token) token.Token {

@@ -60,35 +60,19 @@ func defaultTokenizer(l *Lexer) token.Token {
 			return token.Token{Type: token.GTE, Literal: string([]rune{c1, c2})}
 		}
 		return token.Token{Type: token.GT, Literal: string(c1)}
-	case '+':
-		c := l.CurrentChar
-		l.AdvanceChar()
-		return token.Token{Type: token.PLUS, Literal: string(c)}
-	case '-':
-		c := l.CurrentChar
-		l.AdvanceChar()
-		return token.Token{Type: token.MINUS, Literal: string(c)}
-	case '*':
-		c := l.CurrentChar
-		l.AdvanceChar()
-		return token.Token{Type: token.MULTIPLY, Literal: string(c)}
-	case '%':
-		c := l.CurrentChar
-		l.AdvanceChar()
-		return token.Token{Type: token.MODULO, Literal: string(c)}
 	case '/':
-		c1 := l.CurrentChar
-		l.AdvanceChar()
-		if l.CurrentChar == '/' {
-			comment := l.consumeLineComment()
-			return token.Token{Type: token.LINE_COMMENT, Literal: comment}
+		if c1 := l.CurrentChar; c1 == '/' {
+			switch l.PeekChar() {
+			case '/':
+				l.AdvanceChar()
+				comment := l.consumeLineComment()
+				return token.Token{Type: token.LINE_COMMENT, Literal: comment}
+			case '*':
+				l.AdvanceChar()
+				comment, typ := l.consumeBlockComment()
+				return token.Token{Type: typ, Literal: comment}
+			}
 		}
-		if l.CurrentChar == '*' {
-			comment, typ := l.consumeBlockComment()
-			return token.Token{Type: typ, Literal: comment}
-		}
-
-		return token.Token{Type: token.DIVIDE, Literal: string(c1)}
 	case '\'', '"':
 		lit, typ := l.consumeString(l.CurrentChar)
 		return token.Token{Type: typ, Literal: lit}

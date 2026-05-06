@@ -20,12 +20,7 @@ const (
 	BOOLEAN
 
 	// operators
-	ASSIGN   // =
-	PLUS     // +
-	MINUS    // -
-	MULTIPLY // *
-	DIVIDE   // /
-	MODULO   // %
+	ASSIGN // =
 
 	// comparison operators
 	EQ     // ==
@@ -59,11 +54,6 @@ var tokenLiterals = map[TokenType]string{
 	EQ:            "==",
 	NOT_EQ:        "!=",
 	ASSIGN:        "=",
-	PLUS:          "+",
-	MINUS:         "-",
-	MULTIPLY:      "*",
-	DIVIDE:        "/",
-	MODULO:        "%",
 	NOT:           "!",
 	LT:            "<",
 	LTE:           "<=",
