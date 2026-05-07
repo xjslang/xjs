@@ -5,6 +5,8 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
+var blockScope = parser.RegisterScope()
+
 func ParseProgram(p *parser.Parser) (*BlockStatement, error) {
 	result := &BlockStatement{}
 	for p.CurrentToken.Type != token.EOF {
@@ -68,10 +70,8 @@ func ParseFunctionDeclaration(p *parser.Parser) (*FunctionDeclaration, error) {
 }
 
 func ParseBlockStatement(p *parser.Parser) *BlockStatement {
-	p.EnterScope(parser.BlockScope)
-	defer func() {
-		p.ExitScope(parser.BlockScope)
-	}()
+	p.EnterScope(blockScope)
+	defer p.ExitScope(blockScope)
 	bodyStmt := &BlockStatement{}
 	for p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE {
 		stmt, err := p.ParseStatement()
