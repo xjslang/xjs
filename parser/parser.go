@@ -158,15 +158,15 @@ func (p *Parser) Expect(ttype token.TokenType) error {
 	return nil
 }
 
-func (p *Parser) EnterScope(sc scope) {
+func (p *Parser) EnterScope(sc Scope) {
 	p.scopes.Enter(sc)
 }
 
-func (p *Parser) ExitScope(sc scope) {
+func (p *Parser) ExitScope(sc Scope) {
 	p.scopes.Exit(sc)
 }
 
-func (p *Parser) InScope(sc scope) bool {
+func (p *Parser) InScope(sc Scope) bool {
 	return p.scopes.In(sc)
 }
 
