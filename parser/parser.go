@@ -32,7 +32,6 @@ type infixOperator struct {
 }
 
 type Parser struct {
-	scopes         scopeTracker
 	lexer          *lexer.Lexer
 	CurrentToken   token.Token
 	PeekToken      token.Token
@@ -44,7 +43,6 @@ type Parser struct {
 }
 
 func (p *Parser) Init(l *lexer.Lexer) {
-	p.scopes = make(scopeTracker)
 	p.lexer = l
 	if p.statementParser == nil {
 		p.statementParser = defaultStatementParser
@@ -156,18 +154,6 @@ func (p *Parser) Expect(ttype token.TokenType) error {
 	}
 	p.AdvanceToken()
 	return nil
-}
-
-func (p *Parser) EnterScope(sc scope) {
-	p.scopes.Enter(sc)
-}
-
-func (p *Parser) ExitScope(sc scope) {
-	p.scopes.Exit(sc)
-}
-
-func (p *Parser) InScope(sc scope) bool {
-	return p.scopes.In(sc)
 }
 
 func (p *Parser) Errors() ErrorList {

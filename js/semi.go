@@ -30,7 +30,7 @@ func advanceSemi(p *parser.Parser) bool {
 	if p.CurrentToken.Type == token.EOF || p.CurrentToken.AfterNewline {
 		return true
 	}
-	if p.InScope(parser.BlockScope) && p.CurrentToken.Type == token.RBRACE {
+	if scopes.In(blockScope) && p.CurrentToken.Type == token.RBRACE {
 		return true
 	}
 	return false

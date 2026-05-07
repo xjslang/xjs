@@ -2,8 +2,12 @@ package js
 
 import (
 	"github.com/xjslang/xjs/parser"
+	"github.com/xjslang/xjs/scope"
 	"github.com/xjslang/xjs/token"
 )
+
+var scopes = scope.NewTracker()
+var blockScope = scopes.RegisterScope()
 
 func ParseProgram(p *parser.Parser) (*BlockStatement, error) {
 	result := &BlockStatement{}
@@ -68,9 +72,9 @@ func ParseFunctionDeclaration(p *parser.Parser) (*FunctionDeclaration, error) {
 }
 
 func ParseBlockStatement(p *parser.Parser) *BlockStatement {
-	p.EnterScope(parser.BlockScope)
+	scopes.Enter(blockScope)
 	defer func() {
-		p.ExitScope(parser.BlockScope)
+		scopes.Exit(blockScope)
 	}()
 	bodyStmt := &BlockStatement{}
 	for p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE {
