@@ -1,11 +1,7 @@
 package ast
 
-import (
-	"github.com/xjslang/xjs/printer"
-)
-
 type Node interface {
-	PrintTo(p *printer.Printer)
+	Type() string
 }
 
 type Statement interface {
@@ -20,8 +16,8 @@ type IntegerLiteral struct {
 	Value string
 }
 
-func (node *IntegerLiteral) PrintTo(p *printer.Printer) {
-	p.PrintString(node.Value)
+func (node *IntegerLiteral) Type() string {
+	return "IntegerLiteral"
 }
 
 // Implements Expression
@@ -29,8 +25,8 @@ type StringLiteral struct {
 	Value string
 }
 
-func (node *StringLiteral) PrintTo(p *printer.Printer) {
-	p.PrintString(node.Value)
+func (node *StringLiteral) Type() string {
+	return "StringLiteral"
 }
 
 // Implements Expression
@@ -38,8 +34,8 @@ type BooleanLiteral struct {
 	Value string
 }
 
-func (node *BooleanLiteral) PrintTo(p *printer.Printer) {
-	p.PrintString(node.Value)
+func (node *BooleanLiteral) Type() string {
+	return "BooleanLiteral"
 }
 
 // Implements Expression
@@ -47,8 +43,8 @@ type Identifier struct {
 	Value string
 }
 
-func (node *Identifier) PrintTo(p *printer.Printer) {
-	p.PrintString(node.Value)
+func (node *Identifier) Type() string {
+	return "Identifier"
 }
 
 // Implements Expression
@@ -56,8 +52,6 @@ type GroupedExpression struct {
 	Value Expression
 }
 
-func (node *GroupedExpression) PrintTo(p *printer.Printer) {
-	p.PrintRune('(')
-	node.Value.PrintTo(p)
-	p.PrintRune(')')
+func (node *GroupedExpression) Type() string {
+	return "GroupedExpression"
 }

@@ -90,6 +90,6 @@ func main() {
 		os.Exit(1)
 	}
 	pr := printer.New()
-	program.PrintTo(pr)
+	pr.Print(program)
 	fmt.Print(pr.String())
 }
