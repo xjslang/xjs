@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/xjslang/xjs/js"
+	"github.com/xjslang/xjs/internal/testutil"
 )
 
 func TestPrinter(t *testing.T) {
@@ -18,7 +18,8 @@ func TestPrinter(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			pr := New(WithIndent(test.indent))
+			pr := Printer{}
+			pr.Init(WithIndent(test.indent))
 			pr.PrintString("block {\n")
 			pr.IncreaseIndent()
 			for i := range 3 {
@@ -53,7 +54,8 @@ func TestPrinter(t *testing.T) {
 
 func TestIncreaseDecreaseIndent(t *testing.T) {
 	t.Run("indent level changes correctly", func(t *testing.T) {
-		pr := New()
+		pr := Printer{}
+		pr.Init()
 		// at first indentLevel must be 0
 		if pr.indentLevel != 0 {
 			t.Errorf("Expected indentLevel to be 0, got %d", pr.indentLevel)
@@ -82,7 +84,8 @@ func TestIncreaseDecreaseIndent(t *testing.T) {
 		}
 	})
 	t.Run("cannot decrease below zero", func(t *testing.T) {
-		pr := New()
+		pr := Printer{}
+		pr.Init()
 		// indentLevel cannot be negative
 		pr.DecreaseIndent()
 		if pr.indentLevel != 0 {
@@ -91,32 +94,20 @@ func TestIncreaseDecreaseIndent(t *testing.T) {
 	})
 }
 
-func TestUsePrinter(t *testing.T) {
+func TestBuiltinPrinters(t *testing.T) {
 	input := `
 	function foo() {
-		let a = x * (200 + 3)
-		let b = 200
+		let name = 'John Smith'
+		let age = 32
+		let single = true
 	}
-	let x = 100
-	let y = 200
-	let z = 'aaa'
-	let v = true
-	let w = false
-`
-	result, err := js.Parse([]byte(input))
+	let x = 100`
+	result, err := testutil.Parse(input)
 	if err != nil {
 		t.Fatal(err)
 	}
-	c := Printer{}
-	c.UsePrinter(IntegerLiteralPrinter)
-	c.UsePrinter(StringLiteralPrinter)
-	c.UsePrinter(BooleanLiteralPrinter)
-	c.UsePrinter(InfixOperatorPrinter)
-	c.UsePrinter(GroupedExpressionPrinter)
-	c.UsePrinter(IdentifierPrinter)
-	c.UsePrinter(LetPrinter)
-	c.UsePrinter(FunctionPrinter)
-	c.UsePrinter(BlockPrinter)
-	c.Print(result)
-	fmt.Println(c.String())
+	pr := Printer{}
+	pr.Init()
+	pr.Print(result)
+	fmt.Println(pr.String())
 }

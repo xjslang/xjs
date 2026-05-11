@@ -1,13 +1,13 @@
-package token
+package scanner
 
 import (
 	"sync"
 	"testing"
 )
 
-func TestRegisterType(t *testing.T) {
+func TestRegisterKind(t *testing.T) {
 	lit := "**"
-	powType := RegisterType(lit)
+	powType := RegisterKind(lit)
 	if powType < initCustomType {
 		t.Errorf("Expected type to be greater than %d, got %d", initCustomType, powType)
 	}
@@ -17,19 +17,19 @@ func TestRegisterType(t *testing.T) {
 
 	t.Run("concurrent access returns unique keys", func(t *testing.T) {
 		n := 100
-		types := make([]TokenType, n)
+		types := make([]Kind, n)
 		var wg sync.WaitGroup
 		for i := range n {
 			wg.Add(1)
 			go func(i int) {
 				defer wg.Done()
-				types[i] = RegisterType("aaa")
+				types[i] = RegisterKind("aaa")
 			}(i)
 		}
 		wg.Wait()
 
 		// check that types has no duplicates
-		seen := make(map[TokenType]bool)
+		seen := make(map[Kind]bool)
 		for _, typ := range types {
 			if seen[typ] {
 				t.Fatalf("Duplicate!")

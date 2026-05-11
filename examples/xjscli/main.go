@@ -7,9 +7,9 @@ import (
 	"io"
 	"os"
 
-	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
+	"github.com/xjslang/xjs/scanner"
 )
 
 func usage() {
@@ -68,7 +68,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	program, err := js.Parse(data)
+	sc := &scanner.Scanner{}
+	sc.Init(data)
+	p := &parser.Parser{}
+	p.Init(sc)
+	program, err := parser.ParseProgram(p)
 
 	// prints errors
 	if checkFlag {
@@ -89,7 +93,8 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	pr := printer.New()
+	pr := printer.Printer{}
+	pr.Init()
 	pr.Print(program)
 	fmt.Print(pr.String())
 }
