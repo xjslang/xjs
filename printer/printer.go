@@ -2,6 +2,8 @@ package printer
 
 import (
 	"strings"
+
+	"github.com/xjslang/xjs/ast"
 )
 
 type printerConfig struct {
@@ -20,6 +22,7 @@ type Printer struct {
 	doc         strings.Builder
 	indent      string
 	indentLevel int
+	printer     func(ast.Node)
 }
 
 func New(opts ...printerOption) *Printer {
@@ -56,6 +59,24 @@ func (p *Printer) PrintIndent() {
 	for range p.indentLevel {
 		p.doc.WriteString(p.indent)
 	}
+}
+
+func (p *Printer) UsePrinter(printer func(c *Printer, node ast.Node, next func())) {
+	print := p.printer
+	if p.printer == nil {
+		print = func(node ast.Node) {
+			p.PrintString("<" + node.Type() + ">")
+		}
+	}
+	p.printer = func(node ast.Node) {
+		printer(p, node, func() {
+			print(node)
+		})
+	}
+}
+
+func (p *Printer) Print(node ast.Node) {
+	p.printer(node)
 }
 
 func (p *Printer) String() string {

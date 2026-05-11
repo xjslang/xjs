@@ -3,6 +3,8 @@ package printer
 import (
 	"fmt"
 	"testing"
+
+	"github.com/xjslang/xjs/js"
 )
 
 func TestPrinter(t *testing.T) {
@@ -87,4 +89,34 @@ func TestIncreaseDecreaseIndent(t *testing.T) {
 			t.Errorf("Expected indentLevel to be 0, got %d", pr.indentLevel)
 		}
 	})
+}
+
+func TestUsePrinter(t *testing.T) {
+	input := `
+	function foo() {
+		let a = x * (200 + 3)
+		let b = 200
+	}
+	let x = 100
+	let y = 200
+	let z = 'aaa'
+	let v = true
+	let w = false
+`
+	result, err := js.Parse([]byte(input))
+	if err != nil {
+		t.Fatal(err)
+	}
+	c := Printer{}
+	c.UsePrinter(IntegerLiteralPrinter)
+	c.UsePrinter(StringLiteralPrinter)
+	c.UsePrinter(BooleanLiteralPrinter)
+	c.UsePrinter(InfixOperatorPrinter)
+	c.UsePrinter(GroupedExpressionPrinter)
+	c.UsePrinter(IdentifierPrinter)
+	c.UsePrinter(LetPrinter)
+	c.UsePrinter(FunctionPrinter)
+	c.UsePrinter(BlockPrinter)
+	c.Print(result)
+	fmt.Println(c.String())
 }
