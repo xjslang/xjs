@@ -79,7 +79,7 @@ func NodeString(node ast.Node) string {
 			indentLevel--
 		}()
 		indent := strings.Repeat("\t", indentLevel)
-		fmt.Print(node.Type())
+		fmt.Print(node.Kind())
 		switch v := node.(type) {
 		case *ast.Block:
 			for _, stmt := range v.Statements {

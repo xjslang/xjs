@@ -1,5 +1,5 @@
 package ast
 
 type Node interface {
-	Type() string
+	Kind() string
 }

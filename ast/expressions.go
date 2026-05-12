@@ -8,7 +8,7 @@ type InfixOperator struct {
 	RightValue Node
 }
 
-func (node *InfixOperator) Type() string {
+func (node *InfixOperator) Kind() string {
 	return "InfixOperator"
 }
 
@@ -16,7 +16,7 @@ type Integer struct {
 	Value string
 }
 
-func (node *Integer) Type() string {
+func (node *Integer) Kind() string {
 	return "Integer"
 }
 
@@ -24,7 +24,7 @@ type String struct {
 	Value string
 }
 
-func (node *String) Type() string {
+func (node *String) Kind() string {
 	return "String"
 }
 
@@ -32,7 +32,7 @@ type Boolean struct {
 	Value string
 }
 
-func (node *Boolean) Type() string {
+func (node *Boolean) Kind() string {
 	return "Boolean"
 }
 
@@ -40,7 +40,7 @@ type Ident struct {
 	Value string
 }
 
-func (node *Ident) Type() string {
+func (node *Ident) Kind() string {
 	return "Ident"
 }
 
@@ -48,6 +48,6 @@ type GroupedExpression struct {
 	Value Node
 }
 
-func (node *GroupedExpression) Type() string {
+func (node *GroupedExpression) Kind() string {
 	return "GroupedExpression"
 }

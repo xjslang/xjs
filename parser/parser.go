@@ -35,15 +35,13 @@ type infixOperator struct {
 }
 
 type Parser struct {
-	scanner        *scanner.Scanner
-	CurrentToken   scanner.Token
-	PeekToken      scanner.Token
-	scopes         ScopeTracker
-	infixOperators map[scanner.Kind]infixOperator
-
+	CurrentToken    scanner.Token
+	PeekToken       scanner.Token
+	scanner         *scanner.Scanner
+	scopes          ScopeTracker
+	infixOperators  map[scanner.Kind]infixOperator
 	statementParser func(p *Parser) (ast.Node, error)
-
-	errors ErrorList
+	errors          ErrorList
 }
 
 func (p *Parser) Init(sc *scanner.Scanner) {

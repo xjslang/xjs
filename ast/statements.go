@@ -7,7 +7,7 @@ type Let struct {
 	Value Node
 }
 
-func (node *Let) Type() string {
+func (node *Let) Kind() string {
 	return "let statement"
 }
 
@@ -15,7 +15,7 @@ type Block struct {
 	Statements []Node
 }
 
-func (node *Block) Type() string {
+func (node *Block) Kind() string {
 	return "block statement"
 }
 
@@ -24,6 +24,6 @@ type Function struct {
 	Body *Block
 }
 
-func (node *Function) Type() string {
+func (node *Function) Kind() string {
 	return "function declaration"
 }
