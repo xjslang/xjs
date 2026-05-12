@@ -88,8 +88,7 @@ triviaLoop:
 		switch tok.Type {
 		case NEWLINE:
 			afterNewline = true
-		case LINE_COMMENT:
-		case BLOCK_COMMENT:
+		case LINE_COMMENT, BLOCK_COMMENT:
 			afterNewline = afterNewline || strings.ContainsAny(tok.Literal, "\n\r")
 		default:
 			break triviaLoop

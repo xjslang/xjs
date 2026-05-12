@@ -109,11 +109,12 @@ func defaultScanner(sc *Scanner) Token {
 		sc.AdvanceChar()
 		if sc.CurrentChar == '\n' {
 			sc.AdvanceChar()
+			return Token{Type: NEWLINE, Literal: "\r\n"}
 		}
-		return Token{Type: NEWLINE, Literal: ""}
+		return Token{Type: NEWLINE, Literal: "\r"}
 	case '\n':
 		sc.AdvanceChar()
-		return Token{Type: NEWLINE, Literal: ""}
+		return Token{Type: NEWLINE, Literal: "\n"}
 	default:
 		if isLetter(sc.CurrentChar) {
 			lit := sc.consumeIdentifier()
