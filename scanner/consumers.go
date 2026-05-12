@@ -24,7 +24,23 @@ func (sc *Scanner) consumeBlockComment() (string, Kind) {
 
 func (sc *Scanner) consumeLineComment() string {
 	sb := strings.Builder{}
-	for sc.AdvanceChar(); sc.CurrentChar != '\n' && sc.CurrentChar != '\r' && sc.CurrentChar != eof; sc.AdvanceChar() {
+	for {
+		sc.AdvanceChar()
+		if sc.CurrentChar == '\n' {
+			sb.WriteRune(sc.CurrentChar)
+			sc.AdvanceChar()
+			break
+		} else if sc.CurrentChar == '\r' {
+			sb.WriteRune(sc.CurrentChar)
+			sc.AdvanceChar()
+			if sc.CurrentChar == '\n' {
+				sb.WriteRune(sc.CurrentChar)
+				sc.AdvanceChar()
+			}
+			break
+		} else if sc.CurrentChar == eof {
+			break
+		}
 		sb.WriteRune(sc.CurrentChar)
 	}
 	return sb.String()
