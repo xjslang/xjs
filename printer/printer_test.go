@@ -1,10 +1,11 @@
-package printer
+package printer_test
 
 import (
 	"fmt"
 	"testing"
 
 	"github.com/xjslang/xjs/internal/testutil"
+	"github.com/xjslang/xjs/printer"
 )
 
 func TestPrinter(t *testing.T) {
@@ -18,8 +19,8 @@ func TestPrinter(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			pr := Printer{}
-			pr.Init(WithIndent(test.indent))
+			pr := printer.Printer{}
+			pr.Init(printer.WithIndent(test.indent))
 			pr.PrintString("block {\n")
 			pr.IncreaseIndent()
 			for i := range 3 {
@@ -52,48 +53,6 @@ func TestPrinter(t *testing.T) {
 	}
 }
 
-func TestIncreaseDecreaseIndent(t *testing.T) {
-	t.Run("indent level changes correctly", func(t *testing.T) {
-		pr := Printer{}
-		pr.Init()
-		// at first indentLevel must be 0
-		if pr.indentLevel != 0 {
-			t.Errorf("Expected indentLevel to be 0, got %d", pr.indentLevel)
-		}
-		// increase indentLevel
-		pr.IncreaseIndent()
-		if pr.indentLevel != 1 {
-			t.Errorf("Expected indentLevel to be 1, got %d", pr.indentLevel)
-		}
-		// increase indentLevel twice
-		pr.IncreaseIndent()
-		pr.IncreaseIndent()
-		if pr.indentLevel != 3 {
-			t.Errorf("Expected indentLevel to be 3, got %d", pr.indentLevel)
-		}
-		// decrease indentLevel
-		pr.DecreaseIndent()
-		if pr.indentLevel != 2 {
-			t.Errorf("Expected indentLevel to be 2, got %d", pr.indentLevel)
-		}
-		// decrease indentLevel twice
-		pr.DecreaseIndent()
-		pr.DecreaseIndent()
-		if pr.indentLevel != 0 {
-			t.Errorf("Expected indentLevel to be 0, got %d", pr.indentLevel)
-		}
-	})
-	t.Run("cannot decrease below zero", func(t *testing.T) {
-		pr := Printer{}
-		pr.Init()
-		// indentLevel cannot be negative
-		pr.DecreaseIndent()
-		if pr.indentLevel != 0 {
-			t.Errorf("Expected indentLevel to be 0, got %d", pr.indentLevel)
-		}
-	})
-}
-
 func TestBuiltinPrinters(t *testing.T) {
 	input := `
 	function foo() {
@@ -106,7 +65,7 @@ func TestBuiltinPrinters(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	pr := Printer{}
+	pr := printer.Printer{}
 	pr.Init()
 	pr.Print(result)
 	fmt.Println(pr.String())

@@ -38,7 +38,7 @@ type Parser struct {
 	scanner        *scanner.Scanner
 	CurrentToken   scanner.Token
 	PeekToken      scanner.Token
-	scopes         scopeTracker
+	scopes         ScopeTracker
 	infixOperators map[scanner.Kind]infixOperator
 
 	statementParser func(p *Parser) (ast.Node, error)
@@ -47,7 +47,7 @@ type Parser struct {
 }
 
 func (p *Parser) Init(sc *scanner.Scanner) {
-	p.scopes = make(scopeTracker)
+	p.scopes = make(ScopeTracker)
 	p.scanner = sc
 	if p.statementParser == nil {
 		p.statementParser = defaultStatementParser
