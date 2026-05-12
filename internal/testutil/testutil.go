@@ -6,7 +6,8 @@ import (
 	"testing"
 
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/token"
+	"github.com/xjslang/xjs/parser"
+	"github.com/xjslang/xjs/scanner"
 )
 
 type tokenCompareConfig struct {
@@ -35,7 +36,7 @@ func CompareTokenPosition() TokenCompareOption {
 	}
 }
 
-func AssertTokens(t *testing.T, toks []token.Token, expectedToks []token.Token, opts ...TokenCompareOption) {
+func AssertTokens(t *testing.T, toks []scanner.Token, expectedToks []scanner.Token, opts ...TokenCompareOption) {
 	cfg := &tokenCompareConfig{}
 	for _, opt := range opts {
 		opt(cfg)
@@ -78,20 +79,42 @@ func NodeString(node ast.Node) string {
 			indentLevel--
 		}()
 		indent := strings.Repeat("\t", indentLevel)
-		fmt.Fprintf(s, "%T", node)
+		fmt.Print(node.Type())
 		switch v := node.(type) {
+		case *ast.Block:
+			for _, stmt := range v.Statements {
+				fmt.Fprintf(s, "\n%s%s", indent, print(stmt))
+			}
+		case *ast.Let:
+			fmt.Fprintf(s, "\n%sName: %s", indent, v.Name.Literal)
+			fmt.Fprintf(s, "\n%sValue: %s", indent, print(v.Value))
+		case *ast.Function:
+			fmt.Fprintf(s, "\n%sName: %s", indent, v.Name.Literal)
+			fmt.Fprintf(s, "\n%sBody: %s", indent, print(v.Body))
 		case *ast.GroupedExpression:
 			fmt.Fprintf(s, "\n%sValue: %s", indent, print(v.Value))
-		case *ast.IntegerLiteral:
+		case *ast.InfixOperator:
+			fmt.Fprintf(s, "\n%sLeftValue: %s", indent, print(v.LeftValue))
+			fmt.Fprintf(s, "\n%sOperator: %q", indent, v.Operator.Type.String())
+			fmt.Fprintf(s, "\n%sRightValue: %s", indent, print(v.RightValue))
+		case *ast.Integer:
 			fmt.Fprintf(s, "{Value: %q}", v.Value)
-		case *ast.StringLiteral:
+		case *ast.String:
 			fmt.Fprintf(s, "{Value: %q}", v.Value)
-		case *ast.BooleanLiteral:
+		case *ast.Boolean:
 			fmt.Fprintf(s, "{Value: %q}", v.Value)
-		case *ast.Identifier:
+		case *ast.Ident:
 			fmt.Fprintf(s, "{Value: %q}", v.Value)
 		}
 		return s.String()
 	}
 	return print(node)
+}
+
+func Parse(input string) (*ast.Block, error) {
+	sc := &scanner.Scanner{}
+	sc.Init([]byte(input))
+	p := &parser.Parser{}
+	p.Init(sc)
+	return parser.ParseProgram(p)
 }

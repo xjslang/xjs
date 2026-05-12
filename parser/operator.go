@@ -2,15 +2,10 @@ package parser
 
 import (
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/token"
+	"github.com/xjslang/xjs/scanner"
 )
 
-// RegisterInfixOperator registers an infix operator.
-//
-// 0: lowest precedence
-// 1: +, -
-// 2: *, /, %
-func (p *Parser) RegisterInfixOperator(tt token.TokenType, precedence int, fn func(op token.Token, left, right ast.Expression) ast.Expression) {
+func (p *Parser) RegisterInfixOperator(tt scanner.Kind, precedence int, fn func(op scanner.Token, left, right ast.Node) ast.Node) {
 	if precedence < 0 {
 		panic("negative precedence")
 	}
@@ -18,7 +13,7 @@ func (p *Parser) RegisterInfixOperator(tt token.TokenType, precedence int, fn fu
 		panic("nil function")
 	}
 	if p.infixOperators == nil {
-		p.infixOperators = make(map[token.TokenType]infixOperator)
+		p.infixOperators = make(map[scanner.Kind]infixOperator)
 	}
 	if _, ok := p.infixOperators[tt]; ok {
 		panic("operator already registered")

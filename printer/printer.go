@@ -25,16 +25,17 @@ type Printer struct {
 	printer     func(ast.Node)
 }
 
-func New(opts ...printerOption) *Printer {
+func (p *Printer) Init(opts ...printerOption) {
 	cfg := &printerConfig{
 		indent: "  ",
 	}
 	for _, opt := range opts {
 		opt(cfg)
 	}
-	return &Printer{
-		indent: cfg.indent,
+	if p.printer == nil {
+		p.printer = p.defaultPrinter
 	}
+	p.indent = cfg.indent
 }
 
 func (p *Printer) PrintString(s string) {
@@ -58,20 +59,6 @@ func (p *Printer) DecreaseIndent() {
 func (p *Printer) PrintIndent() {
 	for range p.indentLevel {
 		p.doc.WriteString(p.indent)
-	}
-}
-
-func (p *Printer) UsePrinter(printer func(c *Printer, node ast.Node, next func())) {
-	print := p.printer
-	if p.printer == nil {
-		print = func(node ast.Node) {
-			p.PrintString("<" + node.Type() + ">")
-		}
-	}
-	p.printer = func(node ast.Node) {
-		printer(p, node, func() {
-			print(node)
-		})
 	}
 }
 
