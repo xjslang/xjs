@@ -191,15 +191,7 @@ func (p *Parser) Errors() ErrorList {
 func (p *Parser) parseValue() (ast.Node, error) {
 	switch p.CurrentToken.Type {
 	case scanner.LPAREN:
-		p.AdvanceToken() // consume (
-		exp, err := p.ParseExpression()
-		if err != nil {
-			return nil, err
-		}
-		if err := p.Expect(scanner.RPAREN); err != nil {
-			return nil, err
-		}
-		return &ast.GroupedExpression{Value: exp}, nil
+		return ParseGroupedExpression(p)
 	case scanner.NUMBER:
 		val := p.CurrentToken.Literal
 		p.AdvanceToken()
