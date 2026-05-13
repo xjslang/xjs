@@ -135,8 +135,14 @@ func TestAfterNewline(t *testing.T) {
 func TestBlockComments(t *testing.T) {
 	input := "/* lorem\nipsum dolor */\n\rhello\r\n/* unfinished comment"
 	assertInputTokens(t, input, []scanner.Token{
-		{Type: scanner.IDENT, Literal: "hello", LeadingTrivia: []string{" lorem\nipsum dolor ", "\n", "\r"}},
-		{Type: scanner.ILLEGAL, Literal: " unfinished comment", LeadingTrivia: []string{"\r\n"}},
+		{Type: scanner.IDENT, Literal: "hello", LeadingTrivia: []scanner.Token{
+			{Type: scanner.BLOCK_COMMENT, Literal: " lorem\nipsum dolor "},
+			{Type: scanner.NEWLINE, Literal: "\n"},
+			{Type: scanner.NEWLINE, Literal: "\r"},
+		}},
+		{Type: scanner.ILLEGAL, Literal: " unfinished comment", LeadingTrivia: []scanner.Token{
+			{Type: scanner.NEWLINE, Literal: "\r\n"},
+		}},
 		{Type: scanner.EOF},
 	}, testutil.CompareLeadingTrivia())
 }
@@ -151,25 +157,49 @@ func TestLineComments(t *testing.T) {
 	
 	// Final comment`
 	assertInputTokens(t, input, []scanner.Token{
-		{Type: scanner.IDENT, Literal: "John", LeadingTrivia: []string{"\n", " First Name\n"}},
-		{Type: scanner.IDENT, Literal: "Smith", LeadingTrivia: []string{"\n", "\n", " Last Name\n"}},
-		{Type: scanner.EOF, LeadingTrivia: []string{"\n", "\n", " Final comment"}},
+		{Type: scanner.IDENT, Literal: "John", LeadingTrivia: []scanner.Token{
+			{Type: scanner.NEWLINE, Literal: "\n"},
+			{Type: scanner.LINE_COMMENT, Literal: " First Name\n"},
+		}},
+		{Type: scanner.IDENT, Literal: "Smith", LeadingTrivia: []scanner.Token{
+			{Type: scanner.NEWLINE, Literal: "\n"},
+			{Type: scanner.NEWLINE, Literal: "\n"},
+			{Type: scanner.LINE_COMMENT, Literal: " Last Name\n"},
+		}},
+		{Type: scanner.EOF, LeadingTrivia: []scanner.Token{
+			{Type: scanner.NEWLINE, Literal: "\n"},
+			{Type: scanner.NEWLINE, Literal: "\n"},
+			{Type: scanner.LINE_COMMENT, Literal: " Final comment"},
+		}},
 	}, testutil.CompareLeadingTrivia())
 }
 
 func TestEmptySinglelineComment(t *testing.T) {
 	assertInputTokens(t, "//\nhello//\n\npeople//\r\nthere//\r!//", []scanner.Token{
-		{Type: scanner.IDENT, Literal: "hello", LeadingTrivia: []string{"\n"}},
-		{Type: scanner.IDENT, Literal: "people", LeadingTrivia: []string{"\n", "\n"}},
-		{Type: scanner.IDENT, Literal: "there", LeadingTrivia: []string{"\r\n"}},
-		{Type: scanner.NOT, Literal: "!", LeadingTrivia: []string{"\r"}},
-		{Type: scanner.EOF, Literal: "", LeadingTrivia: []string{""}},
+		{Type: scanner.IDENT, Literal: "hello", LeadingTrivia: []scanner.Token{
+			{Type: scanner.LINE_COMMENT, Literal: "\n"},
+		}},
+		{Type: scanner.IDENT, Literal: "people", LeadingTrivia: []scanner.Token{
+			{Type: scanner.LINE_COMMENT, Literal: "\n"},
+			{Type: scanner.NEWLINE, Literal: "\n"},
+		}},
+		{Type: scanner.IDENT, Literal: "there", LeadingTrivia: []scanner.Token{
+			{Type: scanner.LINE_COMMENT, Literal: "\r\n"},
+		}},
+		{Type: scanner.NOT, Literal: "!", LeadingTrivia: []scanner.Token{
+			{Type: scanner.LINE_COMMENT, Literal: "\r"},
+		}},
+		{Type: scanner.EOF, Literal: "", LeadingTrivia: []scanner.Token{
+			{Type: scanner.LINE_COMMENT},
+		}},
 	}, testutil.CompareLeadingTrivia())
 }
 
 func TestLastLineComment(t *testing.T) {
 	assertInputTokens(t, "// last comment", []scanner.Token{
-		{Type: scanner.EOF, Literal: "", LeadingTrivia: []string{" last comment"}, AfterNewline: false},
+		{Type: scanner.EOF, Literal: "", AfterNewline: false, LeadingTrivia: []scanner.Token{
+			{Type: scanner.LINE_COMMENT, Literal: " last comment"},
+		}},
 	}, testutil.CompareLeadingTrivia(), testutil.CompareAfterNewline())
 }
 

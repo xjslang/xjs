@@ -80,7 +80,7 @@ func (sc *Scanner) NextToken() Token {
 		tok.Column = max(0, column)
 		return tok
 	}
-	var trivia []string
+	var trivia []Token
 	afterNewline := false
 	tok := next()
 triviaLoop:
@@ -93,7 +93,7 @@ triviaLoop:
 		default:
 			break triviaLoop
 		}
-		trivia = append(trivia, tok.Literal)
+		trivia = append(trivia, tok)
 		tok = next()
 	}
 	tok.LeadingTrivia = trivia
