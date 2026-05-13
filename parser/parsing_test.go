@@ -95,9 +95,15 @@ func TestKeysAreSaved(t *testing.T) {
 			t,
 			[]scanner.Token{result.LetToken, result.AssignToken, result.SemiToken},
 			[]scanner.Token{
-				{Type: scanner.LET, Literal: "let", LeadingTrivia: []string{" comment\n"}},
-				{Type: scanner.ASSIGN, Literal: "=", LeadingTrivia: []string{"\n"}},
-				{Type: scanner.SEMICOLON, Literal: ";", LeadingTrivia: []string{"c"}},
+				{Type: scanner.LET, Literal: "let", LeadingTrivia: []scanner.Token{
+					{Type: scanner.LINE_COMMENT, Literal: " comment\n"},
+				}},
+				{Type: scanner.ASSIGN, Literal: "=", LeadingTrivia: []scanner.Token{
+					{Type: scanner.NEWLINE, Literal: "\n"},
+				}},
+				{Type: scanner.SEMICOLON, Literal: ";", LeadingTrivia: []scanner.Token{
+					{Type: scanner.BLOCK_COMMENT, Literal: "c"},
+				}},
 			},
 			testutil.CompareLeadingTrivia(),
 		)
@@ -118,9 +124,14 @@ func TestKeysAreSaved(t *testing.T) {
 		testutil.AssertTokens(
 			t,
 			[]scanner.Token{result.LbraceToken, result.RbraceToken},
-			[]scanner.Token{
-				{Type: scanner.LBRACE, Literal: "{", LeadingTrivia: []string{"\n", " comment before {\n", "\n"}},
-				{Type: scanner.RBRACE, Literal: "}", LeadingTrivia: []string{" comment before }\n", " block comment "}},
+			[]scanner.Token{{Type: scanner.LBRACE, Literal: "{", LeadingTrivia: []scanner.Token{
+				{Type: scanner.NEWLINE, Literal: "\n"},
+				{Type: scanner.LINE_COMMENT, Literal: " comment before {\n"},
+				{Type: scanner.NEWLINE, Literal: "\n"},
+			}}, {Type: scanner.RBRACE, Literal: "}", LeadingTrivia: []scanner.Token{
+				{Type: scanner.LINE_COMMENT, Literal: " comment before }\n"},
+				{Type: scanner.BLOCK_COMMENT, Literal: " block comment "},
+			}},
 			},
 			testutil.CompareLeadingTrivia(),
 		)
@@ -140,9 +151,17 @@ func TestKeysAreSaved(t *testing.T) {
 			t,
 			[]scanner.Token{result.FunctionToken, result.LparenToken, result.RparenToken},
 			[]scanner.Token{
-				{Type: scanner.FUNCTION, Literal: "function", LeadingTrivia: []string{" block comment before ", "\n"}},
-				{Type: scanner.LPAREN, Literal: "(", LeadingTrivia: []string{"\n", " comment 1\n"}},
-				{Type: scanner.RPAREN, Literal: ")", LeadingTrivia: []string{" comment 2\n"}},
+				{Type: scanner.FUNCTION, Literal: "function", LeadingTrivia: []scanner.Token{
+					{Type: scanner.BLOCK_COMMENT, Literal: " block comment before "},
+					{Type: scanner.NEWLINE, Literal: "\n"},
+				}},
+				{Type: scanner.LPAREN, Literal: "(", LeadingTrivia: []scanner.Token{
+					{Type: scanner.NEWLINE, Literal: "\n"},
+					{Type: scanner.LINE_COMMENT, Literal: " comment 1\n"},
+				}},
+				{Type: scanner.RPAREN, Literal: ")", LeadingTrivia: []scanner.Token{
+					{Type: scanner.LINE_COMMENT, Literal: " comment 2\n"},
+				}},
 			},
 			testutil.CompareLeadingTrivia(),
 		)
@@ -160,8 +179,12 @@ func TestKeysAreSaved(t *testing.T) {
 			t,
 			[]scanner.Token{result.LparenToken, result.RparenToken},
 			[]scanner.Token{
-				{Type: scanner.LPAREN, Literal: "(", LeadingTrivia: []string{" comment before\n"}},
-				{Type: scanner.RPAREN, Literal: ")", LeadingTrivia: []string{" comment after\n"}},
+				{Type: scanner.LPAREN, Literal: "(", LeadingTrivia: []scanner.Token{
+					{Type: scanner.LINE_COMMENT, Literal: " comment before\n"},
+				}},
+				{Type: scanner.RPAREN, Literal: ")", LeadingTrivia: []scanner.Token{
+					{Type: scanner.LINE_COMMENT, Literal: " comment after\n"},
+				}},
 			},
 			testutil.CompareLeadingTrivia(),
 		)

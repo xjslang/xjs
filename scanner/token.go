@@ -26,7 +26,7 @@ type Token struct {
 	Position
 	Type          Kind
 	Literal       string
-	LeadingTrivia []string
+	LeadingTrivia []Token
 	AfterNewline  bool
 }
 

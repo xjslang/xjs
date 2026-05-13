@@ -57,9 +57,12 @@ func AssertTokens(t *testing.T, toks []scanner.Token, expectedToks []scanner.Tok
 			if len(tok.LeadingTrivia) != len(expectedTok.LeadingTrivia) {
 				t.Errorf("token %d: expected %d leading trivia lines, got %d", i, len(expectedTok.LeadingTrivia), len(tok.LeadingTrivia))
 			} else {
-				for j, line := range expectedTok.LeadingTrivia {
-					if tok.LeadingTrivia[j] != line {
-						t.Errorf("token %d: expected %q leading trivia line, got %q", i, line, tok.LeadingTrivia[j])
+				for j, expectedTrivia := range expectedTok.LeadingTrivia {
+					trivia := tok.LeadingTrivia[j]
+					if trivia.Type != expectedTrivia.Type {
+						t.Errorf("token %d: expected trivia type to be %v, got %v", i, expectedTrivia.Type, trivia.Type)
+					} else if trivia.Literal != expectedTrivia.Literal {
+						t.Errorf("token %d: expected trivia to be %q, got %q", i, expectedTrivia.Literal, trivia.Literal)
 					}
 				}
 			}
