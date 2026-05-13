@@ -25,14 +25,35 @@ func ParseProgram(p *Parser) (*ast.Block, error) {
 	return result, nil
 }
 
+func ParseGroupedExpression(p *Parser) (*ast.GroupedExpression, error) {
+	node := &ast.GroupedExpression{}
+	node.LparenToken = p.CurrentToken
+	if err := p.Expect(scanner.LPAREN); err != nil {
+		return nil, err
+	}
+	val, err := p.ParseExpression()
+	if err != nil {
+		return nil, err
+	}
+	node.Value = val
+	node.RparenToken = p.CurrentToken
+	if err := p.Expect(scanner.RPAREN); err != nil {
+		return nil, err
+	}
+	return node, nil
+}
+
 func ParseLet(p *Parser) (*ast.Let, error) {
 	node := &ast.Let{}
-	p.AdvanceToken() // consume let
-	ident := p.CurrentToken
+	node.LetToken = p.CurrentToken
+	if err := p.Expect(scanner.LET); err != nil {
+		return nil, err
+	}
+	node.Name = p.CurrentToken
 	if err := p.Expect(scanner.IDENT); err != nil {
 		return nil, err
 	}
-	node.Name = ident
+	node.AssignToken = p.CurrentToken
 	if err := p.Expect(scanner.ASSIGN); err != nil {
 		return nil, err
 	}
@@ -41,6 +62,7 @@ func ParseLet(p *Parser) (*ast.Let, error) {
 		return nil, err
 	}
 	node.Value = val
+	node.SemiToken = p.CurrentToken
 	if err := ExpectSemi(p); err != nil {
 		return nil, err
 	}
@@ -49,41 +71,51 @@ func ParseLet(p *Parser) (*ast.Let, error) {
 
 func ParseFunction(p *Parser) (*ast.Function, error) {
 	node := &ast.Function{}
-	p.AdvanceToken() // consume function
-	ident := p.CurrentToken
+	node.FunctionToken = p.CurrentToken
+	if err := p.Expect(scanner.FUNCTION); err != nil {
+		return nil, err
+	}
+	node.Name = p.CurrentToken
 	if err := p.Expect(scanner.IDENT); err != nil {
 		return nil, err
 	}
-	node.Name = ident
+	node.LparenToken = p.CurrentToken
 	if err := p.Expect(scanner.LPAREN); err != nil {
 		return nil, err
 	}
+	node.RparenToken = p.CurrentToken
 	if err := p.Expect(scanner.RPAREN); err != nil {
 		return nil, err
 	}
-	if err := p.Expect(scanner.LBRACE); err != nil {
+	body, err := ParseBlock(p)
+	if err != nil {
 		return nil, err
 	}
-	node.Body = ParseBlock(p)
-	if err := p.Expect(scanner.RBRACE); err != nil {
-		return nil, err
-	}
+	node.Body = body
 	return node, nil
 }
 
-func ParseBlock(p *Parser) *ast.Block {
+func ParseBlock(p *Parser) (*ast.Block, error) {
 	p.EnterScope(blockScope)
 	defer p.ExitScope(blockScope)
-	bodyStmt := &ast.Block{}
+	node := &ast.Block{}
+	node.LbraceToken = p.CurrentToken
+	if err := p.Expect(scanner.LBRACE); err != nil {
+		return nil, err
+	}
 	for p.CurrentToken.Type != scanner.EOF && p.CurrentToken.Type != scanner.RBRACE {
 		stmt, err := p.ParseStatement()
 		if err != nil {
 			AdvanceToStatementEnd(p)
 			continue
 		}
-		bodyStmt.Statements = append(bodyStmt.Statements, stmt)
+		node.Statements = append(node.Statements, stmt)
 	}
-	return bodyStmt
+	node.RbraceToken = p.CurrentToken
+	if err := p.Expect(scanner.RBRACE); err != nil {
+		return nil, err
+	}
+	return node, nil
 }
 
 func ExpectSemi(p *Parser) error {

@@ -45,6 +45,10 @@ func (node *Ident) Kind() string {
 }
 
 type GroupedExpression struct {
+	// keywords and delimiters
+	LparenToken scanner.Token
+	RparenToken scanner.Token
+
 	Value Node
 }
 
