@@ -9,8 +9,8 @@ import (
 
 var blockScope = RegisterScope()
 
-func ParseProgram(p *Parser) (*ast.Block, error) {
-	result := &ast.Block{}
+func ParseProgram(p *Parser) (*ast.Program, error) {
+	result := &ast.Program{}
 	for p.CurrentToken.Type != scanner.EOF {
 		stmt, err := p.ParseStatement()
 		if err != nil {
