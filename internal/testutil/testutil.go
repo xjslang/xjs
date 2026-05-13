@@ -114,7 +114,7 @@ func NodeString(node ast.Node) string {
 	return print(node)
 }
 
-func Parse(input string) (*ast.Block, error) {
+func Parse(input string) (*ast.Program, error) {
 	sc := &scanner.Scanner{}
 	sc.Init([]byte(input))
 	p := &parser.Parser{}

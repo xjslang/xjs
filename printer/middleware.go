@@ -16,6 +16,8 @@ func (p *Printer) UsePrinter(printer func(c *Printer, node ast.Node, next func()
 
 func (p *Printer) defaultPrinter(node ast.Node) {
 	switch node := node.(type) {
+	case *ast.Program:
+		PrintProgram(p, node)
 	case *ast.Block:
 		PrintBlock(p, node)
 	case *ast.Let:
