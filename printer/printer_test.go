@@ -8,6 +8,39 @@ import (
 	"github.com/xjslang/xjs/printer"
 )
 
+func TestComments(t *testing.T) {
+	input := `// first comment
+	function foo(){
+		function boo(){
+			let x=100// x coord
+			let y=200// y coord
+		}
+		let name='John'// user name
+		let surname='Smith'// user last name
+		// comment
+	}`
+	result, err := testutil.Parse(input)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pr := printer.Printer{}
+	pr.Init(printer.WithIndent("\t"))
+	pr.Print(result)
+	expected := `// first comment
+function foo() {
+	function boo() {
+		let x = 100; // x coord
+		let y = 200; // y coord
+	}
+	let name = 'John'; // user name
+	let surname = 'Smith'; // user last name
+	// comment
+}`
+	if got := pr.String(); got != expected {
+		t.Errorf("Expected\n\n%s\n\ngot\n\n%s", expected, got)
+	}
+}
+
 func TestPrinter(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -51,22 +84,4 @@ func TestPrinter(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestBuiltinPrinters(t *testing.T) {
-	input := `
-	function foo() {
-		let name = 'John Smith'
-		let age = 32
-		let single = true
-	}
-	let x = 100`
-	result, err := testutil.Parse(input)
-	if err != nil {
-		t.Fatal(err)
-	}
-	pr := printer.Printer{}
-	pr.Init()
-	pr.Print(result)
-	fmt.Println(pr.String())
 }
