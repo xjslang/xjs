@@ -193,19 +193,19 @@ func (p *Parser) parseValue() (ast.Node, error) {
 	case scanner.LPAREN:
 		return ParseGroupedExpression(p)
 	case scanner.NUMBER:
-		val := p.CurrentToken.Literal
+		val := p.CurrentToken
 		p.AdvanceToken()
 		return &ast.Integer{Value: val}, nil
 	case scanner.STRING:
-		val := p.CurrentToken.Literal
+		val := p.CurrentToken
 		p.AdvanceToken()
 		return &ast.String{Value: val}, nil
 	case scanner.BOOLEAN:
-		val := p.CurrentToken.Literal
+		val := p.CurrentToken
 		p.AdvanceToken()
 		return &ast.Boolean{Value: val}, nil
 	case scanner.IDENT:
-		val := p.CurrentToken.Literal
+		val := p.CurrentToken
 		p.AdvanceToken()
 		return &ast.Ident{Value: val}, nil
 	}
