@@ -101,13 +101,13 @@ func NodeString(node ast.Node) string {
 			fmt.Fprintf(s, "\n%sOperator: %q", indent, v.Operator.Type.String())
 			fmt.Fprintf(s, "\n%sRightValue: %s", indent, print(v.RightValue))
 		case *ast.Integer:
-			fmt.Fprintf(s, "{Value: %q}", v.Value)
+			fmt.Fprintf(s, "{Value: %q}", v.Value.Literal)
 		case *ast.String:
-			fmt.Fprintf(s, "{Value: %q}", v.Value)
+			fmt.Fprintf(s, "{Value: %q}", v.Value.Literal)
 		case *ast.Boolean:
-			fmt.Fprintf(s, "{Value: %q}", v.Value)
+			fmt.Fprintf(s, "{Value: %q}", v.Value.Literal)
 		case *ast.Ident:
-			fmt.Fprintf(s, "{Value: %q}", v.Value)
+			fmt.Fprintf(s, "{Value: %q}", v.Value.Literal)
 		}
 		return s.String()
 	}

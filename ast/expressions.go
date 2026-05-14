@@ -13,7 +13,7 @@ func (node *InfixOperator) Kind() string {
 }
 
 type Integer struct {
-	Value string
+	Value scanner.Token
 }
 
 func (node *Integer) Kind() string {
@@ -21,7 +21,7 @@ func (node *Integer) Kind() string {
 }
 
 type String struct {
-	Value string
+	Value scanner.Token
 }
 
 func (node *String) Kind() string {
@@ -29,7 +29,7 @@ func (node *String) Kind() string {
 }
 
 type Boolean struct {
-	Value string
+	Value scanner.Token
 }
 
 func (node *Boolean) Kind() string {
@@ -37,7 +37,7 @@ func (node *Boolean) Kind() string {
 }
 
 type Ident struct {
-	Value string
+	Value scanner.Token
 }
 
 func (node *Ident) Kind() string {
