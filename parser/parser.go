@@ -159,17 +159,15 @@ func (p *Parser) AdvanceToken() {
 	p.PeekToken = p.scanner.NextToken()
 }
 
-// Expect checks that the current token matches the expected type and advances the position.
-//
-// If the token does not match, it records an error and returns it.
-func (p *Parser) Expect(ttype scanner.Kind) error {
+func (p *Parser) Expect(ttype scanner.Kind) (scanner.Token, error) {
+	tok := p.CurrentToken
 	if p.CurrentToken.Type != ttype {
 		msg := "Expected " + ttype.String()
 		p.AddError(msg)
-		return errors.New(msg)
+		return tok, errors.New(msg)
 	}
 	p.AdvanceToken()
-	return nil
+	return tok, nil
 }
 
 func (p *Parser) EnterScope(sc Scope) {
