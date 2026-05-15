@@ -25,66 +25,54 @@ func ParseProgram(p *Parser) (*ast.Program, error) {
 	return result, nil
 }
 
-func ParseGroupedExpression(p *Parser) (*ast.GroupedExpression, error) {
-	node := &ast.GroupedExpression{}
-	node.LparenToken = p.CurrentToken
-	if err := p.Expect(scanner.LPAREN); err != nil {
+func ParseGroupedExpression(p *Parser) (node *ast.GroupedExpression, err error) {
+	node = &ast.GroupedExpression{}
+	if node.LparenToken, err = p.Expect(scanner.LPAREN); err != nil {
 		return nil, err
 	}
-	val, err := p.ParseExpression()
+	node.Value, err = p.ParseExpression()
 	if err != nil {
 		return nil, err
 	}
-	node.Value = val
-	node.RparenToken = p.CurrentToken
-	if err := p.Expect(scanner.RPAREN); err != nil {
+	if node.RparenToken, err = p.Expect(scanner.RPAREN); err != nil {
 		return nil, err
 	}
 	return node, nil
 }
 
-func ParseLet(p *Parser) (*ast.Let, error) {
-	node := &ast.Let{}
-	node.LetToken = p.CurrentToken
-	if err := p.Expect(scanner.LET); err != nil {
+func ParseLet(p *Parser) (node *ast.Let, err error) {
+	node = &ast.Let{}
+	if node.LetToken, err = p.Expect(scanner.LET); err != nil {
 		return nil, err
 	}
-	node.Name = p.CurrentToken
-	if err := p.Expect(scanner.IDENT); err != nil {
+	if node.Name, err = p.Expect(scanner.IDENT); err != nil {
 		return nil, err
 	}
-	node.AssignToken = p.CurrentToken
-	if err := p.Expect(scanner.ASSIGN); err != nil {
+	if node.AssignToken, err = p.Expect(scanner.ASSIGN); err != nil {
 		return nil, err
 	}
-	val, err := p.ParseExpression()
+	node.Value, err = p.ParseExpression()
 	if err != nil {
 		return nil, err
 	}
-	node.Value = val
-	node.SemiToken = p.CurrentToken
-	if err := ExpectSemi(p); err != nil {
+	if node.SemiToken, err = ExpectSemi(p); err != nil {
 		return nil, err
 	}
 	return node, nil
 }
 
-func ParseFunction(p *Parser) (*ast.Function, error) {
-	node := &ast.Function{}
-	node.FunctionToken = p.CurrentToken
-	if err := p.Expect(scanner.FUNCTION); err != nil {
+func ParseFunction(p *Parser) (node *ast.Function, err error) {
+	node = &ast.Function{}
+	if node.FunctionToken, err = p.Expect(scanner.FUNCTION); err != nil {
 		return nil, err
 	}
-	node.Name = p.CurrentToken
-	if err := p.Expect(scanner.IDENT); err != nil {
+	if node.Name, err = p.Expect(scanner.IDENT); err != nil {
 		return nil, err
 	}
-	node.LparenToken = p.CurrentToken
-	if err := p.Expect(scanner.LPAREN); err != nil {
+	if node.LparenToken, err = p.Expect(scanner.LPAREN); err != nil {
 		return nil, err
 	}
-	node.RparenToken = p.CurrentToken
-	if err := p.Expect(scanner.RPAREN); err != nil {
+	if node.RparenToken, err = p.Expect(scanner.RPAREN); err != nil {
 		return nil, err
 	}
 	body, err := ParseBlock(p)
@@ -95,12 +83,11 @@ func ParseFunction(p *Parser) (*ast.Function, error) {
 	return node, nil
 }
 
-func ParseBlock(p *Parser) (*ast.Block, error) {
+func ParseBlock(p *Parser) (node *ast.Block, err error) {
 	p.EnterScope(blockScope)
 	defer p.ExitScope(blockScope)
-	node := &ast.Block{}
-	node.LbraceToken = p.CurrentToken
-	if err := p.Expect(scanner.LBRACE); err != nil {
+	node = &ast.Block{}
+	if node.LbraceToken, err = p.Expect(scanner.LBRACE); err != nil {
 		return nil, err
 	}
 	for p.CurrentToken.Type != scanner.EOF && p.CurrentToken.Type != scanner.RBRACE {
@@ -111,38 +98,44 @@ func ParseBlock(p *Parser) (*ast.Block, error) {
 		}
 		node.Statements = append(node.Statements, stmt)
 	}
-	node.RbraceToken = p.CurrentToken
-	if err := p.Expect(scanner.RBRACE); err != nil {
+	if node.RbraceToken, err = p.Expect(scanner.RBRACE); err != nil {
 		return nil, err
 	}
 	return node, nil
 }
 
-func ExpectSemi(p *Parser) error {
-	if advanceSemi(p) {
-		return nil
+func ExpectSemi(p *Parser) (scanner.Token, error) {
+	tok := p.CurrentToken
+	if p.CurrentToken.Type == scanner.SEMICOLON {
+		p.AdvanceToken()
+		return tok, nil
+	}
+	if p.CurrentToken.Type == scanner.EOF || p.CurrentToken.AfterNewline {
+		tok.Type = scanner.SEMICOLON
+		tok.Literal = scanner.SEMICOLON.String()
+		return tok, nil
+	}
+	if p.InScope(blockScope) && p.CurrentToken.Type == scanner.RBRACE {
+		tok.Type = scanner.SEMICOLON
+		tok.Literal = scanner.SEMICOLON.String()
+		return tok, nil
 	}
 	msg := "Expected statement terminator"
 	p.AddError(msg)
-	return errors.New(msg)
+	return tok, errors.New(msg)
 }
 
 func AdvanceToStatementEnd(p *Parser) {
-	for !advanceSemi(p) {
+	for {
+		typ := p.CurrentToken.Type
+		if typ == scanner.SEMICOLON {
+			p.AdvanceToken()
+			break
+		}
+		if typ == scanner.EOF || p.CurrentToken.AfterNewline ||
+			p.InScope(blockScope) && typ == scanner.RBRACE {
+			break
+		}
 		p.AdvanceToken()
 	}
-}
-
-func advanceSemi(p *Parser) bool {
-	if p.CurrentToken.Type == scanner.SEMICOLON {
-		p.AdvanceToken()
-		return true
-	}
-	if p.CurrentToken.Type == scanner.EOF || p.CurrentToken.AfterNewline {
-		return true
-	}
-	if p.InScope(blockScope) && p.CurrentToken.Type == scanner.RBRACE {
-		return true
-	}
-	return false
 }
