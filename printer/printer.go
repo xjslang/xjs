@@ -62,7 +62,7 @@ func (p *Printer) PrintIndent() {
 	}
 }
 
-func (p *Printer) Print(node ast.Node) {
+func (p *Printer) PrintNode(node ast.Node) {
 	p.printer(node)
 }
 

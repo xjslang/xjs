@@ -18,7 +18,7 @@ func Example_basic() {
 
 	pr := printer.Printer{}
 	pr.Init()
-	pr.Print(result)
+	pr.PrintNode(result)
 	fmt.Print(pr.String())
 	// Output:
 	// function hello() {

@@ -67,6 +67,6 @@ func TestBuiltinPrinters(t *testing.T) {
 	}
 	pr := printer.Printer{}
 	pr.Init()
-	pr.Print(result)
+	pr.PrintNode(result)
 	fmt.Println(pr.String())
 }
