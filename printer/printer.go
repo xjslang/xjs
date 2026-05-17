@@ -100,8 +100,6 @@ func (p *Printer) PrintIndentedString(s string) {
 	p.PrintString(s)
 }
 
-// TODO: Comments on the "EOF" token are not being printed (will be addressed in another ticket)
-// See: https://github.com/xjslang/xjs/pull/107#discussion_r3255438378
 func (p *Printer) PrintTrivia(trivia []scanner.Token) {
 	for _, tok := range trivia {
 		switch tok.Type {

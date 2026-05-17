@@ -25,7 +25,7 @@ func TestCommentFormatting(t *testing.T) {
 	+//k
 	200)
 	let z = 1
-	+ 2`
+	+ 2 // last comment`
 	expected := `//a
 /*b*/
 function //c
@@ -44,7 +44,7 @@ let y = (/*c*/100 //j
 + //k
 200);
 let z = 1
-+ 2;`
++ 2; // last comment`
 	node, err := testutil.Parse(input)
 	if err != nil {
 		t.Fatal(err)
@@ -54,6 +54,39 @@ let z = 1
 	printer.PrintProgram(pr, node)
 	if got := pr.String(); got != expected {
 		t.Errorf("Expected\n\n%s\n\ngot\n\n%s", expected, got)
+	}
+}
+
+func TestLastComment(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "in the current line",
+			input:    "let x = 100 // last comment",
+			expected: "let x = 100; // last comment",
+		},
+		{
+			name:     "in a new line",
+			input:    "let x = 100\n// last comment",
+			expected: "let x = 100;\n// last comment",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			node, err := testutil.Parse(test.input)
+			if err != nil {
+				t.Fatal(err)
+			}
+			pr := &printer.Printer{}
+			pr.Init()
+			printer.PrintProgram(pr, node)
+			if got := pr.String(); got != test.expected {
+				t.Errorf("Expected\n\n%s\n\ngot\n\n%s", test.expected, got)
+			}
+		})
 	}
 }
 
