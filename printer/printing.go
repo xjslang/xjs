@@ -5,48 +5,56 @@ import "github.com/xjslang/xjs/ast"
 func PrintProgram(p *Printer, node *ast.Program) {
 	for _, stmt := range node.Statements {
 		p.PrintNode(stmt)
-		p.PrintRune('\n')
 	}
 }
 
 func PrintBlock(p *Printer, node *ast.Block) {
-	p.PrintString("{\n")
+	p.PrintToken(node.LbraceToken)
 	p.IncreaseIndent()
 	for _, stmt := range node.Statements {
-		p.PrintIndent()
 		p.PrintNode(stmt)
-		p.PrintRune('\n')
 	}
+	// RBRACE is a special token, since the "leading trivia"
+	// must be printed "before" indentation level decreases
+	p.PrintTrivia(node.RbraceToken.LeadingTrivia)
 	p.DecreaseIndent()
-	p.PrintIndent()
-	p.PrintRune('}')
+	p.EnsureLine()
+	p.PrintIndentedString(node.RbraceToken.Literal)
 }
 
 func PrintLet(p *Printer, node *ast.Let) {
-	p.PrintString("let ")
-	p.PrintString(node.Name.Literal)
-	p.PrintString(" = ")
+	p.EnsureLine()
+	p.PrintToken(node.LetToken)
+	p.EnsureSpace()
+	p.PrintToken(node.Name)
+	p.EnsureSpace()
+	p.PrintToken(node.AssignToken)
+	p.EnsureSpace()
 	p.PrintNode(node.Value)
-	p.PrintRune(';')
+	p.PrintToken(node.SemiToken)
 }
 
 func PrintFunction(p *Printer, node *ast.Function) {
-	p.PrintString("function ")
-	p.PrintString(node.Name.Literal)
-	p.PrintString("() ")
+	p.EnsureLine()
+	p.PrintToken(node.FunctionToken)
+	p.EnsureSpace()
+	p.PrintToken(node.Name)
+	p.PrintToken(node.LparenToken)
+	p.PrintToken(node.RparenToken)
+	p.EnsureSpace()
 	p.PrintNode(node.Body)
 }
 
 func PrintInfixOperator(p *Printer, node *ast.InfixOperator) {
 	p.PrintNode(node.LeftValue)
-	p.PrintRune(' ')
-	p.PrintString(node.Operator.Type.String())
-	p.PrintRune(' ')
+	p.EnsureSpace()
+	p.PrintToken(node.Operator)
+	p.EnsureSpace()
 	p.PrintNode(node.RightValue)
 }
 
 func PrintGroupedExpression(p *Printer, node *ast.GroupedExpression) {
-	p.PrintRune('(')
+	p.PrintToken(node.LparenToken)
 	p.PrintNode(node.Value)
-	p.PrintRune(')')
+	p.PrintToken(node.RparenToken)
 }

@@ -29,13 +29,13 @@ func (p *Printer) defaultPrinter(node ast.Node) {
 	case *ast.InfixOperator:
 		PrintInfixOperator(p, node)
 	case *ast.Ident:
-		p.PrintString(node.Value.Literal)
+		p.PrintToken(node.Value)
 	case *ast.Integer:
-		p.PrintString(node.Value.Literal)
+		p.PrintToken(node.Value)
 	case *ast.String:
-		p.PrintString(node.Value.Literal)
+		p.PrintToken(node.Value)
 	case *ast.Boolean:
-		p.PrintString(node.Value.Literal)
+		p.PrintToken(node.Value)
 	default:
 		p.PrintString("<" + node.Kind() + ">")
 	}

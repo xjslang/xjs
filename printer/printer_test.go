@@ -8,6 +8,55 @@ import (
 	"github.com/xjslang/xjs/printer"
 )
 
+func TestCommentFormatting(t *testing.T) {
+	input := `//a
+		/*b*/ function//c
+						foo/*c*/(//d
+						)//e
+	{
+						//f
+						function boo(){
+							let a = 'aaa';/*g*/let b = 'bbb'/*h*/;
+						}
+		//c
+	}
+	let x = 100 //y
+	let y = (/*c*/100 //j
+	+//k
+	200)
+	let z = 1
+	+ 2`
+	expected := `//a
+/*b*/
+function //c
+foo/*c*/( //d
+) //e
+{
+  //f
+  function boo() {
+    let a = 'aaa';/*g*/
+    let b = 'bbb'/*h*/;
+  }
+  //c
+}
+let x = 100; //y
+let y = (/*c*/100 //j
++ //k
+200);
+let z = 1
++ 2;`
+	node, err := testutil.Parse(input)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pr := &printer.Printer{}
+	pr.Init()
+	printer.PrintProgram(pr, node)
+	if got := pr.String(); got != expected {
+		t.Errorf("Expected\n\n%s\n\ngot\n\n%s", expected, got)
+	}
+}
+
 func TestPrinter(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -53,20 +102,62 @@ func TestPrinter(t *testing.T) {
 	}
 }
 
-func TestBuiltinPrinters(t *testing.T) {
-	input := `
-	function foo() {
-		let name = 'John Smith'
-		let age = 32
-		let single = true
-	}
-	let x = 100`
-	result, err := testutil.Parse(input)
-	if err != nil {
-		t.Fatal(err)
-	}
+func TestEnsureLine(t *testing.T) {
 	pr := printer.Printer{}
 	pr.Init()
-	pr.PrintNode(result)
-	fmt.Println(pr.String())
+	// calling EnsureLine at the beginning of a document does not print a new line
+	pr.EnsureLine()
+	pr.PrintIndentedString("aaa")
+	// calling EnsureLine multiple times only prints a new line (it is idempotent)
+	for range 2 {
+		pr.EnsureLine()
+	}
+	pr.PrintIndentedString("bbb")
+	// calling EnsureLine on a `\n` line does not print a new line
+	pr.PrintIndentedString("ccc\n")
+	pr.EnsureLine()
+	pr.PrintIndentedString("ddd")
+	// calling EnsureLine on a `\r` line does not print a new line
+	pr.PrintIndentedString("eee\r")
+	pr.EnsureLine()
+	pr.PrintIndentedString("fff")
+	// printing empty string does not reset `ensureLine`
+	pr.EnsureLine()
+	pr.PrintString("")
+	pr.PrintIndentedString("")
+	pr.PrintIndentedString("ggg")
+	expected := "aaa\nbbbccc\ndddeee\rfff\nggg"
+	if got := pr.String(); got != expected {
+		t.Errorf("Expected %q, got %q", expected, got)
+	}
+}
+
+func TestEnsureSpace(t *testing.T) {
+	pr := printer.Printer{}
+	pr.Init()
+	// calling EnsureSpace at the beginning of a document does not print a new space
+	pr.EnsureSpace()
+	pr.PrintString("aaa")
+	// calling EnsureSpace multiple times only prints a new space (it is idempotent)
+	for range 2 {
+		pr.EnsureSpace()
+	}
+	pr.PrintIndentedString("bbb")
+	// calling EnsureSpace on a `\n` line does not print a new space
+	pr.PrintIndentedString("ccc\n")
+	pr.EnsureSpace()
+	pr.PrintIndentedString("ddd")
+	// calling EnsureSpace on a `\r` line does not print a new space
+	pr.PrintIndentedString("eee\r")
+	pr.EnsureSpace()
+	pr.PrintIndentedString("fff")
+	// printing empty string does not reset `ensureSpace`
+	pr.EnsureSpace()
+	pr.PrintString("")
+	pr.PrintIndentedString("")
+	pr.PrintIndentedString("ggg")
+	expected := "aaa bbbccc\ndddeee\rfff ggg"
+	if got := pr.String(); got != expected {
+		t.Errorf("Expected %q, got %q", expected, got)
+	}
 }

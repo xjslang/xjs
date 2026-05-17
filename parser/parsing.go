@@ -111,13 +111,11 @@ func ExpectSemi(p *Parser) (scanner.Token, error) {
 		return tok, nil
 	}
 	if tok.Type == scanner.EOF || tok.AfterNewline {
-		tok.Type = scanner.SEMICOLON
-		tok.Literal = scanner.SEMICOLON.String()
+		tok = scanner.Token{Type: scanner.SEMICOLON, Literal: scanner.SEMICOLON.String(), Position: tok.Position}
 		return tok, nil
 	}
 	if p.InScope(blockScope) && tok.Type == scanner.RBRACE {
-		tok.Type = scanner.SEMICOLON
-		tok.Literal = scanner.SEMICOLON.String()
+		tok = scanner.Token{Type: scanner.SEMICOLON, Literal: scanner.SEMICOLON.String(), Position: tok.Position}
 		return tok, nil
 	}
 	msg := "Expected statement terminator"
