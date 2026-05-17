@@ -6,6 +6,7 @@ func PrintProgram(p *Printer, node *ast.Program) {
 	for _, stmt := range node.Statements {
 		p.PrintNode(stmt)
 	}
+	p.PrintToken(node.EOFToken)
 }
 
 func PrintBlock(p *Printer, node *ast.Block) {
