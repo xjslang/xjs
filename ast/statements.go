@@ -2,6 +2,14 @@ package ast
 
 import "github.com/xjslang/xjs/scanner"
 
+type EOF struct {
+	EOFToken scanner.Token
+}
+
+func (node *EOF) Kind() string {
+	return "EOF"
+}
+
 type Let struct {
 	// keywords and delimiters
 	LetToken    scanner.Token

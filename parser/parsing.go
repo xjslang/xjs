@@ -19,6 +19,9 @@ func ParseProgram(p *Parser) (*ast.Program, error) {
 		}
 		result.Statements = append(result.Statements, stmt)
 	}
+	result.Statements = append(result.Statements, &ast.EOF{
+		EOFToken: p.CurrentToken,
+	})
 	if errors := p.Errors(); len(errors) > 0 {
 		return result, errors
 	}
