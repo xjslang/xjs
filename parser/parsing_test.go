@@ -1,6 +1,7 @@
 package parser_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/xjslang/xjs/internal/testutil"
@@ -189,4 +190,31 @@ func TestKeysAreSaved(t *testing.T) {
 			testutil.CompareLeadingTrivia(),
 		)
 	})
+}
+
+func TestParseBlockErrorRecovery(t *testing.T) {
+	input := `function foo() {
+		let x = 100
+		let y 200 // syntax error, but keep parsing
+		let z = 300
+		let z = // syntax error, but keep parsing
+	}
+
+	let a = 'aaa'`
+	p := createParser(input)
+	_, err := parser.ParseFunction(p)
+	if err == nil {
+		t.Fatalf("Expected an error, got nil")
+	}
+	expected := strings.Join([]string{
+		"Expected =",
+		"Expected value",
+	}, "\n")
+	if got := err.Error(); got != expected {
+		t.Fatalf("Expected %q, got %q", expected, got)
+	}
+	// keep parsing after `}`
+	if _, err := parser.ParseLet(p); err != nil {
+		t.Fatal(err)
+	}
 }
