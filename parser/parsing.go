@@ -91,16 +91,21 @@ func ParseBlock(p *Parser) (node *ast.Block, err error) {
 	if node.LbraceToken, err = p.Expect(scanner.LBRACE); err != nil {
 		return nil, err
 	}
+	var errs []error
 	for p.CurrentToken.Type != scanner.EOF && p.CurrentToken.Type != scanner.RBRACE {
 		stmt, err := p.ParseStatement()
 		if err != nil {
+			errs = append(errs, err)
 			AdvanceToStatementEnd(p)
 			continue
 		}
 		node.Statements = append(node.Statements, stmt)
 	}
 	if node.RbraceToken, err = p.Expect(scanner.RBRACE); err != nil {
-		return nil, err
+		errs = append(errs, err)
+	}
+	if len(errs) > 0 {
+		return nil, errors.Join(errs...)
 	}
 	return node, nil
 }
