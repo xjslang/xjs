@@ -14,7 +14,7 @@ func ParseProgram(p *Parser) (*ast.Program, error) {
 	for p.CurrentToken.Type != scanner.EOF {
 		stmt, err := p.ParseStatement()
 		if err != nil {
-			AdvanceToStatementEnd(p)
+			p.AdvanceToStatementEnd()
 			continue
 		}
 		result.Statements = append(result.Statements, stmt)
@@ -56,7 +56,7 @@ func ParseLet(p *Parser) (node *ast.Let, err error) {
 	if err != nil {
 		return nil, err
 	}
-	if node.SemiToken, err = ExpectSemi(p); err != nil {
+	if node.SemiToken, err = p.ExpectSemi(); err != nil {
 		return nil, err
 	}
 	return node, nil
@@ -96,7 +96,7 @@ func ParseBlock(p *Parser) (node *ast.Block, err error) {
 		stmt, err := p.ParseStatement()
 		if err != nil {
 			errs = append(errs, err)
-			AdvanceToStatementEnd(p)
+			p.AdvanceToStatementEnd()
 			continue
 		}
 		node.Statements = append(node.Statements, stmt)
@@ -108,38 +108,4 @@ func ParseBlock(p *Parser) (node *ast.Block, err error) {
 		return nil, errors.Join(errs...)
 	}
 	return node, nil
-}
-
-func ExpectSemi(p *Parser) (scanner.Token, error) {
-	tok := p.CurrentToken
-	if tok.Type == scanner.SEMICOLON {
-		p.AdvanceToken()
-		return tok, nil
-	}
-	if tok.Type == scanner.EOF || tok.AfterNewline {
-		tok = scanner.Token{Type: scanner.SEMICOLON, Literal: scanner.SEMICOLON.String(), Position: tok.Position}
-		return tok, nil
-	}
-	if p.InScope(blockScope) && tok.Type == scanner.RBRACE {
-		tok = scanner.Token{Type: scanner.SEMICOLON, Literal: scanner.SEMICOLON.String(), Position: tok.Position}
-		return tok, nil
-	}
-	msg := "Expected statement terminator"
-	p.AddError(msg)
-	return tok, errors.New(msg)
-}
-
-func AdvanceToStatementEnd(p *Parser) {
-	for {
-		typ := p.CurrentToken.Type
-		if typ == scanner.SEMICOLON {
-			p.AdvanceToken()
-			break
-		}
-		if typ == scanner.EOF || p.CurrentToken.AfterNewline ||
-			p.InScope(blockScope) && typ == scanner.RBRACE {
-			break
-		}
-		p.AdvanceToken()
-	}
 }

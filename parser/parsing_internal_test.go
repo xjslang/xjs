@@ -63,7 +63,7 @@ func TestAdvanceToStatementEnd(t *testing.T) {
 			if test.scoped {
 				p.EnterScope(blockScope)
 			}
-			AdvanceToStatementEnd(p)
+			p.AdvanceToStatementEnd()
 			if got := p.CurrentToken.Type; got != test.expected.Type {
 				t.Errorf("%d: Expected %v, got %v", i, test.expected.Type, got)
 			}

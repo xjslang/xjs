@@ -186,6 +186,40 @@ func (p *Parser) Errors() ErrorList {
 	return append(ErrorList{}, p.errors...)
 }
 
+func (p *Parser) ExpectSemi() (scanner.Token, error) {
+	tok := p.CurrentToken
+	if tok.Type == scanner.SEMICOLON {
+		p.AdvanceToken()
+		return tok, nil
+	}
+	if tok.Type == scanner.EOF || tok.AfterNewline {
+		tok = scanner.Token{Type: scanner.SEMICOLON, Literal: scanner.SEMICOLON.String(), Position: tok.Position}
+		return tok, nil
+	}
+	if p.InScope(blockScope) && tok.Type == scanner.RBRACE {
+		tok = scanner.Token{Type: scanner.SEMICOLON, Literal: scanner.SEMICOLON.String(), Position: tok.Position}
+		return tok, nil
+	}
+	msg := "Expected statement terminator"
+	p.AddError(msg)
+	return tok, errors.New(msg)
+}
+
+func (p *Parser) AdvanceToStatementEnd() {
+	for {
+		typ := p.CurrentToken.Type
+		if typ == scanner.SEMICOLON {
+			p.AdvanceToken()
+			break
+		}
+		if typ == scanner.EOF || p.CurrentToken.AfterNewline ||
+			p.InScope(blockScope) && typ == scanner.RBRACE {
+			break
+		}
+		p.AdvanceToken()
+	}
+}
+
 func (p *Parser) parseValue() (ast.Node, error) {
 	switch p.CurrentToken.Type {
 	case scanner.LPAREN:
