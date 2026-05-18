@@ -96,6 +96,11 @@ func NodeString(node ast.Node) string {
 			fmt.Fprintf(s, "\n%sBody: %s", indent, print(v.Body))
 		case *ast.GroupedExpression:
 			fmt.Fprintf(s, "\n%sValue: %s", indent, print(v.Value))
+		case *ast.Call:
+			fmt.Fprintf(s, "\n%sFunction: %s", indent, print(v.Function))
+			for i, arg := range v.Arguments {
+				fmt.Fprintf(s, "\n%sArguments[%d]: %s", indent, i, print(arg))
+			}
 		case *ast.InfixOperator:
 			fmt.Fprintf(s, "\n%sLeftValue: %s", indent, print(v.LeftValue))
 			fmt.Fprintf(s, "\n%sOperator: %q", indent, v.Operator.Type.String())

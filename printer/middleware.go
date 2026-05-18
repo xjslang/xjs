@@ -24,6 +24,8 @@ func (p *Printer) defaultPrinter(node ast.Node) {
 		PrintLet(p, node)
 	case *ast.Function:
 		PrintFunction(p, node)
+	case *ast.Call:
+		PrintCallExpr(p, node)
 	case *ast.GroupedExpression:
 		PrintGroupedExpression(p, node)
 	case *ast.InfixOperator:

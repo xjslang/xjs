@@ -85,6 +85,10 @@ func defaultScanner(sc *Scanner) Token {
 		lit, typ := sc.consumeString(sc.CurrentChar)
 		return Token{Type: typ, Literal: lit}
 	// delimiters
+	case ',':
+		c := sc.CurrentChar
+		sc.AdvanceChar()
+		return Token{Type: COMMA, Literal: string(c)}
 	case ';':
 		c := sc.CurrentChar
 		sc.AdvanceChar()

@@ -12,6 +12,18 @@ func (node *InfixOperator) Kind() string {
 	return "InfixOperator"
 }
 
+type Call struct {
+	LparenToken scanner.Token
+	RparenToken scanner.Token
+
+	Function  Node
+	Arguments []Node
+}
+
+func (node *Call) Kind() string {
+	return "Call"
+}
+
 type Integer struct {
 	Value scanner.Token
 }

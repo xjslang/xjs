@@ -46,6 +46,19 @@ func PrintFunction(p *Printer, node *ast.Function) {
 	p.PrintNode(node.Body)
 }
 
+func PrintCallExpr(p *Printer, node *ast.Call) {
+	p.PrintNode(node.Function)
+	p.PrintToken(node.LparenToken)
+	for i, arg := range node.Arguments {
+		if i > 0 {
+			p.PrintIndentedString(",")
+			p.EnsureSpace()
+		}
+		p.PrintNode(arg)
+	}
+	p.PrintToken(node.RparenToken)
+}
+
 func PrintInfixOperator(p *Printer, node *ast.InfixOperator) {
 	p.PrintNode(node.LeftValue)
 	p.EnsureSpace()
