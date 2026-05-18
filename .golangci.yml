@@ -2,8 +2,11 @@ linters:
   default: standard
   enable:
     - depguard
+    - gofumpt
 
 linters-settings:
+  gofumpt:
+    extra-rules: true
   depguard:
     rules:
       main:

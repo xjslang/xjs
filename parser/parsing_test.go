@@ -125,14 +125,16 @@ func TestKeysAreSaved(t *testing.T) {
 		testutil.AssertTokens(
 			t,
 			[]scanner.Token{result.LbraceToken, result.RbraceToken},
-			[]scanner.Token{{Type: scanner.LBRACE, Literal: "{", LeadingTrivia: []scanner.Token{
-				{Type: scanner.NEWLINE, Literal: "\n"},
-				{Type: scanner.LINE_COMMENT, Literal: " comment before {\n"},
-				{Type: scanner.NEWLINE, Literal: "\n"},
-			}}, {Type: scanner.RBRACE, Literal: "}", LeadingTrivia: []scanner.Token{
-				{Type: scanner.LINE_COMMENT, Literal: " comment before }\n"},
-				{Type: scanner.BLOCK_COMMENT, Literal: " block comment "},
-			}},
+			[]scanner.Token{
+				{Type: scanner.LBRACE, Literal: "{", LeadingTrivia: []scanner.Token{
+					{Type: scanner.NEWLINE, Literal: "\n"},
+					{Type: scanner.LINE_COMMENT, Literal: " comment before {\n"},
+					{Type: scanner.NEWLINE, Literal: "\n"},
+				}},
+				{Type: scanner.RBRACE, Literal: "}", LeadingTrivia: []scanner.Token{
+					{Type: scanner.LINE_COMMENT, Literal: " comment before }\n"},
+					{Type: scanner.BLOCK_COMMENT, Literal: " block comment "},
+				}},
 			},
 			testutil.CompareLeadingTrivia(),
 		)

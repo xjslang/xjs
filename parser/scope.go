@@ -6,8 +6,10 @@ type Scope int
 
 type ScopeTracker map[Scope]int
 
-var nextScope Scope
-var regMut sync.Mutex
+var (
+	nextScope Scope
+	regMut    sync.Mutex
+)
 
 func RegisterScope() Scope {
 	regMut.Lock()
