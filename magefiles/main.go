@@ -16,6 +16,10 @@ func Lint() error {
 	return sh.RunV("golangci-lint", "run")
 }
 
+func LintFix() error {
+	return sh.RunV("golangci-lint", "run", "--fix")
+}
+
 func Test() error {
 	return sh.RunV("go", "test", "./...", "-timeout", "5s")
 }
