@@ -9,79 +9,80 @@ import (
 
 var blockScope = RegisterScope()
 
-func ParseProgram(p *Parser) (*ast.Program, error) {
-	result := &ast.Program{}
+func ParseProgram(p *Parser) (node *ast.Program, err error) {
+	node = &ast.Program{}
 	for p.CurrentToken.Type != token.EOF {
 		stmt, err := p.ParseStmt()
 		if err != nil {
 			p.AdvanceToStmtEnd()
 			continue
 		}
-		result.Stmts = append(result.Stmts, stmt)
+		node.Stmts = append(node.Stmts, stmt)
 	}
-	result.EOFToken = p.CurrentToken
+	node.EOFToken = p.CurrentToken
 	if errors := p.Errors(); len(errors) > 0 {
-		return result, errors
+		err = errors
+		return
 	}
-	return result, nil
+	return
 }
 
 func ParseParenExpr(p *Parser) (node *ast.ParenExpr, err error) {
 	node = &ast.ParenExpr{}
 	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {
-		return nil, err
+		return
 	}
 	node.Value, err = p.ParseExpr()
 	if err != nil {
-		return nil, err
+		return
 	}
 	if node.RparenToken, err = p.Expect(token.RPAREN); err != nil {
-		return nil, err
+		return
 	}
-	return node, nil
+	return
 }
 
 func ParseLetStmt(p *Parser) (node *ast.LetStmt, err error) {
 	node = &ast.LetStmt{}
 	if node.LetToken, err = p.Expect(token.LET); err != nil {
-		return nil, err
+		return
 	}
 	if node.Name, err = p.Expect(token.IDENT); err != nil {
-		return nil, err
+		return
 	}
 	if node.AssignToken, err = p.Expect(token.ASSIGN); err != nil {
-		return nil, err
+		return
 	}
 	node.Value, err = p.ParseExpr()
 	if err != nil {
-		return nil, err
+		return
 	}
 	if node.SemiToken, err = p.ExpectSemi(); err != nil {
-		return nil, err
+		return
 	}
-	return node, nil
+	return
 }
 
 func ParseFuncDecl(p *Parser) (node *ast.FuncDecl, err error) {
 	node = &ast.FuncDecl{}
 	if node.FunctionToken, err = p.Expect(token.FUNCTION); err != nil {
-		return nil, err
+		return
 	}
 	if node.Name, err = p.Expect(token.IDENT); err != nil {
-		return nil, err
+		return
 	}
 	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {
-		return nil, err
+		return
 	}
 	if node.RparenToken, err = p.Expect(token.RPAREN); err != nil {
-		return nil, err
+		return
 	}
 	body, err := ParseBlock(p)
 	if err != nil {
-		return nil, err
+		return
 	}
 	node.Body = body
-	return node, nil
+	return
 }
 
 func ParseBlock(p *Parser) (node *ast.Block, err error) {
@@ -89,7 +90,7 @@ func ParseBlock(p *Parser) (node *ast.Block, err error) {
 	defer p.ExitScope(blockScope)
 	node = &ast.Block{}
 	if node.LbraceToken, err = p.Expect(token.LBRACE); err != nil {
-		return nil, err
+		return
 	}
 	var errs []error
 	for p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE {
@@ -105,7 +106,8 @@ func ParseBlock(p *Parser) (node *ast.Block, err error) {
 		errs = append(errs, err)
 	}
 	if len(errs) > 0 {
-		return nil, errors.Join(errs...)
+		err = errors.Join(errs...)
+		return
 	}
-	return node, nil
+	return
 }
