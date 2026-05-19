@@ -119,7 +119,7 @@ var (
 	registerMu sync.RWMutex
 )
 
-func RegisterKind(lit string) Type {
+func RegisterType(lit string) Type {
 	registerMu.Lock()
 	defer registerMu.Unlock()
 	typ := nextType

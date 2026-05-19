@@ -7,7 +7,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func TestConcurrentKindAccess(t *testing.T) {
+func TestConcurrentTypeAccess(t *testing.T) {
 	n := 100
 	types := make([]token.Type, n)
 	var wg sync.WaitGroup
@@ -15,7 +15,7 @@ func TestConcurrentKindAccess(t *testing.T) {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			types[i] = token.RegisterKind("aaa")
+			types[i] = token.RegisterType("aaa")
 		}(i)
 	}
 	wg.Wait()

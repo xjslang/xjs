@@ -9,7 +9,7 @@ import (
 
 func TestUseScanner(t *testing.T) {
 	sc := &scanner.Scanner{}
-	powType := token.RegisterKind("**")
+	powType := token.RegisterType("**")
 	sc.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
 		if sc.CurrentChar == '*' && sc.PeekChar() == '*' {
 			// consume **
