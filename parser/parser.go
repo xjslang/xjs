@@ -49,7 +49,7 @@ func (p *Parser) Init(sc *scanner.Scanner) {
 	p.scopes = make(ScopeTracker)
 	p.scanner = sc
 	if p.statementParser == nil {
-		p.statementParser = defaultStatementParser
+		p.statementParser = defaultStmtParser
 	}
 	p.CurrentToken = token.Token{}
 	p.PeekToken = token.Token{}
@@ -75,11 +75,11 @@ func (p *Parser) Init(sc *scanner.Scanner) {
 	p.AdvanceToken()
 }
 
-func (p *Parser) ParseStatement() (ast.Node, error) {
+func (p *Parser) ParseStmt() (ast.Node, error) {
 	return p.statementParser(p)
 }
 
-func (p *Parser) ParseExpression() (ast.Node, error) {
+func (p *Parser) ParseExpr() (ast.Node, error) {
 	registered := func(typ token.Type) bool {
 		_, ok := p.infixOperators[typ]
 		return ok
@@ -110,7 +110,7 @@ func (p *Parser) ParseExpression() (ast.Node, error) {
 		}
 		if p.CurrentToken.Type != token.RPAREN {
 			for {
-				val, err := p.ParseExpression()
+				val, err := p.ParseExpr()
 				if err != nil {
 					return nil, err
 				}
@@ -236,7 +236,7 @@ func (p *Parser) ExpectSemi() (token.Token, error) {
 	return tok, errors.New(msg)
 }
 
-func (p *Parser) AdvanceToStatementEnd() {
+func (p *Parser) AdvanceToStmtEnd() {
 	for {
 		typ := p.CurrentToken.Type
 		if typ == token.SEMICOLON {

@@ -18,7 +18,7 @@ func createParser(input string) *parser.Parser {
 	return p
 }
 
-func TestMalformedExpression(t *testing.T) {
+func TestMalformedExpr(t *testing.T) {
 	t.Run("let", func(t *testing.T) {
 		input := "x = 100"
 		p := createParser(input)

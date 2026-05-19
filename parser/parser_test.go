@@ -31,7 +31,7 @@ func Example_basic() {
 	// }
 }
 
-func TestExpressions(t *testing.T) {
+func TestExprs(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected string
@@ -93,7 +93,7 @@ func TestExpressions(t *testing.T) {
 			sc.Init([]byte(test.input))
 			p := &parser.Parser{}
 			p.Init(sc)
-			result, err := p.ParseExpression()
+			result, err := p.ParseExpr()
 			if err != nil {
 				t.Fatal(err)
 			}

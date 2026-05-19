@@ -15,8 +15,9 @@ func (node *Ident) Type() string {
 }
 
 type Program struct {
-	EOFToken   token.Token
-	Statements []Node
+	EOFToken token.Token
+
+	Stmts []Node
 }
 
 func (node *Program) Type() string {
@@ -24,11 +25,10 @@ func (node *Program) Type() string {
 }
 
 type Block struct {
-	// keywords and delimiters
 	LbraceToken token.Token
 	RbraceToken token.Token
 
-	Statements []Node
+	Stmts []Node
 }
 
 func (node *Block) Type() string {
