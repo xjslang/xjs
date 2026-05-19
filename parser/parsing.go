@@ -26,6 +26,17 @@ func ParseProgram(p *Parser) (*ast.Program, error) {
 	return result, nil
 }
 
+func ParseExprStmt(p *Parser) (node *ast.ExprStmt, err error) {
+	node = &ast.ExprStmt{}
+	if node.Expr, err = p.ParseExpr(); err != nil {
+		return
+	}
+	if node.SemiToken, err = p.ExpectSemi(); err != nil {
+		return
+	}
+	return
+}
+
 func ParseParenExpr(p *Parser) (node *ast.ParenExpr, err error) {
 	node = &ast.ParenExpr{}
 	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {

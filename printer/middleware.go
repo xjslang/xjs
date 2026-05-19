@@ -20,6 +20,8 @@ func (p *Printer) defaultPrinter(node ast.Node) {
 		PrintProgram(p, node)
 	case *ast.Block:
 		PrintBlock(p, node)
+	case *ast.ExprStmt:
+		PrintExprStmt(p, node)
 	case *ast.LetStmt:
 		PrintLetStmt(p, node)
 	case *ast.FuncDecl:
