@@ -2,10 +2,10 @@ package parser
 
 import (
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/scanner"
+	"github.com/xjslang/xjs/token"
 )
 
-func (p *Parser) RegisterInfixOperator(tt scanner.Kind, precedence int, fn func(op scanner.Token, left, right ast.Node) ast.Node) {
+func (p *Parser) RegisterInfixOperator(typ token.Type, precedence int, fn func(op token.Token, left, right ast.Node) ast.Node) {
 	if precedence < 0 {
 		panic("negative precedence")
 	}
@@ -13,12 +13,12 @@ func (p *Parser) RegisterInfixOperator(tt scanner.Kind, precedence int, fn func(
 		panic("nil function")
 	}
 	if p.infixOperators == nil {
-		p.infixOperators = make(map[scanner.Kind]infixOperator)
+		p.infixOperators = make(map[token.Type]infixOperator)
 	}
-	if _, ok := p.infixOperators[tt]; ok {
+	if _, ok := p.infixOperators[typ]; ok {
 		panic("operator already registered")
 	}
-	p.infixOperators[tt] = infixOperator{
+	p.infixOperators[typ] = infixOperator{
 		precedence: precedence,
 		fn:         fn,
 	}

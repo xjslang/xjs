@@ -5,7 +5,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/scanner"
+	"github.com/xjslang/xjs/token"
 )
 
 const eol = rune(-1) // end of line
@@ -100,23 +100,23 @@ func (p *Printer) PrintIndentedString(s string) {
 	p.PrintString(s)
 }
 
-func (p *Printer) PrintTrivia(trivia []scanner.Token) {
+func (p *Printer) PrintTrivia(trivia []token.Token) {
 	for _, tok := range trivia {
 		switch tok.Type {
-		case scanner.NEWLINE:
+		case token.NEWLINE:
 			p.PrintRune('\n')
-		case scanner.LINE_COMMENT:
+		case token.LINE_COMMENT:
 			p.printSpaceIfNeeded()
 			p.printIndentIfNeeded()
 			p.PrintString("//" + tok.Literal)
-		case scanner.BLOCK_COMMENT:
+		case token.BLOCK_COMMENT:
 			p.printIndentIfNeeded()
 			p.PrintString("/*" + tok.Literal + "*/")
 		}
 	}
 }
 
-func (p *Printer) PrintToken(tok scanner.Token) {
+func (p *Printer) PrintToken(tok token.Token) {
 	p.PrintTrivia(tok.LeadingTrivia)
 	p.PrintIndentedString(tok.Literal)
 }

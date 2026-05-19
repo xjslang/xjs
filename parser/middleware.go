@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/scanner"
+	"github.com/xjslang/xjs/token"
 )
 
 func (p *Parser) UseStatementParser(parser func(p *Parser, next func() (ast.Node, error)) (ast.Node, error)) {
@@ -21,9 +21,9 @@ func (p *Parser) UseStatementParser(parser func(p *Parser, next func() (ast.Node
 
 func defaultStatementParser(p *Parser) (ast.Node, error) {
 	switch p.CurrentToken.Type {
-	case scanner.LET:
+	case token.LET:
 		return ParseLet(p)
-	case scanner.FUNCTION:
+	case token.FUNCTION:
 		return ParseFunction(p)
 	default:
 		msg := "Unknown statement"

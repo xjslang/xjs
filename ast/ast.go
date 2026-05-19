@@ -1,13 +1,13 @@
 package ast
 
-import "github.com/xjslang/xjs/scanner"
+import "github.com/xjslang/xjs/token"
 
 type Node interface {
 	Type() string
 }
 
 type Program struct {
-	EOFToken   scanner.Token
+	EOFToken   token.Token
 	Statements []Node
 }
 

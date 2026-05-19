@@ -7,6 +7,7 @@ import (
 	"github.com/xjslang/xjs/internal/testutil"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/scanner"
+	"github.com/xjslang/xjs/token"
 )
 
 func createParser(input string) *parser.Parser {
@@ -94,16 +95,16 @@ func TestKeysAreSaved(t *testing.T) {
 		}
 		testutil.AssertTokens(
 			t,
-			[]scanner.Token{result.LetToken, result.AssignToken, result.SemiToken},
-			[]scanner.Token{
-				{Type: scanner.LET, Literal: "let", LeadingTrivia: []scanner.Token{
-					{Type: scanner.LINE_COMMENT, Literal: " comment\n"},
+			[]token.Token{result.LetToken, result.AssignToken, result.SemiToken},
+			[]token.Token{
+				{Type: token.LET, Literal: "let", LeadingTrivia: []token.Token{
+					{Type: token.LINE_COMMENT, Literal: " comment\n"},
 				}},
-				{Type: scanner.ASSIGN, Literal: "=", LeadingTrivia: []scanner.Token{
-					{Type: scanner.NEWLINE, Literal: "\n"},
+				{Type: token.ASSIGN, Literal: "=", LeadingTrivia: []token.Token{
+					{Type: token.NEWLINE, Literal: "\n"},
 				}},
-				{Type: scanner.SEMICOLON, Literal: ";", LeadingTrivia: []scanner.Token{
-					{Type: scanner.BLOCK_COMMENT, Literal: "c"},
+				{Type: token.SEMICOLON, Literal: ";", LeadingTrivia: []token.Token{
+					{Type: token.BLOCK_COMMENT, Literal: "c"},
 				}},
 			},
 			testutil.CompareLeadingTrivia(),
@@ -124,16 +125,16 @@ func TestKeysAreSaved(t *testing.T) {
 		}
 		testutil.AssertTokens(
 			t,
-			[]scanner.Token{result.LbraceToken, result.RbraceToken},
-			[]scanner.Token{
-				{Type: scanner.LBRACE, Literal: "{", LeadingTrivia: []scanner.Token{
-					{Type: scanner.NEWLINE, Literal: "\n"},
-					{Type: scanner.LINE_COMMENT, Literal: " comment before {\n"},
-					{Type: scanner.NEWLINE, Literal: "\n"},
+			[]token.Token{result.LbraceToken, result.RbraceToken},
+			[]token.Token{
+				{Type: token.LBRACE, Literal: "{", LeadingTrivia: []token.Token{
+					{Type: token.NEWLINE, Literal: "\n"},
+					{Type: token.LINE_COMMENT, Literal: " comment before {\n"},
+					{Type: token.NEWLINE, Literal: "\n"},
 				}},
-				{Type: scanner.RBRACE, Literal: "}", LeadingTrivia: []scanner.Token{
-					{Type: scanner.LINE_COMMENT, Literal: " comment before }\n"},
-					{Type: scanner.BLOCK_COMMENT, Literal: " block comment "},
+				{Type: token.RBRACE, Literal: "}", LeadingTrivia: []token.Token{
+					{Type: token.LINE_COMMENT, Literal: " comment before }\n"},
+					{Type: token.BLOCK_COMMENT, Literal: " block comment "},
 				}},
 			},
 			testutil.CompareLeadingTrivia(),
@@ -152,18 +153,18 @@ func TestKeysAreSaved(t *testing.T) {
 		}
 		testutil.AssertTokens(
 			t,
-			[]scanner.Token{result.FunctionToken, result.LparenToken, result.RparenToken},
-			[]scanner.Token{
-				{Type: scanner.FUNCTION, Literal: "function", LeadingTrivia: []scanner.Token{
-					{Type: scanner.BLOCK_COMMENT, Literal: " block comment before "},
-					{Type: scanner.NEWLINE, Literal: "\n"},
+			[]token.Token{result.FunctionToken, result.LparenToken, result.RparenToken},
+			[]token.Token{
+				{Type: token.FUNCTION, Literal: "function", LeadingTrivia: []token.Token{
+					{Type: token.BLOCK_COMMENT, Literal: " block comment before "},
+					{Type: token.NEWLINE, Literal: "\n"},
 				}},
-				{Type: scanner.LPAREN, Literal: "(", LeadingTrivia: []scanner.Token{
-					{Type: scanner.NEWLINE, Literal: "\n"},
-					{Type: scanner.LINE_COMMENT, Literal: " comment 1\n"},
+				{Type: token.LPAREN, Literal: "(", LeadingTrivia: []token.Token{
+					{Type: token.NEWLINE, Literal: "\n"},
+					{Type: token.LINE_COMMENT, Literal: " comment 1\n"},
 				}},
-				{Type: scanner.RPAREN, Literal: ")", LeadingTrivia: []scanner.Token{
-					{Type: scanner.LINE_COMMENT, Literal: " comment 2\n"},
+				{Type: token.RPAREN, Literal: ")", LeadingTrivia: []token.Token{
+					{Type: token.LINE_COMMENT, Literal: " comment 2\n"},
 				}},
 			},
 			testutil.CompareLeadingTrivia(),
@@ -180,13 +181,13 @@ func TestKeysAreSaved(t *testing.T) {
 		}
 		testutil.AssertTokens(
 			t,
-			[]scanner.Token{result.LparenToken, result.RparenToken},
-			[]scanner.Token{
-				{Type: scanner.LPAREN, Literal: "(", LeadingTrivia: []scanner.Token{
-					{Type: scanner.LINE_COMMENT, Literal: " comment before\n"},
+			[]token.Token{result.LparenToken, result.RparenToken},
+			[]token.Token{
+				{Type: token.LPAREN, Literal: "(", LeadingTrivia: []token.Token{
+					{Type: token.LINE_COMMENT, Literal: " comment before\n"},
 				}},
-				{Type: scanner.RPAREN, Literal: ")", LeadingTrivia: []scanner.Token{
-					{Type: scanner.LINE_COMMENT, Literal: " comment after\n"},
+				{Type: token.RPAREN, Literal: ")", LeadingTrivia: []token.Token{
+					{Type: token.LINE_COMMENT, Literal: " comment after\n"},
 				}},
 			},
 			testutil.CompareLeadingTrivia(),
