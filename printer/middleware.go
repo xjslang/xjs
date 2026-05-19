@@ -39,6 +39,6 @@ func (p *Printer) defaultPrinter(node ast.Node) {
 	case *ast.Boolean:
 		p.PrintToken(node.Value)
 	default:
-		p.PrintString("<" + node.Kind() + ">")
+		p.PrintString("<" + node.Type() + ">")
 	}
 }

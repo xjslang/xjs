@@ -3,7 +3,7 @@ package ast
 import "github.com/xjslang/xjs/scanner"
 
 type Node interface {
-	Kind() string
+	Type() string
 }
 
 type Program struct {
@@ -11,6 +11,6 @@ type Program struct {
 	Statements []Node
 }
 
-func (node *Program) Kind() string {
+func (node *Program) Type() string {
 	return "Program"
 }
