@@ -2,7 +2,7 @@ package printer
 
 import "github.com/xjslang/xjs/ast"
 
-func (p *Printer) UsePrinter(printer func(c *Printer, node ast.Node, next func())) {
+func (p *Printer) UsePrinter(printer func(pr *Printer, node ast.Node, next func())) {
 	print := p.printer
 	if p.printer == nil {
 		print = p.defaultPrinter
