@@ -7,11 +7,12 @@ import (
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/scanner"
+	"github.com/xjslang/xjs/token"
 )
 
 type Range struct {
-	Start scanner.Position `json:"start"`
-	End   scanner.Position `json:"end"`
+	Start token.Position `json:"start"`
+	End   token.Position `json:"end"`
 }
 
 type Error struct {
@@ -31,15 +32,15 @@ func (list ErrorList) Error() string {
 
 type infixOperator struct {
 	precedence int
-	fn         func(op scanner.Token, left, right ast.Node) ast.Node
+	fn         func(op token.Token, left, right ast.Node) ast.Node
 }
 
 type Parser struct {
-	CurrentToken    scanner.Token
-	PeekToken       scanner.Token
+	CurrentToken    token.Token
+	PeekToken       token.Token
 	scanner         *scanner.Scanner
 	scopes          ScopeTracker
-	infixOperators  map[scanner.Kind]infixOperator
+	infixOperators  map[token.Type]infixOperator
 	statementParser func(p *Parser) (ast.Node, error)
 	errors          ErrorList
 }
@@ -50,24 +51,24 @@ func (p *Parser) Init(sc *scanner.Scanner) {
 	if p.statementParser == nil {
 		p.statementParser = defaultStatementParser
 	}
-	p.CurrentToken = scanner.Token{}
-	p.PeekToken = scanner.Token{}
+	p.CurrentToken = token.Token{}
+	p.PeekToken = token.Token{}
 	if p.infixOperators == nil {
-		p.infixOperators = make(map[scanner.Kind]infixOperator)
+		p.infixOperators = make(map[token.Type]infixOperator)
 	}
-	p.infixOperators[scanner.PLUS] = infixOperator{precedence: 1, fn: defaultInfixOperator}
-	p.infixOperators[scanner.MINUS] = infixOperator{precedence: 1, fn: defaultInfixOperator}
-	p.infixOperators[scanner.MULTIPLY] = infixOperator{precedence: 2, fn: defaultInfixOperator}
-	p.infixOperators[scanner.DIVIDE] = infixOperator{precedence: 2, fn: defaultInfixOperator}
-	p.infixOperators[scanner.MODULO] = infixOperator{precedence: 2, fn: defaultInfixOperator}
-	p.infixOperators[scanner.LPAREN] = infixOperator{precedence: 3, fn: defaultInfixOperator}
+	p.infixOperators[token.PLUS] = infixOperator{precedence: 1, fn: defaultInfixOperator}
+	p.infixOperators[token.MINUS] = infixOperator{precedence: 1, fn: defaultInfixOperator}
+	p.infixOperators[token.MULTIPLY] = infixOperator{precedence: 2, fn: defaultInfixOperator}
+	p.infixOperators[token.DIVIDE] = infixOperator{precedence: 2, fn: defaultInfixOperator}
+	p.infixOperators[token.MODULO] = infixOperator{precedence: 2, fn: defaultInfixOperator}
+	p.infixOperators[token.LPAREN] = infixOperator{precedence: 3, fn: defaultInfixOperator}
 	p.errors = ErrorList{}
 	// call twice to update CurrentToken and PeekToken
 	p.AdvanceToken()
 	p.AdvanceToken()
 }
 
-func defaultInfixOperator(op scanner.Token, left, right ast.Node) ast.Node {
+func defaultInfixOperator(op token.Token, left, right ast.Node) ast.Node {
 	return &ast.InfixOperator{
 		LeftValue:  left,
 		Operator:   op,
@@ -80,21 +81,21 @@ func (p *Parser) ParseStatement() (ast.Node, error) {
 }
 
 func (p *Parser) ParseExpression() (ast.Node, error) {
-	registered := func(tt scanner.Kind) bool {
-		_, ok := p.infixOperators[tt]
+	registered := func(typ token.Type) bool {
+		_, ok := p.infixOperators[typ]
 		return ok
 	}
-	precedence := func(tt scanner.Kind) int {
-		if op, ok := p.infixOperators[tt]; ok {
+	precedence := func(typ token.Type) int {
+		if op, ok := p.infixOperators[typ]; ok {
 			return op.precedence
 		}
 		return -1
 	}
-	parseTerm := func() (ast.Node, scanner.Token, error) {
+	parseTerm := func() (ast.Node, token.Token, error) {
 		// parse val
 		val, err := p.parseValue()
 		if err != nil {
-			return nil, scanner.Token{}, err
+			return nil, token.Token{}, err
 		}
 		// parse op
 		op := p.CurrentToken
@@ -105,32 +106,32 @@ func (p *Parser) ParseExpression() (ast.Node, error) {
 			Function:  val,
 			Arguments: nil,
 		}
-		if node.LparenToken, err = p.Expect(scanner.LPAREN); err != nil {
+		if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {
 			return nil, err
 		}
-		if p.CurrentToken.Type != scanner.RPAREN {
+		if p.CurrentToken.Type != token.RPAREN {
 			for {
 				val, err := p.ParseExpression()
 				if err != nil {
 					return nil, err
 				}
 				node.Arguments = append(node.Arguments, val)
-				if p.CurrentToken.Type == scanner.RPAREN {
+				if p.CurrentToken.Type == token.RPAREN {
 					break
 				}
-				if _, err := p.Expect(scanner.COMMA); err != nil {
+				if _, err := p.Expect(token.COMMA); err != nil {
 					return nil, err
 				}
 			}
 		}
-		if node.RparenToken, err = p.Expect(scanner.RPAREN); err != nil {
+		if node.RparenToken, err = p.Expect(token.RPAREN); err != nil {
 			return nil, err
 		}
 		return node, nil
 	}
-	var parseRightExp func(ast.Node, scanner.Token) (ast.Node, error)
-	parseRightExp = func(v0 ast.Node, op0 scanner.Token) (node ast.Node, err error) {
-		if op0.Type == scanner.LPAREN {
+	var parseRightExp func(ast.Node, token.Token) (ast.Node, error)
+	parseRightExp = func(v0 ast.Node, op0 token.Token) (node ast.Node, err error) {
+		if op0.Type == token.LPAREN {
 			return parseInfixCall(v0)
 		}
 		for {
@@ -172,11 +173,11 @@ func (p *Parser) AddError(msg string) {
 	column := p.CurrentToken.Column
 	p.errors = append(p.errors, Error{
 		Range: Range{
-			Start: scanner.Position{
+			Start: token.Position{
 				Line:   line,
 				Column: column,
 			},
-			End: scanner.Position{
+			End: token.Position{
 				Line:   line,
 				Column: column + utf8.RuneCountInString(p.CurrentToken.Literal),
 			},
@@ -190,10 +191,10 @@ func (p *Parser) AdvanceToken() {
 	p.PeekToken = p.scanner.NextToken()
 }
 
-func (p *Parser) Expect(ttype scanner.Kind) (scanner.Token, error) {
+func (p *Parser) Expect(typ token.Type) (token.Token, error) {
 	tok := p.CurrentToken
-	if p.CurrentToken.Type != ttype {
-		msg := "Expected " + ttype.String()
+	if p.CurrentToken.Type != typ {
+		msg := "Expected " + typ.String()
 		p.AddError(msg)
 		return tok, errors.New(msg)
 	}
@@ -217,18 +218,18 @@ func (p *Parser) Errors() ErrorList {
 	return append(ErrorList{}, p.errors...)
 }
 
-func (p *Parser) ExpectSemi() (scanner.Token, error) {
+func (p *Parser) ExpectSemi() (token.Token, error) {
 	tok := p.CurrentToken
-	if tok.Type == scanner.SEMICOLON {
+	if tok.Type == token.SEMICOLON {
 		p.AdvanceToken()
 		return tok, nil
 	}
-	if tok.Type == scanner.EOF || tok.AfterNewline {
-		tok = scanner.Token{Type: scanner.SEMICOLON, Literal: scanner.SEMICOLON.String(), Position: tok.Position}
+	if tok.Type == token.EOF || tok.AfterNewline {
+		tok = token.Token{Type: token.SEMICOLON, Literal: token.SEMICOLON.String(), Position: tok.Position}
 		return tok, nil
 	}
-	if p.InScope(blockScope) && tok.Type == scanner.RBRACE {
-		tok = scanner.Token{Type: scanner.SEMICOLON, Literal: scanner.SEMICOLON.String(), Position: tok.Position}
+	if p.InScope(blockScope) && tok.Type == token.RBRACE {
+		tok = token.Token{Type: token.SEMICOLON, Literal: token.SEMICOLON.String(), Position: tok.Position}
 		return tok, nil
 	}
 	msg := "Expected statement terminator"
@@ -239,12 +240,12 @@ func (p *Parser) ExpectSemi() (scanner.Token, error) {
 func (p *Parser) AdvanceToStatementEnd() {
 	for {
 		typ := p.CurrentToken.Type
-		if typ == scanner.SEMICOLON {
+		if typ == token.SEMICOLON {
 			p.AdvanceToken()
 			break
 		}
-		if typ == scanner.EOF || p.CurrentToken.AfterNewline ||
-			p.InScope(blockScope) && typ == scanner.RBRACE {
+		if typ == token.EOF || p.CurrentToken.AfterNewline ||
+			p.InScope(blockScope) && typ == token.RBRACE {
 			break
 		}
 		p.AdvanceToken()
@@ -253,21 +254,21 @@ func (p *Parser) AdvanceToStatementEnd() {
 
 func (p *Parser) parseValue() (ast.Node, error) {
 	switch p.CurrentToken.Type {
-	case scanner.LPAREN:
+	case token.LPAREN:
 		return ParseGroupedExpression(p)
-	case scanner.NUMBER:
+	case token.NUMBER:
 		val := p.CurrentToken
 		p.AdvanceToken()
 		return &ast.Integer{Value: val}, nil
-	case scanner.STRING:
+	case token.STRING:
 		val := p.CurrentToken
 		p.AdvanceToken()
 		return &ast.String{Value: val}, nil
-	case scanner.BOOLEAN:
+	case token.BOOLEAN:
 		val := p.CurrentToken
 		p.AdvanceToken()
 		return &ast.Boolean{Value: val}, nil
-	case scanner.IDENT:
+	case token.IDENT:
 		val := p.CurrentToken
 		p.AdvanceToken()
 		return &ast.Ident{Value: val}, nil

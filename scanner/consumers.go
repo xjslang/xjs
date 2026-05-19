@@ -2,9 +2,11 @@ package scanner
 
 import (
 	"strings"
+
+	"github.com/xjslang/xjs/token"
 )
 
-func (sc *Scanner) consumeBlockComment() (string, Kind) {
+func (sc *Scanner) consumeBlockComment() (string, token.Type) {
 	sb := strings.Builder{}
 	sc.AdvanceChar() // consume "*"
 	for {
@@ -14,12 +16,12 @@ func (sc *Scanner) consumeBlockComment() (string, Kind) {
 			sc.AdvanceChar()
 			break
 		} else if sc.CurrentChar == eof {
-			return sb.String(), ILLEGAL
+			return sb.String(), token.ILLEGAL
 		}
 		sb.WriteRune(sc.CurrentChar)
 		sc.AdvanceChar()
 	}
-	return sb.String(), BLOCK_COMMENT
+	return sb.String(), token.BLOCK_COMMENT
 }
 
 func (sc *Scanner) consumeLineComment() string {
@@ -64,7 +66,7 @@ func (sc *Scanner) consumeNumber() string {
 	return sb.String()
 }
 
-func (sc *Scanner) consumeString(delimiter rune) (string, Kind) {
+func (sc *Scanner) consumeString(delimiter rune) (string, token.Type) {
 	sb := strings.Builder{}
 	sb.WriteRune(sc.CurrentChar)
 	for {
@@ -74,9 +76,9 @@ func (sc *Scanner) consumeString(delimiter rune) (string, Kind) {
 			sc.AdvanceChar()
 			break
 		} else if sc.CurrentChar == eof || sc.CurrentChar == '\n' || sc.CurrentChar == '\r' {
-			return sb.String(), ILLEGAL
+			return sb.String(), token.ILLEGAL
 		}
 		sb.WriteRune(sc.CurrentChar)
 	}
-	return sb.String(), STRING
+	return sb.String(), token.STRING
 }

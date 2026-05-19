@@ -3,6 +3,8 @@ package scanner
 import (
 	"strings"
 	"unicode/utf8"
+
+	"github.com/xjslang/xjs/token"
 )
 
 const eof = rune(-1)
@@ -12,7 +14,7 @@ type Scanner struct {
 	offset       int
 	line, column int
 
-	scanner func(*Scanner) Token
+	scanner func(*Scanner) token.Token
 
 	CurrentChar rune
 }
@@ -71,8 +73,8 @@ func (sc *Scanner) AdvanceChar() {
 	sc.CurrentChar = r
 }
 
-func (sc *Scanner) NextToken() Token {
-	next := func() Token {
+func (sc *Scanner) NextToken() token.Token {
+	next := func() token.Token {
 		sc.skipWhitespaces()
 		line, column := sc.line, sc.column
 		tok := sc.scanner(sc)
@@ -80,15 +82,15 @@ func (sc *Scanner) NextToken() Token {
 		tok.Column = max(0, column)
 		return tok
 	}
-	var trivia []Token
+	var trivia []token.Token
 	afterNewline := false
 	tok := next()
 triviaLoop:
 	for {
 		switch tok.Type {
-		case NEWLINE:
+		case token.NEWLINE:
 			afterNewline = true
-		case LINE_COMMENT, BLOCK_COMMENT:
+		case token.LINE_COMMENT, token.BLOCK_COMMENT:
 			afterNewline = afterNewline || strings.ContainsAny(tok.Literal, "\n\r")
 		default:
 			break triviaLoop

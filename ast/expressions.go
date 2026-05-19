@@ -1,10 +1,12 @@
 package ast
 
-import "github.com/xjslang/xjs/scanner"
+import (
+	"github.com/xjslang/xjs/token"
+)
 
 type InfixOperator struct {
 	LeftValue  Node
-	Operator   scanner.Token
+	Operator   token.Token
 	RightValue Node
 }
 
@@ -13,8 +15,8 @@ func (node *InfixOperator) Type() string {
 }
 
 type Call struct {
-	LparenToken scanner.Token
-	RparenToken scanner.Token
+	LparenToken token.Token
+	RparenToken token.Token
 
 	Function  Node
 	Arguments []Node
@@ -25,7 +27,7 @@ func (node *Call) Type() string {
 }
 
 type Integer struct {
-	Value scanner.Token
+	Value token.Token
 }
 
 func (node *Integer) Type() string {
@@ -33,7 +35,7 @@ func (node *Integer) Type() string {
 }
 
 type String struct {
-	Value scanner.Token
+	Value token.Token
 }
 
 func (node *String) Type() string {
@@ -41,7 +43,7 @@ func (node *String) Type() string {
 }
 
 type Boolean struct {
-	Value scanner.Token
+	Value token.Token
 }
 
 func (node *Boolean) Type() string {
@@ -49,7 +51,7 @@ func (node *Boolean) Type() string {
 }
 
 type Ident struct {
-	Value scanner.Token
+	Value token.Token
 }
 
 func (node *Ident) Type() string {
@@ -58,8 +60,8 @@ func (node *Ident) Type() string {
 
 type GroupedExpression struct {
 	// keywords and delimiters
-	LparenToken scanner.Token
-	RparenToken scanner.Token
+	LparenToken token.Token
+	RparenToken token.Token
 
 	Value Node
 }

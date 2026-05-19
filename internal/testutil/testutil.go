@@ -8,6 +8,7 @@ import (
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/scanner"
+	"github.com/xjslang/xjs/token"
 )
 
 type tokenCompareConfig struct {
@@ -36,7 +37,7 @@ func CompareTokenPosition() TokenCompareOption {
 	}
 }
 
-func AssertTokens(t *testing.T, toks, expectedToks []scanner.Token, opts ...TokenCompareOption) {
+func AssertTokens(t *testing.T, toks, expectedToks []token.Token, opts ...TokenCompareOption) {
 	cfg := &tokenCompareConfig{}
 	for _, opt := range opts {
 		opt(cfg)

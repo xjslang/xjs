@@ -1,13 +1,13 @@
-package scanner
+package token
 
 import (
 	"strconv"
 	"sync"
 )
 
-type Kind int
+type Type int
 
-func (tt Kind) String() string {
+func (tt Type) String() string {
 	registerMu.RLock()
 	defer registerMu.RUnlock()
 	lit, ok := tokenLiterals[tt]
@@ -24,7 +24,7 @@ type Position struct {
 
 type Token struct {
 	Position
-	Type          Kind
+	Type          Type
 	Literal       string
 	LeadingTrivia []Token
 	AfterNewline  bool
@@ -32,7 +32,7 @@ type Token struct {
 
 const (
 	// special keywords
-	EOF Kind = iota
+	EOF Type = iota
 	IDENT
 	ILLEGAL
 	UNKNOWN
@@ -71,7 +71,7 @@ const (
 	FUNCTION
 )
 
-var tokenLiterals = map[Kind]string{
+var tokenLiterals = map[Type]string{
 	// special keywords
 	EOF:     "end of file",
 	IDENT:   "identifier",
@@ -112,14 +112,14 @@ var tokenLiterals = map[Kind]string{
 	FUNCTION: "function",
 }
 
-const initCustomType Kind = 1000
+const initCustomType Type = 1000
 
 var (
-	nextType   Kind = initCustomType
+	nextType   Type = initCustomType
 	registerMu sync.RWMutex
 )
 
-func RegisterKind(lit string) Kind {
+func RegisterKind(lit string) Type {
 	registerMu.Lock()
 	defer registerMu.Unlock()
 	typ := nextType

@@ -4,14 +4,14 @@ import (
 	"errors"
 
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/scanner"
+	"github.com/xjslang/xjs/token"
 )
 
 var blockScope = RegisterScope()
 
 func ParseProgram(p *Parser) (*ast.Program, error) {
 	result := &ast.Program{}
-	for p.CurrentToken.Type != scanner.EOF {
+	for p.CurrentToken.Type != token.EOF {
 		stmt, err := p.ParseStatement()
 		if err != nil {
 			p.AdvanceToStatementEnd()
@@ -28,14 +28,14 @@ func ParseProgram(p *Parser) (*ast.Program, error) {
 
 func ParseGroupedExpression(p *Parser) (node *ast.GroupedExpression, err error) {
 	node = &ast.GroupedExpression{}
-	if node.LparenToken, err = p.Expect(scanner.LPAREN); err != nil {
+	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {
 		return nil, err
 	}
 	node.Value, err = p.ParseExpression()
 	if err != nil {
 		return nil, err
 	}
-	if node.RparenToken, err = p.Expect(scanner.RPAREN); err != nil {
+	if node.RparenToken, err = p.Expect(token.RPAREN); err != nil {
 		return nil, err
 	}
 	return node, nil
@@ -43,13 +43,13 @@ func ParseGroupedExpression(p *Parser) (node *ast.GroupedExpression, err error) 
 
 func ParseLet(p *Parser) (node *ast.Let, err error) {
 	node = &ast.Let{}
-	if node.LetToken, err = p.Expect(scanner.LET); err != nil {
+	if node.LetToken, err = p.Expect(token.LET); err != nil {
 		return nil, err
 	}
-	if node.Name, err = p.Expect(scanner.IDENT); err != nil {
+	if node.Name, err = p.Expect(token.IDENT); err != nil {
 		return nil, err
 	}
-	if node.AssignToken, err = p.Expect(scanner.ASSIGN); err != nil {
+	if node.AssignToken, err = p.Expect(token.ASSIGN); err != nil {
 		return nil, err
 	}
 	node.Value, err = p.ParseExpression()
@@ -64,16 +64,16 @@ func ParseLet(p *Parser) (node *ast.Let, err error) {
 
 func ParseFunction(p *Parser) (node *ast.Function, err error) {
 	node = &ast.Function{}
-	if node.FunctionToken, err = p.Expect(scanner.FUNCTION); err != nil {
+	if node.FunctionToken, err = p.Expect(token.FUNCTION); err != nil {
 		return nil, err
 	}
-	if node.Name, err = p.Expect(scanner.IDENT); err != nil {
+	if node.Name, err = p.Expect(token.IDENT); err != nil {
 		return nil, err
 	}
-	if node.LparenToken, err = p.Expect(scanner.LPAREN); err != nil {
+	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {
 		return nil, err
 	}
-	if node.RparenToken, err = p.Expect(scanner.RPAREN); err != nil {
+	if node.RparenToken, err = p.Expect(token.RPAREN); err != nil {
 		return nil, err
 	}
 	body, err := ParseBlock(p)
@@ -88,11 +88,11 @@ func ParseBlock(p *Parser) (node *ast.Block, err error) {
 	p.EnterScope(blockScope)
 	defer p.ExitScope(blockScope)
 	node = &ast.Block{}
-	if node.LbraceToken, err = p.Expect(scanner.LBRACE); err != nil {
+	if node.LbraceToken, err = p.Expect(token.LBRACE); err != nil {
 		return nil, err
 	}
 	var errs []error
-	for p.CurrentToken.Type != scanner.EOF && p.CurrentToken.Type != scanner.RBRACE {
+	for p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE {
 		stmt, err := p.ParseStatement()
 		if err != nil {
 			errs = append(errs, err)
@@ -101,7 +101,7 @@ func ParseBlock(p *Parser) (node *ast.Block, err error) {
 		}
 		node.Statements = append(node.Statements, stmt)
 	}
-	if node.RbraceToken, err = p.Expect(scanner.RBRACE); err != nil {
+	if node.RbraceToken, err = p.Expect(token.RBRACE); err != nil {
 		errs = append(errs, err)
 	}
 	if len(errs) > 0 {

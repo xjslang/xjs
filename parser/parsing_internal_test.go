@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/xjslang/xjs/scanner"
+	"github.com/xjslang/xjs/token"
 )
 
 func TestSemicolonInsertion(t *testing.T) {
@@ -31,7 +32,7 @@ func TestSemicolonInsertion(t *testing.T) {
 				t.Fatal(err)
 			}
 			tok := result.SemiToken
-			expected := scanner.Token{Type: scanner.SEMICOLON, Literal: ";"}
+			expected := token.Token{Type: token.SEMICOLON, Literal: ";"}
 			if tok.Type != expected.Type {
 				t.Errorf("Expected %v, got %v", expected.Type, tok)
 			} else if tok.Literal != expected.Literal {
@@ -46,13 +47,13 @@ func TestAdvanceToStatementEnd(t *testing.T) {
 		name     string
 		input    string
 		scoped   bool
-		expected scanner.Token
+		expected token.Token
 	}{
-		{"empty", "", false, scanner.Token{Type: scanner.EOF}},
-		{"semicolon starting", ";", false, scanner.Token{Type: scanner.EOF}},
-		{"semicolon between", "let x = 100; let y = 200", false, scanner.Token{Type: scanner.LET}},
-		{"newline between", "let x = 100\n let y = 200", false, scanner.Token{Type: scanner.LET}},
-		{"end of line", "let x = 100", false, scanner.Token{Type: scanner.EOF}},
+		{"empty", "", false, token.Token{Type: token.EOF}},
+		{"semicolon starting", ";", false, token.Token{Type: token.EOF}},
+		{"semicolon between", "let x = 100; let y = 200", false, token.Token{Type: token.LET}},
+		{"newline between", "let x = 100\n let y = 200", false, token.Token{Type: token.LET}},
+		{"end of line", "let x = 100", false, token.Token{Type: token.EOF}},
 	}
 	for i, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

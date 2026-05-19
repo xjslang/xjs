@@ -4,25 +4,26 @@ import (
 	"testing"
 
 	"github.com/xjslang/xjs/scanner"
+	"github.com/xjslang/xjs/token"
 )
 
 func TestUseScanner(t *testing.T) {
 	sc := &scanner.Scanner{}
-	powType := scanner.RegisterKind("**")
-	sc.UseScanner(func(sc *scanner.Scanner, next func() scanner.Token) scanner.Token {
+	powType := token.RegisterKind("**")
+	sc.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
 		if sc.CurrentChar == '*' && sc.PeekChar() == '*' {
 			// consume **
 			sc.AdvanceChar()
 			sc.AdvanceChar()
-			return scanner.Token{Type: powType, Literal: powType.String()}
+			return token.Token{Type: powType, Literal: powType.String()}
 		}
 		return next()
 	})
 	sc.Init([]byte("125 ** 2"))
-	assertLexerTokens(t, sc, []scanner.Token{
-		{Type: scanner.NUMBER, Literal: "125"},
+	assertLexerTokens(t, sc, []token.Token{
+		{Type: token.NUMBER, Literal: "125"},
 		{Type: powType, Literal: "**"},
-		{Type: scanner.NUMBER, Literal: "2"},
-		{Type: scanner.EOF},
+		{Type: token.NUMBER, Literal: "2"},
+		{Type: token.EOF},
 	})
 }

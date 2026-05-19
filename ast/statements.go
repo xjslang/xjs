@@ -1,14 +1,14 @@
 package ast
 
-import "github.com/xjslang/xjs/scanner"
+import "github.com/xjslang/xjs/token"
 
 type Let struct {
 	// keywords and delimiters
-	LetToken    scanner.Token
-	AssignToken scanner.Token
-	SemiToken   scanner.Token
+	LetToken    token.Token
+	AssignToken token.Token
+	SemiToken   token.Token
 
-	Name  scanner.Token
+	Name  token.Token
 	Value Node
 }
 
@@ -18,8 +18,8 @@ func (node *Let) Type() string {
 
 type Block struct {
 	// keywords and delimiters
-	LbraceToken scanner.Token
-	RbraceToken scanner.Token
+	LbraceToken token.Token
+	RbraceToken token.Token
 
 	Statements []Node
 }
@@ -30,11 +30,11 @@ func (node *Block) Type() string {
 
 type Function struct {
 	// keywords and delimiters
-	FunctionToken scanner.Token
-	LparenToken   scanner.Token
-	RparenToken   scanner.Token
+	FunctionToken token.Token
+	LparenToken   token.Token
+	RparenToken   token.Token
 
-	Name scanner.Token
+	Name token.Token
 	Body *Block
 }
 
