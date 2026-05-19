@@ -23,6 +23,12 @@ func PrintBlock(p *Printer, node *ast.Block) {
 	p.PrintIndentedString(node.RbraceToken.Literal)
 }
 
+func PrintExprStmt(p *Printer, node *ast.ExprStmt) {
+	p.EnsureLine()
+	p.PrintNode(node.Expr)
+	p.PrintToken(node.SemiToken)
+}
+
 func PrintLetStmt(p *Printer, node *ast.LetStmt) {
 	p.EnsureLine()
 	p.PrintToken(node.LetToken)

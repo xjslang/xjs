@@ -1,6 +1,7 @@
 package parser_test
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -219,5 +220,46 @@ func TestParseBlockErrorRecovery(t *testing.T) {
 	// keep parsing after `}`
 	if _, err := parser.ParseLetStmt(p); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestExprStmt(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{
+			input: "log()",
+			expected: `ExprStmt
+	Expr: CallExpr
+		Function: Ident{Value: "log"}`,
+		},
+		{
+			input: "log(1)",
+			expected: `ExprStmt
+	Expr: CallExpr
+		Function: Ident{Value: "log"}
+		Arguments[0]: BasicLit{Value: "1"}`,
+		},
+		{
+			input: "log(1, 2)",
+			expected: `ExprStmt
+	Expr: CallExpr
+		Function: Ident{Value: "log"}
+		Arguments[0]: BasicLit{Value: "1"}
+		Arguments[1]: BasicLit{Value: "2"}`,
+		},
+	}
+	for i, test := range tests {
+		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
+			p := createParser(test.input)
+			node, err := parser.ParseExprStmt(p)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := testutil.NodeString(node); got != test.expected {
+				t.Errorf("Expected:\n\n%s\n\nGot:\n\n%s", test.expected, got)
+			}
+		})
 	}
 }

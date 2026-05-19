@@ -35,6 +35,16 @@ func (node *Block) Type() string {
 	return "Block"
 }
 
+type ExprStmt struct {
+	SemiToken token.Token
+
+	Expr Node
+}
+
+func (node *ExprStmt) Type() string {
+	return "ExprStmt"
+}
+
 type LetStmt struct {
 	LetToken    token.Token
 	AssignToken token.Token

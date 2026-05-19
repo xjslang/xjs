@@ -63,6 +63,7 @@ func TestCommentFormatting(t *testing.T) {
 	let y = (/*c*/100 //j
 	+//k
 	200)
+	log(x, y)/*l*/;
 	let z = 1
 	+ 2 // last comment`
 	expected := `//a
@@ -82,6 +83,7 @@ let x = 100; //y
 let y = (/*c*/100 //j
 + //k
 200);
+log(x, y)/*l*/;
 let z = 1
 + 2; // last comment`
 	node, err := testutil.Parse(input)
