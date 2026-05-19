@@ -38,15 +38,15 @@ func TestExpressions(t *testing.T) {
 	}{
 		{
 			input: "1 + 2 * (3 + 5) - 4",
-			expected: `InfixOperator
-	LeftValue: InfixOperator
+			expected: `BinaryExpr
+	LeftValue: BinaryExpr
 		LeftValue: Integer{Value: "1"}
 		Operator: "+"
-		RightValue: InfixOperator
+		RightValue: BinaryExpr
 			LeftValue: Integer{Value: "2"}
 			Operator: "*"
-			RightValue: GroupedExpression
-				Value: InfixOperator
+			RightValue: ParenExpr
+				Value: BinaryExpr
 					LeftValue: Integer{Value: "3"}
 					Operator: "+"
 					RightValue: Integer{Value: "5"}
@@ -55,15 +55,15 @@ func TestExpressions(t *testing.T) {
 		},
 		{
 			input: "foo() + 1",
-			expected: `InfixOperator
-	LeftValue: Call
+			expected: `BinaryExpr
+	LeftValue: CallExpr
 		Function: Ident{Value: "foo"}
 	Operator: "+"
 	RightValue: Integer{Value: "1"}`,
 		},
 		{
 			input: "foo(1, 2, 3)",
-			expected: `Call
+			expected: `CallExpr
 	Function: Ident{Value: "foo"}
 	Arguments[0]: Integer{Value: "1"}
 	Arguments[1]: Integer{Value: "2"}
@@ -71,15 +71,15 @@ func TestExpressions(t *testing.T) {
 		},
 		{
 			input: "2 * (pow(2, 1 + 3) + 4)",
-			expected: `InfixOperator
+			expected: `BinaryExpr
 	LeftValue: Integer{Value: "2"}
 	Operator: "*"
-	RightValue: GroupedExpression
-		Value: InfixOperator
-			LeftValue: Call
+	RightValue: ParenExpr
+		Value: BinaryExpr
+			LeftValue: CallExpr
 				Function: Ident{Value: "pow"}
 				Arguments[0]: Integer{Value: "2"}
-				Arguments[1]: InfixOperator
+				Arguments[1]: BinaryExpr
 					LeftValue: Integer{Value: "1"}
 					Operator: "+"
 					RightValue: Integer{Value: "3"}

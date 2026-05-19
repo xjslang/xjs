@@ -22,7 +22,7 @@ func TestMalformedExpression(t *testing.T) {
 	t.Run("let", func(t *testing.T) {
 		input := "x = 100"
 		p := createParser(input)
-		_, err := parser.ParseLet(p)
+		_, err := parser.ParseLetStmt(p)
 		if err == nil {
 			t.Fatal("Expected an error, got nil")
 		}
@@ -53,7 +53,7 @@ func TestMalformedExpression(t *testing.T) {
 	t.Run("function", func(t *testing.T) {
 		input := "() {}"
 		p := createParser(input)
-		_, err := parser.ParseFunction(p)
+		_, err := parser.ParseFuncDecl(p)
 		if err == nil {
 			t.Fatal("Expected an error, got nil")
 		}
@@ -72,7 +72,7 @@ func TestMalformedExpression(t *testing.T) {
 		}
 		for i, test := range tests {
 			p := createParser(test.input)
-			_, err := parser.ParseGroupedExpression(p)
+			_, err := parser.ParseParenExpr(p)
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
 			}
@@ -89,7 +89,7 @@ func TestKeysAreSaved(t *testing.T) {
 		let area
 		= 200 /*c*/;`
 		p := createParser(input)
-		result, err := parser.ParseLet(p)
+		result, err := parser.ParseLetStmt(p)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -147,7 +147,7 @@ func TestKeysAreSaved(t *testing.T) {
 	( // comment 2
 	) {}`
 		p := createParser(input)
-		result, err := parser.ParseFunction(p)
+		result, err := parser.ParseFuncDecl(p)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -175,7 +175,7 @@ func TestKeysAreSaved(t *testing.T) {
 	(1 + 2// comment after
 	)`
 		p := createParser(input)
-		result, err := parser.ParseGroupedExpression(p)
+		result, err := parser.ParseParenExpr(p)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -205,7 +205,7 @@ func TestParseBlockErrorRecovery(t *testing.T) {
 
 	let a = 'aaa'`
 	p := createParser(input)
-	_, err := parser.ParseFunction(p)
+	_, err := parser.ParseFuncDecl(p)
 	if err == nil {
 		t.Fatalf("Expected an error, got nil")
 	}
@@ -217,7 +217,7 @@ func TestParseBlockErrorRecovery(t *testing.T) {
 		t.Fatalf("Expected %q, got %q", expected, got)
 	}
 	// keep parsing after `}`
-	if _, err := parser.ParseLet(p); err != nil {
+	if _, err := parser.ParseLetStmt(p); err != nil {
 		t.Fatal(err)
 	}
 }

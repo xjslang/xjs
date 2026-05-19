@@ -26,8 +26,8 @@ func ParseProgram(p *Parser) (*ast.Program, error) {
 	return result, nil
 }
 
-func ParseGroupedExpression(p *Parser) (node *ast.GroupedExpression, err error) {
-	node = &ast.GroupedExpression{}
+func ParseParenExpr(p *Parser) (node *ast.ParenExpr, err error) {
+	node = &ast.ParenExpr{}
 	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {
 		return nil, err
 	}
@@ -41,8 +41,8 @@ func ParseGroupedExpression(p *Parser) (node *ast.GroupedExpression, err error) 
 	return node, nil
 }
 
-func ParseLet(p *Parser) (node *ast.Let, err error) {
-	node = &ast.Let{}
+func ParseLetStmt(p *Parser) (node *ast.LetStmt, err error) {
+	node = &ast.LetStmt{}
 	if node.LetToken, err = p.Expect(token.LET); err != nil {
 		return nil, err
 	}
@@ -62,8 +62,8 @@ func ParseLet(p *Parser) (node *ast.Let, err error) {
 	return node, nil
 }
 
-func ParseFunction(p *Parser) (node *ast.Function, err error) {
-	node = &ast.Function{}
+func ParseFuncDecl(p *Parser) (node *ast.FuncDecl, err error) {
+	node = &ast.FuncDecl{}
 	if node.FunctionToken, err = p.Expect(token.FUNCTION); err != nil {
 		return nil, err
 	}

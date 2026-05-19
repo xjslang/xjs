@@ -23,7 +23,7 @@ func PrintBlock(p *Printer, node *ast.Block) {
 	p.PrintIndentedString(node.RbraceToken.Literal)
 }
 
-func PrintLet(p *Printer, node *ast.Let) {
+func PrintLetStmt(p *Printer, node *ast.LetStmt) {
 	p.EnsureLine()
 	p.PrintToken(node.LetToken)
 	p.EnsureSpace()
@@ -35,7 +35,7 @@ func PrintLet(p *Printer, node *ast.Let) {
 	p.PrintToken(node.SemiToken)
 }
 
-func PrintFunction(p *Printer, node *ast.Function) {
+func PrintFuncDecl(p *Printer, node *ast.FuncDecl) {
 	p.EnsureLine()
 	p.PrintToken(node.FunctionToken)
 	p.EnsureSpace()
@@ -46,7 +46,7 @@ func PrintFunction(p *Printer, node *ast.Function) {
 	p.PrintNode(node.Body)
 }
 
-func PrintCallExpr(p *Printer, node *ast.Call) {
+func PrintCallExpr(p *Printer, node *ast.CallExpr) {
 	p.PrintNode(node.Function)
 	p.PrintToken(node.LparenToken)
 	for i, arg := range node.Arguments {
@@ -59,7 +59,7 @@ func PrintCallExpr(p *Printer, node *ast.Call) {
 	p.PrintToken(node.RparenToken)
 }
 
-func PrintInfixOperator(p *Printer, node *ast.InfixOperator) {
+func PrintBinaryExpr(p *Printer, node *ast.BinaryExpr) {
 	p.PrintNode(node.LeftValue)
 	p.EnsureSpace()
 	p.PrintToken(node.Operator)
@@ -67,7 +67,7 @@ func PrintInfixOperator(p *Printer, node *ast.InfixOperator) {
 	p.PrintNode(node.RightValue)
 }
 
-func PrintGroupedExpression(p *Printer, node *ast.GroupedExpression) {
+func PrintParenExpr(p *Printer, node *ast.ParenExpr) {
 	p.PrintToken(node.LparenToken)
 	p.PrintNode(node.Value)
 	p.PrintToken(node.RparenToken)

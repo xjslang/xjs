@@ -27,7 +27,7 @@ func TestSemicolonInsertion(t *testing.T) {
 			if test.scoped {
 				p.EnterScope(blockScope)
 			}
-			result, err := ParseLet(p)
+			result, err := ParseLetStmt(p)
 			if err != nil {
 				t.Fatal(err)
 			}
