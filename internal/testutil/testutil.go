@@ -85,24 +85,26 @@ func NodeString(node ast.Node) string {
 		indent := strings.Repeat("\t", indentLevel)
 		fmt.Fprint(s, node.Type())
 		switch v := node.(type) {
+		case *ast.Ident:
+			fmt.Fprintf(s, "{Value: %q}", v.Value.Literal)
 		case *ast.Block:
 			for _, stmt := range v.Statements {
 				fmt.Fprintf(s, "\n%s%s", indent, print(stmt))
 			}
-		case *ast.Let:
+		case *ast.LetStmt:
 			fmt.Fprintf(s, "\n%sName: %s", indent, v.Name.Literal)
 			fmt.Fprintf(s, "\n%sValue: %s", indent, print(v.Value))
-		case *ast.Function:
+		case *ast.FuncDecl:
 			fmt.Fprintf(s, "\n%sName: %s", indent, v.Name.Literal)
 			fmt.Fprintf(s, "\n%sBody: %s", indent, print(v.Body))
-		case *ast.GroupedExpression:
+		case *ast.ParenExpr:
 			fmt.Fprintf(s, "\n%sValue: %s", indent, print(v.Value))
-		case *ast.Call:
+		case *ast.CallExpr:
 			fmt.Fprintf(s, "\n%sFunction: %s", indent, print(v.Function))
 			for i, arg := range v.Arguments {
 				fmt.Fprintf(s, "\n%sArguments[%d]: %s", indent, i, print(arg))
 			}
-		case *ast.InfixOperator:
+		case *ast.BinaryExpr:
 			fmt.Fprintf(s, "\n%sLeftValue: %s", indent, print(v.LeftValue))
 			fmt.Fprintf(s, "\n%sOperator: %q", indent, v.Operator.Type.String())
 			fmt.Fprintf(s, "\n%sRightValue: %s", indent, print(v.RightValue))
@@ -111,8 +113,6 @@ func NodeString(node ast.Node) string {
 		case *ast.String:
 			fmt.Fprintf(s, "{Value: %q}", v.Value.Literal)
 		case *ast.Boolean:
-			fmt.Fprintf(s, "{Value: %q}", v.Value.Literal)
-		case *ast.Ident:
 			fmt.Fprintf(s, "{Value: %q}", v.Value.Literal)
 		}
 		return s.String()

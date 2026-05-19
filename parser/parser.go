@@ -56,6 +56,13 @@ func (p *Parser) Init(sc *scanner.Scanner) {
 	if p.infixOperators == nil {
 		p.infixOperators = make(map[token.Type]infixOperator)
 	}
+	defaultInfixOperator := func(op token.Token, left, right ast.Node) ast.Node {
+		return &ast.BinaryExpr{
+			LeftValue:  left,
+			Operator:   op,
+			RightValue: right,
+		}
+	}
 	p.infixOperators[token.PLUS] = infixOperator{precedence: 1, fn: defaultInfixOperator}
 	p.infixOperators[token.MINUS] = infixOperator{precedence: 1, fn: defaultInfixOperator}
 	p.infixOperators[token.MULTIPLY] = infixOperator{precedence: 2, fn: defaultInfixOperator}
@@ -66,14 +73,6 @@ func (p *Parser) Init(sc *scanner.Scanner) {
 	// call twice to update CurrentToken and PeekToken
 	p.AdvanceToken()
 	p.AdvanceToken()
-}
-
-func defaultInfixOperator(op token.Token, left, right ast.Node) ast.Node {
-	return &ast.InfixOperator{
-		LeftValue:  left,
-		Operator:   op,
-		RightValue: right,
-	}
 }
 
 func (p *Parser) ParseStatement() (ast.Node, error) {
@@ -101,8 +100,8 @@ func (p *Parser) ParseExpression() (ast.Node, error) {
 		op := p.CurrentToken
 		return val, op, nil
 	}
-	parseInfixCall := func(val ast.Node) (node *ast.Call, err error) {
-		node = &ast.Call{
+	parseInfixCall := func(val ast.Node) (node *ast.CallExpr, err error) {
+		node = &ast.CallExpr{
 			Function:  val,
 			Arguments: nil,
 		}
@@ -255,7 +254,7 @@ func (p *Parser) AdvanceToStatementEnd() {
 func (p *Parser) parseValue() (ast.Node, error) {
 	switch p.CurrentToken.Type {
 	case token.LPAREN:
-		return ParseGroupedExpression(p)
+		return ParseParenExpr(p)
 	case token.NUMBER:
 		val := p.CurrentToken
 		p.AdvanceToken()

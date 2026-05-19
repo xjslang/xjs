@@ -22,9 +22,9 @@ func (p *Parser) UseStatementParser(parser func(p *Parser, next func() (ast.Node
 func defaultStatementParser(p *Parser) (ast.Node, error) {
 	switch p.CurrentToken.Type {
 	case token.LET:
-		return ParseLet(p)
+		return ParseLetStmt(p)
 	case token.FUNCTION:
-		return ParseFunction(p)
+		return ParseFuncDecl(p)
 	default:
 		msg := "Unknown statement"
 		p.AddError(msg)

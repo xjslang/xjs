@@ -20,16 +20,16 @@ func (p *Printer) defaultPrinter(node ast.Node) {
 		PrintProgram(p, node)
 	case *ast.Block:
 		PrintBlock(p, node)
-	case *ast.Let:
-		PrintLet(p, node)
-	case *ast.Function:
-		PrintFunction(p, node)
-	case *ast.Call:
+	case *ast.LetStmt:
+		PrintLetStmt(p, node)
+	case *ast.FuncDecl:
+		PrintFuncDecl(p, node)
+	case *ast.CallExpr:
 		PrintCallExpr(p, node)
-	case *ast.GroupedExpression:
-		PrintGroupedExpression(p, node)
-	case *ast.InfixOperator:
-		PrintInfixOperator(p, node)
+	case *ast.ParenExpr:
+		PrintParenExpr(p, node)
+	case *ast.BinaryExpr:
+		PrintBinaryExpr(p, node)
 	case *ast.Ident:
 		p.PrintToken(node.Value)
 	case *ast.Integer:
