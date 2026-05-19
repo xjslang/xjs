@@ -255,18 +255,10 @@ func (p *Parser) parseValue() (ast.Node, error) {
 	switch p.CurrentToken.Type {
 	case token.LPAREN:
 		return ParseParenExpr(p)
-	case token.NUMBER:
+	case token.NUMBER, token.STRING, token.BOOLEAN:
 		val := p.CurrentToken
 		p.AdvanceToken()
-		return &ast.Integer{Value: val}, nil
-	case token.STRING:
-		val := p.CurrentToken
-		p.AdvanceToken()
-		return &ast.String{Value: val}, nil
-	case token.BOOLEAN:
-		val := p.CurrentToken
-		p.AdvanceToken()
-		return &ast.Boolean{Value: val}, nil
+		return &ast.BasicLit{Value: val}, nil
 	case token.IDENT:
 		val := p.CurrentToken
 		p.AdvanceToken()

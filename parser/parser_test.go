@@ -40,18 +40,18 @@ func TestExpressions(t *testing.T) {
 			input: "1 + 2 * (3 + 5) - 4",
 			expected: `BinaryExpr
 	LeftValue: BinaryExpr
-		LeftValue: Integer{Value: "1"}
+		LeftValue: BasicLit{Value: "1"}
 		Operator: "+"
 		RightValue: BinaryExpr
-			LeftValue: Integer{Value: "2"}
+			LeftValue: BasicLit{Value: "2"}
 			Operator: "*"
 			RightValue: ParenExpr
 				Value: BinaryExpr
-					LeftValue: Integer{Value: "3"}
+					LeftValue: BasicLit{Value: "3"}
 					Operator: "+"
-					RightValue: Integer{Value: "5"}
+					RightValue: BasicLit{Value: "5"}
 	Operator: "-"
-	RightValue: Integer{Value: "4"}`,
+	RightValue: BasicLit{Value: "4"}`,
 		},
 		{
 			input: "foo() + 1",
@@ -59,32 +59,32 @@ func TestExpressions(t *testing.T) {
 	LeftValue: CallExpr
 		Function: Ident{Value: "foo"}
 	Operator: "+"
-	RightValue: Integer{Value: "1"}`,
+	RightValue: BasicLit{Value: "1"}`,
 		},
 		{
 			input: "foo(1, 2, 3)",
 			expected: `CallExpr
 	Function: Ident{Value: "foo"}
-	Arguments[0]: Integer{Value: "1"}
-	Arguments[1]: Integer{Value: "2"}
-	Arguments[2]: Integer{Value: "3"}`,
+	Arguments[0]: BasicLit{Value: "1"}
+	Arguments[1]: BasicLit{Value: "2"}
+	Arguments[2]: BasicLit{Value: "3"}`,
 		},
 		{
 			input: "2 * (pow(2, 1 + 3) + 4)",
 			expected: `BinaryExpr
-	LeftValue: Integer{Value: "2"}
+	LeftValue: BasicLit{Value: "2"}
 	Operator: "*"
 	RightValue: ParenExpr
 		Value: BinaryExpr
 			LeftValue: CallExpr
 				Function: Ident{Value: "pow"}
-				Arguments[0]: Integer{Value: "2"}
+				Arguments[0]: BasicLit{Value: "2"}
 				Arguments[1]: BinaryExpr
-					LeftValue: Integer{Value: "1"}
+					LeftValue: BasicLit{Value: "1"}
 					Operator: "+"
-					RightValue: Integer{Value: "3"}
+					RightValue: BasicLit{Value: "3"}
 			Operator: "+"
-			RightValue: Integer{Value: "4"}`,
+			RightValue: BasicLit{Value: "4"}`,
 		},
 	}
 	for i, test := range tests {

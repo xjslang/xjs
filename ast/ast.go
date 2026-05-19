@@ -83,28 +83,12 @@ func (node *CallExpr) Type() string {
 	return "CallExpr"
 }
 
-type Integer struct {
+type BasicLit struct {
 	Value token.Token
 }
 
-func (node *Integer) Type() string {
-	return "Integer"
-}
-
-type String struct {
-	Value token.Token
-}
-
-func (node *String) Type() string {
-	return "String"
-}
-
-type Boolean struct {
-	Value token.Token
-}
-
-func (node *Boolean) Type() string {
-	return "Boolean"
+func (node *BasicLit) Type() string {
+	return "BasicLit"
 }
 
 type ParenExpr struct {
