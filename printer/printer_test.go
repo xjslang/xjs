@@ -8,6 +8,45 @@ import (
 	"github.com/xjslang/xjs/printer"
 )
 
+func TestPrintCallExpr(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{
+			input:    "let x = 1 * (foo(2, 3 * 4) - 5) - 3",
+			expected: "let x = 1 * (foo(2, 3 * 4) - 5) - 3;",
+		},
+		{
+			input: `let x = 1 * (foo /* c1 */ (
+				2 // comments before COMMA are ignored
+				, // c2
+				3 * 4 // c3
+				// c4
+			) - 5) - 3`,
+			expected: `let x = 1 * (foo/* c1 */(
+2, // c2
+3 * 4 // c3
+// c4
+) - 5) - 3;`,
+		},
+	}
+	for i, test := range tests {
+		t.Run(fmt.Sprintf("exp %d", i), func(t *testing.T) {
+			node, err := testutil.Parse(test.input)
+			if err != nil {
+				t.Fatal(err)
+			}
+			pr := &printer.Printer{}
+			pr.Init()
+			printer.PrintProgram(pr, node)
+			if got := pr.String(); got != test.expected {
+				t.Errorf("Expected:\n\n%s\n\nGot:\n\n%s", test.expected, got)
+			}
+		})
+	}
+}
+
 func TestCommentFormatting(t *testing.T) {
 	input := `//a
 		/*b*/ function//c

@@ -60,6 +60,7 @@ func (p *Parser) Init(sc *scanner.Scanner) {
 	p.infixOperators[scanner.MULTIPLY] = infixOperator{precedence: 2, fn: defaultInfixOperator}
 	p.infixOperators[scanner.DIVIDE] = infixOperator{precedence: 2, fn: defaultInfixOperator}
 	p.infixOperators[scanner.MODULO] = infixOperator{precedence: 2, fn: defaultInfixOperator}
+	p.infixOperators[scanner.LPAREN] = infixOperator{precedence: 3, fn: defaultInfixOperator}
 	p.errors = ErrorList{}
 	// call twice to update CurrentToken and PeekToken
 	p.AdvanceToken()
@@ -97,41 +98,71 @@ func (p *Parser) ParseExpression() (ast.Node, error) {
 		}
 		// parse op
 		op := p.CurrentToken
-		if registered(op.Type) {
-			p.AdvanceToken()
-		}
 		return val, op, nil
 	}
-	var parseRightExp func(ast.Node, scanner.Token) (ast.Node, scanner.Token, error)
-	parseRightExp = func(v0 ast.Node, op0 scanner.Token) (ast.Node, scanner.Token, error) {
+	parseInfixCall := func(val ast.Node) (node *ast.Call, err error) {
+		node = &ast.Call{
+			Function:  val,
+			Arguments: nil,
+		}
+		if node.LparenToken, err = p.Expect(scanner.LPAREN); err != nil {
+			return nil, err
+		}
+		if p.CurrentToken.Type != scanner.RPAREN {
+			for {
+				val, err := p.ParseExpression()
+				if err != nil {
+					return nil, err
+				}
+				node.Arguments = append(node.Arguments, val)
+				if p.CurrentToken.Type == scanner.RPAREN {
+					break
+				}
+				if _, err := p.Expect(scanner.COMMA); err != nil {
+					return nil, err
+				}
+			}
+		}
+		if node.RparenToken, err = p.Expect(scanner.RPAREN); err != nil {
+			return nil, err
+		}
+		return node, nil
+	}
+	var parseRightExp func(ast.Node, scanner.Token) (ast.Node, error)
+	parseRightExp = func(v0 ast.Node, op0 scanner.Token) (node ast.Node, err error) {
+		if op0.Type == scanner.LPAREN {
+			return parseInfixCall(v0)
+		}
 		for {
+			p.AdvanceToken()
 			v1, op1, err := parseTerm()
 			if err != nil {
-				return nil, scanner.Token{}, err
+				return nil, err
 			}
 			if precedence(op0.Type) < precedence(op1.Type) {
-				v1, op1, err = parseRightExp(v1, op1)
+				v1, err = parseRightExp(v1, op1)
 				if err != nil {
-					return nil, scanner.Token{}, err
+					return nil, err
 				}
+				op1 = p.CurrentToken
 			}
 			v0 = p.infixOperators[op0.Type].fn(op0, v0, v1)
 			if precedence(op0.Type) > precedence(op1.Type) {
-				return v0, op1, nil
+				return v0, nil
 			}
 			op0 = op1
 		}
 	}
-
 	v, op, err := parseTerm()
 	if err != nil {
 		return nil, err
 	}
 	for registered(op.Type) {
-		v, op, err = parseRightExp(v, op)
+		v, err = parseRightExp(v, op)
 		if err != nil {
 			return nil, err
 		}
+		op = p.CurrentToken
 	}
 	return v, nil
 }

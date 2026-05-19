@@ -56,6 +56,7 @@ const (
 	GT     // >
 	GTE    // >=
 	// delimiters
+	COMMA     // ,
 	SEMICOLON // ;
 	LPAREN    // (
 	RPAREN    // )
@@ -96,6 +97,7 @@ var tokenLiterals = map[Kind]string{
 	GT:     ">",
 	GTE:    ">=",
 	// delimiters
+	COMMA:     ",",
 	SEMICOLON: ";",
 	LPAREN:    "(",
 	RPAREN:    ")",
