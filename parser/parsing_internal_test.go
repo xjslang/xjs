@@ -42,7 +42,7 @@ func TestSemicolonInsertion(t *testing.T) {
 	}
 }
 
-func TestAdvanceToStatementEnd(t *testing.T) {
+func TestAdvanceToStmtEnd(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
@@ -64,7 +64,7 @@ func TestAdvanceToStatementEnd(t *testing.T) {
 			if test.scoped {
 				p.EnterScope(blockScope)
 			}
-			p.AdvanceToStatementEnd()
+			p.AdvanceToStmtEnd()
 			if got := p.CurrentToken.Type; got != test.expected.Type {
 				t.Errorf("%d: Expected %v, got %v", i, test.expected.Type, got)
 			}

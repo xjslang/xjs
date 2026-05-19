@@ -7,10 +7,10 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func (p *Parser) UseStatementParser(parser func(p *Parser, next func() (ast.Node, error)) (ast.Node, error)) {
+func (p *Parser) UseStmtParser(parser func(p *Parser, next func() (ast.Node, error)) (ast.Node, error)) {
 	next := p.statementParser
 	if next == nil {
-		next = defaultStatementParser
+		next = defaultStmtParser
 	}
 	p.statementParser = func(p *Parser) (ast.Node, error) {
 		return parser(p, func() (ast.Node, error) {
@@ -19,7 +19,7 @@ func (p *Parser) UseStatementParser(parser func(p *Parser, next func() (ast.Node
 	}
 }
 
-func defaultStatementParser(p *Parser) (ast.Node, error) {
+func defaultStmtParser(p *Parser) (ast.Node, error) {
 	switch p.CurrentToken.Type {
 	case token.LET:
 		return ParseLetStmt(p)

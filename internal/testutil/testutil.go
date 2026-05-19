@@ -88,7 +88,7 @@ func NodeString(node ast.Node) string {
 		case *ast.Ident:
 			fmt.Fprintf(s, "{Value: %q}", v.Value.Literal)
 		case *ast.Block:
-			for _, stmt := range v.Statements {
+			for _, stmt := range v.Stmts {
 				fmt.Fprintf(s, "\n%s%s", indent, print(stmt))
 			}
 		case *ast.LetStmt:

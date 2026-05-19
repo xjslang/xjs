@@ -12,12 +12,12 @@ var blockScope = RegisterScope()
 func ParseProgram(p *Parser) (*ast.Program, error) {
 	result := &ast.Program{}
 	for p.CurrentToken.Type != token.EOF {
-		stmt, err := p.ParseStatement()
+		stmt, err := p.ParseStmt()
 		if err != nil {
-			p.AdvanceToStatementEnd()
+			p.AdvanceToStmtEnd()
 			continue
 		}
-		result.Statements = append(result.Statements, stmt)
+		result.Stmts = append(result.Stmts, stmt)
 	}
 	result.EOFToken = p.CurrentToken
 	if errors := p.Errors(); len(errors) > 0 {
@@ -31,7 +31,7 @@ func ParseParenExpr(p *Parser) (node *ast.ParenExpr, err error) {
 	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {
 		return nil, err
 	}
-	node.Value, err = p.ParseExpression()
+	node.Value, err = p.ParseExpr()
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func ParseLetStmt(p *Parser) (node *ast.LetStmt, err error) {
 	if node.AssignToken, err = p.Expect(token.ASSIGN); err != nil {
 		return nil, err
 	}
-	node.Value, err = p.ParseExpression()
+	node.Value, err = p.ParseExpr()
 	if err != nil {
 		return nil, err
 	}
@@ -93,13 +93,13 @@ func ParseBlock(p *Parser) (node *ast.Block, err error) {
 	}
 	var errs []error
 	for p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE {
-		stmt, err := p.ParseStatement()
+		stmt, err := p.ParseStmt()
 		if err != nil {
 			errs = append(errs, err)
-			p.AdvanceToStatementEnd()
+			p.AdvanceToStmtEnd()
 			continue
 		}
-		node.Statements = append(node.Statements, stmt)
+		node.Stmts = append(node.Stmts, stmt)
 	}
 	if node.RbraceToken, err = p.Expect(token.RBRACE); err != nil {
 		errs = append(errs, err)

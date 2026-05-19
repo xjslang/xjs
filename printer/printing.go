@@ -3,7 +3,7 @@ package printer
 import "github.com/xjslang/xjs/ast"
 
 func PrintProgram(p *Printer, node *ast.Program) {
-	for _, stmt := range node.Statements {
+	for _, stmt := range node.Stmts {
 		p.PrintNode(stmt)
 	}
 	p.PrintToken(node.EOFToken)
@@ -12,7 +12,7 @@ func PrintProgram(p *Printer, node *ast.Program) {
 func PrintBlock(p *Printer, node *ast.Block) {
 	p.PrintToken(node.LbraceToken)
 	p.IncreaseIndent()
-	for _, stmt := range node.Statements {
+	for _, stmt := range node.Stmts {
 		p.PrintNode(stmt)
 	}
 	// RBRACE is a special token, since the "leading trivia"
