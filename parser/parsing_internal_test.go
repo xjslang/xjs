@@ -44,16 +44,15 @@ func TestSemicolonInsertion(t *testing.T) {
 
 func TestAdvanceToStmtEnd(t *testing.T) {
 	tests := []struct {
-		name     string
-		input    string
-		scoped   bool
-		expected token.Token
+		name         string
+		input        string
+		expectedType token.Type
 	}{
-		{"empty", "", false, token.Token{Type: token.EOF}},
-		{"semicolon starting", ";", false, token.Token{Type: token.EOF}},
-		{"semicolon between", "let x = 100; let y = 200", false, token.Token{Type: token.LET}},
-		{"newline between", "let x = 100\n let y = 200", false, token.Token{Type: token.LET}},
-		{"end of line", "let x = 100", false, token.Token{Type: token.EOF}},
+		{"empty", "", token.EOF},
+		{"semicolon starting", ";", token.EOF},
+		{"semicolon between", "let x = 100; let y = 200", token.LET},
+		{"newline between", "let x = 100\n let y = 200", token.LET},
+		{"end of line", "let x = 100", token.EOF},
 	}
 	for i, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -61,12 +60,9 @@ func TestAdvanceToStmtEnd(t *testing.T) {
 			l.Init([]byte(test.input))
 			p := &Parser{}
 			p.Init(l)
-			if test.scoped {
-				p.EnterScope(blockScope)
-			}
 			p.AdvanceToStmtEnd()
-			if got := p.CurrentToken.Type; got != test.expected.Type {
-				t.Errorf("%d: Expected %v, got %v", i, test.expected.Type, got)
+			if got := p.CurrentToken.Type; got != test.expectedType {
+				t.Errorf("%d: Expected %v, got %v", i, test.expectedType, got)
 			}
 		})
 	}
