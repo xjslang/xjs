@@ -12,8 +12,13 @@ var blockScope = RegisterScope()
 func ParseProgram(p *Parser) (node *ast.Program, err error) {
 	node = &ast.Program{}
 	for p.CurrentToken.Type != token.EOF {
+		prevToken := p.CurrentToken
 		stmt, err := p.ParseStmt()
 		if err != nil {
+			if prevToken.Position == p.CurrentToken.Position {
+				// advance position to avoid infinite loop
+				p.AdvanceToken()
+			}
 			p.AdvanceToStmtEnd()
 			continue
 		}
@@ -105,8 +110,13 @@ func ParseBlock(p *Parser) (node *ast.Block, err error) {
 	}
 	var errs []error
 	for p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE {
+		prevToken := p.CurrentToken
 		stmt, err := p.ParseStmt()
 		if err != nil {
+			if prevToken.Position == p.CurrentToken.Position {
+				// advance position to avoid infinite loop
+				p.AdvanceToken()
+			}
 			errs = append(errs, err)
 			p.AdvanceToStmtEnd()
 			continue

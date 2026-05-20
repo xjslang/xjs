@@ -263,3 +263,42 @@ func TestExprStmt(t *testing.T) {
 		})
 	}
 }
+
+func TestInvalidTokenAfterNewline(t *testing.T) {
+	tests := []struct {
+		input  string
+		errors []string
+	}{
+		{"\n%", []string{"Expected value"}},
+		{"let\n%", []string{"Expected identifier", "Expected value"}},
+		{"let x\n%", []string{"Expected =", "Expected value"}},
+		{"let y =\n%", []string{"Expected value", "Expected value"}},
+		{"let x =\nlet y = 1", []string{"Expected value"}},
+	}
+	for i := range 2 {
+		for j, test := range tests {
+			t.Run(fmt.Sprintf("test %d%d", i, j), func(t *testing.T) {
+				var input string
+				if i > 0 {
+					input = fmt.Sprintf("{%s}", test.input)
+				} else {
+					input = test.input
+				}
+				p := createParser(input)
+				var err error
+				if i > 0 {
+					_, err = parser.ParseBlock(p)
+				} else {
+					_, err = parser.ParseProgram(p)
+				}
+				if err == nil {
+					t.Fatal("Expected an error, got nil")
+				}
+				expected := strings.Join(test.errors, "\n")
+				if got := err.Error(); got != expected {
+					t.Errorf("Expected %q, got %q", expected, got)
+				}
+			})
+		}
+	}
+}
