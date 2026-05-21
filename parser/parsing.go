@@ -32,6 +32,38 @@ func ParseProgram(p *Parser) (node *ast.Program, err error) {
 	return
 }
 
+func ParseBlock(p *Parser) (node *ast.Block, err error) {
+	p.EnterScope(blockScope)
+	defer p.ExitScope(blockScope)
+	node = &ast.Block{}
+	if node.LbraceToken, err = p.Expect(token.LBRACE); err != nil {
+		return
+	}
+	var errs []error
+	for p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE {
+		prevToken := p.CurrentToken
+		stmt, err := p.ParseStmt()
+		if err != nil {
+			if prevToken.Position == p.CurrentToken.Position {
+				// advance position to avoid infinite loop
+				p.AdvanceToken()
+			}
+			errs = append(errs, err)
+			p.AdvanceToStmtEnd()
+			continue
+		}
+		node.Stmts = append(node.Stmts, stmt)
+	}
+	if node.RbraceToken, err = p.Expect(token.RBRACE); err != nil {
+		errs = append(errs, err)
+	}
+	if len(errs) > 0 {
+		err = errors.Join(errs...)
+		return
+	}
+	return
+}
+
 func ParseExprStmt(p *Parser) (node *ast.ExprStmt, err error) {
 	node = &ast.ExprStmt{}
 	if node.Expr, err = p.ParseExpr(); err != nil {
@@ -98,37 +130,5 @@ func ParseFuncDecl(p *Parser) (node *ast.FuncDecl, err error) {
 		return
 	}
 	node.Body = body
-	return
-}
-
-func ParseBlock(p *Parser) (node *ast.Block, err error) {
-	p.EnterScope(blockScope)
-	defer p.ExitScope(blockScope)
-	node = &ast.Block{}
-	if node.LbraceToken, err = p.Expect(token.LBRACE); err != nil {
-		return
-	}
-	var errs []error
-	for p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE {
-		prevToken := p.CurrentToken
-		stmt, err := p.ParseStmt()
-		if err != nil {
-			if prevToken.Position == p.CurrentToken.Position {
-				// advance position to avoid infinite loop
-				p.AdvanceToken()
-			}
-			errs = append(errs, err)
-			p.AdvanceToStmtEnd()
-			continue
-		}
-		node.Stmts = append(node.Stmts, stmt)
-	}
-	if node.RbraceToken, err = p.Expect(token.RBRACE); err != nil {
-		errs = append(errs, err)
-	}
-	if len(errs) > 0 {
-		err = errors.Join(errs...)
-		return
-	}
 	return
 }
