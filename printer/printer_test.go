@@ -131,7 +131,7 @@ func TestLastComment(t *testing.T) {
 	}
 }
 
-func TestPrinter(t *testing.T) {
+func TestString(t *testing.T) {
 	tests := []struct {
 		name     string
 		indent   string
@@ -173,6 +173,20 @@ func TestPrinter(t *testing.T) {
 				t.Errorf("Expected %q, got %q", test.expected, result)
 			}
 		})
+	}
+}
+
+func TestBytes(t *testing.T) {
+	input := "hello"
+	p := printer.Printer{}
+	p.Init()
+	p.PrintString(input)
+	b := p.Bytes()
+	// try to modify the underlaying data
+	b[0] = 'H'
+	expected := "hello"
+	if got := p.String(); got != expected {
+		t.Errorf("Expected %q, got %q", expected, got)
 	}
 }
 
