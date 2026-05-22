@@ -23,7 +23,7 @@ func WithIndent(value string) printerOption {
 }
 
 type Printer struct {
-	doc         strings.Builder
+	strings.Builder
 	indent      string
 	indentLevel int
 	printer     func(ast.Node)
@@ -52,12 +52,12 @@ func (p *Printer) PrintString(s string) {
 	}
 	r, _ := utf8.DecodeLastRuneInString(s)
 	p.lastChar = r
-	p.doc.WriteString(s)
+	p.Builder.WriteString(s)
 }
 
 func (p *Printer) PrintRune(r rune) {
 	p.lastChar = r
-	p.doc.WriteRune(r)
+	p.Builder.WriteRune(r)
 }
 
 func (p *Printer) IncreaseIndent() {
@@ -72,16 +72,12 @@ func (p *Printer) DecreaseIndent() {
 
 func (p *Printer) PrintIndent() {
 	for range p.indentLevel {
-		p.doc.WriteString(p.indent)
+		p.Builder.WriteString(p.indent)
 	}
 }
 
 func (p *Printer) PrintNode(node ast.Node) {
 	p.printer(node)
-}
-
-func (p *Printer) String() string {
-	return p.doc.String()
 }
 
 func (p *Printer) PrintIndentedString(s string) {
