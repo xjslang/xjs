@@ -1,7 +1,7 @@
 package printer
 
 import (
-	"strings"
+	"bytes"
 	"unicode/utf8"
 
 	"github.com/xjslang/xjs/ast"
@@ -23,7 +23,7 @@ func WithIndent(value string) printerOption {
 }
 
 type Printer struct {
-	doc         strings.Builder
+	doc         bytes.Buffer
 	indent      string
 	indentLevel int
 	printer     func(ast.Node)
@@ -82,6 +82,10 @@ func (p *Printer) PrintNode(node ast.Node) {
 
 func (p *Printer) String() string {
 	return p.doc.String()
+}
+
+func (p *Printer) Bytes() []byte {
+	return p.doc.Bytes()
 }
 
 func (p *Printer) PrintIndentedString(s string) {
