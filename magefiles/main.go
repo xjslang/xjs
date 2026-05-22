@@ -5,6 +5,8 @@ package main
 import (
 
 	// mg contains helpful utility functions, like Deps
+	"fmt"
+
 	"github.com/magefile/mage/sh"
 )
 
@@ -30,4 +32,15 @@ func TestRace() error {
 
 func Bench() error {
 	return sh.RunV("go", "test", "./...", "-bench=.", "-benchtime=3s", "-run=^$")
+}
+
+func UpdateGoldenFiles() error {
+	dirs := []string{"parser", "printer"}
+	for _, dir := range dirs {
+		err := sh.RunV("go", "test", fmt.Sprintf("./%s/...", dir), "-run", "^TestGoldenFiles$", "-update", "-v")
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

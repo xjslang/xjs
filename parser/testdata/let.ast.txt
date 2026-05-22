@@ -1,0 +1,133 @@
+(*ast.Program)({
+	EOFToken: (token.Token) {
+		Position: (token.Position) {
+			Line: (int) 1,
+			Column: (int) 10
+		},
+		Type: (token.Type) 0,
+		Literal: (string) "",
+		LeadingTrivia: ([]token.Token) <nil>,
+		AfterNewline: (bool) false
+	},
+	Stmts: ([]ast.Node) (len=2) {
+		(*ast.LetStmt)({
+			LetToken: (token.Token) {
+				Position: (token.Position) {
+					Line: (int) 0,
+					Column: (int) 0
+				},
+				Type: (token.Type) 29,
+				Literal: (string) (len=3) "let",
+				LeadingTrivia: ([]token.Token) <nil>,
+				AfterNewline: (bool) false
+			},
+			AssignToken: (token.Token) {
+				Position: (token.Position) {
+					Line: (int) 0,
+					Column: (int) 6
+				},
+				Type: (token.Type) 7,
+				Literal: (string) (len=1) "=",
+				LeadingTrivia: ([]token.Token) <nil>,
+				AfterNewline: (bool) false
+			},
+			SemiToken: (token.Token) {
+				Position: (token.Position) {
+					Line: (int) 1,
+					Column: (int) 0
+				},
+				Type: (token.Type) 21,
+				Literal: (string) (len=1) ";",
+				LeadingTrivia: ([]token.Token) <nil>,
+				AfterNewline: (bool) false
+			},
+			Name: (token.Token) {
+				Position: (token.Position) {
+					Line: (int) 0,
+					Column: (int) 4
+				},
+				Type: (token.Type) 1,
+				Literal: (string) (len=1) "x",
+				LeadingTrivia: ([]token.Token) <nil>,
+				AfterNewline: (bool) false
+			},
+			Value: (*ast.BasicLit)({
+				Value: (token.Token) {
+					Position: (token.Position) {
+						Line: (int) 0,
+						Column: (int) 8
+					},
+					Type: (token.Type) 5,
+					Literal: (string) (len=3) "100",
+					LeadingTrivia: ([]token.Token) <nil>,
+					AfterNewline: (bool) false
+				}
+			})
+		}),
+		(*ast.LetStmt)({
+			LetToken: (token.Token) {
+				Position: (token.Position) {
+					Line: (int) 1,
+					Column: (int) 0
+				},
+				Type: (token.Type) 29,
+				Literal: (string) (len=3) "let",
+				LeadingTrivia: ([]token.Token) (len=1) {
+					(token.Token) {
+						Position: (token.Position) {
+							Line: (int) 1,
+							Column: (int) 0
+						},
+						Type: (token.Type) 26,
+						Literal: (string) (len=1) "\n",
+						LeadingTrivia: ([]token.Token) <nil>,
+						AfterNewline: (bool) false
+					}
+				},
+				AfterNewline: (bool) true
+			},
+			AssignToken: (token.Token) {
+				Position: (token.Position) {
+					Line: (int) 1,
+					Column: (int) 6
+				},
+				Type: (token.Type) 7,
+				Literal: (string) (len=1) "=",
+				LeadingTrivia: ([]token.Token) <nil>,
+				AfterNewline: (bool) false
+			},
+			SemiToken: (token.Token) {
+				Position: (token.Position) {
+					Line: (int) 1,
+					Column: (int) 10
+				},
+				Type: (token.Type) 21,
+				Literal: (string) (len=1) ";",
+				LeadingTrivia: ([]token.Token) <nil>,
+				AfterNewline: (bool) false
+			},
+			Name: (token.Token) {
+				Position: (token.Position) {
+					Line: (int) 1,
+					Column: (int) 4
+				},
+				Type: (token.Type) 1,
+				Literal: (string) (len=1) "y",
+				LeadingTrivia: ([]token.Token) <nil>,
+				AfterNewline: (bool) false
+			},
+			Value: (*ast.BasicLit)({
+				Value: (token.Token) {
+					Position: (token.Position) {
+						Line: (int) 1,
+						Column: (int) 8
+					},
+					Type: (token.Type) 5,
+					Literal: (string) (len=3) "200",
+					LeadingTrivia: ([]token.Token) <nil>,
+					AfterNewline: (bool) false
+				}
+			})
+		})
+	}
+})
