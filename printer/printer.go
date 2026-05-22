@@ -84,6 +84,10 @@ func (p *Printer) String() string {
 	return p.doc.String()
 }
 
+func (p *Printer) Bytes() []byte {
+	return []byte(p.String())
+}
+
 func (p *Printer) PrintIndentedString(s string) {
 	if len(s) == 0 {
 		return
