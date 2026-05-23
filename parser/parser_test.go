@@ -1,15 +1,74 @@
 package parser_test
 
 import (
+	"flag"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"testing"
 
+	"github.com/pmezard/go-difflib/difflib"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/xjslang/xjs/internal/debug"
 	"github.com/xjslang/xjs/internal/testutil"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/scanner"
 )
+
+var updateGoldenFiles bool
+
+func TestMain(m *testing.M) {
+	flag.BoolVar(&updateGoldenFiles, "update", false, "update golden files")
+	flag.Parse()
+	os.Exit(m.Run())
+}
+
+func TestGoldenFiles(t *testing.T) {
+	if updateGoldenFiles {
+		t.Log("updating golden files")
+	}
+	files, err := filepath.Glob("./testdata/*.js")
+	require.NoError(t, err)
+	for _, file := range files {
+		ext := filepath.Ext(file)
+		goldFile := fmt.Sprintf("%s.ast.txt", strings.TrimSuffix(file, ext))
+		if !updateGoldenFiles && !assert.FileExists(t, goldFile) {
+			continue
+		}
+		// parse the source file
+		source, err := os.ReadFile(file)
+		require.NoError(t, err)
+		s := &scanner.Scanner{}
+		s.Init(source)
+		p := &parser.Parser{}
+		p.Init(s)
+		result, err := parser.ParseProgram(p)
+		require.NoError(t, err)
+		// create or update golden file
+		got := debug.Sprint(result)
+		if updateGoldenFiles {
+			err = os.WriteFile(goldFile, []byte(got), 0o644)
+			require.NoError(t, err)
+			continue
+		}
+		// compare golden file with `got`
+		want, err := os.ReadFile(goldFile)
+		require.NoError(t, err)
+		if got != string(want) {
+			diff, err := difflib.GetUnifiedDiffString(difflib.UnifiedDiff{
+				A:       difflib.SplitLines(got),
+				B:       difflib.SplitLines(string(want)),
+				Context: 5,
+			})
+			assert.NoError(t, err)
+			t.Error(diff)
+		}
+	}
+}
 
 func Example_basic() {
 	result, err := testutil.Parse(`function hello() {
