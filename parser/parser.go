@@ -42,6 +42,7 @@ type Parser struct {
 	scopes         ScopeTracker
 	infixOperators map[token.Type]infixOperator
 	stmtParser     func(p *Parser) (ast.Node, error)
+	exprParser     func(p *Parser) (ast.Node, error)
 	errors         ErrorList
 }
 
@@ -50,6 +51,9 @@ func (p *Parser) Init(sc *scanner.Scanner) {
 	p.scanner = sc
 	if p.stmtParser == nil {
 		p.stmtParser = defaultStmtParser
+	}
+	if p.exprParser == nil {
+		p.exprParser = defaultExprParser
 	}
 	p.CurrentToken = token.Token{}
 	p.PeekToken = token.Token{}
@@ -80,91 +84,7 @@ func (p *Parser) ParseStmt() (ast.Node, error) {
 }
 
 func (p *Parser) ParseExpr() (ast.Node, error) {
-	registered := func(typ token.Type) bool {
-		_, ok := p.infixOperators[typ]
-		return ok
-	}
-	precedence := func(typ token.Type) int {
-		if op, ok := p.infixOperators[typ]; ok {
-			return op.precedence
-		}
-		return -1
-	}
-	parseTerm := func() (ast.Node, token.Token, error) {
-		// parse val
-		val, err := p.parseValue()
-		if err != nil {
-			return nil, token.Token{}, err
-		}
-		// parse op
-		op := p.CurrentToken
-		return val, op, nil
-	}
-	parseInfixCall := func(val ast.Node) (node *ast.CallExpr, err error) {
-		node = &ast.CallExpr{
-			Function:  val,
-			Arguments: nil,
-		}
-		if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {
-			return nil, err
-		}
-		if p.CurrentToken.Type != token.RPAREN {
-			for {
-				val, err := p.ParseExpr()
-				if err != nil {
-					return nil, err
-				}
-				node.Arguments = append(node.Arguments, val)
-				if p.CurrentToken.Type == token.RPAREN {
-					break
-				}
-				if _, err := p.Expect(token.COMMA); err != nil {
-					return nil, err
-				}
-			}
-		}
-		if node.RparenToken, err = p.Expect(token.RPAREN); err != nil {
-			return nil, err
-		}
-		return node, nil
-	}
-	var parseRightExp func(ast.Node, token.Token) (ast.Node, error)
-	parseRightExp = func(v0 ast.Node, op0 token.Token) (node ast.Node, err error) {
-		if op0.Type == token.LPAREN {
-			return parseInfixCall(v0)
-		}
-		for {
-			p.AdvanceToken()
-			v1, op1, err := parseTerm()
-			if err != nil {
-				return nil, err
-			}
-			if precedence(op0.Type) < precedence(op1.Type) {
-				v1, err = parseRightExp(v1, op1)
-				if err != nil {
-					return nil, err
-				}
-				op1 = p.CurrentToken
-			}
-			v0 = p.infixOperators[op0.Type].fn(op0, v0, v1)
-			if precedence(op0.Type) > precedence(op1.Type) {
-				return v0, nil
-			}
-			op0 = op1
-		}
-	}
-	v, op, err := parseTerm()
-	if err != nil {
-		return nil, err
-	}
-	for registered(op.Type) {
-		v, err = parseRightExp(v, op)
-		if err != nil {
-			return nil, err
-		}
-		op = p.CurrentToken
-	}
-	return v, nil
+	return p.exprParser(p)
 }
 
 func (p *Parser) AddError(msg string) {
