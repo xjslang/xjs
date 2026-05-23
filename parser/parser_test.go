@@ -98,10 +98,10 @@ func TestExprs(t *testing.T) {
 		{
 			input: "1 + 2 * (3 + 5) - 4",
 			expected: `BinaryExpr
-	LeftValue: BinaryExpr
-		LeftValue: BasicLit{Value: "1"}
-		Operator: "+"
-		RightValue: BinaryExpr
+	LeftValue: BasicLit{Value: "1"}
+	Operator: "+"
+	RightValue: BinaryExpr
+		LeftValue: BinaryExpr
 			LeftValue: BasicLit{Value: "2"}
 			Operator: "*"
 			RightValue: ParenExpr
@@ -109,8 +109,8 @@ func TestExprs(t *testing.T) {
 					LeftValue: BasicLit{Value: "3"}
 					Operator: "+"
 					RightValue: BasicLit{Value: "5"}
-	Operator: "-"
-	RightValue: BasicLit{Value: "4"}`,
+		Operator: "-"
+		RightValue: BasicLit{Value: "4"}`,
 		},
 		{
 			input: "foo() + 1",

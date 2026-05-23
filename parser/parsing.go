@@ -75,6 +75,48 @@ func ParseExprStmt(p *Parser) (node *ast.ExprStmt, err error) {
 	return
 }
 
+func ParseRemainingExpr(p *Parser) (val ast.Node, err error) {
+	acc := func(leftVal, rightVal ast.Node, op token.Token) ast.Node {
+		if leftVal == nil {
+			return rightVal
+		}
+		return &ast.BinaryExpr{
+			LeftValue:  leftVal,
+			Operator:   op,
+			RightValue: rightVal,
+		}
+	}
+	var nextVal ast.Node
+	op := p.CurrentToken
+	p.AdvanceToken()
+	for {
+		if nextVal, err = p.parseValue(); err != nil {
+			return
+		}
+		nextOp := p.CurrentToken
+		if !p.isOperator(nextOp) {
+			val = acc(val, nextVal, op)
+			break
+		}
+		p0, p1 := p.precedence(op), p.precedence(nextOp)
+		if p0 < p1 {
+			var remainingVal ast.Node
+			if remainingVal, err = ParseRemainingExpr(p); err != nil {
+				return
+			}
+			nextVal = acc(nextVal, remainingVal, nextOp)
+			nextOp = p.CurrentToken
+		} else if p0 > p1 {
+			val = acc(val, nextVal, op)
+			break
+		}
+		p.AdvanceToken()
+		val = acc(val, nextVal, op)
+		op = nextOp
+	}
+	return
+}
+
 func ParseParenExpr(p *Parser) (node *ast.ParenExpr, err error) {
 	node = &ast.ParenExpr{}
 	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {
