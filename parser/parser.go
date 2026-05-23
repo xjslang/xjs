@@ -188,3 +188,16 @@ func (p *Parser) parseValue() (ast.Node, error) {
 	p.AddError(msg)
 	return nil, errors.New(msg)
 }
+
+func (p *Parser) isOperator(tok token.Token) bool {
+	_, ok := p.infixOperators[tok.Type]
+	return ok
+}
+
+func (p *Parser) precedence(tok token.Token) int {
+	op, ok := p.infixOperators[tok.Type]
+	if !ok {
+		return -1
+	}
+	return op.precedence
+}

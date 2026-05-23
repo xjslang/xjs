@@ -96,6 +96,16 @@ func TestExprs(t *testing.T) {
 		expected string
 	}{
 		{
+			input: "1 - 2 - 3",
+			expected: `BinaryExpr
+	LeftValue: BinaryExpr
+		LeftValue: BasicLit{Value: "1"}
+		Operator: "-"
+		RightValue: BasicLit{Value: "2"}
+	Operator: "-"
+	RightValue: BasicLit{Value: "3"}`,
+		},
+		{
 			input: "1 + 2 * (3 + 5) - 4",
 			expected: `BinaryExpr
 	LeftValue: BinaryExpr
@@ -113,10 +123,13 @@ func TestExprs(t *testing.T) {
 	RightValue: BasicLit{Value: "4"}`,
 		},
 		{
-			input: "foo() + 1",
+			input: "foo() * 2 + 1",
 			expected: `BinaryExpr
-	LeftValue: CallExpr
-		Function: Ident{Value: "foo"}
+	LeftValue: BinaryExpr
+		LeftValue: CallExpr
+			Function: Ident{Value: "foo"}
+		Operator: "*"
+		RightValue: BasicLit{Value: "2"}
 	Operator: "+"
 	RightValue: BasicLit{Value: "1"}`,
 		},
@@ -144,6 +157,23 @@ func TestExprs(t *testing.T) {
 					RightValue: BasicLit{Value: "3"}
 			Operator: "+"
 			RightValue: BasicLit{Value: "4"}`,
+		},
+		{
+			input: "1 + foo()",
+			expected: `BinaryExpr
+	LeftValue: BasicLit{Value: "1"}
+	Operator: "+"
+	RightValue: CallExpr
+		Function: Ident{Value: "foo"}`,
+		},
+		{
+			input: "1 + foo()()",
+			expected: `BinaryExpr
+	LeftValue: BasicLit{Value: "1"}
+	Operator: "+"
+	RightValue: CallExpr
+		Function: CallExpr
+			Function: Ident{Value: "foo"}`,
 		},
 	}
 	for i, test := range tests {
