@@ -36,20 +36,20 @@ type infixOperator struct {
 }
 
 type Parser struct {
-	CurrentToken    token.Token
-	PeekToken       token.Token
-	scanner         *scanner.Scanner
-	scopes          ScopeTracker
-	infixOperators  map[token.Type]infixOperator
-	statementParser func(p *Parser) (ast.Node, error)
-	errors          ErrorList
+	CurrentToken   token.Token
+	PeekToken      token.Token
+	scanner        *scanner.Scanner
+	scopes         ScopeTracker
+	infixOperators map[token.Type]infixOperator
+	stmtParser     func(p *Parser) (ast.Node, error)
+	errors         ErrorList
 }
 
 func (p *Parser) Init(sc *scanner.Scanner) {
 	p.scopes = make(ScopeTracker)
 	p.scanner = sc
-	if p.statementParser == nil {
-		p.statementParser = defaultStmtParser
+	if p.stmtParser == nil {
+		p.stmtParser = defaultStmtParser
 	}
 	p.CurrentToken = token.Token{}
 	p.PeekToken = token.Token{}
@@ -76,7 +76,7 @@ func (p *Parser) Init(sc *scanner.Scanner) {
 }
 
 func (p *Parser) ParseStmt() (ast.Node, error) {
-	return p.statementParser(p)
+	return p.stmtParser(p)
 }
 
 func (p *Parser) ParseExpr() (ast.Node, error) {

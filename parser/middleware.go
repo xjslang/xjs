@@ -6,11 +6,11 @@ import (
 )
 
 func (p *Parser) UseStmtParser(parser func(p *Parser, next func() (ast.Node, error)) (ast.Node, error)) {
-	next := p.statementParser
+	next := p.stmtParser
 	if next == nil {
 		next = defaultStmtParser
 	}
-	p.statementParser = func(p *Parser) (ast.Node, error) {
+	p.stmtParser = func(p *Parser) (ast.Node, error) {
 		return parser(p, func() (ast.Node, error) {
 			return next(p)
 		})
