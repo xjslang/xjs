@@ -38,6 +38,7 @@ func CompareTokenPosition() TokenCompareOption {
 }
 
 func AssertTokens(t *testing.T, toks, expectedToks []token.Token, opts ...TokenCompareOption) {
+	t.Helper()
 	cfg := &tokenCompareConfig{}
 	for _, opt := range opts {
 		opt(cfg)
