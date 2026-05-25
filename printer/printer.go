@@ -26,7 +26,7 @@ type Printer struct {
 	doc         strings.Builder
 	indent      string
 	indentLevel int
-	printer     func(ast.Node)
+	printer     func(*Printer, ast.Node)
 	lastChar    rune
 	ensureLine  bool
 	ensureSpace bool
@@ -40,7 +40,7 @@ func (p *Printer) Init(opts ...printerOption) {
 		opt(cfg)
 	}
 	if p.printer == nil {
-		p.printer = p.defaultPrinter
+		p.printer = defaultPrinter
 	}
 	p.indent = cfg.indent
 	p.lastChar = eol
@@ -77,7 +77,7 @@ func (p *Printer) PrintIndent() {
 }
 
 func (p *Printer) PrintNode(node ast.Node) {
-	p.printer(node)
+	p.printer(p, node)
 }
 
 func (p *Printer) String() string {

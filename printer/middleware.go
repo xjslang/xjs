@@ -2,19 +2,19 @@ package printer
 
 import "github.com/xjslang/xjs/ast"
 
-func (p *Printer) UsePrinter(printer func(pr *Printer, node ast.Node, next func())) {
+func (p *Printer) UsePrinter(printer func(pr *Printer, node ast.Node, next func(node ast.Node))) {
 	print := p.printer
 	if p.printer == nil {
-		print = p.defaultPrinter
+		print = defaultPrinter
 	}
-	p.printer = func(node ast.Node) {
-		printer(p, node, func() {
-			print(node)
+	p.printer = func(p *Printer, node ast.Node) {
+		printer(p, node, func(node ast.Node) {
+			print(p, node)
 		})
 	}
 }
 
-func (p *Printer) defaultPrinter(node ast.Node) {
+func defaultPrinter(p *Printer, node ast.Node) {
 	switch node := node.(type) {
 	case *ast.Program:
 		PrintProgram(p, node)

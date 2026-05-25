@@ -63,7 +63,7 @@ func main() {
 
 	// create a compiler that can compile `DeferStmt`
 	djsCompiler := &printer.Printer{}
-	djsCompiler.UsePrinter(func(pr *printer.Printer, node ast.Node, next func()) {
+	djsCompiler.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node)) {
 		if node, ok := node.(*DeferStmt); ok {
 			pr.PrintTrivia(node.DeferToken.LeadingTrivia) // print previous comments and new lines
 			pr.EnsureLine()                               // ensure a new line is added before printing
@@ -73,7 +73,7 @@ func main() {
 			pr.PrintIndentedString("}}}")
 			return
 		}
-		next()
+		next(node)
 	})
 	djsCompiler.Init()
 	djsCompiler.PrintNode(node)
@@ -81,7 +81,7 @@ func main() {
 
 	// create a formatter that can format `DeferStmt`
 	djsFormatter := &printer.Printer{}
-	djsFormatter.UsePrinter(func(pr *printer.Printer, node ast.Node, next func()) {
+	djsFormatter.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node)) {
 		if node, ok := node.(*DeferStmt); ok {
 			pr.EnsureLine() // ensure a new line is added before printing
 			pr.PrintToken(node.DeferToken)
@@ -90,7 +90,7 @@ func main() {
 			pr.PrintToken(node.Stmt.SemiToken)
 			return
 		}
-		next()
+		next(node)
 	})
 	djsFormatter.Init()
 	djsFormatter.PrintNode(node)
