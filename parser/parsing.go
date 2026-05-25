@@ -75,6 +75,23 @@ func ParseExprStmt(p *Parser) (node *ast.ExprStmt, err error) {
 	return
 }
 
+func ParseRemainingExpr(p *Parser) (val ast.Node, err error) {
+	op := p.CurrentToken
+	p.AdvanceToken()
+	if val, err = p.parseValue(); err != nil {
+		return
+	}
+	for {
+		if !p.isOperator(p.CurrentToken) || p.precedence(op) >= p.precedence(p.CurrentToken) {
+			break
+		}
+		if val, err = defaultOpParser(p, val); err != nil {
+			return
+		}
+	}
+	return
+}
+
 func ParseParenExpr(p *Parser) (node *ast.ParenExpr, err error) {
 	node = &ast.ParenExpr{}
 	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {
@@ -130,5 +147,31 @@ func ParseFuncDecl(p *Parser) (node *ast.FuncDecl, err error) {
 		return
 	}
 	node.Body = body
+	return
+}
+
+func ParseCallExpr(p *Parser, leftVal ast.Node) (node *ast.CallExpr, err error) {
+	node = &ast.CallExpr{Function: leftVal}
+	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {
+		return
+	}
+	if p.CurrentToken.Type != token.RPAREN {
+		for {
+			val, err := p.ParseExpr()
+			if err != nil {
+				return nil, err
+			}
+			node.Arguments = append(node.Arguments, val)
+			if p.CurrentToken.Type == token.RPAREN {
+				break
+			}
+			if _, err := p.Expect(token.COMMA); err != nil {
+				return nil, err
+			}
+		}
+	}
+	if node.RparenToken, err = p.Expect(token.RPAREN); err != nil {
+		return nil, err
+	}
 	return
 }
