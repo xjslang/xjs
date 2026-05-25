@@ -30,20 +30,14 @@ func (list ErrorList) Error() string {
 	return strings.Join(result, "\n")
 }
 
-type infixOperator struct {
-	precedence int
-	fn         func(op token.Token, left, right ast.Node) ast.Node
-}
-
 type Parser struct {
-	CurrentToken   token.Token
-	PeekToken      token.Token
-	scanner        *scanner.Scanner
-	scopes         ScopeTracker
-	infixOperators map[token.Type]infixOperator
-	stmtParser     func(p *Parser) (ast.Node, error)
-	exprParser     func(p *Parser) (ast.Node, error)
-	errors         ErrorList
+	CurrentToken token.Token
+	PeekToken    token.Token
+	scanner      *scanner.Scanner
+	scopes       ScopeTracker
+	stmtParser   func(p *Parser) (ast.Node, error)
+	exprParser   func(p *Parser) (ast.Node, error)
+	errors       ErrorList
 }
 
 func (p *Parser) Init(sc *scanner.Scanner) {
@@ -57,22 +51,6 @@ func (p *Parser) Init(sc *scanner.Scanner) {
 	}
 	p.CurrentToken = token.Token{}
 	p.PeekToken = token.Token{}
-	if p.infixOperators == nil {
-		p.infixOperators = make(map[token.Type]infixOperator)
-	}
-	defaultInfixOperator := func(op token.Token, left, right ast.Node) ast.Node {
-		return &ast.BinaryExpr{
-			LeftValue:  left,
-			Operator:   op,
-			RightValue: right,
-		}
-	}
-	p.infixOperators[token.PLUS] = infixOperator{precedence: 1, fn: defaultInfixOperator}
-	p.infixOperators[token.MINUS] = infixOperator{precedence: 1, fn: defaultInfixOperator}
-	p.infixOperators[token.MULTIPLY] = infixOperator{precedence: 2, fn: defaultInfixOperator}
-	p.infixOperators[token.DIVIDE] = infixOperator{precedence: 2, fn: defaultInfixOperator}
-	p.infixOperators[token.MODULO] = infixOperator{precedence: 2, fn: defaultInfixOperator}
-	p.infixOperators[token.LPAREN] = infixOperator{precedence: 3, fn: defaultInfixOperator}
 	p.errors = ErrorList{}
 	// call twice to update CurrentToken and PeekToken
 	p.AdvanceToken()
@@ -187,17 +165,4 @@ func (p *Parser) parseValue() (ast.Node, error) {
 	msg := "Expected value"
 	p.AddError(msg)
 	return nil, errors.New(msg)
-}
-
-func (p *Parser) isOperator(tok token.Token) bool {
-	_, ok := p.infixOperators[tok.Type]
-	return ok
-}
-
-func (p *Parser) precedence(tok token.Token) int {
-	op, ok := p.infixOperators[tok.Type]
-	if !ok {
-		return -1
-	}
-	return op.precedence
 }
