@@ -138,10 +138,26 @@ var binOperators = map[Type]int{
 }
 
 func (typ Type) IsBinaryOperator() (ok bool) {
+	registerMu.RLock()
+	defer registerMu.RUnlock()
 	_, ok = binOperators[typ]
 	return
 }
 
 func (typ Type) Precedence() int {
+	registerMu.RLock()
+	defer registerMu.RUnlock()
 	return binOperators[typ]
+}
+
+func (typ Type) Register(precedence int) {
+	registerMu.Lock()
+	defer registerMu.Unlock()
+	binOperators[typ] = precedence
+}
+
+func RegisterBinaryOperator(lit string, precedence int) Type {
+	typ := RegisterType(lit)
+	typ.Register(precedence)
+	return typ
 }

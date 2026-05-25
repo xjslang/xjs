@@ -5,6 +5,18 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
+func (p *Parser) UseBinExprParser(parser func(p *Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error)) {
+	next := p.binExprParser
+	if next == nil {
+		next = defaultBinExprParser
+	}
+	p.binExprParser = func(p *Parser, leftVal ast.Node) (ast.Node, error) {
+		return parser(p, leftVal, func(leftVal ast.Node) (ast.Node, error) {
+			return next(p, leftVal)
+		})
+	}
+}
+
 func (p *Parser) UseStmtParser(parser func(p *Parser, next func() (ast.Node, error)) (ast.Node, error)) {
 	next := p.stmtParser
 	if next == nil {
@@ -29,7 +41,7 @@ func (p *Parser) UseExprParser(parser func(p *Parser, next func() (ast.Node, err
 	}
 }
 
-func defaultOpParser(p *Parser, leftVal ast.Node) (node ast.Node, err error) {
+func defaultBinExprParser(p *Parser, leftVal ast.Node) (node ast.Node, err error) {
 	op := p.CurrentToken
 	if op.Type == token.LPAREN {
 		return ParseCallExpr(p, leftVal)
@@ -62,7 +74,7 @@ func defaultExprParser(p *Parser) (val ast.Node, err error) {
 	}
 	typ := p.CurrentToken.Type
 	for typ.IsBinaryOperator() {
-		if val, err = defaultOpParser(p, val); err != nil {
+		if val, err = p.binExprParser(p, val); err != nil {
 			return
 		}
 		typ = p.CurrentToken.Type
