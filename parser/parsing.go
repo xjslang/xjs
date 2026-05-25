@@ -86,7 +86,7 @@ func ParseRemainingExpr(p *Parser) (val ast.Node, err error) {
 		if !typ1.IsBinaryOperator() || typ0.Precedence() >= typ1.Precedence() {
 			break
 		}
-		if val, err = defaultOpParser(p, val); err != nil {
+		if val, err = p.binExprParser(p, val); err != nil {
 			return
 		}
 	}

@@ -70,3 +70,57 @@ func TestUseExprParser(t *testing.T) {
 	funcName := expr.Function.(*ast.Ident)
 	assert.Equal(t, "exit", funcName.Value.Literal)
 }
+
+type powExpr struct {
+	LeftValue  ast.Node
+	Operator   token.Token
+	RightValue ast.Node
+}
+
+func (node *powExpr) Type() string {
+	return "powExpr"
+}
+
+func TestUseBinExprParser(t *testing.T) {
+	powType := token.RegisterBinaryOperator("^", 3)
+	input := "1+5^2"
+	s := &scanner.Scanner{}
+	s.UseScanner(func(s *scanner.Scanner, next func() token.Token) token.Token {
+		if s.CurrentChar == '^' {
+			s.AdvanceChar()
+			return token.Token{Type: powType, Literal: "^"}
+		}
+		return next()
+	})
+	s.Init([]byte(input))
+	p := &parser.Parser{}
+	p.UseBinExprParser(func(p *parser.Parser, leftVal ast.Node, next func(ast.Node) (ast.Node, error)) (node ast.Node, err error) {
+		if p.CurrentToken.Type == powType {
+			powNode := &powExpr{LeftValue: leftVal, Operator: p.CurrentToken}
+			if powNode.RightValue, err = parser.ParseRemainingExpr(p); err != nil {
+				return
+			}
+			node = powNode
+			return
+		}
+		return next(leftVal)
+	})
+	p.Init(s)
+	result, err := p.ParseExpr()
+	if err != nil {
+		t.Fatal(err)
+	}
+	// check the result
+	require.IsType(t, &ast.BinaryExpr{}, result)
+	binNode := result.(*ast.BinaryExpr)
+	require.IsType(t, &ast.BasicLit{}, binNode.LeftValue)
+	require.Equal(t, "1", binNode.LeftValue.(*ast.BasicLit).Value.Literal)
+	require.Equal(t, token.PLUS, binNode.Operator.Type)
+	require.IsType(t, &powExpr{}, binNode.RightValue)
+	powNode := binNode.RightValue.(*powExpr)
+	require.IsType(t, &ast.BasicLit{}, powNode.LeftValue)
+	require.Equal(t, "5", powNode.LeftValue.(*ast.BasicLit).Value.Literal)
+	require.Equal(t, powType, powNode.Operator.Type)
+	require.IsType(t, &ast.BasicLit{}, powNode.RightValue)
+	require.Equal(t, "2", powNode.RightValue.(*ast.BasicLit).Value.Literal)
+}
