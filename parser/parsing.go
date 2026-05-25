@@ -76,13 +76,14 @@ func ParseExprStmt(p *Parser) (node *ast.ExprStmt, err error) {
 }
 
 func ParseRemainingExpr(p *Parser) (val ast.Node, err error) {
-	op := p.CurrentToken
+	typ0 := p.CurrentToken.Type
 	p.AdvanceToken()
 	if val, err = p.parseValue(); err != nil {
 		return
 	}
 	for {
-		if !p.isOperator(p.CurrentToken) || p.precedence(op) >= p.precedence(p.CurrentToken) {
+		typ1 := p.CurrentToken.Type
+		if !typ1.IsBinaryOperator() || typ0.Precedence() >= typ1.Precedence() {
 			break
 		}
 		if val, err = defaultOpParser(p, val); err != nil {

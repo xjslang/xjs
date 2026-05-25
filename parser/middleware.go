@@ -60,12 +60,12 @@ func defaultExprParser(p *Parser) (val ast.Node, err error) {
 	if val, err = p.parseValue(); err != nil {
 		return
 	}
-	op := p.CurrentToken
-	for p.isOperator(op) {
+	typ := p.CurrentToken.Type
+	for typ.IsBinaryOperator() {
 		if val, err = defaultOpParser(p, val); err != nil {
 			return
 		}
-		op = p.CurrentToken
+		typ = p.CurrentToken.Type
 	}
 	return
 }

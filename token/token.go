@@ -127,3 +127,21 @@ func RegisterType(lit string) Type {
 	nextType++
 	return typ
 }
+
+var binOperators = map[Type]int{
+	PLUS:     1,
+	MINUS:    1,
+	MULTIPLY: 2,
+	DIVIDE:   2,
+	MODULO:   2,
+	LPAREN:   3,
+}
+
+func (typ Type) IsBinaryOperator() (ok bool) {
+	_, ok = binOperators[typ]
+	return
+}
+
+func (typ Type) Precedence() int {
+	return binOperators[typ]
+}
