@@ -82,7 +82,7 @@ func (node *powExpr) Type() string {
 }
 
 func TestUseBinExprParser(t *testing.T) {
-	powType := token.RegisterBinaryOperator("^", 3)
+	powType := token.RegisterBinaryOperator("^", token.MULTIPLY.Precedence()+1)
 	input := "1+5^2"
 	s := &scanner.Scanner{}
 	s.UseScanner(func(s *scanner.Scanner, next func() token.Token) token.Token {

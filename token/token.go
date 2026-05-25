@@ -129,12 +129,23 @@ func RegisterType(lit string) Type {
 }
 
 var binOperators = map[Type]int{
-	PLUS:     1,
-	MINUS:    1,
-	MULTIPLY: 2,
-	DIVIDE:   2,
-	MODULO:   2,
-	LPAREN:   3,
+	// == !=
+	EQ:     1,
+	NOT_EQ: 1,
+	// < <= > >=
+	LT:  2,
+	LTE: 2,
+	GT:  2,
+	GTE: 2,
+	// + -
+	PLUS:  3,
+	MINUS: 3,
+	// * / %
+	MULTIPLY: 4,
+	DIVIDE:   4,
+	MODULO:   4,
+	// specials operators
+	LPAREN: 5,
 }
 
 func (typ Type) IsBinaryOperator() (ok bool) {
