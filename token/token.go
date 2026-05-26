@@ -171,7 +171,7 @@ func (typ Type) Precedence() int {
 	return binOperators[typ]
 }
 
-func (typ Type) Register(precedence int) {
+func (typ Type) RegisterBinaryOperator(precedence int) {
 	registerMu.Lock()
 	defer registerMu.Unlock()
 	binOperators[typ] = precedence
@@ -179,6 +179,6 @@ func (typ Type) Register(precedence int) {
 
 func RegisterBinaryOperator(lit string, precedence int) Type {
 	typ := RegisterType(lit)
-	typ.Register(precedence)
+	typ.RegisterBinaryOperator(precedence)
 	return typ
 }
