@@ -313,3 +313,31 @@ func TestEnsureSpace(t *testing.T) {
 		t.Errorf("Expected %q, got %q", expected, got)
 	}
 }
+
+func TestPrint(t *testing.T) {
+	t.Run("panic on unsupported types", func(t *testing.T) {
+		pr := printer.Printer{}
+		pr.Init()
+		require.Panics(t, func() { pr.Print(100) })
+	})
+}
+
+func TestLnPrint(t *testing.T) {
+	t.Run("new line is added before printing", func(t *testing.T) {
+		pr := printer.Printer{}
+		pr.Init()
+		pr.LnPrint("aaa")
+		pr.LnPrint("bbb")
+		pr.LnPrint("ccc")
+		require.Equal(t, "aaa\nbbb\nccc", pr.String())
+	})
+}
+
+func TestSpPrint(t *testing.T) {
+	t.Run("spaces are added in between", func(t *testing.T) {
+		pr := printer.Printer{}
+		pr.Init()
+		pr.SpPrint("aaa", "bbb", "ccc")
+		require.Equal(t, "aaa bbb ccc", pr.String())
+	})
+}
