@@ -1,37 +1,67 @@
 package printer
 
 import (
+	"strings"
+	"unicode/utf8"
+
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/printer/internal/formatter"
 	"github.com/xjslang/xjs/token"
 )
 
-type PrinterOption = formatter.FormatterOption
+const eol = rune(-1)
 
-func WithIndent(value string) PrinterOption {
-	return formatter.WithIndent(value)
+type config struct {
+	indent string
+}
+
+type Option func(*config)
+
+func WithIndent(value string) Option {
+	return func(cfg *config) {
+		cfg.indent = value
+	}
 }
 
 type Printer struct {
-	fmt         formatter.Formatter
+	doc         strings.Builder
+	indent      string
+	indentLevel int
+	lastChar    rune
 	ensureLine  bool
 	ensureSpace bool
 	printer     func(*Printer, ast.Node)
 }
 
-func (p *Printer) Init(opts ...PrinterOption) {
-	p.fmt.Init(opts...)
+func (p *Printer) Init(opts ...Option) {
+	cfg := &config{
+		indent: "  ",
+	}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+	p.doc.Reset()
+	p.indent = cfg.indent
+	p.indentLevel = 0
+	p.lastChar = eol
 	if p.printer == nil {
 		p.printer = defaultPrinter
 	}
 }
 
 func (p *Printer) IncreaseIndent() {
-	p.fmt.IncreaseIndent()
+	p.indentLevel++
 }
 
 func (p *Printer) DecreaseIndent() {
-	p.fmt.DecreaseIndent()
+	if p.indentLevel > 0 {
+		p.indentLevel--
+	}
+}
+
+func (p *Printer) PrintIndent() {
+	for range p.indentLevel {
+		p.writeString(p.indent)
+	}
 }
 
 func (p *Printer) EnsureLine() {
@@ -75,24 +105,38 @@ func (p *Printer) PrintTrivia(trivia []token.Token) {
 	for _, tok := range trivia {
 		switch tok.Type {
 		case token.NEWLINE:
-			p.fmt.PrintRune('\n')
+			p.writeRune('\n')
 		case token.LINE_COMMENT:
 			p.printSpaceIfNeeded()
 			p.printIndentIfNeeded()
-			p.fmt.PrintString("//" + tok.Literal)
+			p.writeString("//" + tok.Literal)
 		case token.BLOCK_COMMENT:
 			p.printIndentIfNeeded()
-			p.fmt.PrintString("/*" + tok.Literal + "*/")
+			p.writeString("/*" + tok.Literal + "*/")
 		}
 	}
 }
 
 func (p *Printer) String() string {
-	return p.fmt.String()
+	return p.doc.String()
 }
 
 func (p *Printer) Bytes() []byte {
 	return []byte(p.String())
+}
+
+func (p *Printer) writeString(s string) {
+	if len(s) == 0 {
+		return
+	}
+	r, _ := utf8.DecodeLastRuneInString(s)
+	p.lastChar = r
+	p.doc.WriteString(s)
+}
+
+func (p *Printer) writeRune(r rune) {
+	p.lastChar = r
+	p.doc.WriteRune(r)
 }
 
 func (p *Printer) printNode(node ast.Node) {
@@ -104,12 +148,12 @@ func (p *Printer) printString(s string) {
 		return
 	}
 	p.printSeparatorIfNeeded()
-	p.fmt.PrintString(s)
+	p.writeString(s)
 }
 
 func (p *Printer) printRune(r rune) {
 	p.printSeparatorIfNeeded()
-	p.fmt.PrintRune(r)
+	p.writeRune(r)
 }
 
 func (p *Printer) printToken(tok token.Token) {
@@ -118,20 +162,20 @@ func (p *Printer) printToken(tok token.Token) {
 }
 
 func (p *Printer) printLineIfNeeded() {
-	if !isNewLine(p.fmt.LastChar) {
-		p.fmt.PrintRune('\n')
+	if !isNewLine(p.lastChar) {
+		p.writeRune('\n')
 	}
 }
 
 func (p *Printer) printSpaceIfNeeded() {
-	if !isWhitespace(p.fmt.LastChar) {
-		p.fmt.PrintRune(' ')
+	if !isWhitespace(p.lastChar) {
+		p.writeRune(' ')
 	}
 }
 
 func (p *Printer) printIndentIfNeeded() {
-	if isNewLine(p.fmt.LastChar) {
-		p.fmt.PrintIndent()
+	if isNewLine(p.lastChar) {
+		p.PrintIndent()
 	}
 }
 
