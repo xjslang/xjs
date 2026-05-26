@@ -166,11 +166,9 @@ func (p *Printer) Print(args ...any) {
 	}
 }
 
-func (p *Printer) LnPrint(args ...any) {
-	for _, arg := range args {
-		p.EnsureLine()
-		p.Print(arg)
-	}
+func (p *Printer) LnPrint(arg any) {
+	p.EnsureLine()
+	p.Print(arg)
 }
 
 func (p *Printer) SpPrint(args ...any) {
