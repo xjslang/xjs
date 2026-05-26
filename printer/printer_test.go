@@ -313,3 +313,10 @@ func TestEnsureSpace(t *testing.T) {
 		t.Errorf("Expected %q, got %q", expected, got)
 	}
 }
+
+func TestPrint(t *testing.T) {
+	t.Run("panic on unsupported types", func(t *testing.T) {
+		pr := printer.Printer{}
+		require.Panics(t, func() { pr.Print(100) })
+	})
+}
