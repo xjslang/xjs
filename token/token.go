@@ -47,14 +47,17 @@ const (
 	MULTIPLY // *
 	DIVIDE   // /
 	MODULO   // %
-	// logical operators
-	NOT    // !
+	// comparison operators
 	EQ     // ==
 	NOT_EQ // !=
 	LT     // <
 	LTE    // <=
 	GT     // >
 	GTE    // >=
+	// Logical operators
+	AND // &&
+	OR  // ||
+	NOT // !
 	// delimiters
 	COMMA     // ,
 	SEMICOLON // ;
@@ -88,14 +91,17 @@ var tokenLiterals = map[Type]string{
 	MULTIPLY: "*",
 	DIVIDE:   "/",
 	MODULO:   "%",
-	// logical operators
-	NOT:    "!",
+	// comparison operators
 	EQ:     "==",
 	NOT_EQ: "!=",
 	LT:     "<",
 	LTE:    "<=",
 	GT:     ">",
 	GTE:    ">=",
+	// logical operators
+	AND: "&&",
+	OR:  "||",
+	NOT: "!",
 	// delimiters
 	COMMA:     ",",
 	SEMICOLON: ";",
@@ -129,23 +135,27 @@ func RegisterType(lit string) Type {
 }
 
 var binOperators = map[Type]int{
+	// || (lowest precedence for operators)
+	OR: 1,
+	// &&
+	AND: 2,
 	// == !=
-	EQ:     1,
-	NOT_EQ: 1,
+	EQ:     3,
+	NOT_EQ: 3,
 	// < <= > >=
-	LT:  2,
-	LTE: 2,
-	GT:  2,
-	GTE: 2,
+	LT:  4,
+	LTE: 4,
+	GT:  4,
+	GTE: 4,
 	// + -
-	PLUS:  3,
-	MINUS: 3,
+	PLUS:  5,
+	MINUS: 5,
 	// * / %
-	MULTIPLY: 4,
-	DIVIDE:   4,
-	MODULO:   4,
+	MULTIPLY: 6,
+	DIVIDE:   6,
+	MODULO:   6,
 	// specials operators
-	LPAREN: 5,
+	LPAREN: 7,
 }
 
 func (typ Type) IsBinaryOperator() (ok bool) {
