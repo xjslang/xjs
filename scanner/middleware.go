@@ -57,6 +57,24 @@ func defaultScanner(sc *Scanner) token.Token {
 			return token.Token{Type: token.GTE, Literal: string([]rune{c1, c2})}
 		}
 		return token.Token{Type: token.GT, Literal: string(c1)}
+	case '|':
+		c1 := sc.CurrentChar
+		sc.AdvanceChar()
+		if sc.CurrentChar == '|' {
+			c2 := sc.CurrentChar
+			sc.AdvanceChar()
+			return token.Token{Type: token.OR, Literal: string([]rune{c1, c2})}
+		}
+		return token.Token{Type: token.UNKNOWN, Literal: string(c1)}
+	case '&':
+		c1 := sc.CurrentChar
+		sc.AdvanceChar()
+		if sc.CurrentChar == '&' {
+			c2 := sc.CurrentChar
+			sc.AdvanceChar()
+			return token.Token{Type: token.AND, Literal: string([]rune{c1, c2})}
+		}
+		return token.Token{Type: token.UNKNOWN, Literal: string(c1)}
 	// maths operators
 	case '+':
 		sc.AdvanceChar()
