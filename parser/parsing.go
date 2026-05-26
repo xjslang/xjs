@@ -78,7 +78,7 @@ func ParseExprStmt(p *Parser) (node *ast.ExprStmt, err error) {
 func ParseRightExpr(p *Parser) (val ast.Node, err error) {
 	typ0 := p.CurrentToken.Type
 	p.AdvanceToken()
-	if val, err = p.parseValue(); err != nil {
+	if val, err = ParseValue(p); err != nil {
 		return
 	}
 	for {
@@ -91,6 +91,28 @@ func ParseRightExpr(p *Parser) (val ast.Node, err error) {
 		}
 	}
 	return
+}
+
+func ParseValue(p *Parser) (ast.Node, error) {
+	typ := p.CurrentToken.Type
+	if typ.IsUnaryOperator() {
+		return p.unaryExprParser(p)
+	}
+	switch typ {
+	case token.LPAREN:
+		return ParseParenExpr(p)
+	case token.NUMBER, token.STRING, token.BOOLEAN:
+		val := p.CurrentToken
+		p.AdvanceToken()
+		return &ast.BasicLit{Value: val}, nil
+	case token.IDENT:
+		val := p.CurrentToken
+		p.AdvanceToken()
+		return &ast.Ident{Value: val}, nil
+	}
+	msg := "Expected value"
+	p.AddError(msg)
+	return nil, errors.New(msg)
 }
 
 func ParseParenExpr(p *Parser) (node *ast.ParenExpr, err error) {

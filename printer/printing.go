@@ -52,6 +52,10 @@ func PrintCallExpr(p *Printer, node *ast.CallExpr) {
 	p.Print(node.RparenToken)
 }
 
+func PrintUnaryExpr(p *Printer, node *ast.UnaryExpr) {
+	p.Print(node.Operator, node.Value)
+}
+
 func PrintBinaryExpr(p *Printer, node *ast.BinaryExpr) {
 	p.Print(node.LeftValue)
 	p.SpPrint(node.Operator, node.RightValue)

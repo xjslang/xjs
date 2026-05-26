@@ -71,6 +71,57 @@ func TestUseExprParser(t *testing.T) {
 	assert.Equal(t, "exit", funcName.Value.Literal)
 }
 
+type factorialExpr struct {
+	Operator token.Token
+	Value    ast.Node
+}
+
+func (node *factorialExpr) Type() string {
+	return "factorialExpr"
+}
+
+func TestUseUnaryExprParser(t *testing.T) {
+	facType := token.RegisterUnaryOperator("¡")
+	input := "1 + ¡7"
+	s := &scanner.Scanner{}
+	s.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
+		if sc.CurrentChar == '¡' {
+			sc.AdvanceChar()
+			return token.Token{Type: facType, Literal: "¡"}
+		}
+		return next()
+	})
+	s.Init([]byte(input))
+	p := &parser.Parser{}
+	p.UseUnaryExprParser(func(p *parser.Parser, next func() (ast.Node, error)) (node ast.Node, err error) {
+		if p.CurrentToken.Type == facType {
+			factorialNode := &factorialExpr{Operator: p.CurrentToken}
+			p.AdvanceToken()
+			if factorialNode.Value, err = parser.ParseValue(p); err != nil {
+				return
+			}
+			node = factorialNode
+			return
+		}
+		return next()
+	})
+	p.Init(s)
+	result, err := p.ParseExpr()
+	if err != nil {
+		t.Fatal(err)
+	}
+	require.IsType(t, &ast.BinaryExpr{}, result)
+	binNode := result.(*ast.BinaryExpr)
+	require.IsType(t, &ast.BasicLit{}, binNode.LeftValue)
+	require.Equal(t, "1", binNode.LeftValue.(*ast.BasicLit).Value.Literal)
+	require.Equal(t, token.PLUS, binNode.Operator.Type)
+	require.IsType(t, &factorialExpr{}, binNode.RightValue)
+	facNode := binNode.RightValue.(*factorialExpr)
+	require.IsType(t, &ast.BasicLit{}, facNode.Value)
+	require.Equal(t, "7", facNode.Value.(*ast.BasicLit).Value.Literal)
+	require.Equal(t, facType, facNode.Operator.Type)
+}
+
 type powExpr struct {
 	LeftValue  ast.Node
 	Operator   token.Token

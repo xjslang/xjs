@@ -182,3 +182,26 @@ func RegisterBinaryOperator(lit string, precedence int) Type {
 	typ.RegisterBinaryOperator(precedence)
 	return typ
 }
+
+var unaryOperators = map[Type]bool{
+	NOT: true,
+}
+
+func (typ Type) IsUnaryOperator() (ok bool) {
+	registerMu.RLock()
+	defer registerMu.RUnlock()
+	_, ok = unaryOperators[typ]
+	return
+}
+
+func (typ Type) RegisterUnaryOperator() {
+	registerMu.Lock()
+	defer registerMu.Unlock()
+	unaryOperators[typ] = true
+}
+
+func RegisterUnaryOperator(lit string) Type {
+	typ := RegisterType(lit)
+	typ.RegisterUnaryOperator()
+	return typ
+}

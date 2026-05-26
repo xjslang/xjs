@@ -71,6 +71,15 @@ func (node *FuncDecl) Type() string {
 	return "FuncDecl"
 }
 
+type UnaryExpr struct {
+	Operator token.Token
+	Value    Node
+}
+
+func (node *UnaryExpr) Type() string {
+	return "UnaryExpr"
+}
+
 type BinaryExpr struct {
 	LeftValue  Node
 	Operator   token.Token
