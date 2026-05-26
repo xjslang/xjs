@@ -34,29 +34,41 @@ func (p *Printer) DecreaseIndent() {
 	p.fmt.DecreaseIndent()
 }
 
-func (p *Printer) printNode(node ast.Node) {
-	p.printer(p, node)
+func (p *Printer) EnsureLine() {
+	p.ensureLine = true
 }
 
-func (p *Printer) String() string {
-	return p.fmt.String()
+func (p *Printer) EnsureSpace() {
+	p.ensureSpace = true
 }
 
-func (p *Printer) Bytes() []byte {
-	return []byte(p.String())
-}
-
-func (p *Printer) printString(s string) {
-	if len(s) == 0 {
-		return
+func (p *Printer) Print(args ...any) {
+	for _, arg := range args {
+		switch v := arg.(type) {
+		case string:
+			p.printString(v)
+		case rune:
+			p.printRune(v)
+		case ast.Node:
+			p.printNode(v)
+		case token.Token:
+			p.printToken(v)
+		default:
+			panic("Unsupported type")
+		}
 	}
-	p.printSeparatorIfNeeded()
-	p.fmt.PrintString(s)
 }
 
-func (p *Printer) printRune(r rune) {
-	p.printSeparatorIfNeeded()
-	p.fmt.PrintRune(r)
+func (p *Printer) LnPrint(arg any) {
+	p.EnsureLine()
+	p.Print(arg)
+}
+
+func (p *Printer) SpPrint(args ...any) {
+	for _, arg := range args {
+		p.EnsureSpace()
+		p.Print(arg)
+	}
 }
 
 func (p *Printer) PrintTrivia(trivia []token.Token) {
@@ -75,17 +87,34 @@ func (p *Printer) PrintTrivia(trivia []token.Token) {
 	}
 }
 
+func (p *Printer) String() string {
+	return p.fmt.String()
+}
+
+func (p *Printer) Bytes() []byte {
+	return []byte(p.String())
+}
+
+func (p *Printer) printNode(node ast.Node) {
+	p.printer(p, node)
+}
+
+func (p *Printer) printString(s string) {
+	if len(s) == 0 {
+		return
+	}
+	p.printSeparatorIfNeeded()
+	p.fmt.PrintString(s)
+}
+
+func (p *Printer) printRune(r rune) {
+	p.printSeparatorIfNeeded()
+	p.fmt.PrintRune(r)
+}
+
 func (p *Printer) printToken(tok token.Token) {
 	p.PrintTrivia(tok.LeadingTrivia)
 	p.printString(tok.Literal)
-}
-
-func (p *Printer) EnsureLine() {
-	p.ensureLine = true
-}
-
-func (p *Printer) EnsureSpace() {
-	p.ensureSpace = true
 }
 
 func (p *Printer) printLineIfNeeded() {
@@ -116,33 +145,4 @@ func (p *Printer) printSeparatorIfNeeded() {
 		p.ensureSpace = false
 	}
 	p.printIndentIfNeeded()
-}
-
-func (p *Printer) Print(args ...any) {
-	for _, arg := range args {
-		switch v := arg.(type) {
-		case string:
-			p.printString(v)
-		case rune:
-			p.printRune(v)
-		case ast.Node:
-			p.printNode(v)
-		case token.Token:
-			p.printToken(v)
-		default:
-			panic("Unsupported type")
-		}
-	}
-}
-
-func (p *Printer) LnPrint(arg any) {
-	p.EnsureLine()
-	p.Print(arg)
-}
-
-func (p *Printer) SpPrint(args ...any) {
-	for _, arg := range args {
-		p.EnsureSpace()
-		p.Print(arg)
-	}
 }
