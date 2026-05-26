@@ -31,14 +31,15 @@ func (list ErrorList) Error() string {
 }
 
 type Parser struct {
-	CurrentToken  token.Token
-	PeekToken     token.Token
-	scanner       *scanner.Scanner
-	scopes        ScopeTracker
-	stmtParser    func(p *Parser) (ast.Node, error)
-	exprParser    func(p *Parser) (ast.Node, error)
-	binExprParser func(p *Parser, leftVal ast.Node) (ast.Node, error)
-	errors        ErrorList
+	CurrentToken    token.Token
+	PeekToken       token.Token
+	scanner         *scanner.Scanner
+	scopes          ScopeTracker
+	stmtParser      func(p *Parser) (ast.Node, error)
+	exprParser      func(p *Parser) (ast.Node, error)
+	binExprParser   func(p *Parser, leftVal ast.Node) (ast.Node, error)
+	unaryExprParser func(p *Parser) (ast.Node, error)
+	errors          ErrorList
 }
 
 func (p *Parser) Init(sc *scanner.Scanner) {
@@ -52,6 +53,9 @@ func (p *Parser) Init(sc *scanner.Scanner) {
 	}
 	if p.binExprParser == nil {
 		p.binExprParser = defaultBinExprParser
+	}
+	if p.unaryExprParser == nil {
+		p.unaryExprParser = defaultUnaryExprParser
 	}
 	p.CurrentToken = token.Token{}
 	p.PeekToken = token.Token{}
@@ -151,22 +155,4 @@ func (p *Parser) AdvanceToStmtEnd() {
 		}
 		p.AdvanceToken()
 	}
-}
-
-func (p *Parser) parseValue() (ast.Node, error) {
-	switch p.CurrentToken.Type {
-	case token.LPAREN:
-		return ParseParenExpr(p)
-	case token.NUMBER, token.STRING, token.BOOLEAN:
-		val := p.CurrentToken
-		p.AdvanceToken()
-		return &ast.BasicLit{Value: val}, nil
-	case token.IDENT:
-		val := p.CurrentToken
-		p.AdvanceToken()
-		return &ast.Ident{Value: val}, nil
-	}
-	msg := "Expected value"
-	p.AddError(msg)
-	return nil, errors.New(msg)
 }

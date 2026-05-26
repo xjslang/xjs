@@ -30,6 +30,8 @@ func defaultPrinter(p *Printer, node ast.Node) {
 		PrintCallExpr(p, node)
 	case *ast.ParenExpr:
 		PrintParenExpr(p, node)
+	case *ast.UnaryExpr:
+		PrintUnaryExpr(p, node)
 	case *ast.BinaryExpr:
 		PrintBinaryExpr(p, node)
 	case *ast.Ident:
