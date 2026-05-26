@@ -33,10 +33,10 @@ func defaultPrinter(p *Printer, node ast.Node) {
 	case *ast.BinaryExpr:
 		PrintBinaryExpr(p, node)
 	case *ast.Ident:
-		p.PrintToken(node.Value)
+		p.printToken(node.Value)
 	case *ast.BasicLit:
-		p.PrintToken(node.Value)
+		p.printToken(node.Value)
 	default:
-		p.PrintString("<" + node.Type() + ">")
+		p.printString("<" + node.Type() + ">")
 	}
 }

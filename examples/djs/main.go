@@ -66,17 +66,16 @@ func main() {
 	djsCompiler.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node)) {
 		if node, ok := node.(*DeferStmt); ok {
 			pr.PrintTrivia(node.DeferToken.LeadingTrivia) // print previous comments and new lines
-			pr.EnsureLine()                               // ensure a new line is added before printing
-			pr.PrintIndentedString("{using _ = {[Symbol.dispose]() {")
-			pr.PrintNode(node.Stmt.Expr)
-			pr.PrintToken(node.Stmt.SemiToken)
-			pr.PrintIndentedString("}}}")
+			pr.LnPrint("{using _ = {[Symbol.dispose]() {")
+			pr.Print(node.Stmt.Expr)
+			pr.Print(node.Stmt.SemiToken)
+			pr.Print("}}}")
 			return
 		}
 		next(node)
 	})
 	djsCompiler.Init()
-	djsCompiler.PrintNode(node)
+	djsCompiler.Print(node)
 	fmt.Println(djsCompiler.String())
 
 	// create a formatter that can format `DeferStmt`
@@ -84,15 +83,15 @@ func main() {
 	djsFormatter.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node)) {
 		if node, ok := node.(*DeferStmt); ok {
 			pr.EnsureLine() // ensure a new line is added before printing
-			pr.PrintToken(node.DeferToken)
+			pr.Print(node.DeferToken)
 			pr.EnsureSpace() // ensure a new space is added before printing
-			pr.PrintNode(node.Stmt.Expr)
-			pr.PrintToken(node.Stmt.SemiToken)
+			pr.Print(node.Stmt.Expr)
+			pr.Print(node.Stmt.SemiToken)
 			return
 		}
 		next(node)
 	})
 	djsFormatter.Init()
-	djsFormatter.PrintNode(node)
+	djsFormatter.Print(node)
 	fmt.Println(djsFormatter.String())
 }
