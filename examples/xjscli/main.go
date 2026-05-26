@@ -95,6 +95,6 @@ func main() {
 	}
 	pr := printer.Printer{}
 	pr.Init()
-	pr.PrintNode(program)
+	pr.Print(program)
 	fmt.Print(pr.String())
 }

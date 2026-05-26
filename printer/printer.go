@@ -1,128 +1,83 @@
 package printer
 
 import (
-	"strings"
-	"unicode/utf8"
-
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/printer/internal/formatter"
 	"github.com/xjslang/xjs/token"
 )
 
-const eol = rune(-1) // end of line
+type PrinterOption = formatter.FormatterOption
 
-type printerConfig struct {
-	indent string
-}
-
-type printerOption func(*printerConfig)
-
-func WithIndent(value string) printerOption {
-	return func(cfg *printerConfig) {
-		cfg.indent = value
-	}
+func WithIndent(value string) PrinterOption {
+	return formatter.WithIndent(value)
 }
 
 type Printer struct {
-	doc         strings.Builder
-	indent      string
-	indentLevel int
-	printer     func(*Printer, ast.Node)
-	lastChar    rune
+	fmt         formatter.Formatter
 	ensureLine  bool
 	ensureSpace bool
+	printer     func(*Printer, ast.Node)
 }
 
-func (p *Printer) Init(opts ...printerOption) {
-	cfg := &printerConfig{
-		indent: "  ",
-	}
-	for _, opt := range opts {
-		opt(cfg)
-	}
+func (p *Printer) Init(opts ...PrinterOption) {
+	p.fmt.Init(opts...)
 	if p.printer == nil {
 		p.printer = defaultPrinter
 	}
-	p.indent = cfg.indent
-	p.lastChar = eol
-}
-
-func (p *Printer) PrintString(s string) {
-	if len(s) == 0 {
-		return
-	}
-	r, _ := utf8.DecodeLastRuneInString(s)
-	p.lastChar = r
-	p.doc.WriteString(s)
-}
-
-func (p *Printer) PrintRune(r rune) {
-	p.lastChar = r
-	p.doc.WriteRune(r)
 }
 
 func (p *Printer) IncreaseIndent() {
-	p.indentLevel++
+	p.fmt.IncreaseIndent()
 }
 
 func (p *Printer) DecreaseIndent() {
-	if p.indentLevel > 0 {
-		p.indentLevel--
-	}
+	p.fmt.DecreaseIndent()
 }
 
-func (p *Printer) PrintIndent() {
-	for range p.indentLevel {
-		p.doc.WriteString(p.indent)
-	}
-}
-
-func (p *Printer) PrintNode(node ast.Node) {
+func (p *Printer) printNode(node ast.Node) {
 	p.printer(p, node)
 }
 
 func (p *Printer) String() string {
-	return p.doc.String()
+	return p.fmt.String()
 }
 
 func (p *Printer) Bytes() []byte {
 	return []byte(p.String())
 }
 
-func (p *Printer) PrintIndentedString(s string) {
+func (p *Printer) printString(s string) {
 	if len(s) == 0 {
 		return
 	}
-	if p.ensureLine {
-		p.printLineIfNeeded()
-		p.ensureLine = false
-	}
-	if p.ensureSpace {
-		p.printSpaceIfNeeded()
-		p.ensureSpace = false
-	}
-	p.printIndentIfNeeded()
-	p.PrintString(s)
+	p.printSeparatorIfNeeded()
+	p.fmt.PrintString(s)
+}
+
+func (p *Printer) printRune(r rune) {
+	p.printSeparatorIfNeeded()
+	p.fmt.PrintRune(r)
 }
 
 func (p *Printer) PrintTrivia(trivia []token.Token) {
 	for _, tok := range trivia {
 		switch tok.Type {
 		case token.NEWLINE:
-			p.PrintRune('\n')
+			p.fmt.PrintRune('\n')
 		case token.LINE_COMMENT:
 			p.printSpaceIfNeeded()
 			p.printIndentIfNeeded()
-			p.PrintString("//" + tok.Literal)
+			p.fmt.PrintString("//" + tok.Literal)
 		case token.BLOCK_COMMENT:
 			p.printIndentIfNeeded()
-			p.PrintString("/*" + tok.Literal + "*/")
+			p.fmt.PrintString("/*" + tok.Literal + "*/")
 		}
 	}
 }
 
-func (p *Printer) PrintToken(tok token.Token) {
+func (p *Printer) printToken(tok token.Token) {
 	p.PrintTrivia(tok.LeadingTrivia)
-	p.PrintIndentedString(tok.Literal)
+	p.printString(tok.Literal)
 }
 
 func (p *Printer) EnsureLine() {
@@ -134,34 +89,48 @@ func (p *Printer) EnsureSpace() {
 }
 
 func (p *Printer) printLineIfNeeded() {
-	if !isNewLine(p.lastChar) {
-		p.PrintRune('\n')
+	if !isNewLine(p.fmt.LastChar) {
+		p.fmt.PrintRune('\n')
 	}
 }
 
 func (p *Printer) printSpaceIfNeeded() {
-	if !isWhitespace(p.lastChar) {
-		p.PrintRune(' ')
+	if !isWhitespace(p.fmt.LastChar) {
+		p.fmt.PrintRune(' ')
 	}
 }
 
 func (p *Printer) printIndentIfNeeded() {
-	if isNewLine(p.lastChar) {
-		p.PrintIndent()
+	if isNewLine(p.fmt.LastChar) {
+		p.fmt.PrintIndent()
 	}
+}
+
+func (p *Printer) printSeparatorIfNeeded() {
+	if p.ensureLine {
+		p.printLineIfNeeded()
+		p.ensureLine = false
+	}
+	if p.ensureSpace {
+		p.printSpaceIfNeeded()
+		p.ensureSpace = false
+	}
+	p.printIndentIfNeeded()
 }
 
 func (p *Printer) Print(args ...any) {
 	for _, arg := range args {
 		switch v := arg.(type) {
 		case string:
-			p.PrintIndentedString(v)
+			p.printString(v)
+		case rune:
+			p.printRune(v)
 		case ast.Node:
-			p.PrintNode(v)
+			p.printNode(v)
 		case token.Token:
-			p.PrintToken(v)
+			p.printToken(v)
 		default:
-			panic("Unsoported type")
+			panic("Unsupported type")
 		}
 	}
 }

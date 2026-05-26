@@ -25,6 +25,21 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+func TestInit(t *testing.T) {
+	t.Run("with custom indent", func(t *testing.T) {
+		pr := printer.Printer{}
+		pr.Init(printer.WithIndent("\t"))
+		pr.Print("begin:")
+		pr.IncreaseIndent()
+		pr.LnPrint("aaa")
+		pr.LnPrint("bbb")
+		pr.LnPrint("ccc")
+		pr.DecreaseIndent()
+		pr.LnPrint("end")
+		require.Equal(t, "begin:\n\taaa\n\tbbb\n\tccc\nend", pr.String())
+	})
+}
+
 func TestGoldenFiles(t *testing.T) {
 	if updateGoldenFiles {
 		t.Log("updating golden files")
@@ -195,58 +210,13 @@ func TestLastComment(t *testing.T) {
 	}
 }
 
-func TestString(t *testing.T) {
-	tests := []struct {
-		name     string
-		indent   string
-		expected string
-	}{
-		{"with spaces", "    ", "block {\n    line 0;\n    line 1;\n    nested block {\n        line 0;\n        line 1;\n    }\n    line 2;\n}"},
-		{"with tabs", "\t", "block {\n\tline 0;\n\tline 1;\n\tnested block {\n\t\tline 0;\n\t\tline 1;\n\t}\n\tline 2;\n}"},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			pr := printer.Printer{}
-			pr.Init(printer.WithIndent(test.indent))
-			pr.PrintString("block {\n")
-			pr.IncreaseIndent()
-			for i := range 3 {
-				pr.PrintIndent()
-				pr.PrintString(fmt.Sprintf("line %d", i))
-				pr.PrintRune(';')
-				if i == 1 {
-					pr.PrintRune('\n')
-					pr.PrintIndent()
-					pr.PrintString("nested block {\n")
-					pr.IncreaseIndent()
-					for j := range 2 {
-						pr.PrintIndent()
-						pr.PrintString(fmt.Sprintf("line %d", j))
-						pr.PrintString(";\n")
-					}
-					pr.DecreaseIndent()
-					pr.PrintIndent()
-					pr.PrintRune('}')
-				}
-				pr.PrintRune('\n')
-			}
-			pr.DecreaseIndent()
-			pr.PrintIndent()
-			pr.PrintRune('}')
-			if result := pr.String(); result != test.expected {
-				t.Errorf("Expected %q, got %q", test.expected, result)
-			}
-		})
-	}
-}
-
 func TestBytes(t *testing.T) {
 	input := "hello"
 	p := printer.Printer{}
 	p.Init()
-	p.PrintString(input)
+	p.Print(input)
 	b := p.Bytes()
-	// try to modify the underlaying data
+	// try to modify the underlying data
 	b[0] = 'H'
 	expected := "hello"
 	if got := p.String(); got != expected {
@@ -259,29 +229,47 @@ func TestEnsureLine(t *testing.T) {
 	pr.Init()
 	// calling EnsureLine at the beginning of a document does not print a new line
 	pr.EnsureLine()
-	pr.PrintIndentedString("aaa")
+	pr.Print("aaa")
 	// calling EnsureLine multiple times only prints a new line (it is idempotent)
 	for range 2 {
 		pr.EnsureLine()
 	}
-	pr.PrintIndentedString("bbb")
+	pr.Print("bbb")
 	// calling EnsureLine on a `\n` line does not print a new line
-	pr.PrintIndentedString("ccc\n")
+	pr.Print("ccc\n")
 	pr.EnsureLine()
-	pr.PrintIndentedString("ddd")
+	pr.Print("ddd")
 	// calling EnsureLine on a `\r` line does not print a new line
-	pr.PrintIndentedString("eee\r")
+	pr.Print("eee\r")
 	pr.EnsureLine()
-	pr.PrintIndentedString("fff")
+	pr.Print("fff")
 	// printing empty string does not reset `ensureLine`
 	pr.EnsureLine()
-	pr.PrintString("")
-	pr.PrintIndentedString("")
-	pr.PrintIndentedString("ggg")
+	pr.Print("")
+	pr.Print("")
+	pr.Print("ggg")
 	expected := "aaa\nbbbccc\ndddeee\rfff\nggg"
 	if got := pr.String(); got != expected {
 		t.Errorf("Expected %q, got %q", expected, got)
 	}
+
+	t.Run("printing empty string does not consume ensureLine", func(t *testing.T) {
+		pr := printer.Printer{}
+		pr.Init()
+		pr.Print("aaa")
+		pr.EnsureLine()
+		pr.Print("")
+		require.Equal(t, "aaa", pr.String())
+	})
+
+	t.Run("printing empty string does not consume ensureSpace", func(t *testing.T) {
+		pr := printer.Printer{}
+		pr.Init()
+		pr.Print("aaa")
+		pr.EnsureSpace()
+		pr.Print("")
+		require.Equal(t, "aaa", pr.String())
+	})
 }
 
 func TestEnsureSpace(t *testing.T) {
@@ -289,25 +277,25 @@ func TestEnsureSpace(t *testing.T) {
 	pr.Init()
 	// calling EnsureSpace at the beginning of a document does not print a new space
 	pr.EnsureSpace()
-	pr.PrintString("aaa")
+	pr.Print("aaa")
 	// calling EnsureSpace multiple times only prints a new space (it is idempotent)
 	for range 2 {
 		pr.EnsureSpace()
 	}
-	pr.PrintIndentedString("bbb")
+	pr.Print("bbb")
 	// calling EnsureSpace on a `\n` line does not print a new space
-	pr.PrintIndentedString("ccc\n")
+	pr.Print("ccc\n")
 	pr.EnsureSpace()
-	pr.PrintIndentedString("ddd")
+	pr.Print("ddd")
 	// calling EnsureSpace on a `\r` line does not print a new space
-	pr.PrintIndentedString("eee\r")
+	pr.Print("eee\r")
 	pr.EnsureSpace()
-	pr.PrintIndentedString("fff")
+	pr.Print("fff")
 	// printing empty string does not reset `ensureSpace`
 	pr.EnsureSpace()
-	pr.PrintString("")
-	pr.PrintIndentedString("")
-	pr.PrintIndentedString("ggg")
+	pr.Print("")
+	pr.Print("")
+	pr.Print("ggg")
 	expected := "aaa bbbccc\ndddeee\rfff ggg"
 	if got := pr.String(); got != expected {
 		t.Errorf("Expected %q, got %q", expected, got)
@@ -315,6 +303,14 @@ func TestEnsureSpace(t *testing.T) {
 }
 
 func TestPrint(t *testing.T) {
+	t.Run("append newlines and spaces before printing runes", func(t *testing.T) {
+		pr := printer.Printer{}
+		pr.Init()
+		pr.Print("aaa")
+		pr.LnPrint('b')
+		pr.SpPrint('c')
+		require.Equal(t, "aaa\nb c", pr.String())
+	})
 	t.Run("panic on unsupported types", func(t *testing.T) {
 		pr := printer.Printer{}
 		pr.Init()
