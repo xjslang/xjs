@@ -40,6 +40,51 @@ func TestInit(t *testing.T) {
 	})
 }
 
+func TestIndent(t *testing.T) {
+	tests := []struct {
+		name     string
+		indent   string
+		expected string
+	}{
+		{"with spaces", "    ", "block {\n    line 0;\n    line 1;\n    nested block {\n        line 0;\n        line 1;\n    }\n    line 2;\n}"},
+		{"with tabs", "\t", "block {\n\tline 0;\n\tline 1;\n\tnested block {\n\t\tline 0;\n\t\tline 1;\n\t}\n\tline 2;\n}"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			f := printer.Printer{}
+			f.Init(printer.WithIndent(test.indent))
+			f.Print("block {\n")
+			f.IncreaseIndent()
+			for i := range 3 {
+				f.PrintIndent()
+				f.Print(fmt.Sprintf("line %d", i))
+				f.Print(';')
+				if i == 1 {
+					f.Print('\n')
+					f.PrintIndent()
+					f.Print("nested block {\n")
+					f.IncreaseIndent()
+					for j := range 2 {
+						f.PrintIndent()
+						f.Print(fmt.Sprintf("line %d", j))
+						f.Print(";\n")
+					}
+					f.DecreaseIndent()
+					f.PrintIndent()
+					f.Print('}')
+				}
+				f.Print('\n')
+			}
+			f.DecreaseIndent()
+			f.PrintIndent()
+			f.Print('}')
+			if result := f.String(); result != test.expected {
+				t.Errorf("Expected %q, got %q", test.expected, result)
+			}
+		})
+	}
+}
+
 func TestGoldenFiles(t *testing.T) {
 	if updateGoldenFiles {
 		t.Log("updating golden files")
