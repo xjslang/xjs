@@ -4,77 +4,59 @@ import "github.com/xjslang/xjs/ast"
 
 func PrintProgram(p *Printer, node *ast.Program) {
 	for _, stmt := range node.Stmts {
-		p.PrintNode(stmt)
+		p.Print(stmt)
 	}
-	p.PrintToken(node.EOFToken)
+	p.Print(node.EOFToken)
 }
 
 func PrintBlock(p *Printer, node *ast.Block) {
-	p.PrintToken(node.LbraceToken)
+	p.Print(node.LbraceToken)
 	p.IncreaseIndent()
 	for _, stmt := range node.Stmts {
-		p.PrintNode(stmt)
+		p.Print(stmt)
 	}
 	// RBRACE is a special token, since the "leading trivia"
 	// must be printed "before" indentation level decreases
 	p.PrintTrivia(node.RbraceToken.LeadingTrivia)
 	p.DecreaseIndent()
-	p.EnsureLine()
-	p.PrintIndentedString(node.RbraceToken.Literal)
+	p.LnPrint(node.RbraceToken.Literal)
 }
 
 func PrintExprStmt(p *Printer, node *ast.ExprStmt) {
-	p.EnsureLine()
-	p.PrintNode(node.Expr)
-	p.PrintToken(node.SemiToken)
+	p.LnPrint(node.Expr)
+	p.Print(node.SemiToken)
 }
 
 func PrintLetStmt(p *Printer, node *ast.LetStmt) {
-	p.EnsureLine()
-	p.PrintToken(node.LetToken)
-	p.EnsureSpace()
-	p.PrintToken(node.Name)
-	p.EnsureSpace()
-	p.PrintToken(node.AssignToken)
-	p.EnsureSpace()
-	p.PrintNode(node.Value)
-	p.PrintToken(node.SemiToken)
+	p.LnPrint(node.LetToken)
+	p.SpPrint(node.Name, node.AssignToken, node.Value)
+	p.Print(node.SemiToken)
 }
 
 func PrintFuncDecl(p *Printer, node *ast.FuncDecl) {
-	p.EnsureLine()
-	p.PrintToken(node.FunctionToken)
-	p.EnsureSpace()
-	p.PrintToken(node.Name)
-	p.PrintToken(node.LparenToken)
-	p.PrintToken(node.RparenToken)
-	p.EnsureSpace()
-	p.PrintNode(node.Body)
+	p.LnPrint(node.FunctionToken)
+	p.SpPrint(node.Name)
+	p.Print(node.LparenToken, node.RparenToken)
+	p.SpPrint(node.Body)
 }
 
 func PrintCallExpr(p *Printer, node *ast.CallExpr) {
-	p.PrintNode(node.Function)
-	p.PrintToken(node.LparenToken)
+	p.Print(node.Function, node.LparenToken)
 	for i, arg := range node.Arguments {
 		if i > 0 {
-			p.PrintIndentedString(",")
+			p.Print(",")
 			p.EnsureSpace()
 		}
-		p.PrintNode(arg)
+		p.Print(arg)
 	}
-	p.PrintToken(node.RparenToken)
+	p.Print(node.RparenToken)
 }
 
 func PrintBinaryExpr(p *Printer, node *ast.BinaryExpr) {
-	p.PrintNode(node.LeftValue)
-	p.EnsureSpace()
-	p.PrintToken(node.Operator)
-	p.EnsureSpace()
-	p.PrintNode(node.RightValue)
+	p.Print(node.LeftValue)
+	p.SpPrint(node.Operator, node.RightValue)
 }
 
 func PrintParenExpr(p *Printer, node *ast.ParenExpr) {
-	p.PrintToken(node.LparenToken)
-	p.PrintNode(node.Value)
-	p.PrintToken(node.RparenToken)
+	p.Print(node.LparenToken, node.Value, node.RparenToken)
 }

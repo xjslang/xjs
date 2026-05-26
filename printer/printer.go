@@ -150,3 +150,30 @@ func (p *Printer) printIndentIfNeeded() {
 		p.PrintIndent()
 	}
 }
+
+func (p *Printer) Print(a ...any) {
+	for _, a := range a {
+		switch a := a.(type) {
+		case string:
+			p.PrintIndentedString(a)
+		case ast.Node:
+			p.PrintNode(a)
+		case token.Token:
+			p.PrintToken(a)
+		}
+	}
+}
+
+func (p *Printer) LnPrint(a ...any) {
+	for _, a := range a {
+		p.EnsureLine()
+		p.Print(a)
+	}
+}
+
+func (p *Printer) SpPrint(a ...any) {
+	for _, a := range a {
+		p.EnsureSpace()
+		p.Print(a)
+	}
+}
