@@ -151,29 +151,31 @@ func (p *Printer) printIndentIfNeeded() {
 	}
 }
 
-func (p *Printer) Print(a ...any) {
-	for _, a := range a {
-		switch a := a.(type) {
+func (p *Printer) Print(args ...any) {
+	for _, arg := range args {
+		switch v := arg.(type) {
 		case string:
-			p.PrintIndentedString(a)
+			p.PrintIndentedString(v)
 		case ast.Node:
-			p.PrintNode(a)
+			p.PrintNode(v)
 		case token.Token:
-			p.PrintToken(a)
+			p.PrintToken(v)
+		default:
+			panic("Unsoported type")
 		}
 	}
 }
 
-func (p *Printer) LnPrint(a ...any) {
-	for _, a := range a {
+func (p *Printer) LnPrint(args ...any) {
+	for _, arg := range args {
 		p.EnsureLine()
-		p.Print(a)
+		p.Print(arg)
 	}
 }
 
-func (p *Printer) SpPrint(a ...any) {
-	for _, a := range a {
+func (p *Printer) SpPrint(args ...any) {
+	for _, arg := range args {
 		p.EnsureSpace()
-		p.Print(a)
+		p.Print(arg)
 	}
 }
