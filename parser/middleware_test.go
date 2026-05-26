@@ -97,7 +97,7 @@ func TestUseBinExprParser(t *testing.T) {
 	p.UseBinExprParser(func(p *parser.Parser, leftVal ast.Node, next func(ast.Node) (ast.Node, error)) (node ast.Node, err error) {
 		if p.CurrentToken.Type == powType {
 			powNode := &powExpr{LeftValue: leftVal, Operator: p.CurrentToken}
-			if powNode.RightValue, err = parser.ParseRemainingExpr(p); err != nil {
+			if powNode.RightValue, err = parser.ParseRightExpr(p); err != nil {
 				return
 			}
 			node = powNode

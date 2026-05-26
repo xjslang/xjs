@@ -50,7 +50,7 @@ func defaultBinExprParser(p *Parser, leftVal ast.Node) (node ast.Node, err error
 		LeftValue: leftVal,
 		Operator:  op,
 	}
-	if nodeExpr.RightValue, err = ParseRemainingExpr(p); err != nil {
+	if nodeExpr.RightValue, err = ParseRightExpr(p); err != nil {
 		return
 	}
 	node = nodeExpr

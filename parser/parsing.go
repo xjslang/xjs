@@ -75,7 +75,7 @@ func ParseExprStmt(p *Parser) (node *ast.ExprStmt, err error) {
 	return
 }
 
-func ParseRemainingExpr(p *Parser) (val ast.Node, err error) {
+func ParseRightExpr(p *Parser) (val ast.Node, err error) {
 	typ0 := p.CurrentToken.Type
 	p.AdvanceToken()
 	if val, err = p.parseValue(); err != nil {
