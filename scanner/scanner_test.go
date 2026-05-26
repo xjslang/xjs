@@ -214,7 +214,7 @@ func TestScanContinuesAfterNullCharacter(t *testing.T) {
 }
 
 func TestPunctuators(t *testing.T) {
-	assertInputTokens(t, "; = == ! != < <= > >= () {} + - * / %", []token.Token{
+	assertInputTokens(t, "; = == ! != < <= > >= () {} + - * / % && || | &", []token.Token{
 		{Type: token.SEMICOLON, Literal: ";"},
 		{Type: token.ASSIGN, Literal: "="},
 		{Type: token.EQ, Literal: "=="},
@@ -233,6 +233,10 @@ func TestPunctuators(t *testing.T) {
 		{Type: token.MULTIPLY, Literal: "*"},
 		{Type: token.DIVIDE, Literal: "/"},
 		{Type: token.MODULO, Literal: "%"},
+		{Type: token.AND, Literal: "&&"},
+		{Type: token.OR, Literal: "||"},
+		{Type: token.UNKNOWN, Literal: "|"},
+		{Type: token.UNKNOWN, Literal: "&"},
 		{Type: token.EOF},
 	})
 }
