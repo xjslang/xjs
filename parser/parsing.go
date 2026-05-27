@@ -99,8 +99,6 @@ func ParseValue(p *Parser) (ast.Node, error) {
 		return p.prefixExprParser(p)
 	}
 	switch typ {
-	case token.LPAREN:
-		return ParseParenExpr(p)
 	case token.NUMBER, token.STRING, token.BOOLEAN:
 		val := p.CurrentToken
 		p.AdvanceToken()

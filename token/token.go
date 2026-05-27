@@ -190,7 +190,8 @@ func RegisterBinaryOp(lit string, precedence int) Type {
 }
 
 var unaryOps = map[Type]bool{
-	NOT: true,
+	NOT:    true,
+	LPAREN: true,
 }
 
 func (typ Type) IsUnaryOp() (ok bool) {
