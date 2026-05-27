@@ -18,11 +18,11 @@ func (p *Parser) UseUnaryExprParser(parser func(p *Parser, next func() (ast.Node
 }
 
 func (p *Parser) UseBinExprParser(parser func(p *Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error)) {
-	next := p.binExprParser
+	next := p.infixExprParser
 	if next == nil {
 		next = defaultBinExprParser
 	}
-	p.binExprParser = func(p *Parser, leftVal ast.Node) (ast.Node, error) {
+	p.infixExprParser = func(p *Parser, leftVal ast.Node) (ast.Node, error) {
 		return parser(p, leftVal, func(leftVal ast.Node) (ast.Node, error) {
 			return next(p, leftVal)
 		})
@@ -68,7 +68,7 @@ func defaultBinExprParser(p *Parser, leftVal ast.Node) (node ast.Node, err error
 	if op.Type == token.LPAREN {
 		return ParseCallExpr(p, leftVal)
 	}
-	nodeExpr := &ast.BinaryExpr{
+	nodeExpr := &ast.InfixExpr{
 		LeftValue: leftVal,
 		Operator:  op,
 	}
@@ -96,7 +96,7 @@ func defaultExprParser(p *Parser) (val ast.Node, err error) {
 	}
 	typ := p.CurrentToken.Type
 	for typ.IsBinaryOperator() {
-		if val, err = p.binExprParser(p, val); err != nil {
+		if val, err = p.infixExprParser(p, val); err != nil {
 			return
 		}
 		typ = p.CurrentToken.Type

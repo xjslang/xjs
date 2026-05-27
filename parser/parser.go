@@ -37,7 +37,7 @@ type Parser struct {
 	scopes          ScopeTracker
 	stmtParser      func(p *Parser) (ast.Node, error)
 	exprParser      func(p *Parser) (ast.Node, error)
-	binExprParser   func(p *Parser, leftVal ast.Node) (ast.Node, error)
+	infixExprParser func(p *Parser, leftVal ast.Node) (ast.Node, error)
 	unaryExprParser func(p *Parser) (ast.Node, error)
 	errors          ErrorList
 }
@@ -51,8 +51,8 @@ func (p *Parser) Init(sc *scanner.Scanner) {
 	if p.exprParser == nil {
 		p.exprParser = defaultExprParser
 	}
-	if p.binExprParser == nil {
-		p.binExprParser = defaultBinExprParser
+	if p.infixExprParser == nil {
+		p.infixExprParser = defaultBinExprParser
 	}
 	if p.unaryExprParser == nil {
 		p.unaryExprParser = defaultUnaryExprParser

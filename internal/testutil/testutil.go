@@ -107,7 +107,7 @@ func NodeString(node ast.Node) string {
 			for i, arg := range v.Arguments {
 				fmt.Fprintf(s, "\n%sArguments[%d]: %s", indent, i, print(arg))
 			}
-		case *ast.BinaryExpr:
+		case *ast.InfixExpr:
 			fmt.Fprintf(s, "\n%sLeftValue: %s", indent, print(v.LeftValue))
 			fmt.Fprintf(s, "\n%sOperator: %q", indent, v.Operator.Type.String())
 			fmt.Fprintf(s, "\n%sRightValue: %s", indent, print(v.RightValue))

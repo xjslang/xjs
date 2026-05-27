@@ -134,7 +134,7 @@ func RegisterType(lit string) Type {
 	return typ
 }
 
-var binOperators = map[Type]int{
+var infixOperators = map[Type]int{
 	// || (lowest precedence for operators)
 	OR: 1,
 	// &&
@@ -161,20 +161,20 @@ var binOperators = map[Type]int{
 func (typ Type) IsBinaryOperator() (ok bool) {
 	registerMu.RLock()
 	defer registerMu.RUnlock()
-	_, ok = binOperators[typ]
+	_, ok = infixOperators[typ]
 	return
 }
 
 func (typ Type) Precedence() int {
 	registerMu.RLock()
 	defer registerMu.RUnlock()
-	return binOperators[typ]
+	return infixOperators[typ]
 }
 
 func (typ Type) RegisterBinaryOperator(precedence int) {
 	registerMu.Lock()
 	defer registerMu.Unlock()
-	binOperators[typ] = precedence
+	infixOperators[typ] = precedence
 }
 
 func RegisterBinaryOperator(lit string, precedence int) Type {

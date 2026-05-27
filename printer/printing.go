@@ -56,7 +56,7 @@ func PrintUnaryExpr(p *Printer, node *ast.UnaryExpr) {
 	p.Print(node.Operator, node.Value)
 }
 
-func PrintBinaryExpr(p *Printer, node *ast.BinaryExpr) {
+func PrintInfixExpr(p *Printer, node *ast.InfixExpr) {
 	p.Print(node.LeftValue)
 	p.SpPrint(node.Operator, node.RightValue)
 }

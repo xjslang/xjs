@@ -80,13 +80,13 @@ func (node *UnaryExpr) Type() string {
 	return "UnaryExpr"
 }
 
-type BinaryExpr struct {
+type InfixExpr struct {
 	LeftValue  Node
 	Operator   token.Token
 	RightValue Node
 }
 
-func (node *BinaryExpr) Type() string {
+func (node *InfixExpr) Type() string {
 	return "BinaryExpr"
 }
 
