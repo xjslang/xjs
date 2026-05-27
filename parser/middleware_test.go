@@ -80,8 +80,8 @@ func (node *factorialExpr) Type() string {
 	return "factorialExpr"
 }
 
-func TestUseUnaryExprParser(t *testing.T) {
-	facType := token.RegisterUnaryOperator("¡")
+func TestUsePrefixExprParser(t *testing.T) {
+	facType := token.RegisterPrefixOperator("¡")
 	input := "1 + ¡7"
 	s := &scanner.Scanner{}
 	s.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
@@ -93,7 +93,7 @@ func TestUseUnaryExprParser(t *testing.T) {
 	})
 	s.Init([]byte(input))
 	p := &parser.Parser{}
-	p.UseUnaryExprParser(func(p *parser.Parser, next func() (ast.Node, error)) (node ast.Node, err error) {
+	p.UsePrefixExprParser(func(p *parser.Parser, next func() (ast.Node, error)) (node ast.Node, err error) {
 		if p.CurrentToken.Type == facType {
 			factorialNode := &factorialExpr{Operator: p.CurrentToken}
 			p.AdvanceToken()

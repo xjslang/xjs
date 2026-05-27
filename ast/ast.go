@@ -71,13 +71,13 @@ func (node *FuncDecl) Type() string {
 	return "FuncDecl"
 }
 
-type UnaryExpr struct {
+type PrefixExpr struct {
 	Operator token.Token
 	Value    Node
 }
 
-func (node *UnaryExpr) Type() string {
-	return "UnaryExpr"
+func (node *PrefixExpr) Type() string {
+	return "PrefixExpr"
 }
 
 type InfixExpr struct {

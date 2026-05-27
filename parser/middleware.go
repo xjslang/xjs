@@ -5,12 +5,12 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func (p *Parser) UseUnaryExprParser(parser func(p *Parser, next func() (ast.Node, error)) (ast.Node, error)) {
-	next := p.unaryExprParser
+func (p *Parser) UsePrefixExprParser(parser func(p *Parser, next func() (ast.Node, error)) (ast.Node, error)) {
+	next := p.prefixExprParser
 	if next == nil {
-		next = defaultUnaryExprParser
+		next = defaultPrefixExprParser
 	}
-	p.unaryExprParser = func(p *Parser) (ast.Node, error) {
+	p.prefixExprParser = func(p *Parser) (ast.Node, error) {
 		return parser(p, func() (ast.Node, error) {
 			return next(p)
 		})
@@ -53,8 +53,8 @@ func (p *Parser) UseExprParser(parser func(p *Parser, next func() (ast.Node, err
 	}
 }
 
-func defaultUnaryExprParser(p *Parser) (node ast.Node, err error) {
-	nodeExpr := &ast.UnaryExpr{Operator: p.CurrentToken}
+func defaultPrefixExprParser(p *Parser) (node ast.Node, err error) {
+	nodeExpr := &ast.PrefixExpr{Operator: p.CurrentToken}
 	p.AdvanceToken()
 	if nodeExpr.Value, err = ParseValue(p); err != nil {
 		return

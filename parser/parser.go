@@ -31,15 +31,15 @@ func (list ErrorList) Error() string {
 }
 
 type Parser struct {
-	CurrentToken    token.Token
-	PeekToken       token.Token
-	scanner         *scanner.Scanner
-	scopes          ScopeTracker
-	stmtParser      func(p *Parser) (ast.Node, error)
-	exprParser      func(p *Parser) (ast.Node, error)
-	infixExprParser func(p *Parser, leftVal ast.Node) (ast.Node, error)
-	unaryExprParser func(p *Parser) (ast.Node, error)
-	errors          ErrorList
+	CurrentToken     token.Token
+	PeekToken        token.Token
+	scanner          *scanner.Scanner
+	scopes           ScopeTracker
+	stmtParser       func(p *Parser) (ast.Node, error)
+	exprParser       func(p *Parser) (ast.Node, error)
+	infixExprParser  func(p *Parser, leftVal ast.Node) (ast.Node, error)
+	prefixExprParser func(p *Parser) (ast.Node, error)
+	errors           ErrorList
 }
 
 func (p *Parser) Init(sc *scanner.Scanner) {
@@ -54,8 +54,8 @@ func (p *Parser) Init(sc *scanner.Scanner) {
 	if p.infixExprParser == nil {
 		p.infixExprParser = defaultBinExprParser
 	}
-	if p.unaryExprParser == nil {
-		p.unaryExprParser = defaultUnaryExprParser
+	if p.prefixExprParser == nil {
+		p.prefixExprParser = defaultPrefixExprParser
 	}
 	p.CurrentToken = token.Token{}
 	p.PeekToken = token.Token{}

@@ -95,8 +95,8 @@ func ParseRightExpr(p *Parser) (val ast.Node, err error) {
 
 func ParseValue(p *Parser) (ast.Node, error) {
 	typ := p.CurrentToken.Type
-	if typ.IsUnaryOperator() {
-		return p.unaryExprParser(p)
+	if typ.IsPrefixOperator() {
+		return p.prefixExprParser(p)
 	}
 	switch typ {
 	case token.LPAREN:
