@@ -17,10 +17,10 @@ func (p *Parser) UsePrefixExprParser(parser func(p *Parser, next func() (ast.Nod
 	}
 }
 
-func (p *Parser) UseBinExprParser(parser func(p *Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error)) {
+func (p *Parser) UseInfixExprParser(parser func(p *Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error)) {
 	next := p.infixExprParser
 	if next == nil {
-		next = defaultBinExprParser
+		next = defaultInfixExprParser
 	}
 	p.infixExprParser = func(p *Parser, leftVal ast.Node) (ast.Node, error) {
 		return parser(p, leftVal, func(leftVal ast.Node) (ast.Node, error) {
@@ -63,7 +63,7 @@ func defaultPrefixExprParser(p *Parser) (node ast.Node, err error) {
 	return
 }
 
-func defaultBinExprParser(p *Parser, leftVal ast.Node) (node ast.Node, err error) {
+func defaultInfixExprParser(p *Parser, leftVal ast.Node) (node ast.Node, err error) {
 	op := p.CurrentToken
 	if op.Type == token.LPAREN {
 		return ParseCallExpr(p, leftVal)
@@ -95,7 +95,7 @@ func defaultExprParser(p *Parser) (val ast.Node, err error) {
 		return
 	}
 	typ := p.CurrentToken.Type
-	for typ.IsBinaryOperator() {
+	for typ.IsInfixOperator() {
 		if val, err = p.infixExprParser(p, val); err != nil {
 			return
 		}

@@ -48,8 +48,8 @@ func TestExprs(t *testing.T) {
 	}{
 		{
 			input: "1 - 2 - 3",
-			expected: `BinaryExpr
-	LeftValue: BinaryExpr
+			expected: `InfixExpr
+	LeftValue: InfixExpr
 		LeftValue: BasicLit{Value: "1"}
 		Operator: "-"
 		RightValue: BasicLit{Value: "2"}
@@ -58,15 +58,15 @@ func TestExprs(t *testing.T) {
 		},
 		{
 			input: "1 + 2 * (3 + 5) - 4",
-			expected: `BinaryExpr
-	LeftValue: BinaryExpr
+			expected: `InfixExpr
+	LeftValue: InfixExpr
 		LeftValue: BasicLit{Value: "1"}
 		Operator: "+"
-		RightValue: BinaryExpr
+		RightValue: InfixExpr
 			LeftValue: BasicLit{Value: "2"}
 			Operator: "*"
 			RightValue: ParenExpr
-				Value: BinaryExpr
+				Value: InfixExpr
 					LeftValue: BasicLit{Value: "3"}
 					Operator: "+"
 					RightValue: BasicLit{Value: "5"}
@@ -75,8 +75,8 @@ func TestExprs(t *testing.T) {
 		},
 		{
 			input: "foo() * 2 + 1",
-			expected: `BinaryExpr
-	LeftValue: BinaryExpr
+			expected: `InfixExpr
+	LeftValue: InfixExpr
 		LeftValue: CallExpr
 			Function: Ident{Value: "foo"}
 		Operator: "*"
@@ -94,15 +94,15 @@ func TestExprs(t *testing.T) {
 		},
 		{
 			input: "2 * (pow(2, 1 + 3) + 4)",
-			expected: `BinaryExpr
+			expected: `InfixExpr
 	LeftValue: BasicLit{Value: "2"}
 	Operator: "*"
 	RightValue: ParenExpr
-		Value: BinaryExpr
+		Value: InfixExpr
 			LeftValue: CallExpr
 				Function: Ident{Value: "pow"}
 				Arguments[0]: BasicLit{Value: "2"}
-				Arguments[1]: BinaryExpr
+				Arguments[1]: InfixExpr
 					LeftValue: BasicLit{Value: "1"}
 					Operator: "+"
 					RightValue: BasicLit{Value: "3"}
@@ -111,7 +111,7 @@ func TestExprs(t *testing.T) {
 		},
 		{
 			input: "1 + foo()",
-			expected: `BinaryExpr
+			expected: `InfixExpr
 	LeftValue: BasicLit{Value: "1"}
 	Operator: "+"
 	RightValue: CallExpr
@@ -119,7 +119,7 @@ func TestExprs(t *testing.T) {
 		},
 		{
 			input: "1 + foo()()",
-			expected: `BinaryExpr
+			expected: `InfixExpr
 	LeftValue: BasicLit{Value: "1"}
 	Operator: "+"
 	RightValue: CallExpr

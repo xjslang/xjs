@@ -164,7 +164,7 @@ var infixOperators = map[Type]int{
 	LPAREN: 7,
 }
 
-func (typ Type) IsBinaryOperator() (ok bool) {
+func (typ Type) IsInfixOperator() (ok bool) {
 	registerMu.RLock()
 	defer registerMu.RUnlock()
 	_, ok = infixOperators[typ]
@@ -177,15 +177,15 @@ func (typ Type) Precedence() int {
 	return infixOperators[typ]
 }
 
-func (typ Type) RegisterBinaryOperator(precedence int) {
+func (typ Type) RegisterInfixOperator(precedence int) {
 	registerMu.Lock()
 	defer registerMu.Unlock()
 	infixOperators[typ] = precedence
 }
 
-func RegisterBinaryOperator(lit string, precedence int) Type {
+func RegisterInfixOperator(lit string, precedence int) Type {
 	typ := RegisterType(lit)
-	typ.RegisterBinaryOperator(precedence)
+	typ.RegisterInfixOperator(precedence)
 	return typ
 }
 

@@ -132,8 +132,8 @@ func (node *powExpr) Type() string {
 	return "powExpr"
 }
 
-func TestUseBinExprParser(t *testing.T) {
-	powType := token.RegisterBinaryOperator("^", token.MULTIPLY.Precedence()+1)
+func TestUseInfixExprParser(t *testing.T) {
+	powType := token.RegisterInfixOperator("^", token.MULTIPLY.Precedence()+1)
 	input := "1+5^2"
 	s := &scanner.Scanner{}
 	s.UseScanner(func(s *scanner.Scanner, next func() token.Token) token.Token {
@@ -145,7 +145,7 @@ func TestUseBinExprParser(t *testing.T) {
 	})
 	s.Init([]byte(input))
 	p := &parser.Parser{}
-	p.UseBinExprParser(func(p *parser.Parser, leftVal ast.Node, next func(ast.Node) (ast.Node, error)) (node ast.Node, err error) {
+	p.UseInfixExprParser(func(p *parser.Parser, leftVal ast.Node, next func(ast.Node) (ast.Node, error)) (node ast.Node, err error) {
 		if p.CurrentToken.Type == powType {
 			powNode := &powExpr{LeftValue: leftVal, Operator: p.CurrentToken}
 			if powNode.RightValue, err = parser.ParseRightExpr(p); err != nil {

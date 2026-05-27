@@ -52,7 +52,7 @@ func (p *Parser) Init(sc *scanner.Scanner) {
 		p.exprParser = defaultExprParser
 	}
 	if p.infixExprParser == nil {
-		p.infixExprParser = defaultBinExprParser
+		p.infixExprParser = defaultInfixExprParser
 	}
 	if p.prefixExprParser == nil {
 		p.prefixExprParser = defaultPrefixExprParser

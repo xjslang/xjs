@@ -83,7 +83,7 @@ func ParseRightExpr(p *Parser) (val ast.Node, err error) {
 	}
 	for {
 		typ1 := p.CurrentToken.Type
-		if !typ1.IsBinaryOperator() || typ0.Precedence() >= typ1.Precedence() {
+		if !typ1.IsInfixOperator() || typ0.Precedence() >= typ1.Precedence() {
 			break
 		}
 		if val, err = p.infixExprParser(p, val); err != nil {

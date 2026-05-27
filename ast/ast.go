@@ -87,7 +87,7 @@ type InfixExpr struct {
 }
 
 func (node *InfixExpr) Type() string {
-	return "BinaryExpr"
+	return "InfixExpr"
 }
 
 type CallExpr struct {
