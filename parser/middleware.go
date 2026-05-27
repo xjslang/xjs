@@ -95,7 +95,7 @@ func defaultExprParser(p *Parser) (val ast.Node, err error) {
 		return
 	}
 	typ := p.CurrentToken.Type
-	for typ.IsInfixOperator() {
+	for typ.IsInfixOp() {
 		if val, err = p.infixExprParser(p, val); err != nil {
 			return
 		}

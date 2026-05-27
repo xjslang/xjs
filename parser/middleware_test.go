@@ -81,7 +81,7 @@ func (node *factorialExpr) Type() string {
 }
 
 func TestUsePrefixExprParser(t *testing.T) {
-	facType := token.RegisterPrefixOperator("¡")
+	facType := token.RegisterPrefixOp("¡")
 	input := "1 + ¡7"
 	s := &scanner.Scanner{}
 	s.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
@@ -133,7 +133,7 @@ func (node *powExpr) Type() string {
 }
 
 func TestUseInfixExprParser(t *testing.T) {
-	powType := token.RegisterInfixOperator("^", token.MULTIPLY.Precedence()+1)
+	powType := token.RegisterInfixOp("^", token.MULTIPLY.Precedence()+1)
 	input := "1+5^2"
 	s := &scanner.Scanner{}
 	s.UseScanner(func(s *scanner.Scanner, next func() token.Token) token.Token {

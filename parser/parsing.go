@@ -83,7 +83,7 @@ func ParseRightExpr(p *Parser) (val ast.Node, err error) {
 	}
 	for {
 		typ1 := p.CurrentToken.Type
-		if !typ1.IsInfixOperator() || typ0.Precedence() >= typ1.Precedence() {
+		if !typ1.IsInfixOp() || typ0.Precedence() >= typ1.Precedence() {
 			break
 		}
 		if val, err = p.infixExprParser(p, val); err != nil {
@@ -95,7 +95,7 @@ func ParseRightExpr(p *Parser) (val ast.Node, err error) {
 
 func ParseValue(p *Parser) (ast.Node, error) {
 	typ := p.CurrentToken.Type
-	if typ.IsPrefixOperator() {
+	if typ.IsPrefixOp() {
 		return p.prefixExprParser(p)
 	}
 	switch typ {
