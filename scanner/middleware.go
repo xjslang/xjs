@@ -77,11 +77,23 @@ func defaultScanner(sc *Scanner) token.Token {
 		return token.Token{Type: token.UNKNOWN, Literal: string(c1)}
 	// maths operators
 	case '+':
+		c1 := sc.CurrentChar
 		sc.AdvanceChar()
-		return token.Token{Type: token.PLUS, Literal: token.PLUS.String()}
+		if sc.CurrentChar == '+' {
+			c2 := sc.CurrentChar
+			sc.AdvanceChar()
+			return token.Token{Type: token.INCREMENT, Literal: string([]rune{c1, c2})}
+		}
+		return token.Token{Type: token.PLUS, Literal: string(c1)}
 	case '-':
+		c1 := sc.CurrentChar
 		sc.AdvanceChar()
-		return token.Token{Type: token.MINUS, Literal: token.MINUS.String()}
+		if sc.CurrentChar == '-' {
+			c2 := sc.CurrentChar
+			sc.AdvanceChar()
+			return token.Token{Type: token.DECREMENT, Literal: string([]rune{c1, c2})}
+		}
+		return token.Token{Type: token.MINUS, Literal: string(c1)}
 	case '*':
 		sc.AdvanceChar()
 		return token.Token{Type: token.MULTIPLY, Literal: token.MULTIPLY.String()}
