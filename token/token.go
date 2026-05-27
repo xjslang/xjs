@@ -47,6 +47,9 @@ const (
 	MULTIPLY // *
 	DIVIDE   // /
 	MODULO   // %
+	// incremental operators
+	INCREMENT // ++
+	DECREMENT // --
 	// comparison operators
 	EQ     // ==
 	NOT_EQ // !=
@@ -91,6 +94,9 @@ var tokenLiterals = map[Type]string{
 	MULTIPLY: "*",
 	DIVIDE:   "/",
 	MODULO:   "%",
+	// incremental operators
+	INCREMENT: "++",
+	DECREMENT: "--",
 	// comparison operators
 	EQ:     "==",
 	NOT_EQ: "!=",
