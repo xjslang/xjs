@@ -54,7 +54,7 @@ func (p *Parser) UseExprParser(parser func(p *Parser, next func() (ast.Node, err
 }
 
 func defaultPrefixExprParser(p *Parser) (node ast.Node, err error) {
-	nodeExpr := &ast.PrefixExpr{Operator: p.CurrentToken}
+	nodeExpr := &ast.UnaryExpr{Operator: p.CurrentToken}
 	p.AdvanceToken()
 	if nodeExpr.Value, err = ParseValue(p); err != nil {
 		return
@@ -68,7 +68,7 @@ func defaultInfixExprParser(p *Parser, leftVal ast.Node) (node ast.Node, err err
 	if op.Type == token.LPAREN {
 		return ParseCallExpr(p, leftVal)
 	}
-	nodeExpr := &ast.InfixExpr{
+	nodeExpr := &ast.BinaryExpr{
 		LeftValue: leftVal,
 		Operator:  op,
 	}
@@ -95,7 +95,7 @@ func defaultExprParser(p *Parser) (val ast.Node, err error) {
 		return
 	}
 	typ := p.CurrentToken.Type
-	for typ.IsInfixOp() {
+	for typ.IsBinaryOp() {
 		if val, err = p.infixExprParser(p, val); err != nil {
 			return
 		}

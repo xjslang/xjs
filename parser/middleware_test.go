@@ -81,7 +81,7 @@ func (node *factorialExpr) Type() string {
 }
 
 func TestUsePrefixExprParser(t *testing.T) {
-	facType := token.RegisterPrefixOp("¡")
+	facType := token.RegisterUnaryOp("¡")
 	input := "1 + ¡7"
 	s := &scanner.Scanner{}
 	s.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
@@ -110,13 +110,13 @@ func TestUsePrefixExprParser(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.IsType(t, &ast.InfixExpr{}, result)
-	infixNode := result.(*ast.InfixExpr)
-	require.IsType(t, &ast.BasicLit{}, infixNode.LeftValue)
-	require.Equal(t, "1", infixNode.LeftValue.(*ast.BasicLit).Value.Literal)
-	require.Equal(t, token.PLUS, infixNode.Operator.Type)
-	require.IsType(t, &factorialExpr{}, infixNode.RightValue)
-	facNode := infixNode.RightValue.(*factorialExpr)
+	require.IsType(t, &ast.BinaryExpr{}, result)
+	binNode := result.(*ast.BinaryExpr)
+	require.IsType(t, &ast.BasicLit{}, binNode.LeftValue)
+	require.Equal(t, "1", binNode.LeftValue.(*ast.BasicLit).Value.Literal)
+	require.Equal(t, token.PLUS, binNode.Operator.Type)
+	require.IsType(t, &factorialExpr{}, binNode.RightValue)
+	facNode := binNode.RightValue.(*factorialExpr)
 	require.IsType(t, &ast.BasicLit{}, facNode.Value)
 	require.Equal(t, "7", facNode.Value.(*ast.BasicLit).Value.Literal)
 	require.Equal(t, facType, facNode.Operator.Type)
@@ -133,7 +133,7 @@ func (node *powExpr) Type() string {
 }
 
 func TestUseInfixExprParser(t *testing.T) {
-	powType := token.RegisterInfixOp("^", token.MULTIPLY.Precedence()+1)
+	powType := token.RegisterBinaryOp("^", token.MULTIPLY.Precedence()+1)
 	input := "1+5^2"
 	s := &scanner.Scanner{}
 	s.UseScanner(func(s *scanner.Scanner, next func() token.Token) token.Token {
@@ -162,13 +162,13 @@ func TestUseInfixExprParser(t *testing.T) {
 		t.Fatal(err)
 	}
 	// check the result
-	require.IsType(t, &ast.InfixExpr{}, result)
-	infixNode := result.(*ast.InfixExpr)
-	require.IsType(t, &ast.BasicLit{}, infixNode.LeftValue)
-	require.Equal(t, "1", infixNode.LeftValue.(*ast.BasicLit).Value.Literal)
-	require.Equal(t, token.PLUS, infixNode.Operator.Type)
-	require.IsType(t, &powExpr{}, infixNode.RightValue)
-	powNode := infixNode.RightValue.(*powExpr)
+	require.IsType(t, &ast.BinaryExpr{}, result)
+	binNode := result.(*ast.BinaryExpr)
+	require.IsType(t, &ast.BasicLit{}, binNode.LeftValue)
+	require.Equal(t, "1", binNode.LeftValue.(*ast.BasicLit).Value.Literal)
+	require.Equal(t, token.PLUS, binNode.Operator.Type)
+	require.IsType(t, &powExpr{}, binNode.RightValue)
+	powNode := binNode.RightValue.(*powExpr)
 	require.IsType(t, &ast.BasicLit{}, powNode.LeftValue)
 	require.Equal(t, "5", powNode.LeftValue.(*ast.BasicLit).Value.Literal)
 	require.Equal(t, powType, powNode.Operator.Type)

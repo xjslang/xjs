@@ -52,11 +52,11 @@ func PrintCallExpr(p *Printer, node *ast.CallExpr) {
 	p.Print(node.RparenToken)
 }
 
-func PrintPrefixExpr(p *Printer, node *ast.PrefixExpr) {
+func PrintUnaryExpr(p *Printer, node *ast.UnaryExpr) {
 	p.Print(node.Operator, node.Value)
 }
 
-func PrintInfixExpr(p *Printer, node *ast.InfixExpr) {
+func PrintBinaryExpr(p *Printer, node *ast.BinaryExpr) {
 	p.Print(node.LeftValue)
 	p.SpPrint(node.Operator, node.RightValue)
 }
