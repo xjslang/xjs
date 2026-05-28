@@ -5,7 +5,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func (p *Parser) UsePrefixExprParser(parser func(p *Parser, next func() (ast.Node, error)) (ast.Node, error)) {
+func (p *Parser) UsePrefixOpParser(parser func(p *Parser, next func() (ast.Node, error)) (ast.Node, error)) {
 	next := p.prefixExprParser
 	if next == nil {
 		next = defaultPrefixExprParser
@@ -17,7 +17,7 @@ func (p *Parser) UsePrefixExprParser(parser func(p *Parser, next func() (ast.Nod
 	}
 }
 
-func (p *Parser) UseInfixExprParser(parser func(p *Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error)) {
+func (p *Parser) UseInfixOpParser(parser func(p *Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error)) {
 	next := p.infixExprParser
 	if next == nil {
 		next = defaultInfixExprParser
@@ -76,7 +76,8 @@ func defaultInfixExprParser(p *Parser, leftVal ast.Node) (node ast.Node, err err
 		LeftValue: leftVal,
 		Operator:  op,
 	}
-	if nodeExpr.RightValue, err = ParseRightExpr(p); err != nil {
+	p.AdvanceToken()
+	if nodeExpr.RightValue, err = ParseRightValue(p, op.Type.Precedence()); err != nil {
 		return
 	}
 	node = nodeExpr
@@ -99,7 +100,7 @@ func defaultExprParser(p *Parser) (val ast.Node, err error) {
 		return
 	}
 	typ := p.CurrentToken.Type
-	for typ.IsBinaryOp() {
+	for typ.IsInfixOp() {
 		if val, err = p.infixExprParser(p, val); err != nil {
 			return
 		}

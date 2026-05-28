@@ -140,7 +140,7 @@ func RegisterType(lit string) Type {
 	return typ
 }
 
-var binaryOps = map[Type]int{
+var infixOps = map[Type]int{
 	// || (lowest precedence for operators)
 	OR: 1,
 	// &&
@@ -164,51 +164,51 @@ var binaryOps = map[Type]int{
 	LPAREN: 7,
 }
 
-func (typ Type) IsBinaryOp() (ok bool) {
+func (typ Type) IsInfixOp() (ok bool) {
 	registerMu.RLock()
 	defer registerMu.RUnlock()
-	_, ok = binaryOps[typ]
+	_, ok = infixOps[typ]
 	return
 }
 
 func (typ Type) Precedence() int {
 	registerMu.RLock()
 	defer registerMu.RUnlock()
-	return binaryOps[typ]
+	return infixOps[typ]
 }
 
-func (typ Type) RegisterBinaryOp(precedence int) {
+func (typ Type) RegisterInfixOp(precedence int) {
 	registerMu.Lock()
 	defer registerMu.Unlock()
-	binaryOps[typ] = precedence
+	infixOps[typ] = precedence
 }
 
-func RegisterBinaryOp(lit string, precedence int) Type {
+func RegisterInfixOp(lit string, precedence int) Type {
 	typ := RegisterType(lit)
-	typ.RegisterBinaryOp(precedence)
+	typ.RegisterInfixOp(precedence)
 	return typ
 }
 
-var unaryOps = map[Type]bool{
+var prefixTypes = map[Type]bool{
 	NOT:    true,
 	LPAREN: true,
 }
 
-func (typ Type) IsUnaryOp() (ok bool) {
+func (typ Type) IsPrefixOp() (ok bool) {
 	registerMu.RLock()
 	defer registerMu.RUnlock()
-	_, ok = unaryOps[typ]
+	_, ok = prefixTypes[typ]
 	return
 }
 
-func (typ Type) RegisterUnaryOp() {
+func (typ Type) RegisterPrefixOp() {
 	registerMu.Lock()
 	defer registerMu.Unlock()
-	unaryOps[typ] = true
+	prefixTypes[typ] = true
 }
 
-func RegisterUnaryOp(lit string) Type {
+func RegisterPrefixOp(lit string) Type {
 	typ := RegisterType(lit)
-	typ.RegisterUnaryOp()
+	typ.RegisterPrefixOp()
 	return typ
 }
