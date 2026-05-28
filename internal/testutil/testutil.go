@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
@@ -88,6 +89,10 @@ func NodeString(node ast.Node) string {
 		switch v := node.(type) {
 		case *ast.Ident:
 			fmt.Fprintf(s, "{Value: %q}", v.Value.Literal)
+		case *ast.Program:
+			for _, stmt := range v.Stmts {
+				fmt.Fprintf(s, "\n%s%s", indent, print(stmt))
+			}
 		case *ast.Block:
 			for _, stmt := range v.Stmts {
 				fmt.Fprintf(s, "\n%s%s", indent, print(stmt))
@@ -97,7 +102,7 @@ func NodeString(node ast.Node) string {
 		case *ast.LetStmt:
 			fmt.Fprintf(s, "\n%sName: %s", indent, v.Name.Literal)
 			fmt.Fprintf(s, "\n%sValue: %s", indent, print(v.Value))
-		case *ast.FuncDecl:
+		case *js.Function:
 			fmt.Fprintf(s, "\n%sName: %s", indent, v.Name.Literal)
 			fmt.Fprintf(s, "\n%sBody: %s", indent, print(v.Body))
 		case *ast.ParenExpr:

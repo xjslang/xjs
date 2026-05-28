@@ -84,7 +84,7 @@ func TestUsePrefixOpParser(t *testing.T) {
 	input := "1 + ~7"
 	s := &scanner.Scanner{}
 	s.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
-		if sc.CurrentChar == '~' {
+		if sc.CurrentChar() == '~' {
 			sc.AdvanceChar()
 			return token.Token{Type: notBitwise, Literal: "~"}
 		}
@@ -136,7 +136,7 @@ func TestUseInfixOpParser(t *testing.T) {
 	input := "1+5^2"
 	s := &scanner.Scanner{}
 	s.UseScanner(func(s *scanner.Scanner, next func() token.Token) token.Token {
-		if s.CurrentChar == '^' {
+		if s.CurrentChar() == '^' {
 			s.AdvanceChar()
 			return token.Token{Type: powType, Literal: "^"}
 		}
@@ -190,7 +190,7 @@ func TestUseInfixOpParser_postfix(t *testing.T) {
 	input := "5! + 1"
 	s := &scanner.Scanner{}
 	s.UseScanner(func(s *scanner.Scanner, next func() token.Token) token.Token {
-		if s.CurrentChar == '!' {
+		if s.CurrentChar() == '!' {
 			s.AdvanceChar()
 			return token.Token{Type: facTyp, Literal: "!"}
 		}

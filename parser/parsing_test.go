@@ -51,18 +51,6 @@ func TestMalformedExpr(t *testing.T) {
 			}
 		}
 	})
-	t.Run("function", func(t *testing.T) {
-		input := "() {}"
-		p := createParser(input)
-		_, err := parser.ParseFuncDecl(p)
-		if err == nil {
-			t.Fatal("Expected an error, got nil")
-		}
-		expected := "Expected function"
-		if got := err.Error(); got != expected {
-			t.Fatalf("Expected error to be %q, got %q", expected, got)
-		}
-	})
 	t.Run("grouped expression", func(t *testing.T) {
 		tests := []struct {
 			input       string
@@ -141,36 +129,6 @@ func TestKeysAreSaved(t *testing.T) {
 			testutil.CompareLeadingTrivia(),
 		)
 	})
-	t.Run("function", func(t *testing.T) {
-		input := `/* block comment before */
-	function foo
-	// comment 1
-	( // comment 2
-	) {}`
-		p := createParser(input)
-		result, err := parser.ParseFuncDecl(p)
-		if err != nil {
-			t.Fatal(err)
-		}
-		testutil.AssertTokens(
-			t,
-			[]token.Token{result.FunctionToken, result.LparenToken, result.RparenToken},
-			[]token.Token{
-				{Type: token.FUNCTION, Literal: "function", LeadingTrivia: []token.Token{
-					{Type: token.BLOCK_COMMENT, Literal: " block comment before "},
-					{Type: token.NEWLINE, Literal: "\n"},
-				}},
-				{Type: token.LPAREN, Literal: "(", LeadingTrivia: []token.Token{
-					{Type: token.NEWLINE, Literal: "\n"},
-					{Type: token.LINE_COMMENT, Literal: " comment 1\n"},
-				}},
-				{Type: token.RPAREN, Literal: ")", LeadingTrivia: []token.Token{
-					{Type: token.LINE_COMMENT, Literal: " comment 2\n"},
-				}},
-			},
-			testutil.CompareLeadingTrivia(),
-		)
-	})
 	t.Run("grouped expression", func(t *testing.T) {
 		input := `// comment before
 	(1 + 2// comment after
@@ -194,33 +152,6 @@ func TestKeysAreSaved(t *testing.T) {
 			testutil.CompareLeadingTrivia(),
 		)
 	})
-}
-
-func TestParseBlockErrorRecovery(t *testing.T) {
-	input := `function foo() {
-		let x = 100
-		let y 200 // syntax error, but keep parsing
-		let z = 300
-		let z = // syntax error, but keep parsing
-	}
-
-	let a = 'aaa'`
-	p := createParser(input)
-	_, err := parser.ParseFuncDecl(p)
-	if err == nil {
-		t.Fatalf("Expected an error, got nil")
-	}
-	expected := strings.Join([]string{
-		"Expected =",
-		"Expected value",
-	}, "\n")
-	if got := err.Error(); got != expected {
-		t.Fatalf("Expected %q, got %q", expected, got)
-	}
-	// keep parsing after `}`
-	if _, err := parser.ParseLetStmt(p); err != nil {
-		t.Fatal(err)
-	}
 }
 
 func TestExprStmt(t *testing.T) {

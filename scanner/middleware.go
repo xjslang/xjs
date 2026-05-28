@@ -19,77 +19,77 @@ func (sc *Scanner) UseScanner(scanner func(sc *Scanner, next func() token.Token)
 }
 
 func defaultScanner(sc *Scanner) token.Token {
-	switch sc.CurrentChar {
+	switch sc.currentChar {
 	// operators
 	case '=':
-		c1 := sc.CurrentChar
+		c1 := sc.currentChar
 		sc.AdvanceChar()
-		if sc.CurrentChar == '=' {
-			c2 := sc.CurrentChar
+		if sc.currentChar == '=' {
+			c2 := sc.currentChar
 			sc.AdvanceChar()
 			return token.Token{Type: token.EQ, Literal: string([]rune{c1, c2})}
 		}
 		return token.Token{Type: token.ASSIGN, Literal: string(c1)}
 	case '!':
-		c1 := sc.CurrentChar
+		c1 := sc.currentChar
 		sc.AdvanceChar()
-		if sc.CurrentChar == '=' {
-			c2 := sc.CurrentChar
+		if sc.currentChar == '=' {
+			c2 := sc.currentChar
 			sc.AdvanceChar()
 			return token.Token{Type: token.NOT_EQ, Literal: string([]rune{c1, c2})}
 		}
 		return token.Token{Type: token.NOT, Literal: string(c1)}
 	case '<':
-		c1 := sc.CurrentChar
+		c1 := sc.currentChar
 		sc.AdvanceChar()
-		if sc.CurrentChar == '=' {
-			c2 := sc.CurrentChar
+		if sc.currentChar == '=' {
+			c2 := sc.currentChar
 			sc.AdvanceChar()
 			return token.Token{Type: token.LTE, Literal: string([]rune{c1, c2})}
 		}
 		return token.Token{Type: token.LT, Literal: string(c1)}
 	case '>':
-		c1 := sc.CurrentChar
+		c1 := sc.currentChar
 		sc.AdvanceChar()
-		if sc.CurrentChar == '=' {
-			c2 := sc.CurrentChar
+		if sc.currentChar == '=' {
+			c2 := sc.currentChar
 			sc.AdvanceChar()
 			return token.Token{Type: token.GTE, Literal: string([]rune{c1, c2})}
 		}
 		return token.Token{Type: token.GT, Literal: string(c1)}
 	case '|':
-		c1 := sc.CurrentChar
+		c1 := sc.currentChar
 		sc.AdvanceChar()
-		if sc.CurrentChar == '|' {
-			c2 := sc.CurrentChar
+		if sc.currentChar == '|' {
+			c2 := sc.currentChar
 			sc.AdvanceChar()
 			return token.Token{Type: token.OR, Literal: string([]rune{c1, c2})}
 		}
 		return token.Token{Type: token.UNKNOWN, Literal: string(c1)}
 	case '&':
-		c1 := sc.CurrentChar
+		c1 := sc.currentChar
 		sc.AdvanceChar()
-		if sc.CurrentChar == '&' {
-			c2 := sc.CurrentChar
+		if sc.currentChar == '&' {
+			c2 := sc.currentChar
 			sc.AdvanceChar()
 			return token.Token{Type: token.AND, Literal: string([]rune{c1, c2})}
 		}
 		return token.Token{Type: token.UNKNOWN, Literal: string(c1)}
 	// maths operators
 	case '+':
-		c1 := sc.CurrentChar
+		c1 := sc.currentChar
 		sc.AdvanceChar()
-		if sc.CurrentChar == '+' {
-			c2 := sc.CurrentChar
+		if sc.currentChar == '+' {
+			c2 := sc.currentChar
 			sc.AdvanceChar()
 			return token.Token{Type: token.INCREMENT, Literal: string([]rune{c1, c2})}
 		}
 		return token.Token{Type: token.PLUS, Literal: string(c1)}
 	case '-':
-		c1 := sc.CurrentChar
+		c1 := sc.currentChar
 		sc.AdvanceChar()
-		if sc.CurrentChar == '-' {
-			c2 := sc.CurrentChar
+		if sc.currentChar == '-' {
+			c2 := sc.currentChar
 			sc.AdvanceChar()
 			return token.Token{Type: token.DECREMENT, Literal: string([]rune{c1, c2})}
 		}
@@ -102,48 +102,48 @@ func defaultScanner(sc *Scanner) token.Token {
 		return token.Token{Type: token.MODULO, Literal: token.MODULO.String()}
 	// divide operator and comments
 	case '/':
-		c1 := sc.CurrentChar
+		c1 := sc.currentChar
 		sc.AdvanceChar()
-		if sc.CurrentChar == '/' {
+		if sc.currentChar == '/' {
 			comment := sc.consumeLineComment()
 			return token.Token{Type: token.LINE_COMMENT, Literal: comment}
 		}
-		if sc.CurrentChar == '*' {
+		if sc.currentChar == '*' {
 			comment, typ := sc.consumeBlockComment()
 			return token.Token{Type: typ, Literal: comment}
 		}
 		return token.Token{Type: token.DIVIDE, Literal: string(c1)}
 	case '\'', '"':
-		lit, typ := sc.consumeString(sc.CurrentChar)
+		lit, typ := sc.consumeString(sc.currentChar)
 		return token.Token{Type: typ, Literal: lit}
 	// delimiters
 	case ',':
-		c := sc.CurrentChar
+		c := sc.currentChar
 		sc.AdvanceChar()
 		return token.Token{Type: token.COMMA, Literal: string(c)}
 	case ';':
-		c := sc.CurrentChar
+		c := sc.currentChar
 		sc.AdvanceChar()
 		return token.Token{Type: token.SEMICOLON, Literal: string(c)}
 	case '(':
-		c := sc.CurrentChar
+		c := sc.currentChar
 		sc.AdvanceChar()
 		return token.Token{Type: token.LPAREN, Literal: string(c)}
 	case ')':
-		c := sc.CurrentChar
+		c := sc.currentChar
 		sc.AdvanceChar()
 		return token.Token{Type: token.RPAREN, Literal: string(c)}
 	case '{':
-		c := sc.CurrentChar
+		c := sc.currentChar
 		sc.AdvanceChar()
 		return token.Token{Type: token.LBRACE, Literal: string(c)}
 	case '}':
-		c := sc.CurrentChar
+		c := sc.currentChar
 		sc.AdvanceChar()
 		return token.Token{Type: token.RBRACE, Literal: string(c)}
 	case '\r':
 		sc.AdvanceChar()
-		if sc.CurrentChar == '\n' {
+		if sc.currentChar == '\n' {
 			sc.AdvanceChar()
 			return token.Token{Type: token.NEWLINE, Literal: "\r\n"}
 		}
@@ -152,23 +152,23 @@ func defaultScanner(sc *Scanner) token.Token {
 		sc.AdvanceChar()
 		return token.Token{Type: token.NEWLINE, Literal: "\n"}
 	default:
-		if isLetter(sc.CurrentChar) {
+		if isLetter(sc.currentChar) {
 			lit := sc.consumeIdentifier()
 			typ := lookup(lit)
 			return token.Token{Type: typ, Literal: lit}
-		} else if isDigit(sc.CurrentChar) {
+		} else if isDigit(sc.currentChar) {
 			lit := sc.consumeNumber()
 			return token.Token{Type: token.NUMBER, Literal: lit}
-		} else if sc.CurrentChar == utf8.RuneError {
-			c := sc.CurrentChar
+		} else if sc.currentChar == utf8.RuneError {
+			c := sc.currentChar
 			sc.AdvanceChar()
 			return token.Token{Type: token.ILLEGAL, Literal: string(c)}
-		} else if sc.CurrentChar == eof {
+		} else if sc.currentChar == eof {
 			return token.Token{Type: token.EOF, Literal: ""}
 		}
 	}
 
-	c := sc.CurrentChar
+	c := sc.currentChar
 	sc.AdvanceChar()
 	return token.Token{Type: token.UNKNOWN, Literal: string(c)}
 }
@@ -179,8 +179,6 @@ func lookup(lit string) token.Type {
 		return token.BOOLEAN
 	case "let":
 		return token.LET
-	case "function":
-		return token.FUNCTION
 	}
 	return token.IDENT
 }

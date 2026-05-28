@@ -58,19 +58,6 @@ func (node *LetStmt) Type() string {
 	return "LetStmt"
 }
 
-type FuncDecl struct {
-	FunctionToken token.Token
-	LparenToken   token.Token
-	RparenToken   token.Token
-
-	Name token.Token
-	Body *Block
-}
-
-func (node *FuncDecl) Type() string {
-	return "FuncDecl"
-}
-
 type UnaryExpr struct {
 	Operator token.Token
 	Value    Node

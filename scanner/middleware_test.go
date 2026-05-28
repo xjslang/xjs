@@ -11,7 +11,7 @@ func TestUseScanner(t *testing.T) {
 	sc := &scanner.Scanner{}
 	powType := token.RegisterType("**")
 	sc.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
-		if sc.CurrentChar == '*' && sc.PeekChar() == '*' {
+		if sc.CurrentChar() == '*' && sc.PeekChar() == '*' {
 			// consume **
 			sc.AdvanceChar()
 			sc.AdvanceChar()
