@@ -75,15 +75,13 @@ func ParseExprStmt(p *Parser) (node *ast.ExprStmt, err error) {
 	return
 }
 
-func ParseRightExpr(p *Parser) (val ast.Node, err error) {
-	typ0 := p.CurrentToken.Type
-	p.AdvanceToken()
+func ParseRightValue(p *Parser, precedence int) (val ast.Node, err error) {
 	if val, err = ParseValue(p); err != nil {
 		return
 	}
 	for {
-		typ1 := p.CurrentToken.Type
-		if !typ1.IsBinaryOp() || typ0.Precedence() >= typ1.Precedence() {
+		typ := p.CurrentToken.Type
+		if !typ.IsInfixOp() || precedence >= typ.Precedence() {
 			break
 		}
 		if val, err = p.infixExprParser(p, val); err != nil {
@@ -95,12 +93,10 @@ func ParseRightExpr(p *Parser) (val ast.Node, err error) {
 
 func ParseValue(p *Parser) (ast.Node, error) {
 	typ := p.CurrentToken.Type
-	if typ.IsUnaryOp() {
+	if typ.IsPrefixOp() {
 		return p.prefixExprParser(p)
 	}
 	switch typ {
-	case token.LPAREN:
-		return ParseParenExpr(p)
 	case token.NUMBER, token.STRING, token.BOOLEAN:
 		val := p.CurrentToken
 		p.AdvanceToken()
