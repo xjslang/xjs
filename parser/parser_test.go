@@ -2,14 +2,12 @@ package parser_test
 
 import (
 	"flag"
-	"fmt"
 	"os"
 	"strconv"
 	"testing"
 
 	"github.com/xjslang/xjs/internal/testutil"
 	"github.com/xjslang/xjs/parser"
-	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/scanner"
 )
 
@@ -19,26 +17,6 @@ func TestMain(m *testing.M) {
 	flag.BoolVar(&updateGoldenFiles, "update", false, "update golden files")
 	flag.Parse()
 	os.Exit(m.Run())
-}
-
-func Example_basic() {
-	result, err := testutil.Parse(`function hello() {
-	let x = 100
-	let y = 200
-}`)
-	if err != nil {
-		panic(err)
-	}
-
-	pr := printer.Printer{}
-	pr.Init()
-	pr.Print(result)
-	fmt.Print(pr.String())
-	// Output:
-	// function hello() {
-	//   let x = 100;
-	//   let y = 200;
-	// }
 }
 
 func TestExprs(t *testing.T) {

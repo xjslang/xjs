@@ -7,9 +7,8 @@ import (
 	"io"
 	"os"
 
+	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/parser"
-	"github.com/xjslang/xjs/printer"
-	"github.com/xjslang/xjs/scanner"
 )
 
 func usage() {
@@ -68,11 +67,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	sc := &scanner.Scanner{}
+	sc := &xjs.Scanner{}
 	sc.Init(data)
-	p := &parser.Parser{}
+	p := &xjs.Parser{}
 	p.Init(sc)
-	program, err := parser.ParseProgram(p)
+	program, err := p.Parse()
 
 	// prints errors
 	if checkFlag {
@@ -93,7 +92,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	pr := printer.Printer{}
+	pr := xjs.Printer{}
 	pr.Init()
 	pr.Print(program)
 	fmt.Print(pr.String())

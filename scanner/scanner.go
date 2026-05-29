@@ -16,7 +16,7 @@ type Scanner struct {
 
 	scanner func(*Scanner) token.Token
 
-	CurrentChar rune
+	currentChar rune
 }
 
 func (sc *Scanner) Init(input []byte) {
@@ -32,10 +32,14 @@ func (sc *Scanner) Reset() {
 		sc.scanner = defaultScanner
 	}
 	sc.offset = 0
-	sc.CurrentChar = eof
+	sc.currentChar = eof
 	sc.line = 0
 	sc.column = -1
 	sc.AdvanceChar()
+}
+
+func (sc *Scanner) CurrentChar() rune {
+	return sc.currentChar
 }
 
 func (sc *Scanner) PeekChar() rune {
@@ -55,7 +59,7 @@ func (sc *Scanner) AdvanceChar() {
 		sc.line++
 		sc.column = -1
 	case '\n':
-		if sc.CurrentChar != '\r' {
+		if sc.currentChar != '\r' {
 			sc.line++
 			sc.column = -1
 		}
@@ -70,7 +74,7 @@ func (sc *Scanner) AdvanceChar() {
 	default:
 		sc.column++
 	}
-	sc.CurrentChar = r
+	sc.currentChar = r
 }
 
 func (sc *Scanner) NextToken() token.Token {
@@ -104,7 +108,7 @@ triviaLoop:
 }
 
 func (sc *Scanner) skipWhitespaces() {
-	for sc.CurrentChar == ' ' || sc.CurrentChar == '\t' {
+	for sc.currentChar == ' ' || sc.currentChar == '\t' {
 		sc.AdvanceChar()
 	}
 }

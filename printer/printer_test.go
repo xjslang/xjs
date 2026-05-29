@@ -11,10 +11,9 @@ import (
 	"github.com/pmezard/go-difflib/difflib"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/internal/testutil"
-	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
-	"github.com/xjslang/xjs/scanner"
 )
 
 var updateGoldenFiles bool
@@ -100,16 +99,16 @@ func TestGoldenFiles(t *testing.T) {
 		// parse the source file
 		source, err := os.ReadFile(file)
 		require.NoError(t, err)
-		s := &scanner.Scanner{}
+		s := &xjs.Scanner{}
 		s.Init(source)
-		p := &parser.Parser{}
+		p := &xjs.Parser{}
 		p.Init(s)
-		result, err := parser.ParseProgram(p)
+		result, err := p.Parse()
 		require.NoError(t, err)
 		// print the result
-		pr := &printer.Printer{}
+		pr := &xjs.Printer{}
 		pr.Init()
-		printer.PrintProgram(pr, result)
+		pr.Print(result)
 		// create or update golden file
 		got := pr.Bytes()
 		if updateGoldenFiles {
@@ -168,57 +167,6 @@ func TestPrintCallExpr(t *testing.T) {
 				t.Errorf("Expected:\n\n%s\n\nGot:\n\n%s", test.expected, got)
 			}
 		})
-	}
-}
-
-func TestCommentFormatting(t *testing.T) {
-	input := `//a
-		/*b*/ function//c
-						foo/*c*/(//d
-						)//e
-	{
-						//f
-						function boo(){
-							let a = 'aaa';/*g*/let b = 'bbb'/*h*/;
-						}
-		//c
-	}
-	let x = 100 //y
-	let y = (/*c*/100 //j
-	+//k
-	200)
-	log(x, y)/*l*/;
-	let z = 1
-	+ 2 // last comment`
-	expected := `//a
-/*b*/
-function //c
-foo/*c*/( //d
-) //e
-{
-  //f
-  function boo() {
-    let a = 'aaa';/*g*/
-    let b = 'bbb'/*h*/;
-  }
-  //c
-}
-let x = 100; //y
-let y = (/*c*/100 //j
-+ //k
-200);
-log(x, y)/*l*/;
-let z = 1
-+ 2; // last comment`
-	node, err := testutil.Parse(input)
-	if err != nil {
-		t.Fatal(err)
-	}
-	pr := &printer.Printer{}
-	pr.Init()
-	printer.PrintProgram(pr, node)
-	if got := pr.String(); got != expected {
-		t.Errorf("Expected\n\n%s\n\ngot\n\n%s", expected, got)
 	}
 }
 

@@ -6,9 +6,12 @@ import (
 	"unicode/utf8"
 
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
 )
+
+type Scanner interface {
+	NextToken() token.Token
+}
 
 type Range struct {
 	Start token.Position `json:"start"`
@@ -33,7 +36,7 @@ func (list ErrorList) Error() string {
 type Parser struct {
 	CurrentToken     token.Token
 	PeekToken        token.Token
-	scanner          *scanner.Scanner
+	scanner          Scanner
 	scopes           ScopeTracker
 	stmtParser       func(p *Parser) (ast.Node, error)
 	exprParser       func(p *Parser) (ast.Node, error)
@@ -42,7 +45,7 @@ type Parser struct {
 	errors           ErrorList
 }
 
-func (p *Parser) Init(sc *scanner.Scanner) {
+func (p *Parser) Init(sc Scanner) {
 	p.scopes = make(ScopeTracker)
 	p.scanner = sc
 	if p.stmtParser == nil {
@@ -63,6 +66,10 @@ func (p *Parser) Init(sc *scanner.Scanner) {
 	// call twice to update CurrentToken and PeekToken
 	p.AdvanceToken()
 	p.AdvanceToken()
+}
+
+func (p *Parser) Parse() (*ast.Program, error) {
+	return ParseProgram(p)
 }
 
 func (p *Parser) ParseStmt() (ast.Node, error) {

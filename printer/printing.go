@@ -33,13 +33,6 @@ func PrintLetStmt(p *Printer, node *ast.LetStmt) {
 	p.Print(node.SemiToken)
 }
 
-func PrintFuncDecl(p *Printer, node *ast.FuncDecl) {
-	p.LnPrint(node.FunctionToken)
-	p.SpPrint(node.Name)
-	p.Print(node.LparenToken, node.RparenToken)
-	p.SpPrint(node.Body)
-}
-
 func PrintCallExpr(p *Printer, node *ast.CallExpr) {
 	p.Print(node.Function, node.LparenToken)
 	for i, arg := range node.Arguments {

@@ -88,8 +88,6 @@ func defaultStmtParser(p *Parser) (ast.Node, error) {
 	switch p.CurrentToken.Type {
 	case token.LET:
 		return ParseLetStmt(p)
-	case token.FUNCTION:
-		return ParseFuncDecl(p)
 	default:
 		return ParseExprStmt(p)
 	}

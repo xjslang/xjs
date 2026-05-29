@@ -10,15 +10,15 @@ func (sc *Scanner) consumeBlockComment() (string, token.Type) {
 	sb := strings.Builder{}
 	sc.AdvanceChar() // consume "*"
 	for {
-		if sc.CurrentChar == '*' && sc.PeekChar() == '/' {
+		if sc.currentChar == '*' && sc.PeekChar() == '/' {
 			// skip "*/"
 			sc.AdvanceChar()
 			sc.AdvanceChar()
 			break
-		} else if sc.CurrentChar == eof {
+		} else if sc.currentChar == eof {
 			return sb.String(), token.ILLEGAL
 		}
-		sb.WriteRune(sc.CurrentChar)
+		sb.WriteRune(sc.currentChar)
 		sc.AdvanceChar()
 	}
 	return sb.String(), token.BLOCK_COMMENT
@@ -28,57 +28,57 @@ func (sc *Scanner) consumeLineComment() string {
 	sb := strings.Builder{}
 	for {
 		sc.AdvanceChar()
-		if sc.CurrentChar == '\n' {
-			sb.WriteRune(sc.CurrentChar)
+		if sc.currentChar == '\n' {
+			sb.WriteRune(sc.currentChar)
 			sc.AdvanceChar()
 			break
-		} else if sc.CurrentChar == '\r' {
-			sb.WriteRune(sc.CurrentChar)
+		} else if sc.currentChar == '\r' {
+			sb.WriteRune(sc.currentChar)
 			sc.AdvanceChar()
-			if sc.CurrentChar == '\n' {
-				sb.WriteRune(sc.CurrentChar)
+			if sc.currentChar == '\n' {
+				sb.WriteRune(sc.currentChar)
 				sc.AdvanceChar()
 			}
 			break
-		} else if sc.CurrentChar == eof {
+		} else if sc.currentChar == eof {
 			break
 		}
-		sb.WriteRune(sc.CurrentChar)
+		sb.WriteRune(sc.currentChar)
 	}
 	return sb.String()
 }
 
 func (sc *Scanner) consumeIdentifier() string {
 	sb := strings.Builder{}
-	sb.WriteRune(sc.CurrentChar)
-	for sc.AdvanceChar(); isLetter(sc.CurrentChar) || isDigit(sc.CurrentChar); sc.AdvanceChar() {
-		sb.WriteRune(sc.CurrentChar)
+	sb.WriteRune(sc.currentChar)
+	for sc.AdvanceChar(); isLetter(sc.currentChar) || isDigit(sc.currentChar); sc.AdvanceChar() {
+		sb.WriteRune(sc.currentChar)
 	}
 	return sb.String()
 }
 
 func (sc *Scanner) consumeNumber() string {
 	sb := strings.Builder{}
-	sb.WriteRune(sc.CurrentChar)
-	for sc.AdvanceChar(); isDigit(sc.CurrentChar); sc.AdvanceChar() {
-		sb.WriteRune(sc.CurrentChar)
+	sb.WriteRune(sc.currentChar)
+	for sc.AdvanceChar(); isDigit(sc.currentChar); sc.AdvanceChar() {
+		sb.WriteRune(sc.currentChar)
 	}
 	return sb.String()
 }
 
 func (sc *Scanner) consumeString(delimiter rune) (string, token.Type) {
 	sb := strings.Builder{}
-	sb.WriteRune(sc.CurrentChar)
+	sb.WriteRune(sc.currentChar)
 	for {
 		sc.AdvanceChar()
-		if sc.CurrentChar == delimiter {
-			sb.WriteRune(sc.CurrentChar)
+		if sc.currentChar == delimiter {
+			sb.WriteRune(sc.currentChar)
 			sc.AdvanceChar()
 			break
-		} else if sc.CurrentChar == eof || sc.CurrentChar == '\n' || sc.CurrentChar == '\r' {
+		} else if sc.currentChar == eof || sc.currentChar == '\n' || sc.currentChar == '\r' {
 			return sb.String(), token.ILLEGAL
 		}
-		sb.WriteRune(sc.CurrentChar)
+		sb.WriteRune(sc.currentChar)
 	}
 	return sb.String(), token.STRING
 }
