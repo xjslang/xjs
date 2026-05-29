@@ -67,9 +67,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	sc := &xjs.Scanner{}
+	sc := xjs.NewScanner()
 	sc.Init(data)
-	p := &xjs.Parser{}
+	p := xjs.NewParser()
 	p.Init(sc)
 	program, err := p.Parse()
 
@@ -92,7 +92,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	pr := xjs.Printer{}
+	pr := xjs.NewPrinter()
 	pr.Init()
 	pr.Print(program)
 	fmt.Print(pr.String())

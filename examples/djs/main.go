@@ -32,7 +32,7 @@ func main() {
 	}`
 
 	// create a scanner that can read "defer"
-	djsScanner := &xjs.Scanner{}
+	djsScanner := xjs.NewScanner()
 	djsScanner.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
 		tok := next()
 		if tok.Type == token.IDENT && tok.Literal == "defer" {
@@ -43,7 +43,7 @@ func main() {
 	djsScanner.Init([]byte(input))
 
 	// create a parser that can parse "defer"
-	djsParser := &xjs.Parser{}
+	djsParser := xjs.NewParser()
 	djsParser.UseStmtParser(func(p *parser.Parser, next func() (ast.Node, error)) (node ast.Node, err error) {
 		if p.CurrentToken.Type == deferTyp {
 			deferStmt := &DeferStmt{DeferToken: p.CurrentToken}
@@ -63,7 +63,7 @@ func main() {
 	}
 
 	// create a compiler that can compile `DeferStmt`
-	djsCompiler := &xjs.Printer{}
+	djsCompiler := xjs.NewPrinter()
 	djsCompiler.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node)) {
 		if node, ok := node.(*DeferStmt); ok {
 			pr.PrintTrivia(node.DeferToken.LeadingTrivia) // print previous comments and new lines
@@ -80,7 +80,7 @@ func main() {
 	fmt.Println(djsCompiler.String())
 
 	// create a formatter that can format `DeferStmt`
-	djsFormatter := &xjs.Printer{}
+	djsFormatter := xjs.NewPrinter()
 	djsFormatter.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node)) {
 		if node, ok := node.(*DeferStmt); ok {
 			pr.EnsureLine() // ensure a new line is added before printing

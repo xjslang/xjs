@@ -18,16 +18,16 @@ func Example_basic() {
 	let x = 100
 	let y = 200
 }`
-	s := &xjs.Scanner{}
+	s := xjs.NewScanner()
 	s.Init([]byte(input))
-	p := &xjs.Parser{}
+	p := xjs.NewParser()
 	p.Init(s)
 	result, err := p.Parse()
 	if err != nil {
 		panic(err)
 	}
 
-	pr := xjs.Printer{}
+	pr := xjs.NewPrinter()
 	pr.Init()
 	pr.Print(result)
 	fmt.Print(pr.String())
@@ -52,9 +52,9 @@ func TestMiddlewares(t *testing.T) {
 	input := `(function foo() {
 		print('Hello, World!')
 	})()`
-	s := &xjs.Scanner{}
+	s := xjs.NewScanner()
 	s.Init([]byte(input))
-	p := &xjs.Parser{}
+	p := xjs.NewParser()
 	// parse IIFE expressions
 	p.UsePrefixOpParser(func(p *parser.Parser, next func() (ast.Node, error)) (_ ast.Node, err error) {
 		if p.CurrentToken.Type == token.LPAREN && p.PeekToken.Type == js.FUNCTION {
@@ -75,7 +75,7 @@ func TestMiddlewares(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	pr := &xjs.Printer{}
+	pr := xjs.NewPrinter()
 	pr.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node)) {
 		if node, ok := node.(*iifeExpr); ok {
 			p.Print(node.LparenToken)
