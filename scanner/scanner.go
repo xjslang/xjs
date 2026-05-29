@@ -19,6 +19,10 @@ type Scanner struct {
 	currentChar rune
 }
 
+// Init initializes the scanner.
+//
+// Call Init before scanning tokens with NextToken.
+// Scanner middleware must be registered via UseScanner BEFORE Init.
 func (sc *Scanner) Init(input []byte) {
 	sc.input = input
 	if sc.scanner == nil {

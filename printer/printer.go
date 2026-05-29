@@ -32,6 +32,10 @@ type Printer struct {
 	printer     func(*Printer, ast.Node)
 }
 
+// Init initializes the printer.
+//
+// Call Init before printing with Print/LnPrint/SpPrint.
+// Printer middleware can be registered via UsePrinter BEFORE Init.
 func (p *Printer) Init(opts ...Option) {
 	cfg := &config{
 		indent: "  ",

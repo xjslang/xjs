@@ -2,16 +2,64 @@ package parser_test
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"strconv"
 	"testing"
 
+	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/internal/testutil"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/scanner"
+	"github.com/xjslang/xjs/token"
 )
 
 var updateGoldenFiles bool
+
+type MyCustomStmt struct {
+	LparenToken token.Token
+	RparenToken token.Token
+	Message     token.Token
+}
+
+func (node *MyCustomStmt) Type() string {
+	return "MyCustomStmt"
+}
+
+func ExampleParser_Init() {
+	s := &scanner.Scanner{}
+	s.Init([]byte("print('Hello, World!')"))
+	p := &parser.Parser{}
+
+	// Declare "middlewares" BEFORE calling Init
+	p.UseStmtParser(func(p *parser.Parser, next func() (ast.Node, error)) (_ ast.Node, err error) {
+		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "print" {
+			p.AdvanceToken()
+			node := &MyCustomStmt{}
+			if node.LparenToken, err = p.Expect(token.LPAREN); err != nil { // expect (
+				return
+			}
+			if node.Message, err = p.Expect(token.STRING); err != nil { // expect a string
+				return
+			}
+			if node.RparenToken, err = p.Expect(token.RPAREN); err != nil { // expect )
+				return
+			}
+			return node, nil
+		}
+		return next() // Delegate to the "next" middleware
+	})
+	p.Init(s)
+
+	// Now you can use the parser
+	result, err := p.Parse()
+	if err != nil {
+		panic(err)
+	}
+	stmt := result.Stmts[0].(*MyCustomStmt)
+	fmt.Println(stmt.Message.Literal)
+	// Output: 'Hello, World!'
+}
 
 func TestMain(m *testing.M) {
 	flag.BoolVar(&updateGoldenFiles, "update", false, "update golden files")

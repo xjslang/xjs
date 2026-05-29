@@ -45,6 +45,10 @@ type Parser struct {
 	errors           ErrorList
 }
 
+// Init initializes the parser.
+//
+// Call Init before parsing with Parse/ParseStmt/ParseExpr.
+// Parser middleware must be registered via Use*Parser methods BEFORE Init.
 func (p *Parser) Init(sc Scanner) {
 	p.scopes = make(ScopeTracker)
 	p.scanner = sc

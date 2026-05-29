@@ -28,6 +28,42 @@ func assertInputTokens(t *testing.T, input string, expectedToks []token.Token, o
 	assertLexerTokens(t, sc, expectedToks, opts...)
 }
 
+func ExampleScanner_Init() {
+	hashTyp := token.RegisterType("hash")
+	caretType := token.RegisterType("caret")
+	s := &scanner.Scanner{}
+
+	// Declare "middlewares" BEFORE calling Init
+	s.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
+		if sc.CurrentChar() == '#' {
+			sc.AdvanceChar()
+			return token.Token{Type: hashTyp, Literal: "#"}
+		}
+		return next() // Delegate to the "next" middleware
+	})
+	s.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
+		if sc.CurrentChar() == '^' {
+			sc.AdvanceChar()
+			return token.Token{Type: caretType, Literal: "^"}
+		}
+		return next() // Delegate to the "next" middleware
+	})
+	s.Init([]byte("#some ^input"))
+
+	// Now you can use the scanner
+	for tok := s.NextToken(); tok.Type != token.EOF; tok = s.NextToken() {
+		fmt.Printf(
+			"{Type: %s, Literal: %s, Position: %v}\n",
+			tok.Type.String(),
+			tok.Literal, tok.Position)
+	}
+	// Output:
+	// {Type: hash, Literal: #, Position: {0 0}}
+	// {Type: identifier, Literal: some, Position: {0 1}}
+	// {Type: caret, Literal: ^, Position: {0 6}}
+	// {Type: identifier, Literal: input, Position: {0 7}}
+}
+
 func BenchmarkLexer(b *testing.B) {
 	sc := &scanner.Scanner{}
 	sc.Init([]byte("lorem ipsum dolor"))
