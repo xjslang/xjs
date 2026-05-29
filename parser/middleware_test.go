@@ -5,7 +5,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
@@ -23,7 +25,7 @@ func (node *orExpr) Type() string {
 func TestUseExprParser(t *testing.T) {
 	orType := token.RegisterType("or")
 	input := "let x = openDb() or exit('failed opening db')"
-	s := &scanner.Scanner{}
+	s := xjs.NewScanner()
 	// the scanner can now scan "or"
 	s.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
 		tok := next()
@@ -33,7 +35,7 @@ func TestUseExprParser(t *testing.T) {
 		return tok
 	})
 	s.Init([]byte(input))
-	p := &parser.Parser{}
+	p := xjs.NewParser()
 	// the parser can now parse "or"
 	p.UseExprParser(func(p *parser.Parser, next func() (ast.Node, error)) (node ast.Node, err error) {
 		node, err = next()
@@ -57,8 +59,8 @@ func TestUseExprParser(t *testing.T) {
 	}
 	// check the result
 	require.Len(t, result.Stmts, 1)
-	require.IsType(t, &ast.LetStmt{}, result.Stmts[0])
-	stmt := result.Stmts[0].(*ast.LetStmt)
+	require.IsType(t, &js.Let{}, result.Stmts[0])
+	stmt := result.Stmts[0].(*js.Let)
 	require.IsType(t, &orExpr{}, stmt.Value)
 	orVal := stmt.Value.(*orExpr)
 	require.IsType(t, &ast.ExprStmt{}, orVal.FallbackStmt)

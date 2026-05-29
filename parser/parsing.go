@@ -126,27 +126,6 @@ func ParseParenExpr(p *Parser) (node *ast.ParenExpr, err error) {
 	return
 }
 
-func ParseLetStmt(p *Parser) (node *ast.LetStmt, err error) {
-	node = &ast.LetStmt{}
-	if node.LetToken, err = p.Expect(token.LET); err != nil {
-		return
-	}
-	if node.Name, err = p.Expect(token.IDENT); err != nil {
-		return
-	}
-	if node.AssignToken, err = p.Expect(token.ASSIGN); err != nil {
-		return
-	}
-	node.Value, err = p.ParseExpr()
-	if err != nil {
-		return
-	}
-	if node.SemiToken, err = p.ExpectSemi(); err != nil {
-		return
-	}
-	return
-}
-
 func ParseCallExpr(p *Parser, leftVal ast.Node) (node *ast.CallExpr, err error) {
 	node = &ast.CallExpr{Function: leftVal}
 	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {

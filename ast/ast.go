@@ -45,19 +45,6 @@ func (node *ExprStmt) Type() string {
 	return "ExprStmt"
 }
 
-type LetStmt struct {
-	LetToken    token.Token
-	AssignToken token.Token
-	SemiToken   token.Token
-
-	Name  token.Token
-	Value Node
-}
-
-func (node *LetStmt) Type() string {
-	return "LetStmt"
-}
-
 type UnaryExpr struct {
 	Operator token.Token
 	Value    Node

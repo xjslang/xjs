@@ -9,61 +9,49 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-// Core scanners.
-var CoreScanners = []func(*scanner.Scanner, func() token.Token) token.Token{
-	func(sc *scanner.Scanner, next func() token.Token) token.Token {
-		tok := next()
-		if tok.Type == token.IDENT && tok.Literal == "function" {
-			tok.Type = js.FUNCTION
-		}
-		return tok
-	},
-}
-
-// Core statement parsers.
-var CoreStmtParsers = []func(*parser.Parser, func() (ast.Node, error)) (ast.Node, error){
-	func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error) {
-		if p.CurrentToken.Type == js.FUNCTION {
-			return js.ParseFunction(p)
-		}
-		return next()
-	},
-}
-
-// Core printers.
-var CorePrinters = []func(*printer.Printer, ast.Node, func(node ast.Node)){
-	func(p *printer.Printer, node ast.Node, next func(node ast.Node)) {
-		if node, ok := node.(*js.Function); ok {
-			js.PrintFunction(p, node)
-			return
-		}
-		next(node)
-	},
-}
-
 func NewScanner() *scanner.Scanner {
 	s := &scanner.Scanner{}
-	// use middlewares
-	for _, md := range CoreScanners {
-		s.UseScanner(md)
-	}
+	s.UseScanner(func(sc *scanner.Scanner, next func() token.Token) (tok token.Token) {
+		tok = next()
+		if tok.Type == token.IDENT {
+			switch tok.Literal {
+			case "function":
+				tok.Type = js.FUNCTION
+			case "let":
+				tok.Type = js.LET
+			}
+		}
+		return tok
+	})
 	return s
 }
 
 func NewParser() *parser.Parser {
 	p := &parser.Parser{}
-	// use middlewares
-	for _, md := range CoreStmtParsers {
-		p.UseStmtParser(md)
-	}
+	p.UseStmtParser(func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error) {
+		switch p.CurrentToken.Type {
+		case js.FUNCTION:
+			return js.ParseFunction(p)
+		case js.LET:
+			return js.ParseLet(p)
+		}
+		return next()
+	})
 	return p
 }
 
 func NewPrinter() *printer.Printer {
 	p := &printer.Printer{}
-	// use middlewares
-	for _, md := range CorePrinters {
-		p.UsePrinter(md)
-	}
+	p.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node)) {
+		switch v := node.(type) {
+		case *js.Function:
+			js.PrintFunction(p, v)
+			return
+		case *js.Let:
+			js.PrintLet(p, v)
+			return
+		}
+		next(node)
+	})
 	return p
 }
