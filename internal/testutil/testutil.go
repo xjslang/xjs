@@ -5,10 +5,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
-	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
 )
 
@@ -99,7 +99,7 @@ func NodeString(node ast.Node) string {
 			}
 		case *ast.ExprStmt:
 			fmt.Fprintf(s, "\n%sExpr: %s", indent, print(v.Expr))
-		case *ast.LetStmt:
+		case *js.Let:
 			fmt.Fprintf(s, "\n%sName: %s", indent, v.Name.Literal)
 			fmt.Fprintf(s, "\n%sValue: %s", indent, print(v.Value))
 		case *js.Function:
@@ -125,9 +125,9 @@ func NodeString(node ast.Node) string {
 }
 
 func Parse(input string) (*ast.Program, error) {
-	sc := &scanner.Scanner{}
-	sc.Init([]byte(input))
-	p := &parser.Parser{}
-	p.Init(sc)
+	s := xjs.NewScanner()
+	s.Init([]byte(input))
+	p := xjs.NewParser()
+	p.Init(s)
 	return parser.ParseProgram(p)
 }

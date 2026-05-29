@@ -85,12 +85,7 @@ func defaultInfixExprParser(p *Parser, leftVal ast.Node) (node ast.Node, err err
 }
 
 func defaultStmtParser(p *Parser) (ast.Node, error) {
-	switch p.CurrentToken.Type {
-	case token.LET:
-		return ParseLetStmt(p)
-	default:
-		return ParseExprStmt(p)
-	}
+	return ParseExprStmt(p)
 }
 
 func defaultExprParser(p *Parser) (val ast.Node, err error) {

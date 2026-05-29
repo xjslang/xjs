@@ -22,8 +22,6 @@ func defaultPrinter(p *Printer, node ast.Node) {
 		PrintBlock(p, node)
 	case *ast.ExprStmt:
 		PrintExprStmt(p, node)
-	case *ast.LetStmt:
-		PrintLetStmt(p, node)
 	case *ast.CallExpr:
 		PrintCallExpr(p, node)
 	case *ast.ParenExpr:

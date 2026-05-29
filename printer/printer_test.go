@@ -188,7 +188,7 @@ func TestPrintCallExpr(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			pr := &printer.Printer{}
+			pr := xjs.NewPrinter()
 			pr.Init()
 			printer.PrintProgram(pr, node)
 			if got := pr.String(); got != test.expected {
@@ -221,7 +221,7 @@ func TestLastComment(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			pr := &printer.Printer{}
+			pr := xjs.NewPrinter()
 			pr.Init()
 			printer.PrintProgram(pr, node)
 			if got := pr.String(); got != test.expected {
