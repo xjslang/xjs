@@ -127,14 +127,14 @@ func TestGoldenFiles(t *testing.T) {
 		// parse the source file
 		source, err := os.ReadFile(file)
 		require.NoError(t, err)
-		s := &xjs.Scanner{}
+		s := xjs.NewScanner()
 		s.Init(source)
-		p := &xjs.Parser{}
+		p := xjs.NewParser()
 		p.Init(s)
 		result, err := p.Parse()
 		require.NoError(t, err)
 		// print the result
-		pr := &xjs.Printer{}
+		pr := xjs.NewPrinter()
 		pr.Init()
 		pr.Print(result)
 		// create or update golden file
