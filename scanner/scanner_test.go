@@ -353,11 +353,3 @@ func TestReadString(t *testing.T) {
 		}
 	})
 }
-
-func TestKeywords(t *testing.T) {
-	input := "let"
-	assertInputTokens(t, input, []token.Token{
-		{Type: token.LET, Literal: "let"},
-		{Type: token.EOF},
-	})
-}

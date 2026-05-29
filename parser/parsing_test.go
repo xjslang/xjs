@@ -5,33 +5,21 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/internal/testutil"
 	"github.com/xjslang/xjs/parser"
-	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
 )
 
 func createParser(input string) *parser.Parser {
-	l := &scanner.Scanner{}
-	l.Init([]byte(input))
-	p := &parser.Parser{}
-	p.Init(l)
+	s := xjs.NewScanner()
+	s.Init([]byte(input))
+	p := xjs.NewParser()
+	p.Init(s)
 	return p
 }
 
 func TestMalformedExpr(t *testing.T) {
-	t.Run("let", func(t *testing.T) {
-		input := "x = 100"
-		p := createParser(input)
-		_, err := parser.ParseLetStmt(p)
-		if err == nil {
-			t.Fatal("Expected an error, got nil")
-		}
-		expected := "Expected let"
-		if got := err.Error(); got != expected {
-			t.Fatalf("Expected error to be %q, got %q", expected, got)
-		}
-	})
 	t.Run("block", func(t *testing.T) {
 		tests := []struct {
 			input       string
@@ -73,32 +61,6 @@ func TestMalformedExpr(t *testing.T) {
 }
 
 func TestKeysAreSaved(t *testing.T) {
-	t.Run("let", func(t *testing.T) {
-		input := `// comment
-		let area
-		= 200 /*c*/;`
-		p := createParser(input)
-		result, err := parser.ParseLetStmt(p)
-		if err != nil {
-			t.Fatal(err)
-		}
-		testutil.AssertTokens(
-			t,
-			[]token.Token{result.LetToken, result.AssignToken, result.SemiToken},
-			[]token.Token{
-				{Type: token.LET, Literal: "let", LeadingTrivia: []token.Token{
-					{Type: token.LINE_COMMENT, Literal: " comment\n"},
-				}},
-				{Type: token.ASSIGN, Literal: "=", LeadingTrivia: []token.Token{
-					{Type: token.NEWLINE, Literal: "\n"},
-				}},
-				{Type: token.SEMICOLON, Literal: ";", LeadingTrivia: []token.Token{
-					{Type: token.BLOCK_COMMENT, Literal: "c"},
-				}},
-			},
-			testutil.CompareLeadingTrivia(),
-		)
-	})
 	t.Run("block", func(t *testing.T) {
 		input := `
 		// comment before {

@@ -177,8 +177,6 @@ func lookup(lit string) token.Type {
 	switch lit {
 	case "true", "false":
 		return token.BOOLEAN
-	case "let":
-		return token.LET
 	}
 	return token.IDENT
 }

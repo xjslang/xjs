@@ -72,8 +72,6 @@ const (
 	// comments
 	LINE_COMMENT  // //
 	BLOCK_COMMENT // /* ... */
-	// keywords
-	LET
 )
 
 var tokenLiterals = map[Type]string{
@@ -118,8 +116,6 @@ var tokenLiterals = map[Type]string{
 	// comments
 	LINE_COMMENT:  "line comment",
 	BLOCK_COMMENT: "block comment",
-	// keywords
-	LET: "let",
 }
 
 const initCustomType Type = 1000
