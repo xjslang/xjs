@@ -19,6 +19,9 @@ type Scanner struct {
 	currentChar rune
 }
 
+// Init initializes the scanner.
+//
+// It must be used AFTER declaring the "middlewares" and BEFORE using the rest of the methods.
 func (sc *Scanner) Init(input []byte) {
 	sc.input = input
 	if sc.scanner == nil {

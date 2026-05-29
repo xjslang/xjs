@@ -12,11 +12,39 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs"
+	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/internal/testutil"
 	"github.com/xjslang/xjs/printer"
 )
 
 var updateGoldenFiles bool
+
+type FactorialNode struct {
+	Value string
+}
+
+func (node *FactorialNode) Type() string {
+	return "MyCustomNode"
+}
+
+func ExamplePrinter_Init() {
+	p := &printer.Printer{}
+
+	// Declare "middlewares" BEFORE calling Init
+	p.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node)) {
+		if node, ok := node.(*FactorialNode); ok {
+			p.Print(node.Value, "!")
+			return
+		}
+		next(node) // delegate to the "next" middleware
+	})
+
+	// Now you can use the parser
+	p.Init()
+	p.Print(&FactorialNode{Value: "125"})
+	fmt.Println(p.String())
+	// Output: 125!
+}
 
 func TestMain(m *testing.M) {
 	flag.BoolVar(&updateGoldenFiles, "update", false, "update golden files")

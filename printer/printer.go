@@ -32,6 +32,9 @@ type Printer struct {
 	printer     func(*Printer, ast.Node)
 }
 
+// Init initializes the printer.
+//
+// It must be called AFTER declaring the "middlewares" and BEFORE using the rest of the methods.
 func (p *Printer) Init(opts ...Option) {
 	cfg := &config{
 		indent: "  ",

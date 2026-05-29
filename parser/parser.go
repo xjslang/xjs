@@ -45,6 +45,9 @@ type Parser struct {
 	errors           ErrorList
 }
 
+// Init initializes the parser.
+//
+// It must be called AFTER declaring the "middlewares" and BEFORE using the rest of the methods.
 func (p *Parser) Init(sc Scanner) {
 	p.scopes = make(ScopeTracker)
 	p.scanner = sc
