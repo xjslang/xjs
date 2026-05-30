@@ -27,18 +27,6 @@ func PrintExprStmt(p *Printer, node *ast.ExprStmt) {
 	p.Print(node.SemiToken)
 }
 
-func PrintCallExpr(p *Printer, node *ast.CallExpr) {
-	p.Print(node.Function, node.LparenToken)
-	for i, arg := range node.Arguments {
-		if i > 0 {
-			p.Print(",")
-			p.EnsureSpace()
-		}
-		p.Print(arg)
-	}
-	p.Print(node.RparenToken)
-}
-
 func PrintUnaryExpr(p *Printer, node *ast.UnaryExpr) {
 	p.Print(node.Operator, node.Value)
 }

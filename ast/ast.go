@@ -64,18 +64,6 @@ func (node *BinaryExpr) Type() string {
 	return "BinaryExpr"
 }
 
-type CallExpr struct {
-	LparenToken token.Token
-	RparenToken token.Token
-
-	Function  Node
-	Arguments []Node
-}
-
-func (node *CallExpr) Type() string {
-	return "CallExpr"
-}
-
 type BasicLit struct {
 	Value token.Token
 }

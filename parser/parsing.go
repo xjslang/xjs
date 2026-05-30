@@ -125,29 +125,3 @@ func ParseParenExpr(p *Parser) (node *ast.ParenExpr, err error) {
 	}
 	return
 }
-
-func ParseCallExpr(p *Parser, leftVal ast.Node) (node *ast.CallExpr, err error) {
-	node = &ast.CallExpr{Function: leftVal}
-	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {
-		return
-	}
-	if p.CurrentToken.Type != token.RPAREN {
-		for {
-			val, err := p.ParseExpr()
-			if err != nil {
-				return nil, err
-			}
-			node.Arguments = append(node.Arguments, val)
-			if p.CurrentToken.Type == token.RPAREN {
-				break
-			}
-			if _, err := p.Expect(token.COMMA); err != nil {
-				return nil, err
-			}
-		}
-	}
-	if node.RparenToken, err = p.Expect(token.RPAREN); err != nil {
-		return nil, err
-	}
-	return
-}
