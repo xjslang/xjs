@@ -18,11 +18,7 @@ func Example_basic() {
 	let x = 100
 	let y = 200
 }`
-	s := xjs.NewScanner()
-	s.Init([]byte(input))
-	p := xjs.NewParser()
-	p.Init(s)
-	result, err := p.Parse()
+	result, err := xjs.Parse([]byte(input))
 	if err != nil {
 		panic(err)
 	}
@@ -52,11 +48,9 @@ func TestMiddlewares(t *testing.T) {
 	input := `(function foo() {
 		print('Hello, World!')
 	})()`
-	s := xjs.NewScanner()
-	s.Init([]byte(input))
-	p := xjs.NewParser()
+	b := xjs.NewBuilder()
 	// parse IIFE expressions
-	p.UsePrefixParser(func(p *parser.Parser, next func() (ast.Node, error)) (_ ast.Node, err error) {
+	b.UsePrefixParser(func(p *parser.Parser, next func() (ast.Node, error)) (_ ast.Node, err error) {
 		if p.CurrentToken.Type == token.LPAREN && p.PeekToken.Type == js.FUNCTION {
 			node := &iifeExpr{LparenToken: p.CurrentToken}
 			p.AdvanceToken()
@@ -70,7 +64,7 @@ func TestMiddlewares(t *testing.T) {
 		}
 		return next()
 	})
-	p.Init(s)
+	p := b.Build([]byte(input))
 	result, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)

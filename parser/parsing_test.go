@@ -11,14 +11,6 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func createParser(input string) *parser.Parser {
-	s := xjs.NewScanner()
-	s.Init([]byte(input))
-	p := xjs.NewParser()
-	p.Init(s)
-	return p
-}
-
 func TestMalformedExpr(t *testing.T) {
 	t.Run("block", func(t *testing.T) {
 		tests := []struct {
@@ -29,7 +21,7 @@ func TestMalformedExpr(t *testing.T) {
 			{"{ let x = 100", "Expected }"},
 		}
 		for i, test := range tests {
-			p := createParser(test.input)
+			p := xjs.NewBuilder().Build([]byte(test.input))
 			_, err := parser.ParseBlock(p)
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
@@ -48,7 +40,7 @@ func TestMalformedExpr(t *testing.T) {
 			{"(1 + 2", "Expected )"},
 		}
 		for i, test := range tests {
-			p := createParser(test.input)
+			p := xjs.NewBuilder().Build([]byte(test.input))
 			_, err := parser.ParseParenExpr(p)
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
@@ -69,7 +61,7 @@ func TestKeysAreSaved(t *testing.T) {
 		let x = 100
 		let y = 200 // comment before }
 		/* block comment */ }`
-		p := createParser(input)
+		p := xjs.NewBuilder().Build([]byte(input))
 		result, err := parser.ParseBlock(p)
 		if err != nil {
 			t.Fatal(err)
@@ -95,7 +87,7 @@ func TestKeysAreSaved(t *testing.T) {
 		input := `// comment before
 	(1 + 2// comment after
 	)`
-		p := createParser(input)
+		p := xjs.NewBuilder().Build([]byte(input))
 		result, err := parser.ParseParenExpr(p)
 		if err != nil {
 			t.Fatal(err)
@@ -145,7 +137,7 @@ func TestExprStmt(t *testing.T) {
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
-			p := createParser(test.input)
+			p := xjs.NewBuilder().Build([]byte(test.input))
 			node, err := parser.ParseExprStmt(p)
 			if err != nil {
 				t.Fatal(err)
@@ -177,7 +169,7 @@ func TestInvalidTokenAfterNewline(t *testing.T) {
 				} else {
 					input = test.input
 				}
-				p := createParser(input)
+				p := xjs.NewBuilder().Build([]byte(input))
 				var err error
 				if i > 0 {
 					_, err = parser.ParseBlock(p)
