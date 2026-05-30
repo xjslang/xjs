@@ -154,8 +154,6 @@ var infixOps = map[Type]int{
 	MULTIPLY: 6,
 	DIVIDE:   6,
 	MODULO:   6,
-	// specials operators
-	LPAREN: 7,
 }
 
 func (typ Type) IsInfixOp() (ok bool) {
@@ -184,8 +182,7 @@ func RegisterInfixOp(lit string, precedence int) Type {
 }
 
 var prefixTypes = map[Type]bool{
-	NOT:    true,
-	LPAREN: true,
+	NOT: true,
 }
 
 func (typ Type) IsPrefixOp() (ok bool) {

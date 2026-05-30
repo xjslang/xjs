@@ -22,8 +22,6 @@ func defaultPrinter(p *Printer, node ast.Node) {
 		PrintBlock(p, node)
 	case *ast.ExprStmt:
 		PrintExprStmt(p, node)
-	case *ast.ParenExpr:
-		PrintParenExpr(p, node)
 	case *ast.UnaryExpr:
 		PrintUnaryExpr(p, node)
 	case *ast.BinaryExpr:

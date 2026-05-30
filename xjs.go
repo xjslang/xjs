@@ -10,6 +10,8 @@ import (
 )
 
 func NewScanner() *scanner.Scanner {
+	token.LPAREN.RegisterPrefixOp()
+	token.LPAREN.RegisterInfixOp(7)
 	s := &scanner.Scanner{}
 	s.UseScanner(func(sc *scanner.Scanner, next func() token.Token) (tok token.Token) {
 		tok = next()
@@ -28,6 +30,12 @@ func NewScanner() *scanner.Scanner {
 
 func NewParser() *parser.Parser {
 	p := &parser.Parser{}
+	p.UsePrefixOpParser(func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error) {
+		if p.CurrentToken.Type == token.LPAREN {
+			return js.ParseParenExpr(p)
+		}
+		return next()
+	})
 	p.UseInfixOpParser(func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error) {
 		if p.CurrentToken.Type == token.LPAREN {
 			return js.ParseCallExpr(p, leftVal)
@@ -58,6 +66,9 @@ func NewPrinter() *printer.Printer {
 			return
 		case *js.CallExpr:
 			js.PrintCallExpr(p, v)
+			return
+		case *js.ParenExpr:
+			js.PrintParenExpr(p, v)
 			return
 		}
 		next(node)

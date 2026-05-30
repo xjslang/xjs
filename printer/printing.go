@@ -35,7 +35,3 @@ func PrintBinaryExpr(p *Printer, node *ast.BinaryExpr) {
 	p.Print(node.LeftValue)
 	p.SpPrint(node.Operator, node.RightValue)
 }
-
-func PrintParenExpr(p *Printer, node *ast.ParenExpr) {
-	p.Print(node.LparenToken, node.Value, node.RparenToken)
-}
