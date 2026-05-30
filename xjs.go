@@ -37,9 +37,9 @@ func NewParser() *parser.Parser {
 	p.UseStmtParser(func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error) {
 		switch p.CurrentToken.Type {
 		case js.FUNCTION:
-			return js.ParseFunction(p)
+			return js.ParseFunctionDecl(p)
 		case js.LET:
-			return js.ParseLet(p)
+			return js.ParseLetStmt(p)
 		}
 		return next()
 	})
@@ -50,11 +50,11 @@ func NewPrinter() *printer.Printer {
 	p := &printer.Printer{}
 	p.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node)) {
 		switch v := node.(type) {
-		case *js.Function:
-			js.PrintFunction(p, v)
+		case *js.FunctionDecl:
+			js.PrintFunctionDecl(p, v)
 			return
-		case *js.Let:
-			js.PrintLet(p, v)
+		case *js.LetStmt:
+			js.PrintLetStmt(p, v)
 			return
 		case *js.CallExpr:
 			js.PrintCallExpr(p, v)

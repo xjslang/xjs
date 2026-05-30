@@ -41,7 +41,7 @@ func Example_basic() {
 type iifeExpr struct {
 	LparenToken token.Token
 	RparenToken token.Token
-	Function    *js.Function
+	Function    *js.FunctionDecl
 }
 
 func (node *iifeExpr) Type() string {
@@ -60,7 +60,7 @@ func TestMiddlewares(t *testing.T) {
 		if p.CurrentToken.Type == token.LPAREN && p.PeekToken.Type == js.FUNCTION {
 			node := &iifeExpr{LparenToken: p.CurrentToken}
 			p.AdvanceToken()
-			if node.Function, err = js.ParseFunction(p); err != nil {
+			if node.Function, err = js.ParseFunctionDecl(p); err != nil {
 				return
 			}
 			if node.RparenToken, err = p.Expect(token.RPAREN); err != nil {

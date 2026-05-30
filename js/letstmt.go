@@ -9,7 +9,7 @@ import (
 
 var LET = token.RegisterType("let")
 
-type Let struct {
+type LetStmt struct {
 	LetToken    token.Token
 	AssignToken token.Token
 	SemiToken   token.Token
@@ -18,12 +18,12 @@ type Let struct {
 	Value ast.Node
 }
 
-func (node *Let) Type() string {
-	return "Let"
+func (node *LetStmt) Type() string {
+	return "LetStmt"
 }
 
-func ParseLet(p *parser.Parser) (_ *Let, err error) {
-	node := &Let{}
+func ParseLetStmt(p *parser.Parser) (_ *LetStmt, err error) {
+	node := &LetStmt{}
 	if node.LetToken, err = p.Expect(LET); err != nil {
 		return
 	}
@@ -43,7 +43,7 @@ func ParseLet(p *parser.Parser) (_ *Let, err error) {
 	return node, nil
 }
 
-func PrintLet(p *printer.Printer, node *Let) {
+func PrintLetStmt(p *printer.Printer, node *LetStmt) {
 	p.LnPrint(node.LetToken)
 	p.SpPrint(node.Name, node.AssignToken, node.Value)
 	p.Print(node.SemiToken)

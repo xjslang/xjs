@@ -99,10 +99,10 @@ func NodeString(node ast.Node) string {
 			}
 		case *ast.ExprStmt:
 			fmt.Fprintf(s, "\n%sExpr: %s", indent, print(v.Expr))
-		case *js.Let:
+		case *js.LetStmt:
 			fmt.Fprintf(s, "\n%sName: %s", indent, v.Name.Literal)
 			fmt.Fprintf(s, "\n%sValue: %s", indent, print(v.Value))
-		case *js.Function:
+		case *js.FunctionDecl:
 			fmt.Fprintf(s, "\n%sName: %s", indent, v.Name.Literal)
 			fmt.Fprintf(s, "\n%sBody: %s", indent, print(v.Body))
 		case *ast.ParenExpr:

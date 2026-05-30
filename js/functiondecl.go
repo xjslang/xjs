@@ -9,7 +9,7 @@ import (
 
 var FUNCTION = token.RegisterType("function")
 
-type Function struct {
+type FunctionDecl struct {
 	FunctionToken token.Token
 	LparenToken   token.Token
 	RparenToken   token.Token
@@ -18,12 +18,12 @@ type Function struct {
 	Body *ast.Block
 }
 
-func (node *Function) Type() string {
-	return "Function"
+func (node *FunctionDecl) Type() string {
+	return "FunctionDecl"
 }
 
-func ParseFunction(p *parser.Parser) (_ *Function, err error) {
-	node := &Function{}
+func ParseFunctionDecl(p *parser.Parser) (_ *FunctionDecl, err error) {
+	node := &FunctionDecl{}
 	if node.FunctionToken, err = p.Expect(FUNCTION); err != nil {
 		return
 	}
@@ -42,7 +42,7 @@ func ParseFunction(p *parser.Parser) (_ *Function, err error) {
 	return node, nil
 }
 
-func PrintFunction(p *printer.Printer, node *Function) {
+func PrintFunctionDecl(p *printer.Printer, node *FunctionDecl) {
 	p.LnPrint(node.FunctionToken)
 	p.SpPrint(node.Name)
 	p.Print(node.LparenToken, node.RparenToken)
