@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/internal/testutil"
 	"github.com/xjslang/xjs/parser"
@@ -155,9 +156,9 @@ func TestExprs(t *testing.T) {
 	}
 	for i, test := range tests {
 		t.Run("exp "+strconv.Itoa(i), func(t *testing.T) {
-			sc := &scanner.Scanner{}
+			sc := xjs.NewScanner()
 			sc.Init([]byte(test.input))
-			p := &parser.Parser{}
+			p := xjs.NewParser()
 			p.Init(sc)
 			result, err := p.ParseExpr()
 			if err != nil {

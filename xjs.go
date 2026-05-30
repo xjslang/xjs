@@ -28,6 +28,12 @@ func NewScanner() *scanner.Scanner {
 
 func NewParser() *parser.Parser {
 	p := &parser.Parser{}
+	p.UseInfixOpParser(func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error) {
+		if p.CurrentToken.Type == token.LPAREN {
+			return js.ParseCallExpr(p, leftVal)
+		}
+		return next(leftVal)
+	})
 	p.UseStmtParser(func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error) {
 		switch p.CurrentToken.Type {
 		case js.FUNCTION:
@@ -49,6 +55,9 @@ func NewPrinter() *printer.Printer {
 			return
 		case *js.Let:
 			js.PrintLet(p, v)
+			return
+		case *js.CallExpr:
+			js.PrintCallExpr(p, v)
 			return
 		}
 		next(node)

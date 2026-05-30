@@ -107,7 +107,7 @@ func NodeString(node ast.Node) string {
 			fmt.Fprintf(s, "\n%sBody: %s", indent, print(v.Body))
 		case *ast.ParenExpr:
 			fmt.Fprintf(s, "\n%sValue: %s", indent, print(v.Value))
-		case *ast.CallExpr:
+		case *js.CallExpr:
 			fmt.Fprintf(s, "\n%sFunction: %s", indent, print(v.Function))
 			for i, arg := range v.Arguments {
 				fmt.Fprintf(s, "\n%sArguments[%d]: %s", indent, i, print(arg))
