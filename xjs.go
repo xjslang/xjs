@@ -28,7 +28,7 @@ func NewScanner() *scanner.Scanner {
 
 func NewParser() *parser.Parser {
 	p := &parser.Parser{}
-	p.UseInfixOpParser(func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error) {
+	p.UseInfixParser(func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error) {
 		if p.CurrentToken.Type == token.LPAREN {
 			return js.ParseCallExpr(p, leftVal)
 		}

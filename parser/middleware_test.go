@@ -94,7 +94,7 @@ func TestUsePrefixOpParser(t *testing.T) {
 	})
 	s.Init([]byte(input))
 	p := &parser.Parser{}
-	p.UsePrefixOpParser(func(p *parser.Parser, next func() (ast.Node, error)) (node ast.Node, err error) {
+	p.UsePrefixParser(func(p *parser.Parser, next func() (ast.Node, error)) (node ast.Node, err error) {
 		if p.CurrentToken.Type == notBitwise {
 			nodeExpr := &notBitwiseExpr{Operator: p.CurrentToken}
 			p.AdvanceToken() // consume ~
@@ -146,7 +146,7 @@ func TestUseInfixOpParser(t *testing.T) {
 	})
 	s.Init([]byte(input))
 	p := &parser.Parser{}
-	p.UseInfixOpParser(func(p *parser.Parser, leftVal ast.Node, next func(ast.Node) (ast.Node, error)) (node ast.Node, err error) {
+	p.UseInfixParser(func(p *parser.Parser, leftVal ast.Node, next func(ast.Node) (ast.Node, error)) (node ast.Node, err error) {
 		if p.CurrentToken.Type == powType {
 			powNode := &powExpr{LeftValue: leftVal, Operator: p.CurrentToken}
 			p.AdvanceToken() // consume ^
@@ -200,7 +200,7 @@ func TestUseInfixOpParser_postfix(t *testing.T) {
 	})
 	s.Init([]byte(input))
 	p := &parser.Parser{}
-	p.UseInfixOpParser(func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (node ast.Node, err error) {
+	p.UseInfixParser(func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (node ast.Node, err error) {
 		if p.CurrentToken.Type == facTyp {
 			leftVal = &factorialExpr{Operator: p.CurrentToken, Value: leftVal}
 			p.AdvanceToken() // consume !
