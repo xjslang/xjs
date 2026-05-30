@@ -2,48 +2,16 @@ package xjs
 
 import (
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/builder"
 	"github.com/xjslang/xjs/js"
-	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
-	"github.com/xjslang/xjs/scanner"
-	"github.com/xjslang/xjs/token"
 )
 
-func NewScanner() *scanner.Scanner {
-	s := &scanner.Scanner{}
-	s.UseScanner(func(sc *scanner.Scanner, next func() token.Token) (tok token.Token) {
-		tok = next()
-		if tok.Type == token.IDENT {
-			switch tok.Literal {
-			case "function":
-				tok.Type = js.FUNCTION
-			case "let":
-				tok.Type = js.LET
-			}
-		}
-		return tok
-	})
-	return s
-}
-
-func NewParser() *parser.Parser {
-	p := &parser.Parser{}
-	p.UseInfixOpParser(func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error) {
-		if p.CurrentToken.Type == token.LPAREN {
-			return js.ParseCallExpr(p, leftVal)
-		}
-		return next(leftVal)
-	})
-	p.UseStmtParser(func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error) {
-		switch p.CurrentToken.Type {
-		case js.FUNCTION:
-			return js.ParseFunctionDecl(p)
-		case js.LET:
-			return js.ParseLetStmt(p)
-		}
-		return next()
-	})
-	return p
+func NewBuilder() *builder.Builder {
+	return builder.New().
+		Install(js.FuncDeclPlugin).
+		Install(js.LetStmtPlugin).
+		Install(js.CallExprPlugin)
 }
 
 func NewPrinter() *printer.Printer {
@@ -63,4 +31,8 @@ func NewPrinter() *printer.Printer {
 		next(node)
 	})
 	return p
+}
+
+func Parse(input []byte) (*ast.Program, error) {
+	return NewBuilder().Build(input).Parse()
 }

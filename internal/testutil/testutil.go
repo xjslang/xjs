@@ -5,10 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/js"
-	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/token"
 )
 
@@ -122,12 +120,4 @@ func NodeString(node ast.Node) string {
 		return s.String()
 	}
 	return print(node)
-}
-
-func Parse(input string) (*ast.Program, error) {
-	s := xjs.NewScanner()
-	s.Init([]byte(input))
-	p := xjs.NewParser()
-	p.Init(s)
-	return parser.ParseProgram(p)
 }

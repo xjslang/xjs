@@ -2,6 +2,7 @@ package js
 
 import (
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/builder"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/token"
@@ -55,4 +56,13 @@ func PrintCallExpr(p *printer.Printer, node *CallExpr) {
 		p.Print(arg)
 	}
 	p.Print(node.RparenToken)
+}
+
+func CallExprPlugin(b *builder.Builder) {
+	b.UseInfixParser(func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error) {
+		if p.CurrentToken.Type == token.LPAREN {
+			return ParseCallExpr(p, leftVal)
+		}
+		return next(leftVal)
+	})
 }

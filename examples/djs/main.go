@@ -31,20 +31,17 @@ func main() {
 		defer closeDb()
 	}`
 
-	// create a scanner that can read "defer"
-	djsScanner := xjs.NewScanner()
-	djsScanner.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
+	b := xjs.NewBuilder()
+	// the scanner that can read "defer"
+	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
 		tok := next()
 		if tok.Type == token.IDENT && tok.Literal == "defer" {
 			tok.Type = deferTyp
 		}
 		return tok
 	})
-	djsScanner.Init([]byte(input))
-
-	// create a parser that can parse "defer"
-	djsParser := xjs.NewParser()
-	djsParser.UseStmtParser(func(p *parser.Parser, next func() (ast.Node, error)) (node ast.Node, err error) {
+	// the parser can now parse "defer"
+	b.UseStmtParser(func(p *parser.Parser, next func() (ast.Node, error)) (node ast.Node, err error) {
 		if p.CurrentToken.Type == deferTyp {
 			deferStmt := &DeferStmt{DeferToken: p.CurrentToken}
 			p.AdvanceToken() // consume "defer"
@@ -56,7 +53,7 @@ func main() {
 		}
 		return next()
 	})
-	djsParser.Init(djsScanner)
+	djsParser := b.Build([]byte(input))
 	node, err := djsParser.Parse()
 	if err != nil {
 		panic(err)

@@ -67,11 +67,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	sc := xjs.NewScanner()
-	sc.Init(data)
-	p := xjs.NewParser()
-	p.Init(sc)
-	program, err := p.Parse()
+	program, err := xjs.Parse(data)
 
 	// prints errors
 	if checkFlag {

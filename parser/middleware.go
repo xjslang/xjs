@@ -5,7 +5,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func (p *Parser) UsePrefixOpParser(parser func(p *Parser, next func() (ast.Node, error)) (ast.Node, error)) {
+func (p *Parser) UsePrefixParser(parser func(p *Parser, next func() (ast.Node, error)) (ast.Node, error)) {
 	next := p.prefixExprParser
 	if next == nil {
 		next = defaultPrefixExprParser
@@ -17,7 +17,7 @@ func (p *Parser) UsePrefixOpParser(parser func(p *Parser, next func() (ast.Node,
 	}
 }
 
-func (p *Parser) UseInfixOpParser(parser func(p *Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error)) {
+func (p *Parser) UseInfixParser(parser func(p *Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error)) {
 	next := p.infixExprParser
 	if next == nil {
 		next = defaultInfixExprParser

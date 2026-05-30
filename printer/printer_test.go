@@ -13,7 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/internal/testutil"
 	"github.com/xjslang/xjs/printer"
 )
 
@@ -127,10 +126,7 @@ func TestGoldenFiles(t *testing.T) {
 		// parse the source file
 		source, err := os.ReadFile(file)
 		require.NoError(t, err)
-		s := xjs.NewScanner()
-		s.Init(source)
-		p := xjs.NewParser()
-		p.Init(s)
+		p := xjs.NewBuilder().Build(source)
 		result, err := p.Parse()
 		require.NoError(t, err)
 		// print the result
@@ -184,7 +180,7 @@ func TestPrintCallExpr(t *testing.T) {
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("exp %d", i), func(t *testing.T) {
-			node, err := testutil.Parse(test.input)
+			node, err := xjs.Parse([]byte(test.input))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -217,7 +213,7 @@ func TestLastComment(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			node, err := testutil.Parse(test.input)
+			node, err := xjs.Parse([]byte(test.input))
 			if err != nil {
 				t.Fatal(err)
 			}
