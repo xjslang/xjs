@@ -5,6 +5,7 @@ import (
 
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/builder"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/scanner"
@@ -23,15 +24,7 @@ func (node *DeferStmt) Type() string {
 	return "DeferStmt"
 }
 
-func main() {
-	input := `
-	function foo() {
-		let db = openDb()
-		// ensures closing db properly
-		defer closeDb()
-	}`
-
-	b := xjs.NewBuilder()
+func djsPlugin(b *builder.Builder) {
 	// the scanner that can read "defer"
 	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
 		tok := next()
@@ -53,7 +46,19 @@ func main() {
 		}
 		return next()
 	})
-	djsParser := b.Build([]byte(input))
+}
+
+func main() {
+	input := `
+	function foo() {
+		let db = openDb()
+		// ensures closing db properly
+		defer closeDb()
+	}`
+
+	djsParser := xjs.NewBuilder().
+		Install(djsPlugin).
+		Build([]byte(input))
 	node, err := djsParser.Parse()
 	if err != nil {
 		panic(err)
