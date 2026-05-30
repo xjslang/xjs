@@ -30,6 +30,7 @@ func NewPrinter() *printer.Printer {
 		}
 		next(node)
 	})
+	p.Init()
 	return p
 }
 
