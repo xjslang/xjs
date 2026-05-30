@@ -2,10 +2,8 @@ package js
 
 import (
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/builder"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
-	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
 )
 
@@ -49,20 +47,4 @@ func PrintFunctionDecl(p *printer.Printer, node *FunctionDecl) {
 	p.SpPrint(node.Name)
 	p.Print(node.LparenToken, node.RparenToken)
 	p.SpPrint(node.Body)
-}
-
-func FuncDeclPlugin(b *builder.Builder) {
-	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
-		tok := next()
-		if tok.Type == token.IDENT && tok.Literal == "function" {
-			tok.Type = FUNCTION
-		}
-		return tok
-	})
-	b.UseStmtParser(func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error) {
-		if p.CurrentToken.Type == FUNCTION {
-			return ParseFunctionDecl(p)
-		}
-		return next()
-	})
 }
