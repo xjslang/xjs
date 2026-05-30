@@ -2,10 +2,8 @@ package js
 
 import (
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/builder"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
-	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
 )
 
@@ -49,20 +47,4 @@ func PrintLetStmt(p *printer.Printer, node *LetStmt) {
 	p.LnPrint(node.LetToken)
 	p.SpPrint(node.Name, node.AssignToken, node.Value)
 	p.Print(node.SemiToken)
-}
-
-func LetStmtPlugin(b *builder.Builder) {
-	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
-		tok := next()
-		if tok.Type == token.IDENT && tok.Literal == "let" {
-			tok.Type = LET
-		}
-		return tok
-	})
-	b.UseStmtParser(func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error) {
-		if p.CurrentToken.Type == LET {
-			return ParseLetStmt(p)
-		}
-		return next()
-	})
 }
