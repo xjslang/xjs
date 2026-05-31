@@ -175,7 +175,7 @@ func TestInvalidTokenAfterNewline(t *testing.T) {
 				if i > 0 {
 					_, err = js.ParseBlockStmt(p)
 				} else {
-					_, err = parser.ParseProgram(p)
+					_, err = js.ParseProgram(p)
 				}
 				if err == nil {
 					t.Fatal("Expected an error, got nil")

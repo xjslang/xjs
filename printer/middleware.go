@@ -18,8 +18,6 @@ func (p *Printer) UsePrinter(printer func(p *Printer, node ast.Node, next func(n
 
 func defaultPrinter(p *Printer, node ast.Node) {
 	switch node := node.(type) {
-	case *ast.Program:
-		PrintProgram(p, node)
 	case *ast.ExprStmt:
 		PrintExprStmt(p, node)
 	case *ast.UnaryExpr:
