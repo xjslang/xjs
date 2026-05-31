@@ -1,7 +1,6 @@
 package js
 
 import (
-	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/token"
@@ -15,7 +14,7 @@ type FunctionDecl struct {
 	RparenToken   token.Token
 
 	Name token.Token
-	Body *ast.Block
+	Body *Block
 }
 
 func (node *FunctionDecl) Type() string {
@@ -36,7 +35,7 @@ func ParseFunctionDecl(p *parser.Parser) (_ *FunctionDecl, err error) {
 	if node.RparenToken, err = p.Expect(token.RPAREN); err != nil {
 		return
 	}
-	if node.Body, err = parser.ParseBlock(p); err != nil {
+	if node.Body, err = ParseBlock(p); err != nil {
 		return
 	}
 	return node, nil

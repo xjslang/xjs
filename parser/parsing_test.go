@@ -23,7 +23,7 @@ func TestMalformedExpr(t *testing.T) {
 		}
 		for i, test := range tests {
 			p := xjs.NewBuilder().Build([]byte(test.input))
-			_, err := parser.ParseBlock(p)
+			_, err := js.ParseBlock(p)
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
 			}
@@ -63,7 +63,7 @@ func TestKeysAreSaved(t *testing.T) {
 		let y = 200 // comment before }
 		/* block comment */ }`
 		p := xjs.NewBuilder().Build([]byte(input))
-		result, err := parser.ParseBlock(p)
+		result, err := js.ParseBlock(p)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -173,7 +173,7 @@ func TestInvalidTokenAfterNewline(t *testing.T) {
 				p := xjs.NewBuilder().Build([]byte(input))
 				var err error
 				if i > 0 {
-					_, err = parser.ParseBlock(p)
+					_, err = js.ParseBlock(p)
 				} else {
 					_, err = parser.ParseProgram(p)
 				}

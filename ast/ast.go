@@ -24,17 +24,6 @@ func (node *Program) Type() string {
 	return "Program"
 }
 
-type Block struct {
-	LbraceToken token.Token
-	RbraceToken token.Token
-
-	Stmts []Node
-}
-
-func (node *Block) Type() string {
-	return "Block"
-}
-
 type ExprStmt struct {
 	SemiToken token.Token
 

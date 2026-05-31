@@ -18,6 +18,9 @@ func NewPrinter() *printer.Printer {
 	p := &printer.Printer{}
 	p.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node)) {
 		switch v := node.(type) {
+		case *js.Block:
+			js.PrintBlock(p, v)
+			return
 		case *js.FunctionDecl:
 			js.PrintFunctionDecl(p, v)
 			return
