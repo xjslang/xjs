@@ -48,8 +48,8 @@ func NewPrinter() *printer.Printer {
 		case *js.Literal:
 			p.Print(v.Value)
 			return
-		case *js.Stmt:
-			js.PrintStmt(p, v)
+		case *js.ExprStmt:
+			js.PrintExprStmt(p, v)
 			return
 		}
 		next(node)
@@ -87,7 +87,7 @@ func jsPlugin(b *builder.Builder) {
 		case js.LET:
 			return js.ParseLetStmt(p)
 		}
-		return js.ParseStmt(p)
+		return js.ParseExprStmt(p)
 	})
 	b.UseExprParser(func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error) {
 		return js.ParseExpr(p)

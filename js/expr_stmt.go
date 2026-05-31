@@ -7,18 +7,18 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-type Stmt struct {
+type ExprStmt struct {
 	SemiToken token.Token
 
 	Expr ast.Node
 }
 
-func (node *Stmt) Type() string {
+func (node *ExprStmt) Type() string {
 	return "Stmt"
 }
 
-func ParseStmt(p *parser.Parser) (_ *Stmt, err error) {
-	node := &Stmt{}
+func ParseExprStmt(p *parser.Parser) (_ *ExprStmt, err error) {
+	node := &ExprStmt{}
 	if node.Expr, err = p.ParseExpr(); err != nil {
 		return
 	}
@@ -28,7 +28,7 @@ func ParseStmt(p *parser.Parser) (_ *Stmt, err error) {
 	return node, nil
 }
 
-func PrintStmt(p *printer.Printer, node *Stmt) {
+func PrintExprStmt(p *printer.Printer, node *ExprStmt) {
 	p.LnPrint(node.Expr)
 	p.Print(node.SemiToken)
 }

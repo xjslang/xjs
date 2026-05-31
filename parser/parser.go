@@ -47,7 +47,7 @@ type Parser struct {
 
 // Init initializes the parser.
 //
-// Call Init before parsing with Parse/ParseStmt/ParseExpr.
+// Call Init before parsing with Parse/ParseExprStmt/ParseExpr.
 // Parser middleware must be registered via Use*Parser methods BEFORE Init.
 func (p *Parser) Init(sc Scanner) {
 	p.scopes = make(ScopeTracker)
@@ -80,7 +80,7 @@ func (p *Parser) Init(sc Scanner) {
 	p.AdvanceToken()
 }
 
-func (p *Parser) ParseStmt() (ast.Node, error) {
+func (p *Parser) ParseExprStmt() (ast.Node, error) {
 	return p.stmtParser(p)
 }
 

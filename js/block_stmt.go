@@ -28,7 +28,7 @@ func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
 	var errs []error
 	for p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE {
 		prevToken := p.CurrentToken
-		stmt, err := p.ParseStmt()
+		stmt, err := p.ParseExprStmt()
 		if err != nil {
 			if prevToken.Position == p.CurrentToken.Position {
 				// advance position to avoid infinite loop

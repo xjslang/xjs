@@ -138,7 +138,7 @@ func TestStmt(t *testing.T) {
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			p := xjs.NewBuilder().Build([]byte(test.input))
-			node, err := js.ParseStmt(p)
+			node, err := js.ParseExprStmt(p)
 			if err != nil {
 				t.Fatal(err)
 			}
