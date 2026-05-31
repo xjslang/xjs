@@ -114,7 +114,7 @@ func NodeString(node ast.Node) string {
 			fmt.Fprintf(s, "\n%sLeftValue: %s", indent, print(v.LeftValue))
 			fmt.Fprintf(s, "\n%sOperator: %q", indent, v.Operator.Type.String())
 			fmt.Fprintf(s, "\n%sRightValue: %s", indent, print(v.RightValue))
-		case *js.BasicLit:
+		case *js.Literal:
 			fmt.Fprintf(s, "{Value: %q}", v.Value.Literal)
 		}
 		return s.String()

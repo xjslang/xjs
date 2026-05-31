@@ -45,8 +45,8 @@ func NewPrinter() *printer.Printer {
 		case *js.Ident:
 			js.PrintIdent(p, v)
 			return
-		case *js.BasicLit:
-			js.PrintBasicLit(p, v)
+		case *js.Literal:
+			js.PrintLiteral(p, v)
 			return
 		case *js.Stmt:
 			js.PrintStmt(p, v)

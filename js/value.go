@@ -17,12 +17,12 @@ func (node *Ident) Type() string {
 	return "Ident"
 }
 
-type BasicLit struct {
+type Literal struct {
 	Value token.Token
 }
 
-func (node *BasicLit) Type() string {
-	return "BasicLit"
+func (node *Literal) Type() string {
+	return "Literal"
 }
 
 func ParseValue(p *parser.Parser) (ast.Node, error) {
@@ -34,7 +34,7 @@ func ParseValue(p *parser.Parser) (ast.Node, error) {
 	case token.NUMBER, token.STRING, token.BOOLEAN:
 		val := p.CurrentToken
 		p.AdvanceToken()
-		return &BasicLit{Value: val}, nil
+		return &Literal{Value: val}, nil
 	case token.IDENT:
 		val := p.CurrentToken
 		p.AdvanceToken()
@@ -65,6 +65,6 @@ func PrintIdent(p *printer.Printer, node *Ident) {
 	p.Print(node.Name)
 }
 
-func PrintBasicLit(p *printer.Printer, node *BasicLit) {
+func PrintLiteral(p *printer.Printer, node *Literal) {
 	p.Print(node.Value)
 }
