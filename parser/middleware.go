@@ -18,12 +18,12 @@ func (p *Parser) UsePrefixParser(parser func(p *Parser, next func() (ast.Node, e
 	}
 }
 
-func (p *Parser) UseInfixParser(parser func(p *Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error)) {
-	next := p.infixExprParser
+func (p *Parser) UseBinaryParser(parser func(p *Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error)) {
+	next := p.binaryExprParser
 	if next == nil {
-		next = defaultInfixExprParser
+		next = defaultBinaryExprParser
 	}
-	p.infixExprParser = func(p *Parser, leftVal ast.Node) (ast.Node, error) {
+	p.binaryExprParser = func(p *Parser, leftVal ast.Node) (ast.Node, error) {
 		return parser(p, leftVal, func(leftVal ast.Node) (ast.Node, error) {
 			return next(p, leftVal)
 		})
@@ -58,8 +58,8 @@ func defaultPrefixExprParser(p *Parser) (ast.Node, error) {
 	return nil, errors.New("unknown prefix expression")
 }
 
-func defaultInfixExprParser(p *Parser, leftVal ast.Node) (ast.Node, error) {
-	return nil, errors.New("unknown infix expression")
+func defaultBinaryExprParser(p *Parser, leftVal ast.Node) (ast.Node, error) {
+	return nil, errors.New("unknown binary expression")
 }
 
 func defaultStmtParser(p *Parser) (ast.Node, error) {

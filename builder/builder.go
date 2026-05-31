@@ -27,8 +27,8 @@ func (b *Builder) UsePrefixParser(parser func(p *parser.Parser, next func() (ast
 	b.parser.UsePrefixParser(parser)
 }
 
-func (b *Builder) UseInfixParser(parser func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error)) {
-	b.parser.UseInfixParser(parser)
+func (b *Builder) UseBinaryParser(parser func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error)) {
+	b.parser.UseBinaryParser(parser)
 }
 
 func (b *Builder) UseStmtParser(parser func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error)) {

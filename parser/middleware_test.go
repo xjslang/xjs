@@ -129,8 +129,8 @@ func (node *powExpr) Type() string {
 	return "powExpr"
 }
 
-func TestUseInfixOpParser(t *testing.T) {
-	powType := token.RegisterInfixOp("^", token.MULTIPLY.Precedence()+1)
+func TestUseBinaryParser(t *testing.T) {
+	powType := token.RegisterBinaryOp("^", token.MULTIPLY.Precedence()+1)
 	input := "1+5^2"
 	b := xjs.NewBuilder()
 	b.UseScanner(func(s *scanner.Scanner, next func() token.Token) token.Token {
@@ -140,7 +140,7 @@ func TestUseInfixOpParser(t *testing.T) {
 		}
 		return next()
 	})
-	b.UseInfixParser(func(p *parser.Parser, leftVal ast.Node, next func(ast.Node) (ast.Node, error)) (node ast.Node, err error) {
+	b.UseBinaryParser(func(p *parser.Parser, leftVal ast.Node, next func(ast.Node) (ast.Node, error)) (node ast.Node, err error) {
 		if p.CurrentToken.Type == powType {
 			powNode := &powExpr{LeftValue: leftVal, Operator: p.CurrentToken}
 			p.AdvanceToken() // consume ^
@@ -181,8 +181,8 @@ func (node *factorialExpr) Type() string {
 	return "factorialExpr"
 }
 
-func TestUseInfixOpParser_postfix(t *testing.T) {
-	facTyp := token.RegisterInfixOp("!", -1)
+func TestUseBinaryParser_postfix(t *testing.T) {
+	facTyp := token.RegisterBinaryOp("!", -1)
 	input := "5! + 1"
 	b := xjs.NewBuilder()
 	b.UseScanner(func(s *scanner.Scanner, next func() token.Token) token.Token {
@@ -192,7 +192,7 @@ func TestUseInfixOpParser_postfix(t *testing.T) {
 		}
 		return next()
 	})
-	b.UseInfixParser(func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (node ast.Node, err error) {
+	b.UseBinaryParser(func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (node ast.Node, err error) {
 		if p.CurrentToken.Type == facTyp {
 			leftVal = &factorialExpr{Operator: p.CurrentToken, Value: leftVal}
 			p.AdvanceToken() // consume !
