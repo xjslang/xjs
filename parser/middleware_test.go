@@ -109,13 +109,13 @@ func TestUseUnaryParser(t *testing.T) {
 	}
 	require.IsType(t, &js.BinaryExpr{}, result)
 	binNode := result.(*js.BinaryExpr)
-	require.IsType(t, &js.BasicLit{}, binNode.LeftValue)
-	require.Equal(t, "1", binNode.LeftValue.(*js.BasicLit).Value.Literal)
+	require.IsType(t, &js.Literal{}, binNode.LeftValue)
+	require.Equal(t, "1", binNode.LeftValue.(*js.Literal).Value.Literal)
 	require.Equal(t, token.PLUS, binNode.Operator.Type)
 	require.IsType(t, &notBitwiseExpr{}, binNode.RightValue)
 	rightNode := binNode.RightValue.(*notBitwiseExpr)
-	require.IsType(t, &js.BasicLit{}, rightNode.Value)
-	require.Equal(t, "7", rightNode.Value.(*js.BasicLit).Value.Literal)
+	require.IsType(t, &js.Literal{}, rightNode.Value)
+	require.Equal(t, "7", rightNode.Value.(*js.Literal).Value.Literal)
 	require.Equal(t, notBitwise, rightNode.Operator.Type)
 }
 
@@ -160,16 +160,16 @@ func TestUseBinaryParser(t *testing.T) {
 	// check the result
 	require.IsType(t, &js.BinaryExpr{}, result)
 	binNode := result.(*js.BinaryExpr)
-	require.IsType(t, &js.BasicLit{}, binNode.LeftValue)
-	require.Equal(t, "1", binNode.LeftValue.(*js.BasicLit).Value.Literal)
+	require.IsType(t, &js.Literal{}, binNode.LeftValue)
+	require.Equal(t, "1", binNode.LeftValue.(*js.Literal).Value.Literal)
 	require.Equal(t, token.PLUS, binNode.Operator.Type)
 	require.IsType(t, &powExpr{}, binNode.RightValue)
 	powNode := binNode.RightValue.(*powExpr)
-	require.IsType(t, &js.BasicLit{}, powNode.LeftValue)
-	require.Equal(t, "5", powNode.LeftValue.(*js.BasicLit).Value.Literal)
+	require.IsType(t, &js.Literal{}, powNode.LeftValue)
+	require.Equal(t, "5", powNode.LeftValue.(*js.Literal).Value.Literal)
 	require.Equal(t, powType, powNode.Operator.Type)
-	require.IsType(t, &js.BasicLit{}, powNode.RightValue)
-	require.Equal(t, "2", powNode.RightValue.(*js.BasicLit).Value.Literal)
+	require.IsType(t, &js.Literal{}, powNode.RightValue)
+	require.Equal(t, "2", powNode.RightValue.(*js.Literal).Value.Literal)
 }
 
 type factorialExpr struct {
@@ -209,11 +209,11 @@ func TestUseBinaryParser_postfix(t *testing.T) {
 	binNode := result.(*js.BinaryExpr)
 	require.IsType(t, &factorialExpr{}, binNode.LeftValue)
 	leftNode := binNode.LeftValue.(*factorialExpr)
-	require.IsType(t, &js.BasicLit{}, leftNode.Value)
-	leftVal := leftNode.Value.(*js.BasicLit)
+	require.IsType(t, &js.Literal{}, leftNode.Value)
+	leftVal := leftNode.Value.(*js.Literal)
 	require.Equal(t, "5", leftVal.Value.Literal)
 	require.Equal(t, facTyp, leftNode.Operator.Type)
-	require.IsType(t, &js.BasicLit{}, binNode.RightValue)
-	rightVal := binNode.RightValue.(*js.BasicLit)
+	require.IsType(t, &js.Literal{}, binNode.RightValue)
+	rightVal := binNode.RightValue.(*js.Literal)
 	require.Equal(t, "1", rightVal.Value.Literal)
 }

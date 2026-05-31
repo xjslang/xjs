@@ -124,15 +124,15 @@ func TestStmt(t *testing.T) {
 			expected: `Stmt
 	Expr: CallExpr
 		Function: Ident{Name: "log"}
-		Arguments[0]: BasicLit{Value: "1"}`,
+		Arguments[0]: Literal{Value: "1"}`,
 		},
 		{
 			input: "log(1, 2)",
 			expected: `Stmt
 	Expr: CallExpr
 		Function: Ident{Name: "log"}
-		Arguments[0]: BasicLit{Value: "1"}
-		Arguments[1]: BasicLit{Value: "2"}`,
+		Arguments[0]: Literal{Value: "1"}
+		Arguments[1]: Literal{Value: "2"}`,
 		},
 	}
 	for i, test := range tests {
