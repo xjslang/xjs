@@ -108,27 +108,27 @@ func TestKeysAreSaved(t *testing.T) {
 	})
 }
 
-func TestExprStmt(t *testing.T) {
+func TestStmt(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected string
 	}{
 		{
 			input: "log()",
-			expected: `ExprStmt
+			expected: `Stmt
 	Expr: CallExpr
 		Function: Ident{Name: "log"}`,
 		},
 		{
 			input: "log(1)",
-			expected: `ExprStmt
+			expected: `Stmt
 	Expr: CallExpr
 		Function: Ident{Name: "log"}
 		Arguments[0]: BasicLit{Value: "1"}`,
 		},
 		{
 			input: "log(1, 2)",
-			expected: `ExprStmt
+			expected: `Stmt
 	Expr: CallExpr
 		Function: Ident{Name: "log"}
 		Arguments[0]: BasicLit{Value: "1"}
@@ -138,7 +138,7 @@ func TestExprStmt(t *testing.T) {
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			p := xjs.NewBuilder().Build([]byte(test.input))
-			node, err := js.ParseExprStmt(p)
+			node, err := js.ParseStmt(p)
 			if err != nil {
 				t.Fatal(err)
 			}
