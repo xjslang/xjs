@@ -140,11 +140,7 @@ func (p *Parser) ExpectSemi() (token.Token, error) {
 		p.AdvanceToken()
 		return tok, nil
 	}
-	if tok.Type == token.EOF || tok.AfterNewline {
-		tok = token.Token{Type: token.SEMICOLON, Literal: token.SEMICOLON.String(), Position: tok.Position}
-		return tok, nil
-	}
-	if p.InScope(blockScope) && tok.Type == token.RBRACE {
+	if tok.Type == token.EOF || tok.AfterNewline || tok.Type == token.RBRACE {
 		tok = token.Token{Type: token.SEMICOLON, Literal: token.SEMICOLON.String(), Position: tok.Position}
 		return tok, nil
 	}
@@ -160,8 +156,7 @@ func (p *Parser) AdvanceToStmtEnd() {
 			p.AdvanceToken()
 			break
 		}
-		if typ == token.EOF || p.CurrentToken.AfterNewline ||
-			p.InScope(blockScope) && typ == token.RBRACE {
+		if typ == token.EOF || p.CurrentToken.AfterNewline || typ == token.RBRACE {
 			break
 		}
 		p.AdvanceToken()
