@@ -95,7 +95,7 @@ func NodeString(node ast.Node) string {
 			for _, stmt := range v.Stmts {
 				fmt.Fprintf(s, "\n%s%s", indent, print(stmt))
 			}
-		case *js.ExprStmt:
+		case *js.Stmt:
 			fmt.Fprintf(s, "\n%sExpr: %s", indent, print(v.Expr))
 		case *js.LetStmt:
 			fmt.Fprintf(s, "\n%sName: %s", indent, v.Name.Literal)
