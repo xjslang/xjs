@@ -64,7 +64,7 @@ func Parse(input []byte) (*js.Program, error) {
 }
 
 func jsPlugin(b *builder.Builder) {
-	token.RegisterPrefixType(token.LPAREN)    //	to evaluate ParenExpr
+	token.RegisterUnaryType(token.LPAREN)     //	to evaluate ParenExpr
 	token.RegisterBinaryType(token.LPAREN, 7) // to evaluate CallExpr
 
 	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) (tok token.Token) {
@@ -92,11 +92,11 @@ func jsPlugin(b *builder.Builder) {
 	b.UseExprParser(func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error) {
 		return js.ParseExpr(p)
 	})
-	b.UsePrefixParser(func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error) {
+	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error) {
 		if p.CurrentToken.Type == token.LPAREN {
 			return js.ParseParenExpr(p)
 		}
-		return js.ParsePrefixExpr(p)
+		return js.ParseUnaryExpr(p)
 	})
 	b.UseBinaryParser(func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error) {
 		if p.CurrentToken.Type == token.LPAREN {

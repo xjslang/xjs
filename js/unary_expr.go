@@ -16,7 +16,7 @@ func (node *UnaryExpr) Type() string {
 	return "UnaryExpr"
 }
 
-func ParsePrefixExpr(p *parser.Parser) (node ast.Node, err error) {
+func ParseUnaryExpr(p *parser.Parser) (node ast.Node, err error) {
 	nodeExpr := &UnaryExpr{Operator: p.CurrentToken}
 	p.AdvanceToken()
 	if nodeExpr.Value, err = ParseValue(p); err != nil {

@@ -27,8 +27,8 @@ func (node *BasicLit) Type() string {
 
 func ParseValue(p *parser.Parser) (ast.Node, error) {
 	typ := p.CurrentToken.Type
-	if typ.IsPrefixOp() {
-		return p.ParsePrefixExpr()
+	if typ.IsUnaryOp() {
+		return p.ParseUnaryExpr()
 	}
 	switch typ {
 	case token.NUMBER, token.STRING, token.BOOLEAN:
