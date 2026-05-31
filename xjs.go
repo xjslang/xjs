@@ -43,10 +43,10 @@ func NewPrinter() *printer.Printer {
 			js.PrintBinaryExpr(p, v)
 			return
 		case *js.Ident:
-			js.PrintIdent(p, v)
+			p.Print(v.Name)
 			return
 		case *js.Literal:
-			js.PrintLiteral(p, v)
+			p.Print(v.Value)
 			return
 		case *js.Stmt:
 			js.PrintStmt(p, v)
