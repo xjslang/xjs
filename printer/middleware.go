@@ -1,6 +1,8 @@
 package printer
 
-import "github.com/xjslang/xjs/ast"
+import (
+	"github.com/xjslang/xjs/ast"
+)
 
 func (p *Printer) UsePrinter(printer func(p *Printer, node ast.Node, next func(node ast.Node))) {
 	print := p.printer
@@ -22,8 +24,6 @@ func defaultPrinter(p *Printer, node ast.Node) {
 		PrintBlock(p, node)
 	case *ast.ExprStmt:
 		PrintExprStmt(p, node)
-	case *ast.ParenExpr:
-		PrintParenExpr(p, node)
 	case *ast.UnaryExpr:
 		PrintUnaryExpr(p, node)
 	case *ast.BinaryExpr:

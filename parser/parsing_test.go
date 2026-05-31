@@ -7,6 +7,7 @@ import (
 
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/internal/testutil"
+	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/token"
 )
@@ -41,7 +42,7 @@ func TestMalformedExpr(t *testing.T) {
 		}
 		for i, test := range tests {
 			p := xjs.NewBuilder().Build([]byte(test.input))
-			_, err := parser.ParseParenExpr(p)
+			_, err := js.ParseParenExpr(p)
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
 			}
@@ -88,7 +89,7 @@ func TestKeysAreSaved(t *testing.T) {
 	(1 + 2// comment after
 	)`
 		p := xjs.NewBuilder().Build([]byte(input))
-		result, err := parser.ParseParenExpr(p)
+		result, err := js.ParseParenExpr(p)
 		if err != nil {
 			t.Fatal(err)
 		}

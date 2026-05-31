@@ -154,8 +154,6 @@ var infixOps = map[Type]int{
 	MULTIPLY: 6,
 	DIVIDE:   6,
 	MODULO:   6,
-	// specials operators
-	LPAREN: 7,
 }
 
 func (typ Type) IsInfixOp() (ok bool) {
@@ -171,21 +169,22 @@ func (typ Type) Precedence() int {
 	return infixOps[typ]
 }
 
-func (typ Type) RegisterInfixOp(precedence int) {
+// RegisterInfixType registers a token type as an "infix operator".
+func RegisterInfixType(typ Type, precedence int) {
 	registerMu.Lock()
 	defer registerMu.Unlock()
 	infixOps[typ] = precedence
 }
 
+// RegisterInfixOp registers an "infix operator".
 func RegisterInfixOp(lit string, precedence int) Type {
 	typ := RegisterType(lit)
-	typ.RegisterInfixOp(precedence)
+	RegisterInfixType(typ, precedence)
 	return typ
 }
 
 var prefixTypes = map[Type]bool{
-	NOT:    true,
-	LPAREN: true,
+	NOT: true,
 }
 
 func (typ Type) IsPrefixOp() (ok bool) {
@@ -195,14 +194,16 @@ func (typ Type) IsPrefixOp() (ok bool) {
 	return
 }
 
-func (typ Type) RegisterPrefixOp() {
+// RegisterPrefixType registers a token type as a "prefix operator".
+func RegisterPrefixType(typ Type) {
 	registerMu.Lock()
 	defer registerMu.Unlock()
 	prefixTypes[typ] = true
 }
 
+// RegisterPrefixOp registers a "prefix operator".
 func RegisterPrefixOp(lit string) Type {
 	typ := RegisterType(lit)
-	typ.RegisterPrefixOp()
+	RegisterPrefixType(typ)
 	return typ
 }

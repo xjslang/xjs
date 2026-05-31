@@ -27,6 +27,9 @@ func NewPrinter() *printer.Printer {
 		case *js.CallExpr:
 			js.PrintCallExpr(p, v)
 			return
+		case *js.ParenExpr:
+			js.PrintParenExpr(p, v)
+			return
 		}
 		next(node)
 	})
@@ -39,6 +42,9 @@ func Parse(input []byte) (*ast.Program, error) {
 }
 
 func jsPlugin(b *builder.Builder) {
+	token.RegisterPrefixType(token.LPAREN)   //	to evaluate ParenExpr
+	token.RegisterInfixType(token.LPAREN, 7) // to evaluate CallExpr
+
 	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) (tok token.Token) {
 		tok = next()
 		if tok.Type != token.IDENT {
@@ -58,6 +64,12 @@ func jsPlugin(b *builder.Builder) {
 			return js.ParseFunctionDecl(p)
 		case js.LET:
 			return js.ParseLetStmt(p)
+		}
+		return next()
+	})
+	b.UsePrefixParser(func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error) {
+		if p.CurrentToken.Type == token.LPAREN {
+			return js.ParseParenExpr(p)
 		}
 		return next()
 	})

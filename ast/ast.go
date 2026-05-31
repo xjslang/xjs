@@ -71,14 +71,3 @@ type BasicLit struct {
 func (node *BasicLit) Type() string {
 	return "BasicLit"
 }
-
-type ParenExpr struct {
-	LparenToken token.Token
-	RparenToken token.Token
-
-	Value Node
-}
-
-func (node *ParenExpr) Type() string {
-	return "ParenExpr"
-}
