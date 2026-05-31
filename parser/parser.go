@@ -53,16 +53,24 @@ func (p *Parser) Init(sc Scanner) {
 	p.scopes = make(ScopeTracker)
 	p.scanner = sc
 	if p.stmtParser == nil {
-		p.stmtParser = defaultStmtParser
+		p.stmtParser = func(p *Parser) (ast.Node, error) {
+			return nil, errors.New("unknown statement")
+		}
 	}
 	if p.exprParser == nil {
-		p.exprParser = defaultExprParser
+		p.exprParser = func(p *Parser) (ast.Node, error) {
+			return nil, errors.New("unknown expression")
+		}
 	}
 	if p.binaryExprParser == nil {
-		p.binaryExprParser = defaultBinaryExprParser
+		p.binaryExprParser = func(p *Parser, leftVal ast.Node) (ast.Node, error) {
+			return nil, errors.New("unknown binary expression")
+		}
 	}
 	if p.unaryExprParser == nil {
-		p.unaryExprParser = defaultUnaryExprParser
+		p.unaryExprParser = func(p *Parser) (ast.Node, error) {
+			return nil, errors.New("unknown unary expression")
+		}
 	}
 	p.CurrentToken = token.Token{}
 	p.PeekToken = token.Token{}
