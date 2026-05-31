@@ -36,6 +36,21 @@ func NewPrinter() *printer.Printer {
 		case *js.ParenExpr:
 			js.PrintParenExpr(p, v)
 			return
+		case *js.UnaryExpr:
+			js.PrintUnaryExpr(p, v)
+			return
+		case *js.BinaryExpr:
+			js.PrintBinaryExpr(p, v)
+			return
+		case *js.Ident:
+			js.PrintIdent(p, v)
+			return
+		case *js.BasicLit:
+			js.PrintBasicLit(p, v)
+			return
+		case *js.ExprStmt:
+			js.PrintExprStmt(p, v)
+			return
 		}
 		next(node)
 	})
@@ -72,18 +87,21 @@ func jsPlugin(b *builder.Builder) {
 		case js.LET:
 			return js.ParseLetStmt(p)
 		}
-		return next()
+		return js.ParseExprStmt(p)
+	})
+	b.UseExprParser(func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error) {
+		return js.ParseExpr(p)
 	})
 	b.UsePrefixParser(func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error) {
 		if p.CurrentToken.Type == token.LPAREN {
 			return js.ParseParenExpr(p)
 		}
-		return next()
+		return js.ParsePrefixExpr(p)
 	})
 	b.UseInfixParser(func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error) {
 		if p.CurrentToken.Type == token.LPAREN {
 			return js.ParseCallExpr(p, leftVal)
 		}
-		return next(leftVal)
+		return js.ParseInfixExpr(p, leftVal)
 	})
 }

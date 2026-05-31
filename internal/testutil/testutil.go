@@ -85,7 +85,7 @@ func NodeString(node ast.Node) string {
 		indent := strings.Repeat("\t", indentLevel)
 		fmt.Fprint(s, node.Type())
 		switch v := node.(type) {
-		case *ast.Ident:
+		case *js.Ident:
 			fmt.Fprintf(s, "{Value: %q}", v.Value.Literal)
 		case *js.Program:
 			for _, stmt := range v.Stmts {
@@ -95,7 +95,7 @@ func NodeString(node ast.Node) string {
 			for _, stmt := range v.Stmts {
 				fmt.Fprintf(s, "\n%s%s", indent, print(stmt))
 			}
-		case *ast.ExprStmt:
+		case *js.ExprStmt:
 			fmt.Fprintf(s, "\n%sExpr: %s", indent, print(v.Expr))
 		case *js.LetStmt:
 			fmt.Fprintf(s, "\n%sName: %s", indent, v.Name.Literal)
@@ -110,11 +110,11 @@ func NodeString(node ast.Node) string {
 			for i, arg := range v.Arguments {
 				fmt.Fprintf(s, "\n%sArguments[%d]: %s", indent, i, print(arg))
 			}
-		case *ast.BinaryExpr:
+		case *js.BinaryExpr:
 			fmt.Fprintf(s, "\n%sLeftValue: %s", indent, print(v.LeftValue))
 			fmt.Fprintf(s, "\n%sOperator: %q", indent, v.Operator.Type.String())
 			fmt.Fprintf(s, "\n%sRightValue: %s", indent, print(v.RightValue))
-		case *ast.BasicLit:
+		case *js.BasicLit:
 			fmt.Fprintf(s, "{Value: %q}", v.Value.Literal)
 		}
 		return s.String()

@@ -61,12 +61,12 @@ func TestUseExprParser(t *testing.T) {
 	stmt := result.Stmts[0].(*js.LetStmt)
 	require.IsType(t, &orExpr{}, stmt.Value)
 	orVal := stmt.Value.(*orExpr)
-	require.IsType(t, &ast.ExprStmt{}, orVal.FallbackStmt)
-	fallback := orVal.FallbackStmt.(*ast.ExprStmt)
+	require.IsType(t, &js.ExprStmt{}, orVal.FallbackStmt)
+	fallback := orVal.FallbackStmt.(*js.ExprStmt)
 	require.IsType(t, &js.CallExpr{}, fallback.Expr)
 	expr := fallback.Expr.(*js.CallExpr)
-	require.IsType(t, &ast.Ident{}, expr.Function)
-	funcName := expr.Function.(*ast.Ident)
+	require.IsType(t, &js.Ident{}, expr.Function)
+	funcName := expr.Function.(*js.Ident)
 	assert.Equal(t, "exit", funcName.Value.Literal)
 }
 
@@ -82,21 +82,19 @@ func (node *notBitwiseExpr) Type() string {
 func TestUsePrefixOpParser(t *testing.T) {
 	notBitwise := token.RegisterPrefixOp("~")
 	input := "1 + ~7"
-	s := &scanner.Scanner{}
-	s.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
+	b := xjs.NewBuilder()
+	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
 		if sc.CurrentChar() == '~' {
 			sc.AdvanceChar()
 			return token.Token{Type: notBitwise, Literal: "~"}
 		}
 		return next()
 	})
-	s.Init([]byte(input))
-	p := &parser.Parser{}
-	p.UsePrefixParser(func(p *parser.Parser, next func() (ast.Node, error)) (node ast.Node, err error) {
+	b.UsePrefixParser(func(p *parser.Parser, next func() (ast.Node, error)) (node ast.Node, err error) {
 		if p.CurrentToken.Type == notBitwise {
 			nodeExpr := &notBitwiseExpr{Operator: p.CurrentToken}
 			p.AdvanceToken() // consume ~
-			if nodeExpr.Value, err = parser.ParseValue(p); err != nil {
+			if nodeExpr.Value, err = js.ParseValue(p); err != nil {
 				return
 			}
 			node = nodeExpr
@@ -104,20 +102,20 @@ func TestUsePrefixOpParser(t *testing.T) {
 		}
 		return next()
 	})
-	p.Init(s)
+	p := b.Build([]byte(input))
 	result, err := p.ParseExpr()
 	if err != nil {
 		t.Fatal(err)
 	}
-	require.IsType(t, &ast.BinaryExpr{}, result)
-	binNode := result.(*ast.BinaryExpr)
-	require.IsType(t, &ast.BasicLit{}, binNode.LeftValue)
-	require.Equal(t, "1", binNode.LeftValue.(*ast.BasicLit).Value.Literal)
+	require.IsType(t, &js.BinaryExpr{}, result)
+	binNode := result.(*js.BinaryExpr)
+	require.IsType(t, &js.BasicLit{}, binNode.LeftValue)
+	require.Equal(t, "1", binNode.LeftValue.(*js.BasicLit).Value.Literal)
 	require.Equal(t, token.PLUS, binNode.Operator.Type)
 	require.IsType(t, &notBitwiseExpr{}, binNode.RightValue)
 	rightNode := binNode.RightValue.(*notBitwiseExpr)
-	require.IsType(t, &ast.BasicLit{}, rightNode.Value)
-	require.Equal(t, "7", rightNode.Value.(*ast.BasicLit).Value.Literal)
+	require.IsType(t, &js.BasicLit{}, rightNode.Value)
+	require.Equal(t, "7", rightNode.Value.(*js.BasicLit).Value.Literal)
 	require.Equal(t, notBitwise, rightNode.Operator.Type)
 }
 
@@ -134,21 +132,19 @@ func (node *powExpr) Type() string {
 func TestUseInfixOpParser(t *testing.T) {
 	powType := token.RegisterInfixOp("^", token.MULTIPLY.Precedence()+1)
 	input := "1+5^2"
-	s := &scanner.Scanner{}
-	s.UseScanner(func(s *scanner.Scanner, next func() token.Token) token.Token {
+	b := xjs.NewBuilder()
+	b.UseScanner(func(s *scanner.Scanner, next func() token.Token) token.Token {
 		if s.CurrentChar() == '^' {
 			s.AdvanceChar()
 			return token.Token{Type: powType, Literal: "^"}
 		}
 		return next()
 	})
-	s.Init([]byte(input))
-	p := &parser.Parser{}
-	p.UseInfixParser(func(p *parser.Parser, leftVal ast.Node, next func(ast.Node) (ast.Node, error)) (node ast.Node, err error) {
+	b.UseInfixParser(func(p *parser.Parser, leftVal ast.Node, next func(ast.Node) (ast.Node, error)) (node ast.Node, err error) {
 		if p.CurrentToken.Type == powType {
 			powNode := &powExpr{LeftValue: leftVal, Operator: p.CurrentToken}
 			p.AdvanceToken() // consume ^
-			if powNode.RightValue, err = parser.ParseRightValue(p, powType.Precedence()); err != nil {
+			if powNode.RightValue, err = js.ParseRightValue(p, powType.Precedence()); err != nil {
 				return
 			}
 			node = powNode
@@ -156,24 +152,24 @@ func TestUseInfixOpParser(t *testing.T) {
 		}
 		return next(leftVal)
 	})
-	p.Init(s)
+	p := b.Build([]byte(input))
 	result, err := p.ParseExpr()
 	if err != nil {
 		t.Fatal(err)
 	}
 	// check the result
-	require.IsType(t, &ast.BinaryExpr{}, result)
-	binNode := result.(*ast.BinaryExpr)
-	require.IsType(t, &ast.BasicLit{}, binNode.LeftValue)
-	require.Equal(t, "1", binNode.LeftValue.(*ast.BasicLit).Value.Literal)
+	require.IsType(t, &js.BinaryExpr{}, result)
+	binNode := result.(*js.BinaryExpr)
+	require.IsType(t, &js.BasicLit{}, binNode.LeftValue)
+	require.Equal(t, "1", binNode.LeftValue.(*js.BasicLit).Value.Literal)
 	require.Equal(t, token.PLUS, binNode.Operator.Type)
 	require.IsType(t, &powExpr{}, binNode.RightValue)
 	powNode := binNode.RightValue.(*powExpr)
-	require.IsType(t, &ast.BasicLit{}, powNode.LeftValue)
-	require.Equal(t, "5", powNode.LeftValue.(*ast.BasicLit).Value.Literal)
+	require.IsType(t, &js.BasicLit{}, powNode.LeftValue)
+	require.Equal(t, "5", powNode.LeftValue.(*js.BasicLit).Value.Literal)
 	require.Equal(t, powType, powNode.Operator.Type)
-	require.IsType(t, &ast.BasicLit{}, powNode.RightValue)
-	require.Equal(t, "2", powNode.RightValue.(*ast.BasicLit).Value.Literal)
+	require.IsType(t, &js.BasicLit{}, powNode.RightValue)
+	require.Equal(t, "2", powNode.RightValue.(*js.BasicLit).Value.Literal)
 }
 
 type factorialExpr struct {
@@ -188,38 +184,36 @@ func (node *factorialExpr) Type() string {
 func TestUseInfixOpParser_postfix(t *testing.T) {
 	facTyp := token.RegisterInfixOp("!", -1)
 	input := "5! + 1"
-	s := &scanner.Scanner{}
-	s.UseScanner(func(s *scanner.Scanner, next func() token.Token) token.Token {
+	b := xjs.NewBuilder()
+	b.UseScanner(func(s *scanner.Scanner, next func() token.Token) token.Token {
 		if s.CurrentChar() == '!' {
 			s.AdvanceChar()
 			return token.Token{Type: facTyp, Literal: "!"}
 		}
 		return next()
 	})
-	s.Init([]byte(input))
-	p := &parser.Parser{}
-	p.UseInfixParser(func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (node ast.Node, err error) {
+	b.UseInfixParser(func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (node ast.Node, err error) {
 		if p.CurrentToken.Type == facTyp {
 			leftVal = &factorialExpr{Operator: p.CurrentToken, Value: leftVal}
 			p.AdvanceToken() // consume !
 		}
 		return next(leftVal)
 	})
-	p.Init(s)
+	p := b.Build([]byte(input))
 	result, err := p.ParseExpr()
 	if err != nil {
 		t.Fatal(err)
 	}
 	// check the result
-	require.IsType(t, &ast.BinaryExpr{}, result)
-	binNode := result.(*ast.BinaryExpr)
+	require.IsType(t, &js.BinaryExpr{}, result)
+	binNode := result.(*js.BinaryExpr)
 	require.IsType(t, &factorialExpr{}, binNode.LeftValue)
 	leftNode := binNode.LeftValue.(*factorialExpr)
-	require.IsType(t, &ast.BasicLit{}, leftNode.Value)
-	leftVal := leftNode.Value.(*ast.BasicLit)
+	require.IsType(t, &js.BasicLit{}, leftNode.Value)
+	leftVal := leftNode.Value.(*js.BasicLit)
 	require.Equal(t, "5", leftVal.Value.Literal)
 	require.Equal(t, facTyp, leftNode.Operator.Type)
-	require.IsType(t, &ast.BasicLit{}, binNode.RightValue)
-	rightVal := binNode.RightValue.(*ast.BasicLit)
+	require.IsType(t, &js.BasicLit{}, binNode.RightValue)
+	rightVal := binNode.RightValue.(*js.BasicLit)
 	require.Equal(t, "1", rightVal.Value.Literal)
 }
