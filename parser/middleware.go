@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"errors"
+
 	"github.com/xjslang/xjs/ast"
 )
 
@@ -52,44 +54,18 @@ func (p *Parser) UseExprParser(parser func(p *Parser, next func() (ast.Node, err
 	}
 }
 
-func defaultPrefixExprParser(p *Parser) (node ast.Node, err error) {
-	nodeExpr := &ast.UnaryExpr{Operator: p.CurrentToken}
-	p.AdvanceToken()
-	if nodeExpr.Value, err = ParseValue(p); err != nil {
-		return
-	}
-	node = nodeExpr
-	return
+func defaultPrefixExprParser(p *Parser) (ast.Node, error) {
+	return nil, errors.New("unknown prefix expression")
 }
 
-func defaultInfixExprParser(p *Parser, leftVal ast.Node) (node ast.Node, err error) {
-	op := p.CurrentToken
-	nodeExpr := &ast.BinaryExpr{
-		LeftValue: leftVal,
-		Operator:  op,
-	}
-	p.AdvanceToken()
-	if nodeExpr.RightValue, err = ParseRightValue(p, op.Type.Precedence()); err != nil {
-		return
-	}
-	node = nodeExpr
-	return
+func defaultInfixExprParser(p *Parser, leftVal ast.Node) (ast.Node, error) {
+	return nil, errors.New("unknown infix expression")
 }
 
 func defaultStmtParser(p *Parser) (ast.Node, error) {
-	return ParseExprStmt(p)
+	return nil, errors.New("unknown statement")
 }
 
 func defaultExprParser(p *Parser) (val ast.Node, err error) {
-	if val, err = ParseValue(p); err != nil {
-		return
-	}
-	typ := p.CurrentToken.Type
-	for typ.IsInfixOp() {
-		if val, err = p.infixExprParser(p, val); err != nil {
-			return
-		}
-		typ = p.CurrentToken.Type
-	}
-	return
+	return nil, errors.New("unknown expression")
 }

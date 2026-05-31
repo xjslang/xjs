@@ -158,7 +158,7 @@ func TestExprs(t *testing.T) {
 	for i, test := range tests {
 		t.Run("exp "+strconv.Itoa(i), func(t *testing.T) {
 			p := xjs.NewBuilder().Build([]byte(test.input))
-			result, err := p.ParseExpr()
+			result, err := js.ParseExpr(p)
 			if err != nil {
 				t.Fatal(err)
 			}

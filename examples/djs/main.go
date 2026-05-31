@@ -18,7 +18,7 @@ var deferTyp = token.RegisterType("defer")
 // implements ast.Node
 type DeferStmt struct {
 	DeferToken token.Token
-	Stmt       *ast.ExprStmt
+	Stmt       *js.ExprStmt
 }
 
 func (node *DeferStmt) Type() string {
@@ -39,7 +39,7 @@ func djsPlugin(b *builder.Builder) {
 		if p.CurrentToken.Type == deferTyp {
 			deferStmt := &DeferStmt{DeferToken: p.CurrentToken}
 			p.AdvanceToken() // consume "defer"
-			if deferStmt.Stmt, err = parser.ParseExprStmt(p); err != nil {
+			if deferStmt.Stmt, err = js.ParseExprStmt(p); err != nil {
 				return
 			}
 			node = deferStmt

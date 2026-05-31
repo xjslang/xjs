@@ -80,6 +80,14 @@ func (p *Parser) ParseExpr() (ast.Node, error) {
 	return p.exprParser(p)
 }
 
+func (p *Parser) ParseInfixExpr(leftVal ast.Node) (ast.Node, error) {
+	return p.infixExprParser(p, leftVal)
+}
+
+func (p *Parser) ParsePrefixExpr() (ast.Node, error) {
+	return p.prefixExprParser(p)
+}
+
 func (p *Parser) AddError(msg string) {
 	line := p.CurrentToken.Line
 	column := p.CurrentToken.Column

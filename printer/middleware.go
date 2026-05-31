@@ -17,18 +17,5 @@ func (p *Printer) UsePrinter(printer func(p *Printer, node ast.Node, next func(n
 }
 
 func defaultPrinter(p *Printer, node ast.Node) {
-	switch node := node.(type) {
-	case *ast.ExprStmt:
-		PrintExprStmt(p, node)
-	case *ast.UnaryExpr:
-		PrintUnaryExpr(p, node)
-	case *ast.BinaryExpr:
-		PrintBinaryExpr(p, node)
-	case *ast.Ident:
-		p.printToken(node.Value)
-	case *ast.BasicLit:
-		p.printToken(node.Value)
-	default:
-		p.printString("<" + node.Type() + ">")
-	}
+	p.printString("<" + node.Type() + ">")
 }

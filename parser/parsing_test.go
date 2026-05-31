@@ -8,7 +8,6 @@ import (
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/internal/testutil"
 	"github.com/xjslang/xjs/js"
-	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/token"
 )
 
@@ -139,7 +138,7 @@ func TestExprStmt(t *testing.T) {
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			p := xjs.NewBuilder().Build([]byte(test.input))
-			node, err := parser.ParseExprStmt(p)
+			node, err := js.ParseExprStmt(p)
 			if err != nil {
 				t.Fatal(err)
 			}
