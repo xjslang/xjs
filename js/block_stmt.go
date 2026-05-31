@@ -9,19 +9,19 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-type Block struct {
+type BlockStmt struct {
 	LbraceToken token.Token
 	RbraceToken token.Token
 
 	Stmts []ast.Node
 }
 
-func (node *Block) Type() string {
+func (node *BlockStmt) Type() string {
 	return "Block"
 }
 
-func ParseBlock(p *parser.Parser) (_ *Block, err error) {
-	node := &Block{}
+func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
+	node := &BlockStmt{}
 	if node.LbraceToken, err = p.Expect(token.LBRACE); err != nil {
 		return
 	}
@@ -49,7 +49,7 @@ func ParseBlock(p *parser.Parser) (_ *Block, err error) {
 	return node, nil
 }
 
-func PrintBlock(p *printer.Printer, node *Block) {
+func PrintBlockStmt(p *printer.Printer, node *BlockStmt) {
 	p.Print(node.LbraceToken)
 	p.IncreaseIndent()
 	for _, stmt := range node.Stmts {

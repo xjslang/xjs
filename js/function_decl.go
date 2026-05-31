@@ -14,7 +14,7 @@ type FunctionDecl struct {
 	RparenToken   token.Token
 
 	Name token.Token
-	Body *Block
+	Body *BlockStmt
 }
 
 func (node *FunctionDecl) Type() string {
@@ -35,7 +35,7 @@ func ParseFunctionDecl(p *parser.Parser) (_ *FunctionDecl, err error) {
 	if node.RparenToken, err = p.Expect(token.RPAREN); err != nil {
 		return
 	}
-	if node.Body, err = ParseBlock(p); err != nil {
+	if node.Body, err = ParseBlockStmt(p); err != nil {
 		return
 	}
 	return node, nil
