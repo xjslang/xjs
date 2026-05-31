@@ -108,7 +108,7 @@ func TestMiddlewares(t *testing.T) {
 	})()`
 	b := xjs.NewBuilder()
 	// parse IIFE expressions
-	b.UsePrefixParser(func(p *parser.Parser, next func() (ast.Node, error)) (_ ast.Node, err error) {
+	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Node, error)) (_ ast.Node, err error) {
 		if p.CurrentToken.Type == token.LPAREN && p.PeekToken.Type == js.FUNCTION {
 			node := &iifeExpr{LparenToken: p.CurrentToken}
 			p.AdvanceToken()

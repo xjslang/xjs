@@ -23,8 +23,8 @@ func (b *Builder) UseScanner(scanner func(sc *scanner.Scanner, next func() token
 	b.scanner.UseScanner(scanner)
 }
 
-func (b *Builder) UsePrefixParser(parser func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error)) {
-	b.parser.UsePrefixParser(parser)
+func (b *Builder) UseUnaryParser(parser func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error)) {
+	b.parser.UseUnaryParser(parser)
 }
 
 func (b *Builder) UseBinaryParser(parser func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error)) {

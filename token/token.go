@@ -183,27 +183,27 @@ func RegisterBinaryOp(lit string, precedence int) Type {
 	return typ
 }
 
-var prefixTypes = map[Type]bool{
+var unaryTypes = map[Type]bool{
 	NOT: true,
 }
 
-func (typ Type) IsPrefixOp() (ok bool) {
+func (typ Type) IsUnaryOp() (ok bool) {
 	registerMu.RLock()
 	defer registerMu.RUnlock()
-	_, ok = prefixTypes[typ]
+	_, ok = unaryTypes[typ]
 	return
 }
 
-// RegisterPrefixType registers a token type as a "prefix operator".
-func RegisterPrefixType(typ Type) {
+// RegisterUnaryType registers a token type as a "unary operator".
+func RegisterUnaryType(typ Type) {
 	registerMu.Lock()
 	defer registerMu.Unlock()
-	prefixTypes[typ] = true
+	unaryTypes[typ] = true
 }
 
-// RegisterPrefixOp registers a "prefix operator".
-func RegisterPrefixOp(lit string) Type {
+// RegisterUnaryOp registers a "unary operator".
+func RegisterUnaryOp(lit string) Type {
 	typ := RegisterType(lit)
-	RegisterPrefixType(typ)
+	RegisterUnaryType(typ)
 	return typ
 }

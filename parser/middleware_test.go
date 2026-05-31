@@ -79,8 +79,8 @@ func (node *notBitwiseExpr) Type() string {
 	return "notBitwiseExpr"
 }
 
-func TestUsePrefixOpParser(t *testing.T) {
-	notBitwise := token.RegisterPrefixOp("~")
+func TestUseUnaryParser(t *testing.T) {
+	notBitwise := token.RegisterUnaryOp("~")
 	input := "1 + ~7"
 	b := xjs.NewBuilder()
 	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
@@ -90,7 +90,7 @@ func TestUsePrefixOpParser(t *testing.T) {
 		}
 		return next()
 	})
-	b.UsePrefixParser(func(p *parser.Parser, next func() (ast.Node, error)) (node ast.Node, err error) {
+	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Node, error)) (node ast.Node, err error) {
 		if p.CurrentToken.Type == notBitwise {
 			nodeExpr := &notBitwiseExpr{Operator: p.CurrentToken}
 			p.AdvanceToken() // consume ~
