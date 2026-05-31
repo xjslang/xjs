@@ -7,8 +7,6 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var blockScope = RegisterScope()
-
 func ParseProgram(p *Parser) (node *ast.Program, err error) {
 	node = &ast.Program{}
 	for p.CurrentToken.Type != token.EOF {
@@ -33,8 +31,6 @@ func ParseProgram(p *Parser) (node *ast.Program, err error) {
 }
 
 func ParseBlock(p *Parser) (node *ast.Block, err error) {
-	p.EnterScope(blockScope)
-	defer p.ExitScope(blockScope)
 	node = &ast.Block{}
 	if node.LbraceToken, err = p.Expect(token.LBRACE); err != nil {
 		return
