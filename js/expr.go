@@ -10,8 +10,8 @@ func ParseExpr(p *parser.Parser) (val ast.Node, err error) {
 		return
 	}
 	typ := p.CurrentToken.Type
-	for typ.IsInfixOp() {
-		if val, err = p.ParseInfixExpr(val); err != nil {
+	for typ.IsBinaryOp() {
+		if val, err = p.ParseBinaryExpr(val); err != nil {
 			return
 		}
 		typ = p.CurrentToken.Type

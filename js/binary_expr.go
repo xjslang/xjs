@@ -17,7 +17,7 @@ func (node *BinaryExpr) Type() string {
 	return "BinaryExpr"
 }
 
-func ParseInfixExpr(p *parser.Parser, leftVal ast.Node) (node ast.Node, err error) {
+func ParseBinaryExpr(p *parser.Parser, leftVal ast.Node) (node ast.Node, err error) {
 	op := p.CurrentToken
 	nodeExpr := &BinaryExpr{
 		LeftValue: leftVal,

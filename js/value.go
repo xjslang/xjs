@@ -51,10 +51,10 @@ func ParseRightValue(p *parser.Parser, precedence int) (val ast.Node, err error)
 	}
 	for {
 		typ := p.CurrentToken.Type
-		if !typ.IsInfixOp() || precedence >= typ.Precedence() {
+		if !typ.IsBinaryOp() || precedence >= typ.Precedence() {
 			break
 		}
-		if val, err = p.ParseInfixExpr(val); err != nil {
+		if val, err = p.ParseBinaryExpr(val); err != nil {
 			return
 		}
 	}
