@@ -103,7 +103,7 @@ func NodeString(node ast.Node) string {
 		case *js.FunctionDecl:
 			fmt.Fprintf(s, "\n%sName: %s", indent, v.Name.Literal)
 			fmt.Fprintf(s, "\n%sBody: %s", indent, print(v.Body))
-		case *ast.ParenExpr:
+		case *js.ParenExpr:
 			fmt.Fprintf(s, "\n%sValue: %s", indent, print(v.Value))
 		case *js.CallExpr:
 			fmt.Fprintf(s, "\n%sFunction: %s", indent, print(v.Function))

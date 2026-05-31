@@ -110,18 +110,3 @@ func ParseValue(p *Parser) (ast.Node, error) {
 	p.AddError(msg)
 	return nil, errors.New(msg)
 }
-
-func ParseParenExpr(p *Parser) (node *ast.ParenExpr, err error) {
-	node = &ast.ParenExpr{}
-	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {
-		return
-	}
-	node.Value, err = p.ParseExpr()
-	if err != nil {
-		return
-	}
-	if node.RparenToken, err = p.Expect(token.RPAREN); err != nil {
-		return
-	}
-	return
-}
