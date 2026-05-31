@@ -22,7 +22,7 @@ func ParseExpr(p *parser.Parser) (val ast.Node, err error) {
 	return
 }
 
-func ParseRightValue(p *parser.Parser, precedence int) (val ast.Node, err error) {
+func ParseRightExpr(p *parser.Parser, precedence int) (val ast.Node, err error) {
 	if val, err = ParseValue(p); err != nil {
 		return
 	}

@@ -144,7 +144,7 @@ func TestUseBinaryParser(t *testing.T) {
 		if p.CurrentToken.Type == powType {
 			powNode := &powExpr{LeftValue: leftVal, Operator: p.CurrentToken}
 			p.AdvanceToken() // consume ^
-			if powNode.RightValue, err = js.ParseRightValue(p, powType.Precedence()); err != nil {
+			if powNode.RightValue, err = js.ParseRightExpr(p, powType.Precedence()); err != nil {
 				return
 			}
 			node = powNode

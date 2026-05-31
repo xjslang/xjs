@@ -24,7 +24,7 @@ func ParseBinaryExpr(p *parser.Parser, leftVal ast.Node) (node ast.Node, err err
 		Operator:  op,
 	}
 	p.AdvanceToken()
-	if nodeExpr.RightValue, err = ParseRightValue(p, op.Type.Precedence()); err != nil {
+	if nodeExpr.RightValue, err = ParseRightExpr(p, op.Type.Precedence()); err != nil {
 		return
 	}
 	node = nodeExpr
