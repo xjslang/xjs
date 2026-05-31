@@ -10,7 +10,7 @@ import (
 )
 
 type Ident struct {
-	Value token.Token
+	Name token.Token
 }
 
 func (node *Ident) Type() string {
@@ -38,7 +38,7 @@ func ParseValue(p *parser.Parser) (ast.Node, error) {
 	case token.IDENT:
 		val := p.CurrentToken
 		p.AdvanceToken()
-		return &Ident{Value: val}, nil
+		return &Ident{Name: val}, nil
 	}
 	msg := "Expected value"
 	p.AddError(msg)
@@ -62,7 +62,7 @@ func ParseRightValue(p *parser.Parser, precedence int) (val ast.Node, err error)
 }
 
 func PrintIdent(p *printer.Printer, node *Ident) {
-	p.Print(node.Value)
+	p.Print(node.Name)
 }
 
 func PrintBasicLit(p *printer.Printer, node *BasicLit) {

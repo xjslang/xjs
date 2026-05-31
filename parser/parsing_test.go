@@ -117,20 +117,20 @@ func TestExprStmt(t *testing.T) {
 			input: "log()",
 			expected: `ExprStmt
 	Expr: CallExpr
-		Function: Ident{Value: "log"}`,
+		Function: Ident{Name: "log"}`,
 		},
 		{
 			input: "log(1)",
 			expected: `ExprStmt
 	Expr: CallExpr
-		Function: Ident{Value: "log"}
+		Function: Ident{Name: "log"}
 		Arguments[0]: BasicLit{Value: "1"}`,
 		},
 		{
 			input: "log(1, 2)",
 			expected: `ExprStmt
 	Expr: CallExpr
-		Function: Ident{Value: "log"}
+		Function: Ident{Name: "log"}
 		Arguments[0]: BasicLit{Value: "1"}
 		Arguments[1]: BasicLit{Value: "2"}`,
 		},

@@ -67,7 +67,7 @@ func TestUseExprParser(t *testing.T) {
 	expr := fallback.Expr.(*js.CallExpr)
 	require.IsType(t, &js.Ident{}, expr.Function)
 	funcName := expr.Function.(*js.Ident)
-	assert.Equal(t, "exit", funcName.Value.Literal)
+	assert.Equal(t, "exit", funcName.Name.Literal)
 }
 
 type notBitwiseExpr struct {

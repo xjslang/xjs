@@ -106,7 +106,7 @@ func TestExprs(t *testing.T) {
 			expected: `BinaryExpr
 	LeftValue: BinaryExpr
 		LeftValue: CallExpr
-			Function: Ident{Value: "foo"}
+			Function: Ident{Name: "foo"}
 		Operator: "*"
 		RightValue: BasicLit{Value: "2"}
 	Operator: "+"
@@ -115,7 +115,7 @@ func TestExprs(t *testing.T) {
 		{
 			input: "foo(1, 2, 3)",
 			expected: `CallExpr
-	Function: Ident{Value: "foo"}
+	Function: Ident{Name: "foo"}
 	Arguments[0]: BasicLit{Value: "1"}
 	Arguments[1]: BasicLit{Value: "2"}
 	Arguments[2]: BasicLit{Value: "3"}`,
@@ -128,7 +128,7 @@ func TestExprs(t *testing.T) {
 	RightValue: ParenExpr
 		Value: BinaryExpr
 			LeftValue: CallExpr
-				Function: Ident{Value: "pow"}
+				Function: Ident{Name: "pow"}
 				Arguments[0]: BasicLit{Value: "2"}
 				Arguments[1]: BinaryExpr
 					LeftValue: BasicLit{Value: "1"}
@@ -143,7 +143,7 @@ func TestExprs(t *testing.T) {
 	LeftValue: BasicLit{Value: "1"}
 	Operator: "+"
 	RightValue: CallExpr
-		Function: Ident{Value: "foo"}`,
+		Function: Ident{Name: "foo"}`,
 		},
 		{
 			input: "1 + foo()()",
@@ -152,7 +152,7 @@ func TestExprs(t *testing.T) {
 	Operator: "+"
 	RightValue: CallExpr
 		Function: CallExpr
-			Function: Ident{Value: "foo"}`,
+			Function: Ident{Name: "foo"}`,
 		},
 	}
 	for i, test := range tests {
