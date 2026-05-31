@@ -7,29 +7,6 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func ParseProgram(p *Parser) (node *ast.Program, err error) {
-	node = &ast.Program{}
-	for p.CurrentToken.Type != token.EOF {
-		prevToken := p.CurrentToken
-		stmt, err := p.ParseStmt()
-		if err != nil {
-			if prevToken.Position == p.CurrentToken.Position {
-				// advance position to avoid infinite loop
-				p.AdvanceToken()
-			}
-			p.AdvanceToStmtEnd()
-			continue
-		}
-		node.Stmts = append(node.Stmts, stmt)
-	}
-	node.EOFToken = p.CurrentToken
-	if errors := p.Errors(); len(errors) > 0 {
-		err = errors
-		return
-	}
-	return
-}
-
 func ParseExprStmt(p *Parser) (node *ast.ExprStmt, err error) {
 	node = &ast.ExprStmt{}
 	if node.Expr, err = p.ParseExpr(); err != nil {

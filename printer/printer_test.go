@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/printer"
 )
 
@@ -128,7 +129,7 @@ func TestPrintCallExpr(t *testing.T) {
 			}
 			pr := xjs.NewPrinter()
 			pr.Init()
-			printer.PrintProgram(pr, node)
+			js.PrintProgram(pr, node)
 			if got := pr.String(); got != test.expected {
 				t.Errorf("Expected:\n\n%s\n\nGot:\n\n%s", test.expected, got)
 			}
@@ -161,7 +162,7 @@ func TestLastComment(t *testing.T) {
 			}
 			pr := xjs.NewPrinter()
 			pr.Init()
-			printer.PrintProgram(pr, node)
+			js.PrintProgram(pr, node)
 			if got := pr.String(); got != test.expected {
 				t.Errorf("Expected\n\n%s\n\ngot\n\n%s", test.expected, got)
 			}

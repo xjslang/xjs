@@ -10,6 +10,7 @@ import (
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/internal/testutil"
+	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
@@ -53,7 +54,7 @@ func ExampleParser_Init() {
 	p.Init(s)
 
 	// Now you can use the parser
-	result, err := p.Parse()
+	result, err := js.ParseProgram(p)
 	if err != nil {
 		panic(err)
 	}

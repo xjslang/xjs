@@ -2,13 +2,6 @@ package printer
 
 import "github.com/xjslang/xjs/ast"
 
-func PrintProgram(p *Printer, node *ast.Program) {
-	for _, stmt := range node.Stmts {
-		p.Print(stmt)
-	}
-	p.Print(node.EOFToken)
-}
-
 func PrintExprStmt(p *Printer, node *ast.ExprStmt) {
 	p.LnPrint(node.Expr)
 	p.Print(node.SemiToken)

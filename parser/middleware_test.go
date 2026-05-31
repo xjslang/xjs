@@ -51,7 +51,7 @@ func TestUseExprParser(t *testing.T) {
 		return
 	})
 	p := b.Build([]byte(input))
-	result, err := parser.ParseProgram(p)
+	result, err := js.ParseProgram(p)
 	if err != nil {
 		t.Fatal(err)
 	}

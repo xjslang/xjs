@@ -18,6 +18,9 @@ func NewPrinter() *printer.Printer {
 	p := &printer.Printer{}
 	p.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node)) {
 		switch v := node.(type) {
+		case *js.Program:
+			js.PrintProgram(p, v)
+			return
 		case *js.BlockStmt:
 			js.PrintBlockStmt(p, v)
 			return
@@ -40,8 +43,9 @@ func NewPrinter() *printer.Printer {
 	return p
 }
 
-func Parse(input []byte) (*ast.Program, error) {
-	return NewBuilder().Build(input).Parse()
+func Parse(input []byte) (*js.Program, error) {
+	p := NewBuilder().Build(input)
+	return js.ParseProgram(p)
 }
 
 func jsPlugin(b *builder.Builder) {

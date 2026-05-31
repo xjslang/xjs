@@ -72,10 +72,6 @@ func (p *Parser) Init(sc Scanner) {
 	p.AdvanceToken()
 }
 
-func (p *Parser) Parse() (*ast.Program, error) {
-	return ParseProgram(p)
-}
-
 func (p *Parser) ParseStmt() (ast.Node, error) {
 	return p.stmtParser(p)
 }

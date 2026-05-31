@@ -64,7 +64,7 @@ func TestGoldenFiles(t *testing.T) {
 		source, err := os.ReadFile(file)
 		require.NoError(t, err)
 		p := xjs.NewBuilder().Build(source)
-		result, err := p.Parse()
+		result, err := js.ParseProgram(p)
 		require.NoError(t, err)
 		// print the result
 		pr := xjs.NewPrinter()
@@ -123,7 +123,7 @@ func TestMiddlewares(t *testing.T) {
 		return next()
 	})
 	p := b.Build([]byte(input))
-	result, err := p.Parse()
+	result, err := js.ParseProgram(p)
 	if err != nil {
 		t.Fatal(err)
 	}

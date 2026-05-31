@@ -6,6 +6,7 @@ import (
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/builder"
+	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/scanner"
@@ -59,7 +60,7 @@ func main() {
 	djsParser := xjs.NewBuilder().
 		Install(djsPlugin).
 		Build([]byte(input))
-	node, err := djsParser.Parse()
+	node, err := js.ParseProgram(djsParser)
 	if err != nil {
 		panic(err)
 	}

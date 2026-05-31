@@ -14,16 +14,6 @@ func (node *Ident) Type() string {
 	return "Ident"
 }
 
-type Program struct {
-	EOFToken token.Token
-
-	Stmts []Node
-}
-
-func (node *Program) Type() string {
-	return "Program"
-}
-
 type ExprStmt struct {
 	SemiToken token.Token
 
