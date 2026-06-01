@@ -30,12 +30,6 @@ func Bench() error {
 	return sh.RunV("go", "test", "./...", "-bench=.", "-benchtime=3s", "-run=^$")
 }
 
-func UpdateGoldenFiles() (err error) {
-	if err = sh.RunV("go", "test", "./xjs_test.go", "-run", "^TestGoldenFiles$", "-update"); err != nil {
-		return
-	}
-	if err = sh.RunV("go", "test", "./printer", "-update"); err != nil {
-		return
-	}
-	return
+func Update() error {
+	return sh.RunV("go", "test", "./printer", "-update")
 }
