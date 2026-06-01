@@ -240,13 +240,14 @@ func (p *Printer) printIndentIfNeeded() {
 }
 
 func (p *Printer) printSeparatorIfNeeded() {
-	if p.ensureLine {
-		p.printLineIfNeeded()
-		p.ensureLine = false
-	}
 	if p.ensureSpace {
 		p.printSpaceIfNeeded()
 		p.ensureSpace = false
+		p.ensureLine = false
+	}
+	if p.ensureLine {
+		p.printLineIfNeeded()
+		p.ensureLine = false
 	}
 	p.printIndentIfNeeded()
 }
