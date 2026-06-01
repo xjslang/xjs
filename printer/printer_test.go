@@ -9,6 +9,7 @@ import (
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/printer"
+	"github.com/xorcare/golden"
 )
 
 type FactorialNode struct {
@@ -296,4 +297,47 @@ func TestSpPrint(t *testing.T) {
 		pr.SpPrint("aaa", "bbb", "ccc")
 		require.Equal(t, "aaa bbb ccc", pr.String())
 	})
+}
+
+func TestWithComments(t *testing.T) {
+	input := "// c\nlet x = 100\n/* c */let y = 200"
+	tests := []struct {
+		name string
+		pr   *printer.Printer
+	}{
+		{"show comments by default", xjs.NewPrinter()},
+		{"hide comments", xjs.NewPrinter(printer.WithComments(false))},
+		{"show comments", xjs.NewPrinter(printer.WithComments(true))},
+		{"hide lcomments and show bcomments", xjs.NewPrinter(printer.WithLineComments(false), printer.WithBlockComments(true))},
+		{"show lcomments and hide bcomments", xjs.NewPrinter(printer.WithLineComments(true), printer.WithBlockComments(false))},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result, err := xjs.Parse([]byte(input))
+			require.NoError(t, err)
+			test.pr.Print(result)
+			golden.Assert(t, test.pr.Bytes())
+		})
+	}
+}
+
+func TestWithEmptyLines(t *testing.T) {
+	input := "let x = 100\n\n\n// line comment\nlet y = 200"
+	tests := []struct {
+		name string
+		pr   *printer.Printer
+	}{
+		{"show empty lines by default", xjs.NewPrinter()},
+		{"show empty lines", xjs.NewPrinter(printer.WithEmptyLines(true))},
+		{"hide empty lines", xjs.NewPrinter(printer.WithEmptyLines(false))},
+		{"hide empty lines and comments", xjs.NewPrinter(printer.WithEmptyLines(false), printer.WithComments(false))},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result, err := xjs.Parse([]byte(input))
+			require.NoError(t, err)
+			test.pr.Print(result)
+			golden.Assert(t, test.pr.Bytes())
+		})
+	}
 }

@@ -14,7 +14,7 @@ func NewBuilder() *builder.Builder {
 	return builder.New().Install(jsPlugin)
 }
 
-func NewPrinter() *printer.Printer {
+func NewPrinter(opts ...printer.Option) *printer.Printer {
 	p := &printer.Printer{}
 	p.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node)) {
 		switch v := node.(type) {
@@ -54,7 +54,7 @@ func NewPrinter() *printer.Printer {
 		}
 		next(node)
 	})
-	p.Init()
+	p.Init(opts...)
 	return p
 }
 
