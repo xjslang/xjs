@@ -9,6 +9,7 @@ import (
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/printer"
+	"github.com/xjslang/xjs/token"
 	"github.com/xorcare/golden"
 )
 
@@ -288,6 +289,14 @@ func TestLnPrint(t *testing.T) {
 		pr.LnPrint("ccc")
 		require.Equal(t, "aaa\nbbb\nccc", pr.String())
 	})
+}
+
+func TestSpacesTakePriorityOverLines(t *testing.T) {
+	pr := xjs.NewPrinter()
+	pr.Print("aaa")
+	// ensureSpace should take priority over ensureLine (by default statements are printed in a new line)
+	pr.SpPrint(&js.ExprStmt{Expr: &js.Literal{Value: token.Token{Literal: "125"}}})
+	require.Equal(t, "aaa 125", pr.String())
 }
 
 func TestSpPrint(t *testing.T) {
