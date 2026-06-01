@@ -300,12 +300,11 @@ func TestSpacesTakePriorityOverLines(t *testing.T) {
 }
 
 func TestSpPrint(t *testing.T) {
-	t.Run("spaces are added in between", func(t *testing.T) {
-		pr := printer.Printer{}
-		pr.Init()
-		pr.SpPrint("aaa", "bbb", "ccc")
-		require.Equal(t, "aaa bbb ccc", pr.String())
-	})
+	pr := printer.Printer{}
+	pr.Init()
+	pr.SpPrint("aaa")
+	pr.SpPrint("bbb")
+	require.Equal(t, "aaa bbb", pr.String())
 }
 
 func TestWithComments(t *testing.T) {
