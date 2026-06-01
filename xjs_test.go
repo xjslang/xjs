@@ -1,15 +1,12 @@
 package xjs_test
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
-	"github.com/pmezard/go-difflib/difflib"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
@@ -18,14 +15,6 @@ import (
 	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/token"
 )
-
-var updateGoldenFiles bool
-
-func TestMain(m *testing.M) {
-	flag.BoolVar(&updateGoldenFiles, "update", false, "update golden files")
-	flag.Parse()
-	os.Exit(m.Run())
-}
 
 func Example_basic() {
 	input := `function hello() {
@@ -48,47 +37,30 @@ func Example_basic() {
 	// }
 }
 
-func TestGoldenFiles(t *testing.T) {
-	if updateGoldenFiles {
-		t.Log("updating golden files")
-	}
-	files, err := filepath.Glob("./testdata/*.js")
+func TestLanguageFeatures(t *testing.T) {
+	pattern := filepath.Join("testdata", "*.js")
+	files, err := filepath.Glob(pattern)
 	require.NoError(t, err)
+	require.NotEmpty(t, files)
 	for _, file := range files {
-		ext := filepath.Ext(file)
-		goldFile := fmt.Sprintf("%s.print.txt", strings.TrimSuffix(file, ext))
-		if !updateGoldenFiles && !assert.FileExists(t, goldFile) {
-			continue
-		}
-		// parse the source file
-		source, err := os.ReadFile(file)
-		require.NoError(t, err)
-		p := xjs.NewBuilder().Build(source)
-		result, err := js.ParseProgram(p)
-		require.NoError(t, err)
-		// print the result
-		pr := xjs.NewPrinter()
-		pr.Init()
-		pr.Print(result)
-		// create or update golden file
-		got := pr.Bytes()
-		if updateGoldenFiles {
-			err = os.WriteFile(goldFile, got, 0o644)
+		testName := strings.TrimSuffix(filepath.Base(file), ".js")
+		t.Run(testName, func(t *testing.T) {
+			// read and parse file
+			dat, err := os.ReadFile(file)
 			require.NoError(t, err)
-			continue
-		}
-		// compare golden file with `got`
-		want, err := os.ReadFile(goldFile)
-		require.NoError(t, err)
-		if got, want := string(got), string(want); got != want {
-			diff, err := difflib.GetUnifiedDiffString(difflib.UnifiedDiff{
-				A:       difflib.SplitLines(got),
-				B:       difflib.SplitLines(want),
-				Context: 5,
-			})
-			assert.NoError(t, err)
-			t.Error(diff)
-		}
+			result, err := xjs.Parse(dat)
+			require.NoError(t, err)
+			// print without newlines trivia and parse it again
+			pr := xjs.NewPrinter(printer.WithNewLines(false))
+			pr.Print(result)
+			result, err = xjs.Parse(pr.Bytes())
+			require.NoError(t, err)
+			// print with default options
+			pr = xjs.NewPrinter()
+			pr.Print(result)
+			// the original must match the final printed result
+			require.Equal(t, string(dat), pr.String())
+		})
 	}
 }
 
