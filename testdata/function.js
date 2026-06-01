@@ -1,3 +1,2 @@
-// comment
 function foo() {
 }

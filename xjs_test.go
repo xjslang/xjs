@@ -51,7 +51,7 @@ func TestLanguageFeatures(t *testing.T) {
 			result, err := xjs.Parse(dat)
 			require.NoError(t, err)
 			// print without newlines trivia and parse it again
-			pr := xjs.NewPrinter(printer.WithNewLines(false))
+			pr := xjs.NewPrinter()
 			pr.Print(result)
 			result, err = xjs.Parse(pr.Bytes())
 			require.NoError(t, err)

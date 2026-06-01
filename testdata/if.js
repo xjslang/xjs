@@ -1,18 +1,21 @@
-if (hello) print('Hello, World!');
+if (hello) print("Hello, World!");
 if (hello) {
-  print('Hello, World!');
+  print("Hello, World!");
 }
-if (hello) print('Hello, World!'); else print('Bye bye, World!');
+if (hello) print("Hello, World!");
+else print("Bye bye, World!");
 if (hello) {
-  print('Hello, World!');
-} else print('Bye bye, World!');
+  print("Hello, World!");
+} else print("Bye bye, World!");
 if (hello) {
-  print('Hello, World!');
+  print("Hello, World!");
 } else {
-  print('Bye bye, World!');
+  print("Bye bye, World!");
 }
+
+// nested
 if (one) {
-  print('aaa');
+  print("aaa");
 } else if (two) {
-  print('bbb');
-} else print('ccc');
+  print("bbb");
+} else print("ccc");
