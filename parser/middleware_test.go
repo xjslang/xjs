@@ -43,7 +43,7 @@ func TestUseExprParser(t *testing.T) {
 		if p.CurrentToken.Type == orType {
 			orNode := &orExpr{Expr: node}
 			p.AdvanceToken() // consume "or"
-			if orNode.FallbackStmt, err = p.ParseExprStmt(); err != nil {
+			if orNode.FallbackStmt, err = p.ParseStmt(); err != nil {
 				return nil, err
 			}
 			node = orNode

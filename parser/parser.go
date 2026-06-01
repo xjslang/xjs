@@ -80,7 +80,7 @@ func (p *Parser) Init(sc Scanner) {
 	p.AdvanceToken()
 }
 
-func (p *Parser) ParseExprStmt() (ast.Node, error) {
+func (p *Parser) ParseStmt() (ast.Node, error) {
 	return p.stmtParser(p)
 }
 
