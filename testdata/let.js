@@ -1,3 +1,3 @@
-let x = 100
-let y = 200
-let z = !true
+let x = 100; // x coordinate
+let y = 200; // y coordinate
+let z = !true;
