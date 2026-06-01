@@ -24,6 +24,8 @@ func NewPrinter(opts ...printer.Option) *printer.Printer {
 			js.PrintBlockStmt(p, v)
 		case *js.IfStmt:
 			js.PrintIfStmt(p, v)
+		case *js.WhileStmt:
+			js.PrintWhileStmt(p, v)
 		case *js.FunctionDecl:
 			js.PrintFunctionDecl(p, v)
 		case *js.LetStmt:
@@ -73,6 +75,8 @@ func jsPlugin(b *builder.Builder) {
 			tok.Type = js.IF
 		case "else":
 			tok.Type = js.ELSE
+		case "while":
+			tok.Type = js.WHILE
 		}
 		return
 	})
@@ -84,6 +88,8 @@ func jsPlugin(b *builder.Builder) {
 			return js.ParseLetStmt(p)
 		case js.IF:
 			return js.ParseIfStmt(p)
+		case js.WHILE:
+			return js.ParseWhileStmt(p)
 		}
 		return js.ParseStmt(p)
 	})
