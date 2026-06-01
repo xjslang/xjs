@@ -51,13 +51,16 @@ func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
 
 func PrintBlockStmt(p *printer.Printer, node *BlockStmt) {
 	p.Print(node.LbraceToken)
-	p.IncreaseIndent()
-	for _, stmt := range node.Stmts {
-		p.Print(stmt)
+	if len(node.Stmts) > 0 {
+		p.IncreaseIndent()
+		for _, stmt := range node.Stmts {
+			p.Print(stmt)
+		}
+		// RBRACE is a special token, since the "leading trivia"
+		// must be printed "before" indentation level decreases
+		p.PrintTrivia(node.RbraceToken.LeadingTrivia)
+		p.DecreaseIndent()
+		p.EnsureLine()
 	}
-	// RBRACE is a special token, since the "leading trivia"
-	// must be printed "before" indentation level decreases
-	p.PrintTrivia(node.RbraceToken.LeadingTrivia)
-	p.DecreaseIndent()
-	p.LnPrint(node.RbraceToken.Literal)
+	p.Print(node.RbraceToken.Literal)
 }
