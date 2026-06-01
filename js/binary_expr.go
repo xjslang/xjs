@@ -33,5 +33,6 @@ func ParseBinaryExpr(p *parser.Parser, leftVal ast.Node) (node ast.Node, err err
 
 func PrintBinaryExpr(p *printer.Printer, node *BinaryExpr) {
 	p.Print(node.LeftValue)
-	p.SpPrint(node.Operator, node.RightValue)
+	p.SpPrint(node.Operator)
+	p.SpPrint(node.RightValue)
 }

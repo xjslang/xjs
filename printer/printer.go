@@ -145,11 +145,9 @@ func (p *Printer) LnPrint(arg any) {
 	p.Print(arg)
 }
 
-func (p *Printer) SpPrint(args ...any) {
-	for _, arg := range args {
-		p.EnsureSpace()
-		p.Print(arg)
-	}
+func (p *Printer) SpPrint(arg any) {
+	p.EnsureSpace()
+	p.Print(arg)
 }
 
 func (p *Printer) PrintTrivia(trivia []token.Token) {

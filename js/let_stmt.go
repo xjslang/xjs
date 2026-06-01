@@ -45,6 +45,8 @@ func ParseLetStmt(p *parser.Parser) (_ *LetStmt, err error) {
 
 func PrintLetStmt(p *printer.Printer, node *LetStmt) {
 	p.LnPrint(node.LetToken)
-	p.SpPrint(node.Name, node.AssignToken, node.Value)
+	p.SpPrint(node.Name)
+	p.SpPrint(node.AssignToken)
+	p.SpPrint(node.Value)
 	p.Print(node.SemiToken)
 }
