@@ -14,10 +14,18 @@ type config struct {
 	indent        string
 	lineComments  bool
 	blockComments bool
-	emptyLines    bool
+	newLines      bool
 }
 
 type Option func(*config)
+
+func Compact() Option {
+	return func(cfg *config) {
+		cfg.lineComments = false
+		cfg.blockComments = false
+		cfg.newLines = false
+	}
+}
 
 func WithIndent(value string) Option {
 	return func(cfg *config) {
@@ -44,9 +52,9 @@ func WithBlockComments(value bool) Option {
 	}
 }
 
-func WithEmptyLines(value bool) Option {
+func WithNewLines(value bool) Option {
 	return func(cfg *config) {
-		cfg.emptyLines = value
+		cfg.newLines = value
 	}
 }
 
@@ -54,7 +62,7 @@ type Printer struct {
 	doc           strings.Builder
 	lineComments  bool
 	blockComments bool
-	emptyLines    bool
+	newLines      bool
 	indent        string
 	indentLevel   int
 	lastChar      rune
@@ -71,7 +79,7 @@ func (p *Printer) Init(opts ...Option) {
 	cfg := &config{
 		lineComments:  true,
 		blockComments: true,
-		emptyLines:    true,
+		newLines:      true,
 		indent:        "  ",
 	}
 	for _, opt := range opts {
@@ -80,7 +88,7 @@ func (p *Printer) Init(opts ...Option) {
 	p.doc.Reset()
 	p.lineComments = cfg.lineComments
 	p.blockComments = cfg.blockComments
-	p.emptyLines = cfg.emptyLines
+	p.newLines = cfg.newLines
 	p.indent = cfg.indent
 	p.indentLevel = 0
 	p.lastChar = eol
@@ -148,7 +156,7 @@ func (p *Printer) PrintTrivia(trivia []token.Token) {
 	for _, tok := range trivia {
 		switch tok.Type {
 		case token.NEWLINE:
-			if !p.emptyLines {
+			if !p.newLines {
 				continue
 			}
 			p.writeRune('\n')
@@ -214,7 +222,7 @@ func (p *Printer) printToken(tok token.Token) {
 }
 
 func (p *Printer) printLineIfNeeded() {
-	if !isNewLine(p.lastChar) {
+	if p.newLines && !isNewLine(p.lastChar) {
 		p.writeRune('\n')
 	}
 }

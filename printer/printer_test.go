@@ -321,16 +321,16 @@ func TestWithComments(t *testing.T) {
 	}
 }
 
-func TestWithEmptyLines(t *testing.T) {
+func TestWithNewLines(t *testing.T) {
 	input := "let x = 100\n\n\n// line comment\nlet y = 200"
 	tests := []struct {
 		name string
 		pr   *printer.Printer
 	}{
-		{"show empty lines by default", xjs.NewPrinter()},
-		{"show empty lines", xjs.NewPrinter(printer.WithEmptyLines(true))},
-		{"hide empty lines", xjs.NewPrinter(printer.WithEmptyLines(false))},
-		{"hide empty lines and comments", xjs.NewPrinter(printer.WithEmptyLines(false), printer.WithComments(false))},
+		{"show new lines by default", xjs.NewPrinter()},
+		{"show new lines", xjs.NewPrinter(printer.WithNewLines(true))},
+		{"hide new lines", xjs.NewPrinter(printer.WithNewLines(false))},
+		{"hide new lines and comments", xjs.NewPrinter(printer.WithNewLines(false), printer.WithComments(false))},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -340,4 +340,22 @@ func TestWithEmptyLines(t *testing.T) {
 			golden.Assert(t, test.pr.Bytes())
 		})
 	}
+}
+
+func TestCompact(t *testing.T) {
+	input := `
+	// c
+	function foo() {
+		let a = 'aaa'; // c
+		let b = 'bbb'; // c
+	}
+	// c
+	let x = 100
+	/* b */
+	let y = 200`
+	result, err := xjs.Parse([]byte(input))
+	require.NoError(t, err)
+	pr := xjs.NewPrinter(printer.Compact())
+	pr.Print(result)
+	golden.Assert(t, pr.Bytes())
 }
