@@ -21,7 +21,7 @@ func ParseProgram(p *parser.Parser) (_ *Program, err error) {
 	node := &Program{}
 	for p.CurrentToken.Type != token.EOF {
 		prevToken := p.CurrentToken
-		stmt, err := p.ParseExprStmt()
+		stmt, err := p.ParseStmt()
 		if err != nil {
 			if prevToken.Position == p.CurrentToken.Position {
 				// advance position to avoid infinite loop

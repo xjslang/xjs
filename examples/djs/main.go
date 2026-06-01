@@ -18,7 +18,7 @@ var deferTyp = token.RegisterType("defer")
 // implements ast.Node
 type DeferStmt struct {
 	DeferToken token.Token
-	Stmt       *js.ExprStmt
+	Stmt       ast.Node
 }
 
 func (node *DeferStmt) Type() string {
@@ -39,7 +39,7 @@ func djsPlugin(b *builder.Builder) {
 		if p.CurrentToken.Type == deferTyp {
 			deferStmt := &DeferStmt{DeferToken: p.CurrentToken}
 			p.AdvanceToken() // consume "defer"
-			if deferStmt.Stmt, err = js.ParseExprStmt(p); err != nil {
+			if deferStmt.Stmt, err = js.ParseStmt(p); err != nil {
 				return
 			}
 			node = deferStmt
@@ -52,9 +52,16 @@ func djsPlugin(b *builder.Builder) {
 func main() {
 	input := `
 	function foo() {
-		let db = openDb()
 		// ensures closing db properly
+		let db = openDb()
 		defer closeDb()
+
+		// ensures closing file properly
+		let file = openFile()
+		defer {
+			print('Closing file...')
+			closeFile()
+		}
 	}`
 
 	djsParser := xjs.NewBuilder().
@@ -71,8 +78,7 @@ func main() {
 		if node, ok := node.(*DeferStmt); ok {
 			pr.PrintTrivia(node.DeferToken.LeadingTrivia) // print previous comments and new lines
 			pr.LnPrint("{using _ = {[Symbol.dispose]() {")
-			pr.Print(node.Stmt.Expr)
-			pr.Print(node.Stmt.SemiToken)
+			pr.Print(node.Stmt)
 			pr.Print("}}}")
 			return
 		}
@@ -89,8 +95,12 @@ func main() {
 			pr.EnsureLine() // ensure a new line is added before printing
 			pr.Print(node.DeferToken)
 			pr.EnsureSpace() // ensure a new space is added before printing
-			pr.Print(node.Stmt.Expr)
-			pr.Print(node.Stmt.SemiToken)
+			if deferNode, ok := node.Stmt.(*js.ExprStmt); ok {
+				pr.Print(deferNode.Expr)
+				pr.Print(deferNode.SemiToken)
+			} else {
+				pr.Print(node.Stmt)
+			}
 			return
 		}
 		next(node)
