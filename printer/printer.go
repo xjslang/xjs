@@ -11,7 +11,10 @@ import (
 const eol = rune(-1)
 
 type config struct {
-	indent string
+	indent        string
+	lineComments  bool
+	blockComments bool
+	emptyLines    bool
 }
 
 type Option func(*config)
@@ -22,14 +25,42 @@ func WithIndent(value string) Option {
 	}
 }
 
+func WithComments(value bool) Option {
+	return func(cfg *config) {
+		cfg.lineComments = value
+		cfg.blockComments = value
+	}
+}
+
+func WithLineComments(value bool) Option {
+	return func(cfg *config) {
+		cfg.lineComments = value
+	}
+}
+
+func WithBlockComments(value bool) Option {
+	return func(cfg *config) {
+		cfg.blockComments = value
+	}
+}
+
+func WithEmptyLines(value bool) Option {
+	return func(cfg *config) {
+		cfg.emptyLines = value
+	}
+}
+
 type Printer struct {
-	doc         strings.Builder
-	indent      string
-	indentLevel int
-	lastChar    rune
-	ensureLine  bool
-	ensureSpace bool
-	printer     func(*Printer, ast.Node)
+	doc           strings.Builder
+	lineComments  bool
+	blockComments bool
+	emptyLines    bool
+	indent        string
+	indentLevel   int
+	lastChar      rune
+	ensureLine    bool
+	ensureSpace   bool
+	printer       func(*Printer, ast.Node)
 }
 
 // Init initializes the printer.
@@ -38,15 +69,23 @@ type Printer struct {
 // Printer middleware can be registered via UsePrinter BEFORE Init.
 func (p *Printer) Init(opts ...Option) {
 	cfg := &config{
-		indent: "  ",
+		lineComments:  true,
+		blockComments: true,
+		emptyLines:    true,
+		indent:        "  ",
 	}
 	for _, opt := range opts {
 		opt(cfg)
 	}
 	p.doc.Reset()
+	p.lineComments = cfg.lineComments
+	p.blockComments = cfg.blockComments
+	p.emptyLines = cfg.emptyLines
 	p.indent = cfg.indent
 	p.indentLevel = 0
 	p.lastChar = eol
+	p.ensureLine = false
+	p.ensureSpace = false
 	if p.printer == nil {
 		p.printer = defaultPrinter
 	}
@@ -109,12 +148,21 @@ func (p *Printer) PrintTrivia(trivia []token.Token) {
 	for _, tok := range trivia {
 		switch tok.Type {
 		case token.NEWLINE:
+			if !p.emptyLines {
+				continue
+			}
 			p.writeRune('\n')
 		case token.LINE_COMMENT:
+			if !p.lineComments {
+				continue
+			}
 			p.printSpaceIfNeeded()
 			p.printIndentIfNeeded()
 			p.writeString("//" + tok.Literal)
 		case token.BLOCK_COMMENT:
+			if !p.blockComments {
+				continue
+			}
 			p.printIndentIfNeeded()
 			p.writeString("/*" + tok.Literal + "*/")
 		}

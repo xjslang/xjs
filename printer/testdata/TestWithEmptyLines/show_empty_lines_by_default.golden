@@ -1,0 +1,5 @@
+let x = 100;
+
+
+// line comment
+let y = 200;
