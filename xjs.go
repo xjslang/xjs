@@ -20,39 +20,29 @@ func NewPrinter(opts ...printer.Option) *printer.Printer {
 		switch v := node.(type) {
 		case *js.Program:
 			js.PrintProgram(p, v)
-			return
 		case *js.BlockStmt:
 			js.PrintBlockStmt(p, v)
-			return
 		case *js.FunctionDecl:
 			js.PrintFunctionDecl(p, v)
-			return
 		case *js.LetStmt:
 			js.PrintLetStmt(p, v)
-			return
 		case *js.CallExpr:
 			js.PrintCallExpr(p, v)
-			return
 		case *js.ParenExpr:
 			js.PrintParenExpr(p, v)
-			return
 		case *js.UnaryExpr:
 			js.PrintUnaryExpr(p, v)
-			return
 		case *js.BinaryExpr:
 			js.PrintBinaryExpr(p, v)
-			return
 		case *js.Ident:
 			p.Print(v.Name)
-			return
 		case *js.Literal:
 			p.Print(v.Value)
-			return
 		case *js.ExprStmt:
 			js.PrintExprStmt(p, v)
-			return
+		default:
+			next(node)
 		}
-		next(node)
 	})
 	p.Init(opts...)
 	return p
