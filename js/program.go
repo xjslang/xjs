@@ -9,8 +9,9 @@ import (
 
 type Program struct {
 	ast.StmtNode
-	EOFToken token.Token
-
+	Tokens struct {
+		EOF token.Token
+	}
 	Stmts []ast.Stmt
 }
 
@@ -29,7 +30,7 @@ func ParseProgram(p *parser.Parser) (_ *Program, err error) {
 		}
 		node.Stmts = append(node.Stmts, stmt)
 	}
-	node.EOFToken = p.CurrentToken
+	node.Tokens.EOF = p.CurrentToken
 	if errors := p.Errors(); len(errors) > 0 {
 		return node, errors
 	}
@@ -40,5 +41,5 @@ func PrintProgram(p *printer.Printer, node *Program) {
 	for _, stmt := range node.Stmts {
 		p.Print(stmt)
 	}
-	p.Print(node.EOFToken)
+	p.Print(node.Tokens.EOF)
 }

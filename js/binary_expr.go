@@ -9,14 +9,17 @@ import (
 
 type BinaryExpr struct {
 	ast.ExprNode
+	Tokens struct {
+		Op token.Token
+	}
 	Left  ast.Expr
-	Op    token.Token
 	Right ast.Expr
 }
 
 func ParseBinaryExpr(p *parser.Parser, left ast.Expr) (_ ast.Expr, err error) {
 	op := p.CurrentToken
-	node := &BinaryExpr{Left: left, Op: op}
+	node := &BinaryExpr{Left: left}
+	node.Tokens.Op = op
 	p.AdvanceToken()
 	if node.Right, err = ParseRightExpr(p, op.Type.Precedence()); err != nil {
 		return
@@ -26,6 +29,6 @@ func ParseBinaryExpr(p *parser.Parser, left ast.Expr) (_ ast.Expr, err error) {
 
 func PrintBinaryExpr(p *printer.Printer, node *BinaryExpr) {
 	p.Print(node.Left)
-	p.SpPrint(node.Op)
+	p.SpPrint(node.Tokens.Op)
 	p.SpPrint(node.Right)
 }

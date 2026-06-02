@@ -9,16 +9,17 @@ import (
 
 type CallExpr struct {
 	ast.ExprNode
-	LparenToken token.Token
-	RparenToken token.Token
-
+	Tokens struct {
+		Lparen token.Token
+		Rparen token.Token
+	}
 	Callee ast.Expr
 	Args   []ast.Expr
 }
 
 func ParseCallExpr(p *parser.Parser, left ast.Expr) (_ *CallExpr, err error) {
 	node := &CallExpr{Callee: left}
-	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {
+	if node.Tokens.Lparen, err = p.Expect(token.LPAREN); err != nil {
 		return
 	}
 	if p.CurrentToken.Type != token.RPAREN {
@@ -36,14 +37,14 @@ func ParseCallExpr(p *parser.Parser, left ast.Expr) (_ *CallExpr, err error) {
 			}
 		}
 	}
-	if node.RparenToken, err = p.Expect(token.RPAREN); err != nil {
+	if node.Tokens.Rparen, err = p.Expect(token.RPAREN); err != nil {
 		return nil, err
 	}
 	return node, nil
 }
 
 func PrintCallExpr(p *printer.Printer, node *CallExpr) {
-	p.Print(node.Callee, node.LparenToken)
+	p.Print(node.Callee, node.Tokens.Lparen)
 	for i, arg := range node.Args {
 		if i > 0 {
 			p.Print(",")
@@ -51,5 +52,5 @@ func PrintCallExpr(p *printer.Printer, node *CallExpr) {
 		}
 		p.Print(arg)
 	}
-	p.Print(node.RparenToken)
+	p.Print(node.Tokens.Rparen)
 }
