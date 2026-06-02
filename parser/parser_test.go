@@ -25,10 +25,6 @@ type MyCustomStmt struct {
 	Message     token.Token
 }
 
-func (node *MyCustomStmt) Type() string {
-	return "MyCustomStmt"
-}
-
 func ExampleParser_Init() {
 	s := &scanner.Scanner{}
 	s.Init([]byte("print('Hello, World!')"))
@@ -77,83 +73,83 @@ func TestExprs(t *testing.T) {
 	}{
 		{
 			input: "1 - 2 - 3",
-			expected: `BinaryExpr
-	Left: BinaryExpr
-		Left: Literal{Value: "1"}
+			expected: `*js.BinaryExpr
+	Left: *js.BinaryExpr
+		Left: *js.Literal{Value: "1"}
 		Op: "-"
-		Right: Literal{Value: "2"}
+		Right: *js.Literal{Value: "2"}
 	Op: "-"
-	Right: Literal{Value: "3"}`,
+	Right: *js.Literal{Value: "3"}`,
 		},
 		{
 			input: "1 + 2 * (3 + 5) - 4",
-			expected: `BinaryExpr
-	Left: BinaryExpr
-		Left: Literal{Value: "1"}
+			expected: `*js.BinaryExpr
+	Left: *js.BinaryExpr
+		Left: *js.Literal{Value: "1"}
 		Op: "+"
-		Right: BinaryExpr
-			Left: Literal{Value: "2"}
+		Right: *js.BinaryExpr
+			Left: *js.Literal{Value: "2"}
 			Op: "*"
-			Right: ParenExpr
-				Value: BinaryExpr
-					Left: Literal{Value: "3"}
+			Right: *js.ParenExpr
+				Value: *js.BinaryExpr
+					Left: *js.Literal{Value: "3"}
 					Op: "+"
-					Right: Literal{Value: "5"}
+					Right: *js.Literal{Value: "5"}
 	Op: "-"
-	Right: Literal{Value: "4"}`,
+	Right: *js.Literal{Value: "4"}`,
 		},
 		{
 			input: "foo() * 2 + 1",
-			expected: `BinaryExpr
-	Left: BinaryExpr
-		Left: CallExpr
-			Callee: Ident{Name: "foo"}
+			expected: `*js.BinaryExpr
+	Left: *js.BinaryExpr
+		Left: *js.CallExpr
+			Callee: *js.Ident{Name: "foo"}
 		Op: "*"
-		Right: Literal{Value: "2"}
+		Right: *js.Literal{Value: "2"}
 	Op: "+"
-	Right: Literal{Value: "1"}`,
+	Right: *js.Literal{Value: "1"}`,
 		},
 		{
 			input: "foo(1, 2, 3)",
-			expected: `CallExpr
-	Callee: Ident{Name: "foo"}
-	Args[0]: Literal{Value: "1"}
-	Args[1]: Literal{Value: "2"}
-	Args[2]: Literal{Value: "3"}`,
+			expected: `*js.CallExpr
+	Callee: *js.Ident{Name: "foo"}
+	Args[0]: *js.Literal{Value: "1"}
+	Args[1]: *js.Literal{Value: "2"}
+	Args[2]: *js.Literal{Value: "3"}`,
 		},
 		{
 			input: "2 * (pow(2, 1 + 3) + 4)",
-			expected: `BinaryExpr
-	Left: Literal{Value: "2"}
+			expected: `*js.BinaryExpr
+	Left: *js.Literal{Value: "2"}
 	Op: "*"
-	Right: ParenExpr
-		Value: BinaryExpr
-			Left: CallExpr
-				Callee: Ident{Name: "pow"}
-				Args[0]: Literal{Value: "2"}
-				Args[1]: BinaryExpr
-					Left: Literal{Value: "1"}
+	Right: *js.ParenExpr
+		Value: *js.BinaryExpr
+			Left: *js.CallExpr
+				Callee: *js.Ident{Name: "pow"}
+				Args[0]: *js.Literal{Value: "2"}
+				Args[1]: *js.BinaryExpr
+					Left: *js.Literal{Value: "1"}
 					Op: "+"
-					Right: Literal{Value: "3"}
+					Right: *js.Literal{Value: "3"}
 			Op: "+"
-			Right: Literal{Value: "4"}`,
+			Right: *js.Literal{Value: "4"}`,
 		},
 		{
 			input: "1 + foo()",
-			expected: `BinaryExpr
-	Left: Literal{Value: "1"}
+			expected: `*js.BinaryExpr
+	Left: *js.Literal{Value: "1"}
 	Op: "+"
-	Right: CallExpr
-		Callee: Ident{Name: "foo"}`,
+	Right: *js.CallExpr
+		Callee: *js.Ident{Name: "foo"}`,
 		},
 		{
 			input: "1 + foo()()",
-			expected: `BinaryExpr
-	Left: Literal{Value: "1"}
+			expected: `*js.BinaryExpr
+	Left: *js.Literal{Value: "1"}
 	Op: "+"
-	Right: CallExpr
-		Callee: CallExpr
-			Callee: Ident{Name: "foo"}`,
+	Right: *js.CallExpr
+		Callee: *js.CallExpr
+			Callee: *js.Ident{Name: "foo"}`,
 		},
 	}
 	for i, test := range tests {

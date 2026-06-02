@@ -130,10 +130,10 @@ func (p *Printer) Print(args ...any) {
 			p.printString(v)
 		case rune:
 			p.printRune(v)
-		case ast.Node:
-			p.printNode(v)
 		case token.Token:
 			p.printToken(v)
+		case ast.Node:
+			p.printNode(v)
 		default:
 			panic("Unsupported type")
 		}

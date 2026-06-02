@@ -17,5 +17,5 @@ func (p *Printer) UsePrinter(printer func(p *Printer, node ast.Node, next func(n
 }
 
 func defaultPrinter(p *Printer, node ast.Node) {
-	p.printString("<" + node.Type() + ">")
+	p.printString("<unknown>")
 }

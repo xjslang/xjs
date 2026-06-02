@@ -10,15 +10,7 @@ type Ident struct {
 	Name token.Token
 }
 
-func (node *Ident) Type() string {
-	return "Ident"
-}
-
 type Literal struct {
 	ast.ExprNode
 	Value token.Token
-}
-
-func (node *Literal) Type() string {
-	return "Literal"
 }

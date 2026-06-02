@@ -19,10 +19,6 @@ type FunctionDecl struct {
 	Body *BlockStmt
 }
 
-func (node *FunctionDecl) Type() string {
-	return "FunctionDecl"
-}
-
 func ParseFunctionDecl(p *parser.Parser) (_ *FunctionDecl, err error) {
 	node := &FunctionDecl{}
 	if node.FunctionToken, err = p.Expect(FUNCTION); err != nil {

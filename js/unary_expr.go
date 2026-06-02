@@ -13,10 +13,6 @@ type UnaryExpr struct {
 	Value ast.Expr
 }
 
-func (node *UnaryExpr) Type() string {
-	return "UnaryExpr"
-}
-
 func ParseUnaryExpr(p *parser.Parser) (node ast.Expr, err error) {
 	nodeExpr := &UnaryExpr{Op: p.CurrentToken}
 	p.AdvanceToken()

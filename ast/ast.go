@@ -1,7 +1,7 @@
 package ast
 
 type Node interface {
-	Type() string
+	node()
 }
 
 type Expr interface {
@@ -16,10 +16,10 @@ type Stmt interface {
 
 type ExprNode struct{}
 
-//nolint:unused
+func (ExprNode) node()     {}
 func (ExprNode) exprNode() {}
 
 type StmtNode struct{}
 
-//nolint:unused
+func (StmtNode) node()     {}
 func (StmtNode) stmtNode() {}

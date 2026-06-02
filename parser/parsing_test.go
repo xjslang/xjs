@@ -115,24 +115,24 @@ func TestStmt(t *testing.T) {
 	}{
 		{
 			input: "log()",
-			expected: `Stmt
-	Expr: CallExpr
-		Callee: Ident{Name: "log"}`,
+			expected: `*js.ExprStmt
+	Expr: *js.CallExpr
+		Callee: *js.Ident{Name: "log"}`,
 		},
 		{
 			input: "log(1)",
-			expected: `Stmt
-	Expr: CallExpr
-		Callee: Ident{Name: "log"}
-		Args[0]: Literal{Value: "1"}`,
+			expected: `*js.ExprStmt
+	Expr: *js.CallExpr
+		Callee: *js.Ident{Name: "log"}
+		Args[0]: *js.Literal{Value: "1"}`,
 		},
 		{
 			input: "log(1, 2)",
-			expected: `Stmt
-	Expr: CallExpr
-		Callee: Ident{Name: "log"}
-		Args[0]: Literal{Value: "1"}
-		Args[1]: Literal{Value: "2"}`,
+			expected: `*js.ExprStmt
+	Expr: *js.CallExpr
+		Callee: *js.Ident{Name: "log"}
+		Args[0]: *js.Literal{Value: "1"}
+		Args[1]: *js.Literal{Value: "2"}`,
 		},
 	}
 	for i, test := range tests {

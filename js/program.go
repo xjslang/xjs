@@ -8,13 +8,10 @@ import (
 )
 
 type Program struct {
+	ast.StmtNode
 	EOFToken token.Token
 
 	Stmts []ast.Stmt
-}
-
-func (node *Program) Type() string {
-	return "Program"
 }
 
 func ParseProgram(p *parser.Parser) (_ *Program, err error) {
