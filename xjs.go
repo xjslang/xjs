@@ -38,6 +38,8 @@ func NewPrinter(opts ...printer.Option) *printer.Printer {
 			js.PrintUnaryExpr(p, v)
 		case *js.BinaryExpr:
 			js.PrintBinaryExpr(p, v)
+		case *js.Ident:
+			js.PrintIdent(p, v)
 		case *js.Variable:
 			p.Print(v.Name)
 		case *js.Literal:

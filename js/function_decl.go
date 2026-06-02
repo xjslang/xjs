@@ -16,7 +16,7 @@ type FunctionDecl struct {
 		Lparen   token.Token
 		Rparen   token.Token
 	}
-	Name token.Token
+	Name *Ident
 	Body *BlockStmt
 }
 
@@ -25,7 +25,7 @@ func ParseFunctionDecl(p *parser.Parser) (_ *FunctionDecl, err error) {
 	if node.Tokens.Function, err = p.Expect(FUNCTION); err != nil {
 		return
 	}
-	if node.Name, err = p.Expect(token.IDENT); err != nil {
+	if node.Name, err = ParseIdent(p); err != nil {
 		return
 	}
 	if node.Tokens.Lparen, err = p.Expect(token.LPAREN); err != nil {
