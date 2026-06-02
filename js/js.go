@@ -5,7 +5,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-type Ident struct {
+type Variable struct {
 	ast.ExprNode
 	Name token.Token
 }

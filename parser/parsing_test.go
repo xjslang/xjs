@@ -117,20 +117,20 @@ func TestStmt(t *testing.T) {
 			input: "log()",
 			expected: `*js.ExprStmt
 	Expr: *js.CallExpr
-		Callee: *js.Ident{Name: "log"}`,
+		Callee: *js.Variable{Name: "log"}`,
 		},
 		{
 			input: "log(1)",
 			expected: `*js.ExprStmt
 	Expr: *js.CallExpr
-		Callee: *js.Ident{Name: "log"}
+		Callee: *js.Variable{Name: "log"}
 		Args[0]: *js.Literal{Value: "1"}`,
 		},
 		{
 			input: "log(1, 2)",
 			expected: `*js.ExprStmt
 	Expr: *js.CallExpr
-		Callee: *js.Ident{Name: "log"}
+		Callee: *js.Variable{Name: "log"}
 		Args[0]: *js.Literal{Value: "1"}
 		Args[1]: *js.Literal{Value: "2"}`,
 		},

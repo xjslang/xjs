@@ -85,8 +85,6 @@ func NodeString(node ast.Node) string {
 		indent := strings.Repeat("\t", indentLevel)
 		fmt.Fprintf(s, "%T", node)
 		switch v := node.(type) {
-		case *js.Ident:
-			fmt.Fprintf(s, "{Name: %q}", v.Name.Literal)
 		case *js.Program:
 			for _, stmt := range v.Stmts {
 				fmt.Fprintf(s, "\n%s%s", indent, print(stmt))
@@ -114,6 +112,8 @@ func NodeString(node ast.Node) string {
 			fmt.Fprintf(s, "\n%sLeft: %s", indent, print(v.Left))
 			fmt.Fprintf(s, "\n%sOp: %q", indent, v.Op.Literal)
 			fmt.Fprintf(s, "\n%sRight: %s", indent, print(v.Right))
+		case *js.Variable:
+			fmt.Fprintf(s, "{Name: %q}", v.Name.Literal)
 		case *js.Literal:
 			fmt.Fprintf(s, "{Value: %q}", v.Value.Literal)
 		}

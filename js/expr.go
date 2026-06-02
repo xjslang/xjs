@@ -44,14 +44,14 @@ func ParseValue(p *parser.Parser) (ast.Expr, error) {
 		return p.ParseUnaryExpr()
 	}
 	switch typ {
+	case token.IDENT:
+		val := p.CurrentToken
+		p.AdvanceToken()
+		return &Variable{Name: val}, nil
 	case token.NUMBER, token.STRING, token.BOOLEAN:
 		val := p.CurrentToken
 		p.AdvanceToken()
 		return &Literal{Value: val}, nil
-	case token.IDENT:
-		val := p.CurrentToken
-		p.AdvanceToken()
-		return &Ident{Name: val}, nil
 	}
 	msg := "Expected value"
 	p.AddError(msg)
