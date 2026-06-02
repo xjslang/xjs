@@ -8,10 +8,9 @@ import (
 )
 
 type ExprStmt struct {
+	ast.Expr
 	ast.StmtNode
 	SemiToken token.Token
-
-	Expr ast.Expr
 }
 
 func (node *ExprStmt) Type() string {

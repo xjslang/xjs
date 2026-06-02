@@ -9,8 +9,8 @@ import (
 
 type UnaryExpr struct {
 	ast.ExprNode
-	Operator token.Token
-	Value    ast.Expr
+	Op    token.Token
+	Value ast.Expr
 }
 
 func (node *UnaryExpr) Type() string {
@@ -18,7 +18,7 @@ func (node *UnaryExpr) Type() string {
 }
 
 func ParseUnaryExpr(p *parser.Parser) (node ast.Expr, err error) {
-	nodeExpr := &UnaryExpr{Operator: p.CurrentToken}
+	nodeExpr := &UnaryExpr{Op: p.CurrentToken}
 	p.AdvanceToken()
 	if nodeExpr.Value, err = ParseValue(p); err != nil {
 		return
@@ -28,5 +28,5 @@ func ParseUnaryExpr(p *parser.Parser) (node ast.Expr, err error) {
 }
 
 func PrintUnaryExpr(p *printer.Printer, node *UnaryExpr) {
-	p.Print(node.Operator, node.Value)
+	p.Print(node.Op, node.Value)
 }

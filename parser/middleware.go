@@ -13,11 +13,11 @@ func (p *Parser) UseUnaryParser(parser func(p *Parser, next func() (ast.Expr, er
 	}
 }
 
-func (p *Parser) UseBinaryParser(parser func(p *Parser, leftVal ast.Expr, next func(leftVal ast.Expr) (ast.Expr, error)) (ast.Expr, error)) {
+func (p *Parser) UseBinaryParser(parser func(p *Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error)) {
 	next := p.binaryExprParser
-	p.binaryExprParser = func(p *Parser, leftVal ast.Expr) (ast.Expr, error) {
-		return parser(p, leftVal, func(leftVal ast.Expr) (ast.Expr, error) {
-			return next(p, leftVal)
+	p.binaryExprParser = func(p *Parser, left ast.Expr) (ast.Expr, error) {
+		return parser(p, left, func(left ast.Expr) (ast.Expr, error) {
+			return next(p, left)
 		})
 	}
 }

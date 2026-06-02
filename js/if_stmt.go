@@ -19,9 +19,9 @@ type IfStmt struct {
 	RparenToken token.Token
 	ElseToken   token.Token
 
-	CondExpr ast.Expr
-	ThenStmt ast.Stmt
-	ElseStmt ast.Stmt
+	Cond ast.Expr
+	Then ast.Stmt
+	Else ast.Stmt
 }
 
 func (node *IfStmt) Type() string {
@@ -38,21 +38,21 @@ func ParseIfStmt(p *parser.Parser) (_ *IfStmt, err error) {
 	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {
 		return
 	}
-	if node.CondExpr, err = p.ParseExpr(); err != nil {
+	if node.Cond, err = p.ParseExpr(); err != nil {
 		return
 	}
 	if node.RparenToken, err = p.Expect(token.RPAREN); err != nil {
 		return
 	}
 	// then
-	if node.ThenStmt, err = p.ParseStmt(); err != nil {
+	if node.Then, err = p.ParseStmt(); err != nil {
 		return
 	}
 	// else
 	if p.CurrentToken.Type == ELSE {
 		node.ElseToken = p.CurrentToken
 		p.AdvanceToken()
-		if node.ElseStmt, err = p.ParseStmt(); err != nil {
+		if node.Else, err = p.ParseStmt(); err != nil {
 			return
 		}
 	}
@@ -63,11 +63,11 @@ func PrintIfStmt(p *printer.Printer, node *IfStmt) {
 	// if (condition) stmt
 	p.LnPrint(node.IfToken)
 	p.SpPrint(node.LparenToken)
-	p.Print(node.CondExpr, node.RparenToken)
-	p.SpPrint(node.ThenStmt)
+	p.Print(node.Cond, node.RparenToken)
+	p.SpPrint(node.Then)
 	// else
-	if node.ElseStmt != nil {
+	if node.Else != nil {
 		p.SpPrint(node.ElseToken)
-		p.SpPrint(node.ElseStmt)
+		p.SpPrint(node.Else)
 	}
 }
