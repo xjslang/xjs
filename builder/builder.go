@@ -27,7 +27,7 @@ func (b *Builder) UseUnaryParser(parser func(p *parser.Parser, next func() (ast.
 	b.parser.UseUnaryParser(parser)
 }
 
-func (b *Builder) UseBinaryParser(parser func(p *parser.Parser, leftVal ast.Expr, next func(leftVal ast.Expr) (ast.Expr, error)) (ast.Expr, error)) {
+func (b *Builder) UseBinaryParser(parser func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error)) {
 	b.parser.UseBinaryParser(parser)
 }
 

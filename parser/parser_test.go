@@ -78,82 +78,82 @@ func TestExprs(t *testing.T) {
 		{
 			input: "1 - 2 - 3",
 			expected: `BinaryExpr
-	LeftValue: BinaryExpr
-		LeftValue: Literal{Value: "1"}
-		Operator: "-"
-		RightValue: Literal{Value: "2"}
-	Operator: "-"
-	RightValue: Literal{Value: "3"}`,
+	Left: BinaryExpr
+		Left: Literal{Value: "1"}
+		Op: "-"
+		Right: Literal{Value: "2"}
+	Op: "-"
+	Right: Literal{Value: "3"}`,
 		},
 		{
 			input: "1 + 2 * (3 + 5) - 4",
 			expected: `BinaryExpr
-	LeftValue: BinaryExpr
-		LeftValue: Literal{Value: "1"}
-		Operator: "+"
-		RightValue: BinaryExpr
-			LeftValue: Literal{Value: "2"}
-			Operator: "*"
-			RightValue: ParenExpr
+	Left: BinaryExpr
+		Left: Literal{Value: "1"}
+		Op: "+"
+		Right: BinaryExpr
+			Left: Literal{Value: "2"}
+			Op: "*"
+			Right: ParenExpr
 				Value: BinaryExpr
-					LeftValue: Literal{Value: "3"}
-					Operator: "+"
-					RightValue: Literal{Value: "5"}
-	Operator: "-"
-	RightValue: Literal{Value: "4"}`,
+					Left: Literal{Value: "3"}
+					Op: "+"
+					Right: Literal{Value: "5"}
+	Op: "-"
+	Right: Literal{Value: "4"}`,
 		},
 		{
 			input: "foo() * 2 + 1",
 			expected: `BinaryExpr
-	LeftValue: BinaryExpr
-		LeftValue: CallExpr
-			Function: Ident{Name: "foo"}
-		Operator: "*"
-		RightValue: Literal{Value: "2"}
-	Operator: "+"
-	RightValue: Literal{Value: "1"}`,
+	Left: BinaryExpr
+		Left: CallExpr
+			Callee: Ident{Name: "foo"}
+		Op: "*"
+		Right: Literal{Value: "2"}
+	Op: "+"
+	Right: Literal{Value: "1"}`,
 		},
 		{
 			input: "foo(1, 2, 3)",
 			expected: `CallExpr
-	Function: Ident{Name: "foo"}
-	Arguments[0]: Literal{Value: "1"}
-	Arguments[1]: Literal{Value: "2"}
-	Arguments[2]: Literal{Value: "3"}`,
+	Callee: Ident{Name: "foo"}
+	Args[0]: Literal{Value: "1"}
+	Args[1]: Literal{Value: "2"}
+	Args[2]: Literal{Value: "3"}`,
 		},
 		{
 			input: "2 * (pow(2, 1 + 3) + 4)",
 			expected: `BinaryExpr
-	LeftValue: Literal{Value: "2"}
-	Operator: "*"
-	RightValue: ParenExpr
+	Left: Literal{Value: "2"}
+	Op: "*"
+	Right: ParenExpr
 		Value: BinaryExpr
-			LeftValue: CallExpr
-				Function: Ident{Name: "pow"}
-				Arguments[0]: Literal{Value: "2"}
-				Arguments[1]: BinaryExpr
-					LeftValue: Literal{Value: "1"}
-					Operator: "+"
-					RightValue: Literal{Value: "3"}
-			Operator: "+"
-			RightValue: Literal{Value: "4"}`,
+			Left: CallExpr
+				Callee: Ident{Name: "pow"}
+				Args[0]: Literal{Value: "2"}
+				Args[1]: BinaryExpr
+					Left: Literal{Value: "1"}
+					Op: "+"
+					Right: Literal{Value: "3"}
+			Op: "+"
+			Right: Literal{Value: "4"}`,
 		},
 		{
 			input: "1 + foo()",
 			expected: `BinaryExpr
-	LeftValue: Literal{Value: "1"}
-	Operator: "+"
-	RightValue: CallExpr
-		Function: Ident{Name: "foo"}`,
+	Left: Literal{Value: "1"}
+	Op: "+"
+	Right: CallExpr
+		Callee: Ident{Name: "foo"}`,
 		},
 		{
 			input: "1 + foo()()",
 			expected: `BinaryExpr
-	LeftValue: Literal{Value: "1"}
-	Operator: "+"
-	RightValue: CallExpr
-		Function: CallExpr
-			Function: Ident{Name: "foo"}`,
+	Left: Literal{Value: "1"}
+	Op: "+"
+	Right: CallExpr
+		Callee: CallExpr
+			Callee: Ident{Name: "foo"}`,
 		},
 	}
 	for i, test := range tests {

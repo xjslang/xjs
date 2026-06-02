@@ -9,23 +9,23 @@ import (
 
 type BinaryExpr struct {
 	ast.ExprNode
-	LeftValue  ast.Expr
-	Operator   token.Token
-	RightValue ast.Expr
+	Left  ast.Expr
+	Op    token.Token
+	Right ast.Expr
 }
 
 func (node *BinaryExpr) Type() string {
 	return "BinaryExpr"
 }
 
-func ParseBinaryExpr(p *parser.Parser, leftVal ast.Expr) (node ast.Expr, err error) {
+func ParseBinaryExpr(p *parser.Parser, left ast.Expr) (node ast.Expr, err error) {
 	op := p.CurrentToken
 	nodeExpr := &BinaryExpr{
-		LeftValue: leftVal,
-		Operator:  op,
+		Left: left,
+		Op:   op,
 	}
 	p.AdvanceToken()
-	if nodeExpr.RightValue, err = ParseRightExpr(p, op.Type.Precedence()); err != nil {
+	if nodeExpr.Right, err = ParseRightExpr(p, op.Type.Precedence()); err != nil {
 		return
 	}
 	node = nodeExpr
@@ -33,7 +33,7 @@ func ParseBinaryExpr(p *parser.Parser, leftVal ast.Expr) (node ast.Expr, err err
 }
 
 func PrintBinaryExpr(p *printer.Printer, node *BinaryExpr) {
-	p.Print(node.LeftValue)
-	p.SpPrint(node.Operator)
-	p.SpPrint(node.RightValue)
+	p.Print(node.Left)
+	p.SpPrint(node.Op)
+	p.SpPrint(node.Right)
 }

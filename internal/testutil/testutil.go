@@ -106,14 +106,14 @@ func NodeString(node ast.Node) string {
 		case *js.ParenExpr:
 			fmt.Fprintf(s, "\n%sValue: %s", indent, print(v.Value))
 		case *js.CallExpr:
-			fmt.Fprintf(s, "\n%sFunction: %s", indent, print(v.Function))
-			for i, arg := range v.Arguments {
-				fmt.Fprintf(s, "\n%sArguments[%d]: %s", indent, i, print(arg))
+			fmt.Fprintf(s, "\n%sCallee: %s", indent, print(v.Callee))
+			for i, arg := range v.Args {
+				fmt.Fprintf(s, "\n%sArgs[%d]: %s", indent, i, print(arg))
 			}
 		case *js.BinaryExpr:
-			fmt.Fprintf(s, "\n%sLeftValue: %s", indent, print(v.LeftValue))
-			fmt.Fprintf(s, "\n%sOperator: %q", indent, v.Operator.Type.String())
-			fmt.Fprintf(s, "\n%sRightValue: %s", indent, print(v.RightValue))
+			fmt.Fprintf(s, "\n%sLeft: %s", indent, print(v.Left))
+			fmt.Fprintf(s, "\n%sOp: %q", indent, v.Op.Type.String())
+			fmt.Fprintf(s, "\n%sRight: %s", indent, print(v.Right))
 		case *js.Literal:
 			fmt.Fprintf(s, "{Value: %q}", v.Value.Literal)
 		}

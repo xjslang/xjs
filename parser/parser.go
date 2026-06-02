@@ -40,7 +40,7 @@ type Parser struct {
 	scopes           ScopeTracker
 	stmtParser       func(p *Parser) (ast.Stmt, error)
 	exprParser       func(p *Parser) (ast.Expr, error)
-	binaryExprParser func(p *Parser, leftVal ast.Expr) (ast.Expr, error)
+	binaryExprParser func(p *Parser, left ast.Expr) (ast.Expr, error)
 	unaryExprParser  func(p *Parser) (ast.Expr, error)
 	errors           ErrorList
 }
@@ -63,7 +63,7 @@ func (p *Parser) Init(sc Scanner) {
 		}
 	}
 	if p.binaryExprParser == nil {
-		p.binaryExprParser = func(p *Parser, leftVal ast.Expr) (ast.Expr, error) {
+		p.binaryExprParser = func(p *Parser, left ast.Expr) (ast.Expr, error) {
 			return nil, errors.New("unknown binary expression")
 		}
 	}
@@ -88,8 +88,8 @@ func (p *Parser) ParseExpr() (ast.Expr, error) {
 	return p.exprParser(p)
 }
 
-func (p *Parser) ParseBinaryExpr(leftVal ast.Expr) (ast.Expr, error) {
-	return p.binaryExprParser(p, leftVal)
+func (p *Parser) ParseBinaryExpr(left ast.Expr) (ast.Expr, error) {
+	return p.binaryExprParser(p, left)
 }
 
 func (p *Parser) ParseUnaryExpr() (ast.Expr, error) {
