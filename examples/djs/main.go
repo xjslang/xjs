@@ -15,10 +15,10 @@ import (
 
 var deferTyp = token.RegisterType("defer")
 
-// implements ast.Node
 type DeferStmt struct {
+	ast.StmtNode
 	DeferToken token.Token
-	Stmt       ast.Node
+	Stmt       ast.Stmt
 }
 
 func (node *DeferStmt) Type() string {
@@ -35,7 +35,7 @@ func djsPlugin(b *builder.Builder) {
 		return tok
 	})
 	// the parser can now parse "defer"
-	b.UseStmtParser(func(p *parser.Parser, next func() (ast.Node, error)) (node ast.Node, err error) {
+	b.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (node ast.Stmt, err error) {
 		if p.CurrentToken.Type == deferTyp {
 			deferStmt := &DeferStmt{DeferToken: p.CurrentToken}
 			p.AdvanceToken() // consume "defer"

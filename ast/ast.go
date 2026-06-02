@@ -9,7 +9,17 @@ type Expr interface {
 	exprNode()
 }
 
+type Stmt interface {
+	Node
+	stmtNode()
+}
+
 type ExprNode struct{}
 
 //nolint:unused
 func (ExprNode) exprNode() {}
+
+type StmtNode struct{}
+
+//nolint:unused
+func (StmtNode) stmtNode() {}

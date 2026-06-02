@@ -22,10 +22,10 @@ func (p *Parser) UseBinaryParser(parser func(p *Parser, leftVal ast.Expr, next f
 	}
 }
 
-func (p *Parser) UseStmtParser(parser func(p *Parser, next func() (ast.Node, error)) (ast.Node, error)) {
+func (p *Parser) UseStmtParser(parser func(p *Parser, next func() (ast.Stmt, error)) (ast.Stmt, error)) {
 	next := p.stmtParser
-	p.stmtParser = func(p *Parser) (ast.Node, error) {
-		return parser(p, func() (ast.Node, error) {
+	p.stmtParser = func(p *Parser) (ast.Stmt, error) {
+		return parser(p, func() (ast.Stmt, error) {
 			return next(p)
 		})
 	}

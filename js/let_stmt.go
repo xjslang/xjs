@@ -10,12 +10,13 @@ import (
 var LET = token.RegisterType("let")
 
 type LetStmt struct {
+	ast.StmtNode
 	LetToken    token.Token
 	AssignToken token.Token
 	SemiToken   token.Token
 
 	Name  token.Token
-	Value ast.Node
+	Value ast.Expr
 }
 
 func (node *LetStmt) Type() string {

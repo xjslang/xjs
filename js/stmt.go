@@ -6,7 +6,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func ParseStmt(p *parser.Parser) (_ ast.Node, err error) {
+func ParseStmt(p *parser.Parser) (_ ast.Stmt, err error) {
 	if p.CurrentToken.Type == token.LBRACE {
 		return ParseBlockStmt(p)
 	}

@@ -1,6 +1,7 @@
 package js
 
 import (
+	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/token"
@@ -9,6 +10,7 @@ import (
 var FUNCTION = token.RegisterType("function")
 
 type FunctionDecl struct {
+	ast.StmtNode
 	FunctionToken token.Token
 	LparenToken   token.Token
 	RparenToken   token.Token
