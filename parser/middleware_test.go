@@ -62,8 +62,8 @@ func TestUseExprParser(t *testing.T) {
 	fallback := orVal.FallbackStmt.(*js.ExprStmt)
 	require.IsType(t, &js.CallExpr{}, fallback.Expr)
 	expr := fallback.Expr.(*js.CallExpr)
-	require.IsType(t, &js.Ident{}, expr.Callee)
-	funcName := expr.Callee.(*js.Ident)
+	require.IsType(t, &js.Variable{}, expr.Callee)
+	funcName := expr.Callee.(*js.Variable)
 	assert.Equal(t, "exit", funcName.Name.Literal)
 }
 

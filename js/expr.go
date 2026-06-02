@@ -8,6 +8,16 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
+type Variable struct {
+	ast.ExprNode
+	Name token.Token
+}
+
+type Literal struct {
+	ast.ExprNode
+	Value token.Token
+}
+
 func ParseExpr(p *parser.Parser) (val ast.Expr, err error) {
 	if val, err = ParseValue(p); err != nil {
 		return
@@ -44,14 +54,14 @@ func ParseValue(p *parser.Parser) (ast.Expr, error) {
 		return p.ParseUnaryExpr()
 	}
 	switch typ {
+	case token.IDENT:
+		val := p.CurrentToken
+		p.AdvanceToken()
+		return &Variable{Name: val}, nil
 	case token.NUMBER, token.STRING, token.BOOLEAN:
 		val := p.CurrentToken
 		p.AdvanceToken()
 		return &Literal{Value: val}, nil
-	case token.IDENT:
-		val := p.CurrentToken
-		p.AdvanceToken()
-		return &Ident{Name: val}, nil
 	}
 	msg := "Expected value"
 	p.AddError(msg)
