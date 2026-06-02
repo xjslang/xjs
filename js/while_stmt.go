@@ -11,10 +11,11 @@ var WHILE = token.RegisterType("while")
 
 type WhileStmt struct {
 	ast.StmtNode
-	WhileToken  token.Token
-	LparenToken token.Token
-	RparenToken token.Token
-
+	Tokens struct {
+		While  token.Token
+		Lparen token.Token
+		Rparen token.Token
+	}
 	Cond ast.Expr
 	Then ast.Stmt
 }
@@ -22,17 +23,17 @@ type WhileStmt struct {
 func ParseWhileStmt(p *parser.Parser) (_ *WhileStmt, err error) {
 	node := &WhileStmt{}
 	// while
-	if node.WhileToken, err = p.Expect(WHILE); err != nil {
+	if node.Tokens.While, err = p.Expect(WHILE); err != nil {
 		return
 	}
 	// (condition)
-	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {
+	if node.Tokens.Lparen, err = p.Expect(token.LPAREN); err != nil {
 		return
 	}
 	if node.Cond, err = p.ParseExpr(); err != nil {
 		return
 	}
-	if node.RparenToken, err = p.Expect(token.RPAREN); err != nil {
+	if node.Tokens.Rparen, err = p.Expect(token.RPAREN); err != nil {
 		return
 	}
 	// then
@@ -43,8 +44,8 @@ func ParseWhileStmt(p *parser.Parser) (_ *WhileStmt, err error) {
 }
 
 func PrintWhileStmt(p *printer.Printer, node *WhileStmt) {
-	p.LnPrint(node.WhileToken)
-	p.SpPrint(node.LparenToken)
-	p.Print(node.Cond, node.RparenToken)
+	p.LnPrint(node.Tokens.While)
+	p.SpPrint(node.Tokens.Lparen)
+	p.Print(node.Cond, node.Tokens.Rparen)
 	p.SpPrint(node.Then)
 }

@@ -112,7 +112,7 @@ func NodeString(node ast.Node) string {
 			}
 		case *js.BinaryExpr:
 			fmt.Fprintf(s, "\n%sLeft: %s", indent, print(v.Left))
-			fmt.Fprintf(s, "\n%sOp: %q", indent, v.Op.Type.String())
+			fmt.Fprintf(s, "\n%sOp: %q", indent, v.Tokens.Op.Literal)
 			fmt.Fprintf(s, "\n%sRight: %s", indent, print(v.Right))
 		case *js.Literal:
 			fmt.Fprintf(s, "{Value: %q}", v.Value.Literal)

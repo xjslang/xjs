@@ -14,11 +14,12 @@ var (
 
 type IfStmt struct {
 	ast.StmtNode
-	IfToken     token.Token
-	LparenToken token.Token
-	RparenToken token.Token
-	ElseToken   token.Token
-
+	Tokens struct {
+		If     token.Token
+		Lparen token.Token
+		Rparen token.Token
+		Else   token.Token
+	}
 	Cond ast.Expr
 	Then ast.Stmt
 	Else ast.Stmt
@@ -27,17 +28,17 @@ type IfStmt struct {
 func ParseIfStmt(p *parser.Parser) (_ *IfStmt, err error) {
 	node := &IfStmt{}
 	// if
-	if node.IfToken, err = p.Expect(IF); err != nil {
+	if node.Tokens.If, err = p.Expect(IF); err != nil {
 		return
 	}
 	// (condition)
-	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {
+	if node.Tokens.Lparen, err = p.Expect(token.LPAREN); err != nil {
 		return
 	}
 	if node.Cond, err = p.ParseExpr(); err != nil {
 		return
 	}
-	if node.RparenToken, err = p.Expect(token.RPAREN); err != nil {
+	if node.Tokens.Rparen, err = p.Expect(token.RPAREN); err != nil {
 		return
 	}
 	// then
@@ -46,7 +47,7 @@ func ParseIfStmt(p *parser.Parser) (_ *IfStmt, err error) {
 	}
 	// else
 	if p.CurrentToken.Type == ELSE {
-		node.ElseToken = p.CurrentToken
+		node.Tokens.Else = p.CurrentToken
 		p.AdvanceToken()
 		if node.Else, err = p.ParseStmt(); err != nil {
 			return
@@ -57,13 +58,13 @@ func ParseIfStmt(p *parser.Parser) (_ *IfStmt, err error) {
 
 func PrintIfStmt(p *printer.Printer, node *IfStmt) {
 	// if (condition) stmt
-	p.LnPrint(node.IfToken)
-	p.SpPrint(node.LparenToken)
-	p.Print(node.Cond, node.RparenToken)
+	p.LnPrint(node.Tokens.If)
+	p.SpPrint(node.Tokens.Lparen)
+	p.Print(node.Cond, node.Tokens.Rparen)
 	p.SpPrint(node.Then)
 	// else
 	if node.Else != nil {
-		p.SpPrint(node.ElseToken)
+		p.SpPrint(node.Tokens.Else)
 		p.SpPrint(node.Else)
 	}
 }
