@@ -65,6 +65,7 @@ func TestLanguageFeatures(t *testing.T) {
 }
 
 type iifeExpr struct {
+	ast.ExprNode
 	LparenToken token.Token
 	RparenToken token.Token
 	Function    *js.FunctionDecl
@@ -80,7 +81,7 @@ func TestMiddlewares(t *testing.T) {
 	})()`
 	b := xjs.NewBuilder()
 	// parse IIFE expressions
-	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Node, error)) (_ ast.Node, err error) {
+	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Expr, error)) (_ ast.Expr, err error) {
 		if p.CurrentToken.Type == token.LPAREN && p.PeekToken.Type == js.FUNCTION {
 			node := &iifeExpr{LparenToken: p.CurrentToken}
 			p.AdvanceToken()

@@ -14,7 +14,8 @@ import (
 )
 
 type orExpr struct {
-	Expr         ast.Node
+	ast.ExprNode
+	Value        ast.Expr
 	FallbackStmt ast.Node
 }
 
@@ -35,13 +36,13 @@ func TestUseExprParser(t *testing.T) {
 		return tok
 	})
 	// the parser can now parse "or"
-	b.UseExprParser(func(p *parser.Parser, next func() (ast.Node, error)) (node ast.Node, err error) {
+	b.UseExprParser(func(p *parser.Parser, next func() (ast.Expr, error)) (node ast.Expr, err error) {
 		node, err = next()
 		if err != nil {
 			return
 		}
 		if p.CurrentToken.Type == orType {
-			orNode := &orExpr{Expr: node}
+			orNode := &orExpr{Value: node}
 			p.AdvanceToken() // consume "or"
 			if orNode.FallbackStmt, err = p.ParseStmt(); err != nil {
 				return nil, err
@@ -71,6 +72,7 @@ func TestUseExprParser(t *testing.T) {
 }
 
 type notBitwiseExpr struct {
+	ast.ExprNode
 	Operator token.Token
 	Value    ast.Node
 }
@@ -90,7 +92,7 @@ func TestUseUnaryParser(t *testing.T) {
 		}
 		return next()
 	})
-	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Node, error)) (node ast.Node, err error) {
+	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Expr, error)) (node ast.Expr, err error) {
 		if p.CurrentToken.Type == notBitwise {
 			nodeExpr := &notBitwiseExpr{Operator: p.CurrentToken}
 			p.AdvanceToken() // consume ~
@@ -120,6 +122,7 @@ func TestUseUnaryParser(t *testing.T) {
 }
 
 type powExpr struct {
+	ast.ExprNode
 	LeftValue  ast.Node
 	Operator   token.Token
 	RightValue ast.Node
@@ -140,7 +143,7 @@ func TestUseBinaryParser(t *testing.T) {
 		}
 		return next()
 	})
-	b.UseBinaryParser(func(p *parser.Parser, leftVal ast.Node, next func(ast.Node) (ast.Node, error)) (node ast.Node, err error) {
+	b.UseBinaryParser(func(p *parser.Parser, leftVal ast.Expr, next func(ast.Expr) (ast.Expr, error)) (node ast.Expr, err error) {
 		if p.CurrentToken.Type == powType {
 			powNode := &powExpr{LeftValue: leftVal, Operator: p.CurrentToken}
 			p.AdvanceToken() // consume ^
@@ -173,6 +176,7 @@ func TestUseBinaryParser(t *testing.T) {
 }
 
 type factorialExpr struct {
+	ast.ExprNode
 	Operator token.Token
 	Value    ast.Node
 }
@@ -192,7 +196,7 @@ func TestUseBinaryParser_postfix(t *testing.T) {
 		}
 		return next()
 	})
-	b.UseBinaryParser(func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (node ast.Node, err error) {
+	b.UseBinaryParser(func(p *parser.Parser, leftVal ast.Expr, next func(leftVal ast.Expr) (ast.Expr, error)) (node ast.Expr, err error) {
 		if p.CurrentToken.Type == facTyp {
 			leftVal = &factorialExpr{Operator: p.CurrentToken, Value: leftVal}
 			p.AdvanceToken() // consume !

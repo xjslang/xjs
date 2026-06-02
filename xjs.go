@@ -93,16 +93,16 @@ func jsPlugin(b *builder.Builder) {
 		}
 		return js.ParseStmt(p)
 	})
-	b.UseExprParser(func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error) {
+	b.UseExprParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
 		return js.ParseExpr(p)
 	})
-	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error) {
+	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
 		if p.CurrentToken.Type == token.LPAREN {
 			return js.ParseParenExpr(p)
 		}
 		return js.ParseUnaryExpr(p)
 	})
-	b.UseBinaryParser(func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error) {
+	b.UseBinaryParser(func(p *parser.Parser, leftVal ast.Expr, next func(leftVal ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
 		if p.CurrentToken.Type == token.LPAREN {
 			return js.ParseCallExpr(p, leftVal)
 		}

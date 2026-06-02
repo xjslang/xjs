@@ -8,6 +8,7 @@ import (
 )
 
 type CallExpr struct {
+	ast.ExprNode
 	LparenToken token.Token
 	RparenToken token.Token
 
@@ -19,7 +20,7 @@ func (node *CallExpr) Type() string {
 	return "CallExpr"
 }
 
-func ParseCallExpr(p *parser.Parser, leftVal ast.Node) (_ *CallExpr, err error) {
+func ParseCallExpr(p *parser.Parser, leftVal ast.Expr) (_ *CallExpr, err error) {
 	node := &CallExpr{Function: leftVal}
 	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {
 		return

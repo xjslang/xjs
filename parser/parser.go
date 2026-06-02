@@ -39,9 +39,9 @@ type Parser struct {
 	scanner          Scanner
 	scopes           ScopeTracker
 	stmtParser       func(p *Parser) (ast.Node, error)
-	exprParser       func(p *Parser) (ast.Node, error)
-	binaryExprParser func(p *Parser, leftVal ast.Node) (ast.Node, error)
-	unaryExprParser  func(p *Parser) (ast.Node, error)
+	exprParser       func(p *Parser) (ast.Expr, error)
+	binaryExprParser func(p *Parser, leftVal ast.Expr) (ast.Expr, error)
+	unaryExprParser  func(p *Parser) (ast.Expr, error)
 	errors           ErrorList
 }
 
@@ -58,17 +58,17 @@ func (p *Parser) Init(sc Scanner) {
 		}
 	}
 	if p.exprParser == nil {
-		p.exprParser = func(p *Parser) (ast.Node, error) {
+		p.exprParser = func(p *Parser) (ast.Expr, error) {
 			return nil, errors.New("unknown expression")
 		}
 	}
 	if p.binaryExprParser == nil {
-		p.binaryExprParser = func(p *Parser, leftVal ast.Node) (ast.Node, error) {
+		p.binaryExprParser = func(p *Parser, leftVal ast.Expr) (ast.Expr, error) {
 			return nil, errors.New("unknown binary expression")
 		}
 	}
 	if p.unaryExprParser == nil {
-		p.unaryExprParser = func(p *Parser) (ast.Node, error) {
+		p.unaryExprParser = func(p *Parser) (ast.Expr, error) {
 			return nil, errors.New("unknown unary expression")
 		}
 	}
@@ -84,15 +84,15 @@ func (p *Parser) ParseStmt() (ast.Node, error) {
 	return p.stmtParser(p)
 }
 
-func (p *Parser) ParseExpr() (ast.Node, error) {
+func (p *Parser) ParseExpr() (ast.Expr, error) {
 	return p.exprParser(p)
 }
 
-func (p *Parser) ParseBinaryExpr(leftVal ast.Node) (ast.Node, error) {
+func (p *Parser) ParseBinaryExpr(leftVal ast.Expr) (ast.Expr, error) {
 	return p.binaryExprParser(p, leftVal)
 }
 
-func (p *Parser) ParseUnaryExpr() (ast.Node, error) {
+func (p *Parser) ParseUnaryExpr() (ast.Expr, error) {
 	return p.unaryExprParser(p)
 }
 

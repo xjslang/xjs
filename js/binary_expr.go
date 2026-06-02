@@ -8,16 +8,17 @@ import (
 )
 
 type BinaryExpr struct {
-	LeftValue  ast.Node
+	ast.ExprNode
+	LeftValue  ast.Expr
 	Operator   token.Token
-	RightValue ast.Node
+	RightValue ast.Expr
 }
 
 func (node *BinaryExpr) Type() string {
 	return "BinaryExpr"
 }
 
-func ParseBinaryExpr(p *parser.Parser, leftVal ast.Node) (node ast.Node, err error) {
+func ParseBinaryExpr(p *parser.Parser, leftVal ast.Expr) (node ast.Expr, err error) {
 	op := p.CurrentToken
 	nodeExpr := &BinaryExpr{
 		LeftValue: leftVal,

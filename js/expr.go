@@ -8,7 +8,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func ParseExpr(p *parser.Parser) (val ast.Node, err error) {
+func ParseExpr(p *parser.Parser) (val ast.Expr, err error) {
 	if val, err = ParseValue(p); err != nil {
 		return
 	}
@@ -22,7 +22,7 @@ func ParseExpr(p *parser.Parser) (val ast.Node, err error) {
 	return
 }
 
-func ParseRightExpr(p *parser.Parser, precedence int) (val ast.Node, err error) {
+func ParseRightExpr(p *parser.Parser, precedence int) (val ast.Expr, err error) {
 	if val, err = ParseValue(p); err != nil {
 		return
 	}
@@ -38,7 +38,7 @@ func ParseRightExpr(p *parser.Parser, precedence int) (val ast.Node, err error) 
 	return
 }
 
-func ParseValue(p *parser.Parser) (ast.Node, error) {
+func ParseValue(p *parser.Parser) (ast.Expr, error) {
 	typ := p.CurrentToken.Type
 	if typ.IsUnaryOp() {
 		return p.ParseUnaryExpr()

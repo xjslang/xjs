@@ -8,15 +8,16 @@ import (
 )
 
 type UnaryExpr struct {
+	ast.ExprNode
 	Operator token.Token
-	Value    ast.Node
+	Value    ast.Expr
 }
 
 func (node *UnaryExpr) Type() string {
 	return "UnaryExpr"
 }
 
-func ParseUnaryExpr(p *parser.Parser) (node ast.Node, err error) {
+func ParseUnaryExpr(p *parser.Parser) (node ast.Expr, err error) {
 	nodeExpr := &UnaryExpr{Operator: p.CurrentToken}
 	p.AdvanceToken()
 	if nodeExpr.Value, err = ParseValue(p); err != nil {
