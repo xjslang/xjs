@@ -10,7 +10,7 @@ import (
 var FUNCTION = token.RegisterType("function")
 
 type FunctionDecl struct {
-	ast.StmtNode
+	ast.BaseStmt
 	Tokens struct {
 		Function token.Token
 		Lparen   token.Token

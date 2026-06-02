@@ -8,7 +8,7 @@ import (
 )
 
 type ParenExpr struct {
-	ast.ExprNode
+	ast.BaseExpr
 	Tokens struct {
 		Lparen token.Token
 		Rparen token.Token

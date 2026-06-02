@@ -8,7 +8,7 @@ import (
 )
 
 type Program struct {
-	ast.StmtNode
+	ast.BaseStmt
 	Tokens struct {
 		EOF token.Token
 	}

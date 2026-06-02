@@ -10,7 +10,7 @@ import (
 var WHILE = token.RegisterType("while")
 
 type WhileStmt struct {
-	ast.StmtNode
+	ast.BaseStmt
 	Tokens struct {
 		While  token.Token
 		Lparen token.Token

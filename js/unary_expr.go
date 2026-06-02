@@ -8,7 +8,7 @@ import (
 )
 
 type UnaryExpr struct {
-	ast.ExprNode
+	ast.BaseExpr
 	Tokens struct {
 		Op token.Token
 	}

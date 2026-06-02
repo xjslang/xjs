@@ -14,12 +14,13 @@ type Stmt interface {
 	stmtNode()
 }
 
-type ExprNode struct{}
+// default implementations
+type (
+	BaseNode struct{}
+	BaseExpr struct{ BaseNode }
+	BaseStmt struct{ BaseNode }
+)
 
-func (ExprNode) node()     {}
-func (ExprNode) exprNode() {}
-
-type StmtNode struct{}
-
-func (StmtNode) node()     {}
-func (StmtNode) stmtNode() {}
+func (BaseNode) node()     {}
+func (BaseExpr) exprNode() {}
+func (BaseStmt) stmtNode() {}

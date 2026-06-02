@@ -16,7 +16,7 @@ import (
 var deferTyp = token.RegisterType("defer")
 
 type DeferStmt struct {
-	ast.StmtNode
+	ast.BaseStmt
 	DeferToken token.Token
 	Stmt       ast.Stmt
 }

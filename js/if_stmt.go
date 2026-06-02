@@ -13,7 +13,7 @@ var (
 )
 
 type IfStmt struct {
-	ast.StmtNode
+	ast.BaseStmt
 	Tokens struct {
 		If     token.Token
 		Lparen token.Token

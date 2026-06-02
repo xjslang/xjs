@@ -19,7 +19,7 @@ import (
 var updateGoldenFiles bool
 
 type MyCustomStmt struct {
-	ast.StmtNode
+	ast.BaseStmt
 	LparenToken token.Token
 	RparenToken token.Token
 	Message     token.Token
