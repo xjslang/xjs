@@ -23,11 +23,11 @@ func (b *Builder) UseScanner(scanner func(sc *scanner.Scanner, next func() token
 	b.scanner.UseScanner(scanner)
 }
 
-func (b *Builder) UseUnaryParser(parser func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error)) {
+func (b *Builder) UseUnaryParser(parser func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error)) {
 	b.parser.UseUnaryParser(parser)
 }
 
-func (b *Builder) UseBinaryParser(parser func(p *parser.Parser, leftVal ast.Node, next func(leftVal ast.Node) (ast.Node, error)) (ast.Node, error)) {
+func (b *Builder) UseBinaryParser(parser func(p *parser.Parser, leftVal ast.Expr, next func(leftVal ast.Expr) (ast.Expr, error)) (ast.Expr, error)) {
 	b.parser.UseBinaryParser(parser)
 }
 
@@ -35,7 +35,7 @@ func (b *Builder) UseStmtParser(parser func(p *parser.Parser, next func() (ast.N
 	b.parser.UseStmtParser(parser)
 }
 
-func (b *Builder) UseExprParser(parser func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error)) {
+func (b *Builder) UseExprParser(parser func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error)) {
 	b.parser.UseExprParser(parser)
 }
 
