@@ -16,7 +16,7 @@ type LetStmt struct {
 		Assign token.Token
 		Semi   token.Token
 	}
-	Name  token.Token
+	Name  *Ident
 	Value ast.Expr
 }
 
@@ -25,7 +25,7 @@ func ParseLetStmt(p *parser.Parser) (_ *LetStmt, err error) {
 	if node.Tokens.Let, err = p.Expect(LET); err != nil {
 		return
 	}
-	if node.Name, err = p.Expect(token.IDENT); err != nil {
+	if node.Name, err = ParseIdent(p); err != nil {
 		return
 	}
 	if node.Tokens.Assign, err = p.Expect(token.ASSIGN); err != nil {
