@@ -9,12 +9,12 @@ import (
 )
 
 type Variable struct {
-	ast.ExprNode
+	ast.BaseExpr
 	Name token.Token
 }
 
 type Literal struct {
-	ast.ExprNode
+	ast.BaseExpr
 	Value token.Token
 }
 

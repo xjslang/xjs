@@ -14,7 +14,7 @@ import (
 )
 
 type FactorialNode struct {
-	ast.ExprNode
+	ast.BaseExpr
 	Value string
 }
 

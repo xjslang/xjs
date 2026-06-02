@@ -8,7 +8,7 @@ import (
 )
 
 type BinaryExpr struct {
-	ast.ExprNode
+	ast.BaseExpr
 	Left  ast.Expr
 	Op    token.Token
 	Right ast.Expr

@@ -65,7 +65,7 @@ func TestLanguageFeatures(t *testing.T) {
 }
 
 type iifeExpr struct {
-	ast.ExprNode
+	ast.BaseExpr
 	LparenToken token.Token
 	RparenToken token.Token
 	Function    *js.FunctionDecl

@@ -10,7 +10,7 @@ import (
 )
 
 type BlockStmt struct {
-	ast.StmtNode
+	ast.BaseStmt
 	Tokens struct {
 		Lbrace token.Token
 		Rbrace token.Token

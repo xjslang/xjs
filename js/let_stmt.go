@@ -10,7 +10,7 @@ import (
 var LET = token.RegisterType("let")
 
 type LetStmt struct {
-	ast.StmtNode
+	ast.BaseStmt
 	Tokens struct {
 		Let    token.Token
 		Assign token.Token

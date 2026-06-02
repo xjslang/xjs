@@ -8,7 +8,7 @@ import (
 )
 
 type ExprStmt struct {
-	ast.StmtNode
+	ast.BaseStmt
 	SemiToken token.Token
 	Expr      ast.Expr
 }
