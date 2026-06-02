@@ -9,7 +9,7 @@ import (
 
 type ParenExpr struct {
 	ast.BaseExpr
-	Tokens struct {
+	Layout struct {
 		Lparen token.Token
 		Rparen token.Token
 	}
@@ -18,18 +18,18 @@ type ParenExpr struct {
 
 func ParseParenExpr(p *parser.Parser) (_ *ParenExpr, err error) {
 	node := &ParenExpr{}
-	if node.Tokens.Lparen, err = p.Expect(token.LPAREN); err != nil {
+	if node.Layout.Lparen, err = p.Expect(token.LPAREN); err != nil {
 		return
 	}
 	if node.Value, err = p.ParseExpr(); err != nil {
 		return
 	}
-	if node.Tokens.Rparen, err = p.Expect(token.RPAREN); err != nil {
+	if node.Layout.Rparen, err = p.Expect(token.RPAREN); err != nil {
 		return
 	}
 	return node, nil
 }
 
 func PrintParenExpr(p *printer.Printer, node *ParenExpr) {
-	p.Print(node.Tokens.Lparen, node.Value, node.Tokens.Rparen)
+	p.Print(node.Layout.Lparen, node.Value, node.Layout.Rparen)
 }

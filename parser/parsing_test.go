@@ -68,7 +68,7 @@ func TestKeysAreSaved(t *testing.T) {
 		}
 		testutil.AssertTokens(
 			t,
-			[]token.Token{result.Tokens.Lbrace, result.Tokens.Rbrace},
+			[]token.Token{result.Layout.Lbrace, result.Layout.Rbrace},
 			[]token.Token{
 				{Type: token.LBRACE, Literal: "{", LeadingTrivia: []token.Token{
 					{Type: token.NEWLINE, Literal: "\n"},
@@ -94,7 +94,7 @@ func TestKeysAreSaved(t *testing.T) {
 		}
 		testutil.AssertTokens(
 			t,
-			[]token.Token{result.Tokens.Lparen, result.Tokens.Rparen},
+			[]token.Token{result.Layout.Lparen, result.Layout.Rparen},
 			[]token.Token{
 				{Type: token.LPAREN, Literal: "(", LeadingTrivia: []token.Token{
 					{Type: token.LINE_COMMENT, Literal: " comment before\n"},

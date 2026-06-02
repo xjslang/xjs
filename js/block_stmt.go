@@ -11,7 +11,7 @@ import (
 
 type BlockStmt struct {
 	ast.BaseStmt
-	Tokens struct {
+	Layout struct {
 		Lbrace token.Token
 		Rbrace token.Token
 	}
@@ -20,7 +20,7 @@ type BlockStmt struct {
 
 func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
 	node := &BlockStmt{}
-	if node.Tokens.Lbrace, err = p.Expect(token.LBRACE); err != nil {
+	if node.Layout.Lbrace, err = p.Expect(token.LBRACE); err != nil {
 		return
 	}
 	var errs []error
@@ -38,7 +38,7 @@ func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
 		}
 		node.Stmts = append(node.Stmts, stmt)
 	}
-	if node.Tokens.Rbrace, err = p.Expect(token.RBRACE); err != nil {
+	if node.Layout.Rbrace, err = p.Expect(token.RBRACE); err != nil {
 		errs = append(errs, err)
 	}
 	if len(errs) > 0 {
@@ -48,7 +48,7 @@ func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
 }
 
 func PrintBlockStmt(p *printer.Printer, node *BlockStmt) {
-	p.Print(node.Tokens.Lbrace)
+	p.Print(node.Layout.Lbrace)
 	if len(node.Stmts) > 0 {
 		p.IncreaseIndent()
 		for _, stmt := range node.Stmts {
@@ -56,9 +56,9 @@ func PrintBlockStmt(p *printer.Printer, node *BlockStmt) {
 		}
 		// RBRACE is a special token, since the "leading trivia"
 		// must be printed "before" indentation level decreases
-		p.PrintTrivia(node.Tokens.Rbrace.LeadingTrivia)
+		p.PrintTrivia(node.Layout.Rbrace.LeadingTrivia)
 		p.DecreaseIndent()
 		p.EnsureLine()
 	}
-	p.Print(node.Tokens.Rbrace.Literal)
+	p.Print(node.Layout.Rbrace.Literal)
 }
