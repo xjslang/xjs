@@ -10,12 +10,13 @@ import (
 var WHILE = token.RegisterType("while")
 
 type WhileStmt struct {
+	ast.StmtNode
 	WhileToken  token.Token
 	LparenToken token.Token
 	RparenToken token.Token
 
-	CondExpr ast.Node
-	ThenStmt ast.Node
+	CondExpr ast.Expr
+	ThenStmt ast.Stmt
 }
 
 func (node *WhileStmt) Type() string {

@@ -13,14 +13,15 @@ var (
 )
 
 type IfStmt struct {
+	ast.StmtNode
 	IfToken     token.Token
 	LparenToken token.Token
 	RparenToken token.Token
 	ElseToken   token.Token
 
-	CondExpr ast.Node
-	ThenStmt ast.Node
-	ElseStmt ast.Node
+	CondExpr ast.Expr
+	ThenStmt ast.Stmt
+	ElseStmt ast.Stmt
 }
 
 func (node *IfStmt) Type() string {

@@ -38,7 +38,7 @@ type Parser struct {
 	PeekToken        token.Token
 	scanner          Scanner
 	scopes           ScopeTracker
-	stmtParser       func(p *Parser) (ast.Node, error)
+	stmtParser       func(p *Parser) (ast.Stmt, error)
 	exprParser       func(p *Parser) (ast.Expr, error)
 	binaryExprParser func(p *Parser, leftVal ast.Expr) (ast.Expr, error)
 	unaryExprParser  func(p *Parser) (ast.Expr, error)
@@ -53,7 +53,7 @@ func (p *Parser) Init(sc Scanner) {
 	p.scopes = make(ScopeTracker)
 	p.scanner = sc
 	if p.stmtParser == nil {
-		p.stmtParser = func(p *Parser) (ast.Node, error) {
+		p.stmtParser = func(p *Parser) (ast.Stmt, error) {
 			return nil, errors.New("unknown statement")
 		}
 	}
@@ -80,7 +80,7 @@ func (p *Parser) Init(sc Scanner) {
 	p.AdvanceToken()
 }
 
-func (p *Parser) ParseStmt() (ast.Node, error) {
+func (p *Parser) ParseStmt() (ast.Stmt, error) {
 	return p.stmtParser(p)
 }
 

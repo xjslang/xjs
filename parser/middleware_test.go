@@ -16,7 +16,7 @@ import (
 type orExpr struct {
 	ast.ExprNode
 	Value        ast.Expr
-	FallbackStmt ast.Node
+	FallbackStmt ast.Stmt
 }
 
 func (node *orExpr) Type() string {
@@ -74,7 +74,7 @@ func TestUseExprParser(t *testing.T) {
 type notBitwiseExpr struct {
 	ast.ExprNode
 	Operator token.Token
-	Value    ast.Node
+	Value    ast.Expr
 }
 
 func (node *notBitwiseExpr) Type() string {
@@ -123,9 +123,9 @@ func TestUseUnaryParser(t *testing.T) {
 
 type powExpr struct {
 	ast.ExprNode
-	LeftValue  ast.Node
+	LeftValue  ast.Expr
 	Operator   token.Token
-	RightValue ast.Node
+	RightValue ast.Expr
 }
 
 func (node *powExpr) Type() string {
@@ -178,7 +178,7 @@ func TestUseBinaryParser(t *testing.T) {
 type factorialExpr struct {
 	ast.ExprNode
 	Operator token.Token
-	Value    ast.Node
+	Value    ast.Expr
 }
 
 func (node *factorialExpr) Type() string {

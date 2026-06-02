@@ -12,8 +12,8 @@ type CallExpr struct {
 	LparenToken token.Token
 	RparenToken token.Token
 
-	Function  ast.Node
-	Arguments []ast.Node
+	Function  ast.Expr
+	Arguments []ast.Expr
 }
 
 func (node *CallExpr) Type() string {
@@ -27,7 +27,7 @@ func ParseCallExpr(p *parser.Parser, leftVal ast.Expr) (_ *CallExpr, err error) 
 	}
 	if p.CurrentToken.Type != token.RPAREN {
 		for {
-			var val ast.Node
+			var val ast.Expr
 			if val, err = p.ParseExpr(); err != nil {
 				return
 			}

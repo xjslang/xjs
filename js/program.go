@@ -10,7 +10,7 @@ import (
 type Program struct {
 	EOFToken token.Token
 
-	Stmts []ast.Node
+	Stmts []ast.Stmt
 }
 
 func (node *Program) Type() string {

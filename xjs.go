@@ -80,7 +80,7 @@ func jsPlugin(b *builder.Builder) {
 		}
 		return
 	})
-	b.UseStmtParser(func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error) {
+	b.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (ast.Stmt, error) {
 		switch p.CurrentToken.Type {
 		case js.FUNCTION:
 			return js.ParseFunctionDecl(p)

@@ -12,7 +12,7 @@ type ParenExpr struct {
 	LparenToken token.Token
 	RparenToken token.Token
 
-	Value ast.Node
+	Value ast.Expr
 }
 
 func (node *ParenExpr) Type() string {

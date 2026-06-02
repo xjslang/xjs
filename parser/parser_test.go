@@ -19,6 +19,7 @@ import (
 var updateGoldenFiles bool
 
 type MyCustomStmt struct {
+	ast.StmtNode
 	LparenToken token.Token
 	RparenToken token.Token
 	Message     token.Token
@@ -34,7 +35,7 @@ func ExampleParser_Init() {
 	p := &parser.Parser{}
 
 	// Declare "middlewares" BEFORE calling Init
-	p.UseStmtParser(func(p *parser.Parser, next func() (ast.Node, error)) (_ ast.Node, err error) {
+	p.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (_ ast.Stmt, err error) {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "print" {
 			p.AdvanceToken()
 			node := &MyCustomStmt{}

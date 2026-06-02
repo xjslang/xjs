@@ -10,10 +10,11 @@ import (
 )
 
 type BlockStmt struct {
+	ast.StmtNode
 	LbraceToken token.Token
 	RbraceToken token.Token
 
-	Stmts []ast.Node
+	Stmts []ast.Stmt
 }
 
 func (node *BlockStmt) Type() string {

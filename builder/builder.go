@@ -31,7 +31,7 @@ func (b *Builder) UseBinaryParser(parser func(p *parser.Parser, leftVal ast.Expr
 	b.parser.UseBinaryParser(parser)
 }
 
-func (b *Builder) UseStmtParser(parser func(p *parser.Parser, next func() (ast.Node, error)) (ast.Node, error)) {
+func (b *Builder) UseStmtParser(parser func(p *parser.Parser, next func() (ast.Stmt, error)) (ast.Stmt, error)) {
 	b.parser.UseStmtParser(parser)
 }
 
