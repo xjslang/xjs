@@ -11,7 +11,7 @@ var FUNCTION = token.RegisterType("function")
 
 type FunctionDecl struct {
 	ast.BaseStmt
-	Tokens struct {
+	Layout struct {
 		Function token.Token
 		Lparen   token.Token
 		Rparen   token.Token
@@ -22,16 +22,16 @@ type FunctionDecl struct {
 
 func ParseFunctionDecl(p *parser.Parser) (_ *FunctionDecl, err error) {
 	node := &FunctionDecl{}
-	if node.Tokens.Function, err = p.Expect(FUNCTION); err != nil {
+	if node.Layout.Function, err = p.Expect(FUNCTION); err != nil {
 		return
 	}
 	if node.Name, err = ParseIdent(p); err != nil {
 		return
 	}
-	if node.Tokens.Lparen, err = p.Expect(token.LPAREN); err != nil {
+	if node.Layout.Lparen, err = p.Expect(token.LPAREN); err != nil {
 		return
 	}
-	if node.Tokens.Rparen, err = p.Expect(token.RPAREN); err != nil {
+	if node.Layout.Rparen, err = p.Expect(token.RPAREN); err != nil {
 		return
 	}
 	if node.Body, err = ParseBlockStmt(p); err != nil {
@@ -41,8 +41,8 @@ func ParseFunctionDecl(p *parser.Parser) (_ *FunctionDecl, err error) {
 }
 
 func PrintFunctionDecl(p *printer.Printer, node *FunctionDecl) {
-	p.LnPrint(node.Tokens.Function)
+	p.LnPrint(node.Layout.Function)
 	p.SpPrint(node.Name)
-	p.Print(node.Tokens.Lparen, node.Tokens.Rparen)
+	p.Print(node.Layout.Lparen, node.Layout.Rparen)
 	p.SpPrint(node.Body)
 }

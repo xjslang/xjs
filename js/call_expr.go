@@ -9,7 +9,7 @@ import (
 
 type CallExpr struct {
 	ast.BaseExpr
-	Tokens struct {
+	Layout struct {
 		Lparen token.Token
 		Rparen token.Token
 	}
@@ -19,7 +19,7 @@ type CallExpr struct {
 
 func ParseCallExpr(p *parser.Parser, left ast.Expr) (_ *CallExpr, err error) {
 	node := &CallExpr{Callee: left}
-	if node.Tokens.Lparen, err = p.Expect(token.LPAREN); err != nil {
+	if node.Layout.Lparen, err = p.Expect(token.LPAREN); err != nil {
 		return
 	}
 	if p.CurrentToken.Type != token.RPAREN {
@@ -37,14 +37,14 @@ func ParseCallExpr(p *parser.Parser, left ast.Expr) (_ *CallExpr, err error) {
 			}
 		}
 	}
-	if node.Tokens.Rparen, err = p.Expect(token.RPAREN); err != nil {
+	if node.Layout.Rparen, err = p.Expect(token.RPAREN); err != nil {
 		return nil, err
 	}
 	return node, nil
 }
 
 func PrintCallExpr(p *printer.Printer, node *CallExpr) {
-	p.Print(node.Callee, node.Tokens.Lparen)
+	p.Print(node.Callee, node.Layout.Lparen)
 	for i, arg := range node.Args {
 		if i > 0 {
 			p.Print(",")
@@ -52,5 +52,5 @@ func PrintCallExpr(p *printer.Printer, node *CallExpr) {
 		}
 		p.Print(arg)
 	}
-	p.Print(node.Tokens.Rparen)
+	p.Print(node.Layout.Rparen)
 }
