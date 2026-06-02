@@ -24,10 +24,6 @@ type IfStmt struct {
 	Else ast.Stmt
 }
 
-func (node *IfStmt) Type() string {
-	return "IfStmt"
-}
-
 func ParseIfStmt(p *parser.Parser) (_ *IfStmt, err error) {
 	node := &IfStmt{}
 	// if

@@ -16,10 +16,6 @@ type CallExpr struct {
 	Args   []ast.Expr
 }
 
-func (node *CallExpr) Type() string {
-	return "CallExpr"
-}
-
 func ParseCallExpr(p *parser.Parser, left ast.Expr) (_ *CallExpr, err error) {
 	node := &CallExpr{Callee: left}
 	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {

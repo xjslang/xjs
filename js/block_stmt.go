@@ -17,10 +17,6 @@ type BlockStmt struct {
 	Stmts []ast.Stmt
 }
 
-func (node *BlockStmt) Type() string {
-	return "Block"
-}
-
 func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
 	node := &BlockStmt{}
 	if node.LbraceToken, err = p.Expect(token.LBRACE); err != nil {

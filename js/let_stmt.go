@@ -19,10 +19,6 @@ type LetStmt struct {
 	Value ast.Expr
 }
 
-func (node *LetStmt) Type() string {
-	return "LetStmt"
-}
-
 func ParseLetStmt(p *parser.Parser) (_ *LetStmt, err error) {
 	node := &LetStmt{}
 	if node.LetToken, err = p.Expect(LET); err != nil {

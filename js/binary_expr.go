@@ -14,10 +14,6 @@ type BinaryExpr struct {
 	Right ast.Expr
 }
 
-func (node *BinaryExpr) Type() string {
-	return "BinaryExpr"
-}
-
 func ParseBinaryExpr(p *parser.Parser, left ast.Expr) (node ast.Expr, err error) {
 	op := p.CurrentToken
 	nodeExpr := &BinaryExpr{

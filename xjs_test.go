@@ -71,10 +71,6 @@ type iifeExpr struct {
 	Function    *js.FunctionDecl
 }
 
-func (node *iifeExpr) Type() string {
-	return "iifeExpr"
-}
-
 func TestMiddlewares(t *testing.T) {
 	input := `(function foo() {
 		print('Hello, World!')

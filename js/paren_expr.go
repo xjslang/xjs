@@ -15,10 +15,6 @@ type ParenExpr struct {
 	Value ast.Expr
 }
 
-func (node *ParenExpr) Type() string {
-	return "ParenExpr"
-}
-
 func ParseParenExpr(p *parser.Parser) (_ *ParenExpr, err error) {
 	node := &ParenExpr{}
 	if node.LparenToken, err = p.Expect(token.LPAREN); err != nil {

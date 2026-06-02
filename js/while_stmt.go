@@ -19,10 +19,6 @@ type WhileStmt struct {
 	Then ast.Stmt
 }
 
-func (node *WhileStmt) Type() string {
-	return "WhileStmt"
-}
-
 func ParseWhileStmt(p *parser.Parser) (_ *WhileStmt, err error) {
 	node := &WhileStmt{}
 	// while

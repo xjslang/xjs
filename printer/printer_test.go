@@ -14,11 +14,8 @@ import (
 )
 
 type FactorialNode struct {
+	ast.ExprNode
 	Value string
-}
-
-func (node *FactorialNode) Type() string {
-	return "MyCustomNode"
 }
 
 func ExamplePrinter_Init() {

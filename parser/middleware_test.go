@@ -19,10 +19,6 @@ type orExpr struct {
 	FallbackStmt ast.Stmt
 }
 
-func (node *orExpr) Type() string {
-	return "orExpr"
-}
-
 func TestUseExprParser(t *testing.T) {
 	orType := token.RegisterType("or")
 	input := "let x = openDb() or exit('failed opening db')"
@@ -77,10 +73,6 @@ type notBitwiseExpr struct {
 	Value    ast.Expr
 }
 
-func (node *notBitwiseExpr) Type() string {
-	return "notBitwiseExpr"
-}
-
 func TestUseUnaryParser(t *testing.T) {
 	notBitwise := token.RegisterUnaryOp("~")
 	input := "1 + ~7"
@@ -126,10 +118,6 @@ type powExpr struct {
 	LeftValue  ast.Expr
 	Operator   token.Token
 	RightValue ast.Expr
-}
-
-func (node *powExpr) Type() string {
-	return "powExpr"
 }
 
 func TestUseBinaryParser(t *testing.T) {
@@ -179,10 +167,6 @@ type factorialExpr struct {
 	ast.ExprNode
 	Operator token.Token
 	Value    ast.Expr
-}
-
-func (node *factorialExpr) Type() string {
-	return "factorialExpr"
 }
 
 func TestUseBinaryParser_postfix(t *testing.T) {

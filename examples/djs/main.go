@@ -21,10 +21,6 @@ type DeferStmt struct {
 	Stmt       ast.Stmt
 }
 
-func (node *DeferStmt) Type() string {
-	return "DeferStmt"
-}
-
 func djsPlugin(b *builder.Builder) {
 	// the scanner that can read "defer"
 	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {

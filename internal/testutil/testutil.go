@@ -83,7 +83,7 @@ func NodeString(node ast.Node) string {
 			indentLevel--
 		}()
 		indent := strings.Repeat("\t", indentLevel)
-		fmt.Fprint(s, node.Type())
+		fmt.Fprintf(s, "%T", node)
 		switch v := node.(type) {
 		case *js.Ident:
 			fmt.Fprintf(s, "{Name: %q}", v.Name.Literal)
