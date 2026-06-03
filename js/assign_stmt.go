@@ -28,7 +28,7 @@ func ParseAssignStmt(p *parser.Parser) (_ *AssignStmt, err error) {
 	if node.Value, err = p.ParseExpr(); err != nil {
 		return
 	}
-	if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
+	if node.Layout.Semi, err = ExpectSemi(p); err != nil {
 		return
 	}
 	return node, nil

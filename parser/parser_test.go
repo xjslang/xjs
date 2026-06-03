@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/internal/testutil"
@@ -163,30 +162,6 @@ func TestExprs(t *testing.T) {
 			if got := testutil.NodeString(result); got != test.expected {
 				t.Errorf("Expected:\n\n%s\n\nGot:\n\n%s", test.expected, got)
 			}
-		})
-	}
-}
-
-func TestParser_ExpectSemi(t *testing.T) {
-	tests := []struct {
-		name    string
-		input   string
-		nextTok token.Token
-	}{
-		{"semicolon", "hello; there", token.Token{Type: token.IDENT, Literal: "there"}},
-		{"right brace", "hello} there", token.Token{Type: token.RBRACE, Literal: "}"}},
-		{"right paren", "hello) there", token.Token{Type: token.RPAREN, Literal: ")"}},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			p := xjs.NewBuilder().Build([]byte(test.input))
-			p.AdvanceToken()
-			tok, err := p.ExpectSemi()
-			require.NoError(t, err)
-			testutil.AssertTokens(t, []token.Token{tok, p.CurrentToken}, []token.Token{
-				{Type: token.SEMICOLON, Literal: ";"},
-				test.nextTok,
-			})
 		})
 	}
 }

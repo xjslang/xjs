@@ -9,6 +9,8 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
+var blockScope = parser.RegisterScope()
+
 type BlockStmt struct {
 	ast.BaseStmt
 	Layout struct {
@@ -19,6 +21,8 @@ type BlockStmt struct {
 }
 
 func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
+	p.EnterScope(blockScope)
+	defer p.ExitScope(blockScope)
 	node := &BlockStmt{}
 	if node.Layout.Lbrace, err = p.Expect(token.LBRACE); err != nil {
 		return

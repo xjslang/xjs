@@ -20,7 +20,7 @@ func ParseExprStmt(p *parser.Parser) (_ *ExprStmt, err error) {
 	if node.Expr, err = p.ParseExpr(); err != nil {
 		return
 	}
-	if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
+	if node.Layout.Semi, err = ExpectSemi(p); err != nil {
 		return
 	}
 	return node, nil
