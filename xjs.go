@@ -30,6 +30,8 @@ func NewPrinter(opts ...printer.Option) *printer.Printer {
 			js.PrintFunctionDecl(p, v)
 		case *js.LetStmt:
 			js.PrintLetStmt(p, v)
+		case *js.AssignStmt:
+			js.PrintAssignStmt(p, v)
 		case *js.CallExpr:
 			js.PrintCallExpr(p, v)
 		case *js.ParenExpr:
@@ -92,6 +94,10 @@ func jsPlugin(b *builder.Builder) {
 			return js.ParseIfStmt(p)
 		case js.WHILE:
 			return js.ParseWhileStmt(p)
+		case token.IDENT:
+			if p.PeekToken.Type == token.ASSIGN && !p.PeekToken.AfterNewline {
+				return js.ParseAssignStmt(p)
+			}
 		}
 		return js.ParseStmt(p)
 	})
