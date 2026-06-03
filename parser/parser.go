@@ -2,12 +2,15 @@ package parser
 
 import (
 	"errors"
+	"slices"
 	"strings"
 	"unicode/utf8"
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/token"
 )
+
+var delimiters = []token.Type{token.RBRACE, token.RPAREN}
 
 type Scanner interface {
 	NextToken() token.Token
@@ -152,7 +155,7 @@ func (p *Parser) ExpectSemi() (token.Token, error) {
 		p.AdvanceToken()
 		return tok, nil
 	}
-	if tok.Type == token.EOF || tok.AfterNewline || tok.Type == token.RBRACE {
+	if tok.Type == token.EOF || tok.AfterNewline || slices.Contains(delimiters, tok.Type) {
 		tok = token.Token{Type: token.SEMICOLON, Literal: token.SEMICOLON.String(), Position: tok.Position}
 		return tok, nil
 	}
@@ -168,7 +171,7 @@ func (p *Parser) AdvanceToStmtEnd() {
 			p.AdvanceToken()
 			break
 		}
-		if typ == token.EOF || p.CurrentToken.AfterNewline || typ == token.RBRACE {
+		if typ == token.EOF || p.CurrentToken.AfterNewline || slices.Contains(delimiters, typ) {
 			break
 		}
 		p.AdvanceToken()
