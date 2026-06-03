@@ -9,8 +9,10 @@ import (
 
 type ExprStmt struct {
 	ast.BaseStmt
-	SemiToken token.Token
-	Expr      ast.Expr
+	Layout struct {
+		Semi token.Token
+	}
+	Expr ast.Expr
 }
 
 func ParseExprStmt(p *parser.Parser) (_ *ExprStmt, err error) {
@@ -18,7 +20,7 @@ func ParseExprStmt(p *parser.Parser) (_ *ExprStmt, err error) {
 	if node.Expr, err = p.ParseExpr(); err != nil {
 		return
 	}
-	if node.SemiToken, err = p.ExpectSemi(); err != nil {
+	if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
 		return
 	}
 	return node, nil
@@ -26,5 +28,5 @@ func ParseExprStmt(p *parser.Parser) (_ *ExprStmt, err error) {
 
 func PrintExprStmt(p *printer.Printer, node *ExprStmt) {
 	p.LnPrint(node.Expr)
-	p.Print(node.SemiToken)
+	p.Print(node.Layout.Semi)
 }
