@@ -135,7 +135,9 @@ func RegisterType(lit string) Type {
 }
 
 var binaryOps = map[Type]int{
-	// || (lowest precedence for operators)
+	// = (lowest precedence for operators)
+	ASSIGN: 0,
+	// ||
 	OR: 1,
 	// &&
 	AND: 2,
