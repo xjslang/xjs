@@ -2,6 +2,7 @@ package printer_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -363,4 +364,17 @@ func TestCompact(t *testing.T) {
 	pr := xjs.NewPrinter(printer.Compact())
 	pr.Print(result)
 	golden.Assert(t, pr.Bytes())
+}
+
+func TestFork(t *testing.T) {
+	p := xjs.NewPrinter()
+	p.Print("for (")
+	p1 := printer.Fork(p)
+	p1.LnPrint("aaa;")
+	p1.SpPrint("bbb;")
+	p1.SpPrint("ccc;")
+	s := p1.String()
+	s = strings.TrimRight(s, ";")
+	p.Print(s, ") {}")
+	require.Equal(t, "for (aaa; bbb; ccc) {}", p.String())
 }
