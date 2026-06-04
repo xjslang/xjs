@@ -54,6 +54,10 @@ func NewPrinter(opts ...printer.Option) *printer.Printer {
 			js.PrintReturnStmt(p, v)
 		case *js.EmptyStmt:
 			js.PrintEmptyStmt(p, v)
+		case *js.BreakStmt:
+			js.PrintBreakStmt(p, v)
+		case *js.LabelStmt:
+			js.PrintLabelStmt(p, v)
 		default:
 			next(node)
 		}
@@ -91,6 +95,8 @@ func jsPlugin(b *builder.Builder) {
 			tok.Type = js.FOR
 		case "return":
 			tok.Type = js.RETURN
+		case "break":
+			tok.Type = js.BREAK
 		}
 		return
 	})
@@ -108,9 +114,13 @@ func jsPlugin(b *builder.Builder) {
 			return js.ParseForStmt(p)
 		case js.RETURN:
 			return js.ParseReturnStmt(p)
+		case js.BREAK:
+			return js.ParseBreakStmt(p)
 		case token.IDENT:
 			if p.PeekToken.Type == token.ASSIGN && !p.PeekToken.AfterNewline {
 				return js.ParseAssignStmt(p)
+			} else if p.PeekToken.Type == token.COLON {
+				return js.ParseLabelStmt(p)
 			}
 		case token.SEMICOLON:
 			return js.ParseEmptyStmt(p)

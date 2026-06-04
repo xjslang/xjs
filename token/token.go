@@ -64,6 +64,7 @@ const (
 	// delimiters
 	COMMA     // ,
 	SEMICOLON // ;
+	COLON     // :
 	LPAREN    // (
 	RPAREN    // )
 	LBRACE    // {
@@ -110,6 +111,7 @@ var tokenLiterals = map[Type]string{
 	// delimiters
 	COMMA:     ",",
 	SEMICOLON: ";",
+	COLON:     ":",
 	LPAREN:    "(",
 	RPAREN:    ")",
 	LBRACE:    "{",

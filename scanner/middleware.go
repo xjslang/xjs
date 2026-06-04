@@ -141,6 +141,10 @@ func defaultScanner(sc *Scanner) token.Token {
 		c := sc.currentChar
 		sc.AdvanceChar()
 		return token.Token{Type: token.RBRACE, Literal: string(c)}
+	case ':':
+		c := sc.currentChar
+		sc.AdvanceChar()
+		return token.Token{Type: token.COLON, Literal: string(c)}
 	case '\r':
 		sc.AdvanceChar()
 		if sc.currentChar == '\n' {
