@@ -50,6 +50,8 @@ func NewPrinter(opts ...printer.Option) *printer.Printer {
 			p.Print(v.Value)
 		case *js.ExprStmt:
 			js.PrintExprStmt(p, v)
+		case *js.EmptyStmt:
+			js.PrintEmptyStmt(p, v)
 		default:
 			next(node)
 		}
@@ -104,6 +106,8 @@ func jsPlugin(b *builder.Builder) {
 			if p.PeekToken.Type == token.ASSIGN && !p.PeekToken.AfterNewline {
 				return js.ParseAssignStmt(p)
 			}
+		case token.SEMICOLON:
+			return js.ParseEmptyStmt(p)
 		}
 		return js.ParseStmt(p)
 	})
