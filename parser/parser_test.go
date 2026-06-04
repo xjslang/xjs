@@ -171,11 +171,12 @@ func TestParser_ExpectSemi(t *testing.T) {
 	tests := []struct {
 		name    string
 		input   string
+		semiTok token.Token
 		nextTok token.Token
 	}{
-		{"semicolon", "hello; there", token.Token{Type: token.IDENT, Literal: "there"}},
-		{"right brace", "hello} there", token.Token{Type: token.RBRACE, Literal: "}"}},
-		{"right paren", "hello) there", token.Token{Type: token.RPAREN, Literal: ")"}},
+		{"semicolon", "hello; there", token.Token{Type: token.SEMICOLON, Literal: ";"}, token.Token{Type: token.IDENT, Literal: "there"}},
+		{"right brace", "hello} there", token.Token{Type: token.SEMICOLON, Literal: ""}, token.Token{Type: token.RBRACE, Literal: "}"}},
+		{"right paren", "hello) there", token.Token{Type: token.SEMICOLON, Literal: ""}, token.Token{Type: token.RPAREN, Literal: ")"}},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -184,7 +185,7 @@ func TestParser_ExpectSemi(t *testing.T) {
 			tok, err := p.ExpectSemi()
 			require.NoError(t, err)
 			testutil.AssertTokens(t, []token.Token{tok, p.CurrentToken}, []token.Token{
-				{Type: token.SEMICOLON, Literal: ";"},
+				test.semiTok,
 				test.nextTok,
 			})
 		})
