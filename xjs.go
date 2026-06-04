@@ -56,6 +56,8 @@ func NewPrinter(opts ...printer.Option) *printer.Printer {
 			js.PrintEmptyStmt(p, v)
 		case *js.BreakStmt:
 			js.PrintBreakStmt(p, v)
+		case *js.ContinueStmt:
+			js.PrintContinueStmt(p, v)
 		case *js.LabelStmt:
 			js.PrintLabelStmt(p, v)
 		default:
@@ -97,6 +99,8 @@ func jsPlugin(b *builder.Builder) {
 			tok.Type = js.RETURN
 		case "break":
 			tok.Type = js.BREAK
+		case "continue":
+			tok.Type = js.CONTINUE
 		}
 		return
 	})
@@ -116,6 +120,8 @@ func jsPlugin(b *builder.Builder) {
 			return js.ParseReturnStmt(p)
 		case js.BREAK:
 			return js.ParseBreakStmt(p)
+		case js.CONTINUE:
+			return js.ParseContinueStmt(p)
 		case token.IDENT:
 			if p.PeekToken.Type == token.ASSIGN && !p.PeekToken.AfterNewline {
 				return js.ParseAssignStmt(p)

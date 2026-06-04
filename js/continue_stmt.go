@@ -7,20 +7,20 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var BREAK = token.RegisterType("break")
+var CONTINUE = token.RegisterType("continue")
 
-type BreakStmt struct {
+type ContinueStmt struct {
 	ast.BaseStmt
 	Layout struct {
-		Break token.Token
-		Semi  token.Token
+		Continue token.Token
+		Semi     token.Token
 	}
 	Label *Ident
 }
 
-func ParseBreakStmt(p *parser.Parser) (_ *BreakStmt, err error) {
-	node := &BreakStmt{}
-	if node.Layout.Break, err = p.Expect(BREAK); err != nil {
+func ParseContinueStmt(p *parser.Parser) (_ *ContinueStmt, err error) {
+	node := &ContinueStmt{}
+	if node.Layout.Continue, err = p.Expect(CONTINUE); err != nil {
 		return
 	}
 	if p.CurrentToken.Type == token.IDENT && !p.CurrentToken.AfterNewline {
@@ -34,8 +34,8 @@ func ParseBreakStmt(p *parser.Parser) (_ *BreakStmt, err error) {
 	return node, nil
 }
 
-func PrintBreakStmt(p *printer.Printer, node *BreakStmt) {
-	p.LnPrint(node.Layout.Break)
+func PrintContinueStmt(p *printer.Printer, node *ContinueStmt) {
+	p.LnPrint(node.Layout.Continue)
 	if node.Label != nil {
 		p.SpPrint(node.Label)
 	}
