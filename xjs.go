@@ -50,6 +50,8 @@ func NewPrinter(opts ...printer.Option) *printer.Printer {
 			p.Print(v.Value)
 		case *js.ExprStmt:
 			js.PrintExprStmt(p, v)
+		case *js.ReturnStmt:
+			js.PrintReturnStmt(p, v)
 		case *js.EmptyStmt:
 			js.PrintEmptyStmt(p, v)
 		default:
@@ -87,6 +89,8 @@ func jsPlugin(b *builder.Builder) {
 			tok.Type = js.WHILE
 		case "for":
 			tok.Type = js.FOR
+		case "return":
+			tok.Type = js.RETURN
 		}
 		return
 	})
@@ -102,6 +106,8 @@ func jsPlugin(b *builder.Builder) {
 			return js.ParseWhileStmt(p)
 		case js.FOR:
 			return js.ParseForStmt(p)
+		case js.RETURN:
+			return js.ParseReturnStmt(p)
 		case token.IDENT:
 			if p.PeekToken.Type == token.ASSIGN && !p.PeekToken.AfterNewline {
 				return js.ParseAssignStmt(p)
