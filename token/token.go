@@ -68,6 +68,8 @@ const (
 	RPAREN    // )
 	LBRACE    // {
 	RBRACE    // }
+	LBRACKET  // [
+	RBRACKET  // ]
 	NEWLINE   // \r, \n, \r\n
 	// comments
 	LINE_COMMENT  // //
@@ -112,6 +114,8 @@ var tokenLiterals = map[Type]string{
 	RPAREN:    ")",
 	LBRACE:    "{",
 	RBRACE:    "}",
+	LBRACKET:  "[",
+	RBRACKET:  "]",
 	NEWLINE:   "new line",
 	// comments
 	LINE_COMMENT:  "line comment",
