@@ -37,6 +37,16 @@ func Example_basic() {
 	// }
 }
 
+func TestPrintSemicolonTrivia(t *testing.T) {
+	trivia := "// trivia is printed\n\n/* but semicolons are not */"
+	input := fmt.Sprintf("; %s ;", trivia)
+	result, err := xjs.Parse([]byte(input))
+	require.NoError(t, err)
+	pr := xjs.NewPrinter()
+	pr.Print(result)
+	require.Equal(t, trivia, pr.String())
+}
+
 func TestLanguageFeatures(t *testing.T) {
 	pattern := filepath.Join("testdata", "*.js")
 	files, err := filepath.Glob(pattern)
