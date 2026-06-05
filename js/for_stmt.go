@@ -74,7 +74,7 @@ func PrintForStmt(p *printer.Printer, node *ForStmt) {
 	p1.Print(node.Layout.Semi2)
 	p1.SpPrint(node.After)
 	p1.DecreaseIndent()
-	p.Print(strings.Trim(p1.String(), " ;"))
+	p.Print(strings.Trim(p1.String(), " "))
 	// then
 	p.Print(node.Layout.Rparen)
 	p.SpPrint(node.Then)
