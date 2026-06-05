@@ -16,6 +16,8 @@ type ForStmt struct {
 	Layout struct {
 		For    token.Token
 		Lparen token.Token
+		Semi1  token.Token
+		Semi2  token.Token
 		Rparen token.Token
 	}
 	Init  ast.Stmt
@@ -37,7 +39,13 @@ func ParseForStmt(p *parser.Parser) (_ *ForStmt, err error) {
 	if node.Init, err = parseForClause(p); err != nil {
 		return
 	}
+	if node.Layout.Semi1, err = p.Expect(token.SEMICOLON); err != nil {
+		return
+	}
 	if node.Cond, err = parseForClause(p); err != nil {
+		return
+	}
+	if node.Layout.Semi2, err = p.Expect(token.SEMICOLON); err != nil {
 		return
 	}
 	if node.After, err = parseForClause(p); err != nil {
@@ -61,7 +69,9 @@ func PrintForStmt(p *printer.Printer, node *ForStmt) {
 	p1 := printer.Fork(p)
 	p1.IncreaseIndent()
 	p1.Print(node.Init)
+	p1.Print(node.Layout.Semi1)
 	p1.SpPrint(node.Cond)
+	p1.Print(node.Layout.Semi2)
 	p1.SpPrint(node.After)
 	p1.DecreaseIndent()
 	p.Print(strings.Trim(p1.String(), " ;"))

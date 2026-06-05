@@ -93,7 +93,6 @@ func main() {
 			pr.EnsureSpace() // ensure a new space is added before printing
 			if deferNode, ok := node.Stmt.(*js.ExprStmt); ok {
 				pr.Print(deferNode.Expr)
-				pr.Print(deferNode.Layout.Semi)
 			} else {
 				pr.Print(node.Stmt)
 			}

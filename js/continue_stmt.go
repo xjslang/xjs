@@ -13,7 +13,6 @@ type ContinueStmt struct {
 	ast.BaseStmt
 	Layout struct {
 		Continue token.Token
-		Semi     token.Token
 	}
 	Label *Ident
 }
@@ -28,9 +27,6 @@ func ParseContinueStmt(p *parser.Parser) (_ *ContinueStmt, err error) {
 			return
 		}
 	}
-	if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
-		return
-	}
 	return node, nil
 }
 
@@ -39,5 +35,4 @@ func PrintContinueStmt(p *printer.Printer, node *ContinueStmt) {
 	if node.Label != nil {
 		p.SpPrint(node.Label)
 	}
-	p.Print(node.Layout.Semi)
 }

@@ -13,7 +13,6 @@ type ReturnStmt struct {
 	ast.BaseStmt
 	Layout struct {
 		Return token.Token
-		Semi   token.Token
 	}
 	Value ast.Expr
 }
@@ -29,9 +28,6 @@ func ParseReturnStmt(p *parser.Parser) (_ *ReturnStmt, err error) {
 			return
 		}
 	}
-	if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
-		return
-	}
 	return node, nil
 }
 
@@ -40,5 +36,4 @@ func PrintReturnStmt(p *printer.Printer, node *ReturnStmt) {
 	if node.Value != nil {
 		p.SpPrint(node.Value)
 	}
-	p.Print(node.Layout.Semi)
 }

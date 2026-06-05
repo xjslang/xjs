@@ -52,8 +52,8 @@ func NewPrinter(opts ...printer.Option) *printer.Printer {
 			js.PrintExprStmt(p, v)
 		case *js.ReturnStmt:
 			js.PrintReturnStmt(p, v)
-		case *js.EmptyStmt:
-			js.PrintEmptyStmt(p, v)
+		case *js.SemiStmt:
+			js.PrintSemiStmt(p, v)
 		case *js.BreakStmt:
 			js.PrintBreakStmt(p, v)
 		case *js.ContinueStmt:
@@ -129,7 +129,7 @@ func jsPlugin(b *builder.Builder) {
 				return js.ParseLabelStmt(p)
 			}
 		case token.SEMICOLON:
-			return js.ParseEmptyStmt(p)
+			return js.ParseSemiStmt(p)
 		}
 		return js.ParseStmt(p)
 	})

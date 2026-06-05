@@ -17,18 +17,26 @@ type Program struct {
 
 func ParseProgram(p *parser.Parser) (_ *Program, err error) {
 	node := &Program{}
-	for p.CurrentToken.Type != token.EOF {
-		prevToken := p.CurrentToken
-		stmt, err := p.ParseStmt()
-		if err != nil {
-			if prevToken.Position == p.CurrentToken.Position {
-				// advance position to avoid infinite loop
-				p.AdvanceToken()
+	var stmt ast.Stmt
+	for i := 0; p.CurrentToken.Type != token.EOF; i++ {
+		if i > 0 && p.PrevToken.Type != token.RBRACE {
+			if stmt, err = ParseSemiStmt(p); err != nil {
+				return
 			}
-			p.AdvanceToStmtEnd()
-			continue
+			node.Stmts = append(node.Stmts, stmt)
 		}
-		node.Stmts = append(node.Stmts, stmt)
+		if p.CurrentToken.Type != token.EOF {
+			prevToken := p.CurrentToken
+			if stmt, err = p.ParseStmt(); err != nil {
+				if prevToken.Position == p.CurrentToken.Position {
+					// advance position to avoid infinite loop
+					p.AdvanceToken()
+				}
+				p.AdvanceToStmtEnd()
+				continue
+			}
+			node.Stmts = append(node.Stmts, stmt)
+		}
 	}
 	node.Layout.EOF = p.CurrentToken
 	if errors := p.Errors(); len(errors) > 0 {
@@ -38,8 +46,12 @@ func ParseProgram(p *parser.Parser) (_ *Program, err error) {
 }
 
 func PrintProgram(p *printer.Printer, node *Program) {
-	for _, stmt := range node.Stmts {
+	var stmt ast.Stmt
+	for _, stmt = range node.Stmts {
 		p.Print(stmt)
+	}
+	if len(node.Stmts) > 0 && p.LastChar() != '}' && p.LastChar() != ';' {
+		p.Print(';')
 	}
 	p.Print(node.Layout.EOF)
 }
