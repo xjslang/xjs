@@ -175,8 +175,6 @@ func TestParser_ExpectSemi(t *testing.T) {
 		nextTok token.Token
 	}{
 		{"semicolon", "hello; there", token.Token{Type: token.SEMICOLON, Literal: ";"}, token.Token{Type: token.IDENT, Literal: "there"}},
-		{"right brace", "hello} there", token.Token{Type: token.SEMICOLON, Literal: ""}, token.Token{Type: token.RBRACE, Literal: "}"}},
-		{"right paren", "hello) there", token.Token{Type: token.SEMICOLON, Literal: ""}, token.Token{Type: token.RPAREN, Literal: ")"}},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

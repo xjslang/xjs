@@ -24,19 +24,27 @@ func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
 		return
 	}
 	var errs []error
-	for p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE {
-		prevToken := p.CurrentToken
-		stmt, err := p.ParseStmt()
-		if err != nil {
-			if prevToken.Position == p.CurrentToken.Position {
-				// advance position to avoid infinite loop
-				p.AdvanceToken()
+	var stmt ast.Stmt
+	for i := 0; p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE; i++ {
+		if i > 0 && p.PrevToken.Type != token.RBRACE {
+			if stmt, err = ParseSemiStmt(p); err != nil {
+				return
 			}
-			errs = append(errs, err)
-			p.AdvanceToStmtEnd()
-			continue
+			node.Stmts = append(node.Stmts, stmt)
 		}
-		node.Stmts = append(node.Stmts, stmt)
+		if p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE {
+			prevToken := p.CurrentToken
+			if stmt, err = p.ParseStmt(); err != nil {
+				if prevToken.Position == p.CurrentToken.Position {
+					// advance position to avoid infinite loop
+					p.AdvanceToken()
+				}
+				errs = append(errs, err)
+				p.AdvanceToStmtEnd()
+				continue
+			}
+			node.Stmts = append(node.Stmts, stmt)
+		}
 	}
 	if node.Layout.Rbrace, err = p.Expect(token.RBRACE); err != nil {
 		errs = append(errs, err)
@@ -51,8 +59,12 @@ func PrintBlockStmt(p *printer.Printer, node *BlockStmt) {
 	p.Print(node.Layout.Lbrace)
 	if len(node.Stmts) > 0 {
 		p.IncreaseIndent()
-		for _, stmt := range node.Stmts {
+		var stmt ast.Stmt
+		for _, stmt = range node.Stmts {
 			p.Print(stmt)
+		}
+		if p.LastChar() != '}' && p.LastChar() != ';' {
+			p.Print(';')
 		}
 		// RBRACE is a special token, since the "leading trivia"
 		// must be printed "before" indentation level decreases

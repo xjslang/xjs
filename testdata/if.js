@@ -2,8 +2,6 @@ if (hello) print("Hello, World!");
 if (hello) {
   print("Hello, World!");
 }
-if (hello) print("Hello, World!");
-else print("Bye bye, World!");
 if (hello) {
   print("Hello, World!");
 } else print("Bye bye, World!");

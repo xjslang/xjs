@@ -34,6 +34,8 @@ func (list ErrorList) Error() string {
 }
 
 type Parser struct {
+	// TODO: do not expose PrevToken, CurrentToken and PeekToken directly
+	PrevToken        token.Token
 	CurrentToken     token.Token
 	PeekToken        token.Token
 	scanner          Scanner
@@ -115,6 +117,7 @@ func (p *Parser) AddError(msg string) {
 }
 
 func (p *Parser) AdvanceToken() {
+	p.PrevToken = p.CurrentToken
 	p.CurrentToken = p.PeekToken
 	p.PeekToken = p.scanner.NextToken()
 }
@@ -152,12 +155,8 @@ func (p *Parser) ExpectSemi() (token.Token, error) {
 		p.AdvanceToken()
 		return tok, nil
 	}
-	if tok.Type == token.EOF || tok.AfterNewline {
+	if tok.AfterNewline {
 		tok = token.Token{Type: token.SEMICOLON, Literal: token.SEMICOLON.String(), Position: tok.Position}
-		return tok, nil
-	}
-	if p.isRightDelimiter(tok.Type) {
-		tok = token.Token{Type: token.SEMICOLON, Literal: "", Position: tok.Position}
 		return tok, nil
 	}
 	msg := "Expected statement terminator"
@@ -172,13 +171,9 @@ func (p *Parser) AdvanceToStmtEnd() {
 			p.AdvanceToken()
 			break
 		}
-		if typ == token.EOF || p.CurrentToken.AfterNewline || p.isRightDelimiter(typ) {
+		if typ == token.EOF || typ == token.RBRACE || p.CurrentToken.AfterNewline {
 			break
 		}
 		p.AdvanceToken()
 	}
-}
-
-func (p *Parser) isRightDelimiter(typ token.Type) bool {
-	return typ == token.RBRACE || typ == token.RPAREN || typ == token.RBRACKET
 }
