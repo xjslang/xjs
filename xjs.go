@@ -60,6 +60,10 @@ func NewPrinter(opts ...printer.Option) *printer.Printer {
 			js.PrintContinueStmt(p, v)
 		case *js.LabelStmt:
 			js.PrintLabelStmt(p, v)
+		case *js.IncStmt:
+			js.PrintIncStmt(p, v)
+		case *js.DecStmt:
+			js.PrintDecStmt(p, v)
 		default:
 			next(node)
 		}
@@ -123,10 +127,21 @@ func jsPlugin(b *builder.Builder) {
 		case js.CONTINUE:
 			return js.ParseContinueStmt(p)
 		case token.IDENT:
-			if p.PeekToken.Type == token.ASSIGN && !p.PeekToken.AfterNewline {
-				return js.ParseAssignStmt(p)
-			} else if p.PeekToken.Type == token.COLON {
+			switch p.PeekToken.Type {
+			case token.ASSIGN:
+				if !p.PeekToken.AfterNewline {
+					return js.ParseAssignStmt(p)
+				}
+			case token.COLON:
 				return js.ParseLabelStmt(p)
+			case token.INCREMENT:
+				if !p.PeekToken.AfterNewline {
+					return js.ParseIncStmt(p)
+				}
+			case token.DECREMENT:
+				if !p.PeekToken.AfterNewline {
+					return js.ParseDecStmt(p)
+				}
 			}
 		case token.SEMICOLON:
 			return js.ParseSemiStmt(p)

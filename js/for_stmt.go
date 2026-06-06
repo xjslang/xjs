@@ -81,8 +81,17 @@ func parseForClause(p *parser.Parser) (node ast.Stmt, err error) {
 	case LET:
 		return ParseLetStmt(p)
 	case token.IDENT:
-		if p.PeekToken.Type == token.ASSIGN {
+		switch p.PeekToken.Type {
+		case token.ASSIGN:
 			return ParseAssignStmt(p)
+		case token.INCREMENT:
+			if !p.PeekToken.AfterNewline {
+				return ParseIncStmt(p)
+			}
+		case token.DECREMENT:
+			if !p.PeekToken.AfterNewline {
+				return ParseDecStmt(p)
+			}
 		}
 	}
 	return ParseExprStmt(p)

@@ -1,4 +1,4 @@
-for (let i = 0; i < 10; i = i + 1) {
+for (let i = 0; i < 10; i++) {
   print(i);
 }
 
@@ -6,17 +6,17 @@ for (let i = 0; i < 10; i = i + 1) {
 for (
   let i = 0;
   i < 10;
-  i = i + 1
+  i++
 ) {
   print(i);
 }
 
-for (let i = 0; i < 10; i = i + 1) {
+for (let i = 0; i < 10; i++) {
   break;
 }
 
-outer: for (let i = 0; i < 5; i = i + 1) {
-  for (let j = 0; j < 5; j = j + 1) {
+outer: for (let i = 0; i < 5; i++) {
+  for (let j = 5; j >= 0; j--) {
     if (i == 2 && j == 3) {
       break outer; // Exits the entire outer loop
     }
@@ -25,7 +25,7 @@ outer: for (let i = 0; i < 5; i = i + 1) {
 
 label: print("statement is required after a label");
 
-for (let i = 0; i < 10; i = i + 1) {
+for (let i = 0; i < 10; i++) {
   if (i == 3) {
     continue;
   }
@@ -33,9 +33,9 @@ for (let i = 0; i < 10; i = i + 1) {
 }
 
 // The first for statement is labeled "loop1"
-loop1: for (let i = 0; i < 3; i = i + 1) {
+loop1: for (let i = 0; i < 3; i++) {
   // The second for statement is labeled "loop2"
-  loop2: for (let j = 0; j < 3; j = j + 1) {
+  loop2: for (let j = 3; j >= 0; j--) {
     if (i == 1 && j == 1) {
       continue loop1;
     }
