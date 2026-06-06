@@ -6,12 +6,12 @@ function boo() {
 }
 
 function printText(txt) {
-  print(txt);
+  console.log(txt);
 }
 
 function printPosition(
   x, // x-coord
   y // y-coord
 ) {
-  print(x, y);
+  console.log(x, y);
 }

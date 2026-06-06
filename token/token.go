@@ -65,6 +65,7 @@ const (
 	COMMA     // ,
 	SEMICOLON // ;
 	COLON     // :
+	DOT       // .
 	LPAREN    // (
 	RPAREN    // )
 	LBRACE    // {
@@ -112,6 +113,7 @@ var tokenLiterals = map[Type]string{
 	COMMA:     ",",
 	SEMICOLON: ";",
 	COLON:     ":",
+	DOT:       ".",
 	LPAREN:    "(",
 	RPAREN:    ")",
 	LBRACE:    "{",
@@ -160,6 +162,8 @@ var binaryOps = map[Type]int{
 	MULTIPLY: 6,
 	DIVIDE:   6,
 	MODULO:   6,
+	// .
+	DOT: 7,
 }
 
 func (typ Type) IsBinaryOp() (ok bool) {

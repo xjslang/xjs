@@ -1,5 +1,5 @@
 for (let i = 0; i < 10; i++) {
-  print(i);
+  console.log(i);
 }
 
 // indented version
@@ -8,7 +8,7 @@ for (
   i < 10;
   i++
 ) {
-  print(i);
+  console.log(i);
 }
 
 for (let i = 0; i < 10; i++) {
@@ -23,7 +23,7 @@ outer: for (let i = 0; i < 5; i++) {
   }
 }
 
-label: print("statement is required after a label");
+label: console.log("statement is required after a label");
 
 for (let i = 0; i < 10; i++) {
   if (i == 3) {

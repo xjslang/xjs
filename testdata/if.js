@@ -1,19 +1,19 @@
-if (hello) print("Hello, World!");
+if (hello) console.log("Hello, World!");
 if (hello) {
-  print("Hello, World!");
+  console.log("Hello, World!");
 }
 if (hello) {
-  print("Hello, World!");
-} else print("Bye bye, World!");
+  console.log("Hello, World!");
+} else console.log("Bye bye, World!");
 if (hello) {
-  print("Hello, World!");
+  console.log("Hello, World!");
 } else {
-  print("Bye bye, World!");
+  console.log("Bye bye, World!");
 }
 
 // nested
 if (one) {
-  print("aaa");
+  console.log("aaa");
 } else if (two) {
-  print("bbb");
-} else print("ccc");
+  console.log("bbb");
+} else console.log("ccc");

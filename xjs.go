@@ -158,7 +158,8 @@ func jsPlugin(b *builder.Builder) {
 		return js.ParseUnaryExpr(p)
 	})
 	b.UseBinaryParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
-		if p.CurrentToken.Type == token.LPAREN {
+		switch p.CurrentToken.Type {
+		case token.LPAREN:
 			return js.ParseCallExpr(p, left)
 		}
 		return js.ParseBinaryExpr(p, left)
