@@ -14,7 +14,7 @@ type BinaryExpr struct {
 	Right ast.Expr
 }
 
-func ParseBinaryExpr(p *parser.Parser, left ast.Expr) (_ ast.Expr, err error) {
+func ParseBinaryExpr(p *parser.Parser, left ast.Expr) (_ *BinaryExpr, err error) {
 	op := p.CurrentToken
 	node := &BinaryExpr{Left: left, Op: op}
 	p.AdvanceToken()
@@ -25,7 +25,12 @@ func ParseBinaryExpr(p *parser.Parser, left ast.Expr) (_ ast.Expr, err error) {
 }
 
 func PrintBinaryExpr(p *printer.Printer, node *BinaryExpr) {
-	p.Print(node.Left)
-	p.SpPrint(node.Op)
-	p.SpPrint(node.Right)
+	switch node.Op.Type {
+	case token.DOT:
+		p.Print(node.Left, node.Op, node.Right)
+	default:
+		p.Print(node.Left)
+		p.SpPrint(node.Op)
+		p.SpPrint(node.Right)
+	}
 }

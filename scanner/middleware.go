@@ -121,6 +121,10 @@ func defaultScanner(sc *Scanner) token.Token {
 		c := sc.currentChar
 		sc.AdvanceChar()
 		return token.Token{Type: token.COMMA, Literal: string(c)}
+	case '.':
+		c := sc.currentChar
+		sc.AdvanceChar()
+		return token.Token{Type: token.DOT, Literal: string(c)}
 	case ';':
 		c := sc.currentChar
 		sc.AdvanceChar()

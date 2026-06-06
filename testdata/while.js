@@ -1,4 +1,4 @@
-while (cond) print('hello!');
+while (cond) console.log('hello!');
 while (cond) {
-  print('hello!');
+  console.log('hello!');
 }

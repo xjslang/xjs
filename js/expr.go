@@ -23,7 +23,7 @@ func ParseExpr(p *parser.Parser) (val ast.Expr, err error) {
 		return
 	}
 	typ := p.CurrentToken.Type
-	for typ.IsBinaryOp() {
+	for typ.IsBinaryOp() && !p.CurrentToken.AfterNewline {
 		if val, err = p.ParseBinaryExpr(val); err != nil {
 			return
 		}
@@ -38,7 +38,7 @@ func ParseRightExpr(p *parser.Parser, precedence int) (val ast.Expr, err error) 
 	}
 	for {
 		typ := p.CurrentToken.Type
-		if !typ.IsBinaryOp() || precedence >= typ.Precedence() {
+		if !typ.IsBinaryOp() || p.CurrentToken.AfterNewline || precedence >= typ.Precedence() {
 			break
 		}
 		if val, err = p.ParseBinaryExpr(val); err != nil {
