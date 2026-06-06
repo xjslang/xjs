@@ -262,6 +262,32 @@ func TestEnsureSpace(t *testing.T) {
 	}
 }
 
+type MyCustomStmt struct {
+	ast.BaseStmt
+	name string
+}
+
+func TestEnsureBeside(t *testing.T) {
+	pr := printer.Printer{}
+	pr.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node)) {
+		if v, ok := node.(*MyCustomStmt); ok {
+			p.LnPrint(v.name)
+			return
+		}
+		next(node)
+	})
+	pr.Init()
+	pr.Print("aaa")
+	// EnsureBeside takes priority over EnsureSpace and EnsureLine
+	pr.EnsureBeside()
+	pr.SpPrint("bbb")
+	pr.EnsureBeside()
+	pr.LnPrint("bbb")
+	// EnsureBeside takes priority over custom printers
+	pr.BsPrint(&MyCustomStmt{name: "custom_stmt"})
+	require.Equal(t, "aaabbbbbbcustom_stmt", pr.String())
+}
+
 func TestPrint(t *testing.T) {
 	t.Run("append newlines and spaces before printing runes", func(t *testing.T) {
 		pr := printer.Printer{}

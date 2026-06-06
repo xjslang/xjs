@@ -66,6 +66,7 @@ type Printer struct {
 	indent        string
 	indentLevel   int
 	lastChar      rune
+	ensureBeside  bool
 	ensureLine    bool
 	ensureSpace   bool
 	printer       func(*Printer, ast.Node)
@@ -96,6 +97,7 @@ func (p *Printer) Init(opts ...Option) {
 	p.indent = cfg.indent
 	p.indentLevel = 0
 	p.lastChar = eol
+	p.ensureBeside = false
 	p.ensureLine = false
 	p.ensureSpace = false
 	if p.printer == nil {
@@ -119,10 +121,17 @@ func (p *Printer) PrintIndent() {
 	}
 }
 
+// EnsureBeside ensures that the next text to print appears "beside" the previous text.
+func (p *Printer) EnsureBeside() {
+	p.ensureBeside = true
+}
+
+// EnsureLine ensures that a newline is printed before printing the next text.
 func (p *Printer) EnsureLine() {
 	p.ensureLine = true
 }
 
+// EnsureSpace ensures that a space is printed before printing the next text.
 func (p *Printer) EnsureSpace() {
 	p.ensureSpace = true
 }
@@ -144,11 +153,24 @@ func (p *Printer) Print(args ...any) {
 	}
 }
 
+// BsPrint ensures that the next text to print appears "beside" the previous text.
+// This is a combination of EnsureBeside() + Print(a).
+// It takes priority over LnPrint() and SpPrint().
+func (p *Printer) BsPrint(arg any) {
+	p.EnsureBeside()
+	p.Print(arg)
+}
+
+// LnPrint ensures that a newline is printed before printing the next text.
+// This is a combination of EnsureLine() + Print(a).
 func (p *Printer) LnPrint(arg any) {
 	p.EnsureLine()
 	p.Print(arg)
 }
 
+// SpPrint ensures that a space is printed before printing the next text.
+// This is a combination of EnsureSpace() + Print(a).
+// It takes priority over LnPrint().
 func (p *Printer) SpPrint(arg any) {
 	p.EnsureSpace()
 	p.Print(arg)
@@ -242,6 +264,11 @@ func (p *Printer) printIndentIfNeeded() {
 }
 
 func (p *Printer) printSeparatorIfNeeded() {
+	if p.ensureBeside {
+		p.ensureBeside = false
+		p.ensureSpace = false
+		p.ensureLine = false
+	}
 	if p.ensureSpace {
 		p.printSpaceIfNeeded()
 		p.ensureSpace = false
