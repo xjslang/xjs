@@ -1,8 +1,6 @@
 package js
 
 import (
-	"strings"
-
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
@@ -66,15 +64,13 @@ func PrintForStmt(p *printer.Printer, node *ForStmt) {
 	p.LnPrint(node.Layout.For)
 	p.SpPrint(node.Layout.Lparen)
 	// (init; condition; after)
-	p1 := printer.Fork(p)
-	p1.IncreaseIndent()
-	p1.Print(node.Init)
-	p1.Print(node.Layout.Semi1)
-	p1.SpPrint(node.Cond)
-	p1.Print(node.Layout.Semi2)
-	p1.SpPrint(node.After)
-	p1.DecreaseIndent()
-	p.Print(strings.Trim(p1.String(), " "))
+	p.IncreaseIndent()
+	p.BsPrint(node.Init)
+	p.Print(node.Layout.Semi1)
+	p.SpPrint(node.Cond)
+	p.Print(node.Layout.Semi2)
+	p.SpPrint(node.After)
+	p.DecreaseIndent()
 	// then
 	p.Print(node.Layout.Rparen)
 	p.SpPrint(node.Then)
