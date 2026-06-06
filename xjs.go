@@ -40,6 +40,8 @@ func NewPrinter(opts ...printer.Option) *printer.Printer {
 			js.PrintIndexExpr(p, v)
 		case *js.ParenExpr:
 			js.PrintParenExpr(p, v)
+		case *js.ObjExpr:
+			js.PrintObjExpr(p, v)
 		case *js.UnaryExpr:
 			js.PrintUnaryExpr(p, v)
 		case *js.BinaryExpr:
@@ -151,8 +153,11 @@ func jsPlugin(b *builder.Builder) {
 		return js.ParseExpr(p)
 	})
 	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
-		if p.CurrentToken.Type == token.LPAREN {
+		switch p.CurrentToken.Type {
+		case token.LPAREN:
 			return js.ParseParenExpr(p)
+		case token.LBRACE:
+			return js.ParseObjExpr(p)
 		}
 		return js.ParseUnaryExpr(p)
 	})
