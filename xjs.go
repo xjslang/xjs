@@ -78,9 +78,6 @@ func Parse(input []byte) (*js.Program, error) {
 }
 
 func jsPlugin(b *builder.Builder) {
-	token.RegisterUnaryType(token.LPAREN)     //	to evaluate ParenExpr
-	token.RegisterBinaryType(token.LPAREN, 7) // to evaluate CallExpr
-
 	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) (tok token.Token) {
 		tok = next()
 		if tok.Type != token.IDENT {
