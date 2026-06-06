@@ -162,8 +162,9 @@ var binaryOps = map[Type]int{
 	MULTIPLY: 6,
 	DIVIDE:   6,
 	MODULO:   6,
-	// .
-	DOT: 7,
+	// ( .
+	LPAREN: 7,
+	DOT:    7,
 }
 
 func (typ Type) IsBinaryOp() (ok bool) {
@@ -194,7 +195,8 @@ func RegisterBinaryOp(lit string, precedence int) Type {
 }
 
 var unaryTypes = map[Type]bool{
-	NOT: true,
+	NOT:    true,
+	LPAREN: true,
 }
 
 func (typ Type) IsUnaryOp() (ok bool) {
