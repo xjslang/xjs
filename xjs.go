@@ -36,6 +36,8 @@ func NewPrinter(opts ...printer.Option) *printer.Printer {
 			js.PrintForStmt(p, v)
 		case *js.CallExpr:
 			js.PrintCallExpr(p, v)
+		case *js.IndexExpr:
+			js.PrintIndexExpr(p, v)
 		case *js.ParenExpr:
 			js.PrintParenExpr(p, v)
 		case *js.UnaryExpr:
@@ -158,6 +160,8 @@ func jsPlugin(b *builder.Builder) {
 		switch p.CurrentToken.Type {
 		case token.LPAREN:
 			return js.ParseCallExpr(p, left)
+		case token.LBRACKET:
+			return js.ParseIndexExpr(p, left)
 		}
 		return js.ParseBinaryExpr(p, left)
 	})
