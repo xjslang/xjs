@@ -16,8 +16,9 @@ type FunctionDecl struct {
 		Lparen   token.Token
 		Rparen   token.Token
 	}
-	Name *Ident
-	Body *BlockStmt
+	Name   *Ident
+	Params []*Ident
+	Body   *BlockStmt
 }
 
 func ParseFunctionDecl(p *parser.Parser) (_ *FunctionDecl, err error) {
@@ -31,6 +32,21 @@ func ParseFunctionDecl(p *parser.Parser) (_ *FunctionDecl, err error) {
 	if node.Layout.Lparen, err = p.Expect(token.LPAREN); err != nil {
 		return
 	}
+	if p.CurrentToken.Type != token.RPAREN {
+		for {
+			var name *Ident
+			if name, err = ParseIdent(p); err != nil {
+				return
+			}
+			node.Params = append(node.Params, name)
+			if p.CurrentToken.Type == token.RPAREN {
+				break
+			}
+			if _, err = p.Expect(token.COMMA); err != nil {
+				break
+			}
+		}
+	}
 	if node.Layout.Rparen, err = p.Expect(token.RPAREN); err != nil {
 		return
 	}
@@ -43,6 +59,16 @@ func ParseFunctionDecl(p *parser.Parser) (_ *FunctionDecl, err error) {
 func PrintFunctionDecl(p *printer.Printer, node *FunctionDecl) {
 	p.LnPrint(node.Layout.Function)
 	p.SpPrint(node.Name)
-	p.Print(node.Layout.Lparen, node.Layout.Rparen)
+	p.Print(node.Layout.Lparen)
+	p.IncreaseIndent()
+	for i, param := range node.Params {
+		if i > 0 {
+			p.Print(",")
+			p.EnsureSpace()
+		}
+		p.Print(param)
+	}
+	p.DecreaseIndent()
+	p.Print(node.Layout.Rparen)
 	p.SpPrint(node.Body)
 }
