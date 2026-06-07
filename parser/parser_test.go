@@ -92,7 +92,7 @@ func TestExprs(t *testing.T) {
 		Right: *js.BinaryExpr
 			Left: *js.Literal{Value: "2"}
 			Op: "*"
-			Right: *js.ParenExpr
+			Right: *js.GroupExpr
 				Value: *js.BinaryExpr
 					Left: *js.Literal{Value: "3"}
 					Op: "+"
@@ -124,7 +124,7 @@ func TestExprs(t *testing.T) {
 			expected: `*js.BinaryExpr
 	Left: *js.Literal{Value: "2"}
 	Op: "*"
-	Right: *js.ParenExpr
+	Right: *js.GroupExpr
 		Value: *js.BinaryExpr
 			Left: *js.CallExpr
 				Callee: *js.Variable{Name: "pow"}
@@ -221,7 +221,7 @@ func TestMalformedExpr(t *testing.T) {
 		}
 		for i, test := range tests {
 			p := xjs.NewBuilder().Build([]byte(test.input))
-			_, err := js.ParseParenExpr(p)
+			_, err := js.ParseGroupExpr(p)
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
 			}
@@ -268,7 +268,7 @@ func TestKeysAreSaved(t *testing.T) {
 	(1 + 2// comment after
 	)`
 		p := xjs.NewBuilder().Build([]byte(input))
-		result, err := js.ParseParenExpr(p)
+		result, err := js.ParseGroupExpr(p)
 		if err != nil {
 			t.Fatal(err)
 		}
