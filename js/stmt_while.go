@@ -20,6 +20,13 @@ type WhileStmt struct {
 	Then ast.Stmt
 }
 
+func (node *WhileStmt) SelfClosing() bool {
+	if v, ok := node.Then.(SelfClosingStmt); ok {
+		return v.SelfClosing()
+	}
+	return false
+}
+
 func ParseWhileStmt(p *parser.Parser) (_ *WhileStmt, err error) {
 	node := &WhileStmt{}
 	// while

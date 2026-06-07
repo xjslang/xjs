@@ -19,12 +19,11 @@ func ParseProgram(p *parser.Parser) (_ *Program, err error) {
 	node := &Program{}
 	var stmt ast.Stmt
 	for i := 0; p.CurrentToken.Type != token.EOF; i++ {
-		semiNeeded := false
-		switch stmt.(type) {
-		case *LetStmt, *AssignStmt, *ReturnStmt:
-			semiNeeded = true
+		selfClosing := false
+		if v, ok := stmt.(SelfClosingStmt); ok {
+			selfClosing = v.SelfClosing()
 		}
-		if i > 0 && (p.PrevToken.Type != token.RBRACE || semiNeeded) {
+		if i > 0 && !selfClosing {
 			if stmt, err = ParseSemiStmt(p); err != nil {
 				return
 			}
@@ -55,7 +54,11 @@ func PrintProgram(p *printer.Printer, node *Program) {
 	for _, stmt = range node.Stmts {
 		p.Print(stmt)
 	}
-	if len(node.Stmts) > 0 && p.LastChar() != '}' && p.LastChar() != ';' {
+	selfClosing := false
+	if v, ok := stmt.(SelfClosingStmt); ok {
+		selfClosing = v.SelfClosing()
+	}
+	if len(node.Stmts) > 0 && !selfClosing {
 		p.Print(';')
 	}
 	p.Print(node.Layout.EOF)
