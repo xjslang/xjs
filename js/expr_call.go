@@ -22,20 +22,16 @@ func ParseCallExpr(p *parser.Parser, left ast.Expr) (_ *CallExpr, err error) {
 	if node.Layout.Lparen, err = p.Expect(token.LPAREN); err != nil {
 		return
 	}
-	if p.CurrentToken.Type != token.RPAREN {
-		for {
-			var val ast.Expr
-			if val, err = p.ParseExpr(); err != nil {
-				return
-			}
-			node.Args = append(node.Args, val)
-			if p.CurrentToken.Type == token.RPAREN {
-				break
-			}
-			if _, err = p.Expect(token.COMMA); err != nil {
-				return
-			}
+	for p.CurrentToken.Type != token.RPAREN {
+		var val ast.Expr
+		if val, err = p.ParseExpr(); err != nil {
+			return
 		}
+		node.Args = append(node.Args, val)
+		if p.CurrentToken.Type != token.COMMA {
+			break
+		}
+		p.AdvanceToken()
 	}
 	if node.Layout.Rparen, err = p.Expect(token.RPAREN); err != nil {
 		return nil, err
@@ -45,6 +41,7 @@ func ParseCallExpr(p *parser.Parser, left ast.Expr) (_ *CallExpr, err error) {
 
 func PrintCallExpr(p *printer.Printer, node *CallExpr) {
 	p.Print(node.Callee, node.Layout.Lparen)
+	p.IncreaseIndent()
 	for i, arg := range node.Args {
 		if i > 0 {
 			p.Print(",")
@@ -52,5 +49,6 @@ func PrintCallExpr(p *printer.Printer, node *CallExpr) {
 		}
 		p.Print(arg)
 	}
+	p.DecreaseIndent()
 	p.Print(node.Layout.Rparen)
 }

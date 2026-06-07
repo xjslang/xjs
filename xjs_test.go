@@ -77,6 +77,18 @@ func TestParseCommaDangle(t *testing.T) {
 			input:    "let a = [\n\t'one',\n\t'two',\n]",
 			expected: "let a = [\n\t'one',\n\t'two'\n];",
 		},
+		{
+			input:    "let a = point(\n\tx, \n\ty,\n)",
+			expected: "let a = point(\n\tx,\n\ty\n);",
+		},
+		{
+			input:    "let a = function (\n\tx, \n\ty,\n) {}",
+			expected: "let a = function (\n\tx,\n\ty\n) {};",
+		},
+		{
+			input:    "function point(\n\tx, \n\ty,\n) {}",
+			expected: "function point(\n\tx,\n\ty\n) {}",
+		},
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("case_%d", i), func(t *testing.T) {
