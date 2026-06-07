@@ -21,20 +21,16 @@ func ParseArrayExpr(p *parser.Parser) (_ *ArrayExpr, err error) {
 	if node.Layout.Lbracket, err = p.Expect(token.LBRACKET); err != nil {
 		return
 	}
-	if p.CurrentToken.Type != token.RBRACKET {
-		for {
-			var val ast.Expr
-			if val, err = p.ParseExpr(); err != nil {
-				return
-			}
-			node.Values = append(node.Values, val)
-			if p.CurrentToken.Type == token.RBRACKET {
-				break
-			}
-			if _, err = p.Expect(token.COMMA); err != nil {
-				return
-			}
+	for p.CurrentToken.Type != token.RBRACKET {
+		var val ast.Expr
+		if val, err = p.ParseExpr(); err != nil {
+			return
 		}
+		node.Values = append(node.Values, val)
+		if p.CurrentToken.Type != token.COMMA {
+			break
+		}
+		p.AdvanceToken()
 	}
 	if node.Layout.Rbracket, err = p.Expect(token.RBRACKET); err != nil {
 		return
