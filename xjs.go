@@ -34,6 +34,8 @@ func NewPrinter(opts ...printer.Option) *printer.Printer {
 			js.PrintAssignStmt(p, v)
 		case *js.ForStmt:
 			js.PrintForStmt(p, v)
+		case *js.FunctionExpr:
+			js.PrintFunctionExpr(p, v)
 		case *js.CallExpr:
 			js.PrintCallExpr(p, v)
 		case *js.IndexExpr:
@@ -84,6 +86,8 @@ func Parse(input []byte) (*js.Program, error) {
 }
 
 func jsPlugin(b *builder.Builder) {
+	token.RegisterUnaryType(js.FUNCTION)
+
 	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) (tok token.Token) {
 		tok = next()
 		if tok.Type != token.IDENT {
@@ -156,6 +160,8 @@ func jsPlugin(b *builder.Builder) {
 	})
 	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
+		case js.FUNCTION:
+			return js.ParseFunctionExpr(p)
 		case token.LPAREN:
 			return js.ParseParenExpr(p)
 		case token.LBRACE:

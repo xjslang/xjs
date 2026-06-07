@@ -7,26 +7,20 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var FUNCTION = token.RegisterType("function")
-
-type FunctionDecl struct {
-	ast.BaseStmt
+type FunctionExpr struct {
+	ast.BaseExpr
 	Layout struct {
 		Function token.Token
 		Lparen   token.Token
 		Rparen   token.Token
 	}
-	Name   *Ident
 	Params []*Ident
 	Body   *BlockStmt
 }
 
-func ParseFunctionDecl(p *parser.Parser) (_ *FunctionDecl, err error) {
-	node := &FunctionDecl{}
+func ParseFunctionExpr(p *parser.Parser) (_ *FunctionExpr, err error) {
+	node := &FunctionExpr{}
 	if node.Layout.Function, err = p.Expect(FUNCTION); err != nil {
-		return
-	}
-	if node.Name, err = ParseIdent(p); err != nil {
 		return
 	}
 	if node.Layout.Lparen, err = p.Expect(token.LPAREN); err != nil {
@@ -56,10 +50,9 @@ func ParseFunctionDecl(p *parser.Parser) (_ *FunctionDecl, err error) {
 	return node, nil
 }
 
-func PrintFunctionDecl(p *printer.Printer, node *FunctionDecl) {
-	p.LnPrint(node.Layout.Function)
-	p.SpPrint(node.Name)
-	p.Print(node.Layout.Lparen)
+func PrintFunctionExpr(p *printer.Printer, node *FunctionExpr) {
+	p.Print(node.Layout.Function)
+	p.SpPrint(node.Layout.Lparen)
 	p.IncreaseIndent()
 	for i, param := range node.Params {
 		if i > 0 {
