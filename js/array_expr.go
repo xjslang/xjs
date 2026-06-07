@@ -53,8 +53,7 @@ func PrintArrayExpr(p *printer.Printer, node *ArrayExpr) {
 			}
 			p.Print(val)
 		}
-		p.PrintTrivia(node.Layout.Rbracket.LeadingTrivia)
 		p.DecreaseIndent()
 	}
-	p.Print(node.Layout.Rbracket.Literal)
+	p.Print(node.Layout.Rbracket)
 }
