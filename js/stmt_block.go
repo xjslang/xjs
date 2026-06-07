@@ -26,12 +26,7 @@ func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
 	var errs []error
 	var stmt ast.Stmt
 	for i := 0; p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE; i++ {
-		semiNeeded := false
-		switch stmt.(type) {
-		case *LetStmt, *AssignStmt, *ReturnStmt:
-			semiNeeded = true
-		}
-		if i > 0 && (p.PrevToken.Type != token.RBRACE || semiNeeded) {
+		if i > 0 && !selfClosingStmt(stmt) {
 			if stmt, err = ParseSemiStmt(p); err != nil {
 				return
 			}

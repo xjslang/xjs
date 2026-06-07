@@ -34,8 +34,7 @@ func (list ErrorList) Error() string {
 }
 
 type Parser struct {
-	// TODO: do not expose PrevToken, CurrentToken and PeekToken directly
-	PrevToken        token.Token
+	// TODO: do not expose CurrentToken and PeekToken directly
 	CurrentToken     token.Token
 	PeekToken        token.Token
 	scanner          Scanner
@@ -117,7 +116,6 @@ func (p *Parser) AddError(msg string) {
 }
 
 func (p *Parser) AdvanceToken() {
-	p.PrevToken = p.CurrentToken
 	p.CurrentToken = p.PeekToken
 	p.PeekToken = p.scanner.NextToken()
 }

@@ -19,12 +19,7 @@ func ParseProgram(p *parser.Parser) (_ *Program, err error) {
 	node := &Program{}
 	var stmt ast.Stmt
 	for i := 0; p.CurrentToken.Type != token.EOF; i++ {
-		semiNeeded := false
-		switch stmt.(type) {
-		case *LetStmt, *AssignStmt, *ReturnStmt:
-			semiNeeded = true
-		}
-		if i > 0 && (p.PrevToken.Type != token.RBRACE || semiNeeded) {
+		if i > 0 && !selfClosingStmt(stmt) {
 			if stmt, err = ParseSemiStmt(p); err != nil {
 				return
 			}
