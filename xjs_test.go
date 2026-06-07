@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
@@ -60,6 +61,30 @@ func TestLanguageFeatures(t *testing.T) {
 			pr.Print(result)
 			// the original must match the final printed result
 			require.Equal(t, string(dat), pr.String())
+		})
+	}
+}
+
+func TestParseCommaDangle(t *testing.T) {
+	tests := []struct {
+		input, expected string
+	}{
+		{
+			input:    "let a = {\n\tone: 'one',\n\ttwo: 'two',\n}",
+			expected: "let a = {\n\tone: 'one',\n\ttwo: 'two'\n};",
+		},
+		{
+			input:    "let a = [\n\t'one',\n\t'two',\n]",
+			expected: "let a = [\n\t'one',\n\t'two'\n];",
+		},
+	}
+	for i, test := range tests {
+		t.Run(fmt.Sprintf("case_%d", i), func(t *testing.T) {
+			result, err := xjs.Parse([]byte(test.input))
+			require.NoError(t, err)
+			pr := xjs.NewPrinter(printer.WithIndent("\t"))
+			pr.Print(result)
+			assert.Equal(t, test.expected, pr.String())
 		})
 	}
 }
