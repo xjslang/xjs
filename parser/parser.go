@@ -147,21 +147,6 @@ func (p *Parser) Errors() ErrorList {
 	return append(ErrorList{}, p.errors...)
 }
 
-func (p *Parser) ExpectSemi() (token.Token, error) {
-	tok := p.CurrentToken
-	if tok.Type == token.SEMICOLON {
-		p.AdvanceToken()
-		return tok, nil
-	}
-	if tok.AfterNewline {
-		tok = token.Token{Type: token.SEMICOLON, Literal: token.SEMICOLON.String(), Position: tok.Position}
-		return tok, nil
-	}
-	msg := "Expected statement terminator"
-	p.AddError(msg)
-	return tok, errors.New(msg)
-}
-
 func (p *Parser) AdvanceToStmtEnd() {
 	for {
 		typ := p.CurrentToken.Type
