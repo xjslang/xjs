@@ -1,6 +1,8 @@
 package js
 
 import (
+	"errors"
+
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
@@ -20,7 +22,7 @@ func (node *SemiStmt) SelfClosing() bool {
 
 func ParseSemiStmt(p *parser.Parser) (_ *SemiStmt, err error) {
 	node := &SemiStmt{}
-	if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
+	if node.Layout.Semi, err = expectSemi(p); err != nil {
 		return
 	}
 	return node, nil
@@ -28,4 +30,19 @@ func ParseSemiStmt(p *parser.Parser) (_ *SemiStmt, err error) {
 
 func PrintSemiStmt(p *printer.Printer, node *SemiStmt) {
 	p.Print(node.Layout.Semi)
+}
+
+func expectSemi(p *parser.Parser) (token.Token, error) {
+	tok := p.CurrentToken
+	if tok.Type == token.SEMICOLON {
+		p.AdvanceToken()
+		return tok, nil
+	}
+	if tok.AfterNewline {
+		tok = token.Token{Type: token.SEMICOLON, Literal: token.SEMICOLON.String(), Position: tok.Position}
+		return tok, nil
+	}
+	msg := "Expected ; or newline"
+	p.AddError(msg)
+	return tok, errors.New(msg)
 }
