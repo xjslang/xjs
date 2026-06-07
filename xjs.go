@@ -42,6 +42,8 @@ func NewPrinter(opts ...printer.Option) *printer.Printer {
 			js.PrintParenExpr(p, v)
 		case *js.ObjExpr:
 			js.PrintObjExpr(p, v)
+		case *js.ArrayExpr:
+			js.PrintArrayExpr(p, v)
 		case *js.UnaryExpr:
 			js.PrintUnaryExpr(p, v)
 		case *js.BinaryExpr:
@@ -158,6 +160,8 @@ func jsPlugin(b *builder.Builder) {
 			return js.ParseParenExpr(p)
 		case token.LBRACE:
 			return js.ParseObjExpr(p)
+		case token.LBRACKET:
+			return js.ParseArrayExpr(p)
 		}
 		return js.ParseUnaryExpr(p)
 	})
