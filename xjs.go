@@ -40,8 +40,8 @@ func NewPrinter(opts ...printer.Option) *printer.Printer {
 			js.PrintCallExpr(p, v)
 		case *js.IndexExpr:
 			js.PrintIndexExpr(p, v)
-		case *js.ParenExpr:
-			js.PrintParenExpr(p, v)
+		case *js.GroupExpr:
+			js.PrintGroupExpr(p, v)
 		case *js.ObjExpr:
 			js.PrintObjExpr(p, v)
 		case *js.ArrayExpr:
@@ -163,7 +163,7 @@ func jsPlugin(b *builder.Builder) {
 		case js.FUNCTION:
 			return js.ParseFunctionExpr(p)
 		case token.LPAREN:
-			return js.ParseParenExpr(p)
+			return js.ParseGroupExpr(p)
 		case token.LBRACE:
 			return js.ParseObjExpr(p)
 		case token.LBRACKET:

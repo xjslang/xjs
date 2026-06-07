@@ -7,7 +7,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-type ParenExpr struct {
+type GroupExpr struct {
 	ast.BaseExpr
 	Layout struct {
 		Lparen token.Token
@@ -16,8 +16,8 @@ type ParenExpr struct {
 	Value ast.Expr
 }
 
-func ParseParenExpr(p *parser.Parser) (_ *ParenExpr, err error) {
-	node := &ParenExpr{}
+func ParseGroupExpr(p *parser.Parser) (_ *GroupExpr, err error) {
+	node := &GroupExpr{}
 	if node.Layout.Lparen, err = p.Expect(token.LPAREN); err != nil {
 		return
 	}
@@ -30,6 +30,6 @@ func ParseParenExpr(p *parser.Parser) (_ *ParenExpr, err error) {
 	return node, nil
 }
 
-func PrintParenExpr(p *printer.Printer, node *ParenExpr) {
+func PrintGroupExpr(p *printer.Printer, node *GroupExpr) {
 	p.Print(node.Layout.Lparen, node.Value, node.Layout.Rparen)
 }
