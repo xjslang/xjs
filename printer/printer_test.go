@@ -115,8 +115,8 @@ func TestPrintCallExpr(t *testing.T) {
 				// c4
 			) - 5) - 3`,
 			expected: `let x = 1 * (foo/* c1 */(
-2, // c2
-3 * 4 // c3
+  2, // c2
+  3 * 4 // c3
 // c4
 ) - 5) - 3;`,
 		},

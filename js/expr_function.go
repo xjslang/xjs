@@ -26,20 +26,16 @@ func ParseFunctionExpr(p *parser.Parser) (_ *FunctionExpr, err error) {
 	if node.Layout.Lparen, err = p.Expect(token.LPAREN); err != nil {
 		return
 	}
-	if p.CurrentToken.Type != token.RPAREN {
-		for {
-			var name *Ident
-			if name, err = ParseIdent(p); err != nil {
-				return
-			}
-			node.Params = append(node.Params, name)
-			if p.CurrentToken.Type == token.RPAREN {
-				break
-			}
-			if _, err = p.Expect(token.COMMA); err != nil {
-				return
-			}
+	for p.CurrentToken.Type != token.RPAREN {
+		var name *Ident
+		if name, err = ParseIdent(p); err != nil {
+			return
 		}
+		node.Params = append(node.Params, name)
+		if p.CurrentToken.Type != token.COMMA {
+			break
+		}
+		p.AdvanceToken()
 	}
 	if node.Layout.Rparen, err = p.Expect(token.RPAREN); err != nil {
 		return
