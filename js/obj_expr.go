@@ -65,11 +65,8 @@ func PrintObjExpr(p *printer.Printer, node *ObjExpr) {
 			p.Print(":")
 			p.SpPrint(entry.Value)
 		}
-		// RBRACE is a special token, since the "leading trivia"
-		// must be printed "before" indentation level decreases
-		p.PrintTrivia(node.Layout.Rbrace.LeadingTrivia)
 		p.DecreaseIndent()
 		p.EnsureSpace()
 	}
-	p.Print(node.Layout.Rbrace.Literal)
+	p.Print(node.Layout.Rbrace)
 }

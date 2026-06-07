@@ -71,11 +71,8 @@ func PrintBlockStmt(p *printer.Printer, node *BlockStmt) {
 		if p.LastChar() != '}' && p.LastChar() != ';' {
 			p.Print(';')
 		}
-		// RBRACE is a special token, since the "leading trivia"
-		// must be printed "before" indentation level decreases
-		p.PrintTrivia(node.Layout.Rbrace.LeadingTrivia)
 		p.DecreaseIndent()
 		p.EnsureLine()
 	}
-	p.Print(node.Layout.Rbrace.Literal)
+	p.Print(node.Layout.Rbrace)
 }

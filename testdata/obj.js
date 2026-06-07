@@ -10,8 +10,8 @@ let item = {
 function foo() {
   return {
     name: 'John Smith',
-    age: 32
-    // comments here
+    age: 32 // age
+  // comments here
   };
   let item = {
     name: "John Smith",
