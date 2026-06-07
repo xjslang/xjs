@@ -72,10 +72,6 @@ type Printer struct {
 	printer       func(*Printer, ast.Node)
 }
 
-func (p *Printer) LastChar() rune {
-	return p.lastChar
-}
-
 // Init initializes the printer.
 //
 // Call Init before printing with Print/LnPrint/SpPrint.

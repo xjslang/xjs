@@ -18,6 +18,10 @@ type BlockStmt struct {
 	Stmts []ast.Stmt
 }
 
+func (node *BlockStmt) SelfClosing() bool {
+	return true
+}
+
 func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
 	node := &BlockStmt{}
 	if node.Layout.Lbrace, err = p.Expect(token.LBRACE); err != nil {
@@ -26,12 +30,11 @@ func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
 	var errs []error
 	var stmt ast.Stmt
 	for i := 0; p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE; i++ {
-		semiNeeded := false
-		switch stmt.(type) {
-		case *LetStmt, *AssignStmt, *ReturnStmt:
-			semiNeeded = true
+		selfClosing := false
+		if v, ok := stmt.(SelfClosingStmt); ok {
+			selfClosing = v.SelfClosing()
 		}
-		if i > 0 && (p.PrevToken.Type != token.RBRACE || semiNeeded) {
+		if i > 0 && !selfClosing {
 			if stmt, err = ParseSemiStmt(p); err != nil {
 				return
 			}
@@ -68,7 +71,11 @@ func PrintBlockStmt(p *printer.Printer, node *BlockStmt) {
 		for _, stmt = range node.Stmts {
 			p.Print(stmt)
 		}
-		if p.LastChar() != '}' && p.LastChar() != ';' {
+		selfClosing := false
+		if v, ok := stmt.(SelfClosingStmt); ok {
+			selfClosing = v.SelfClosing()
+		}
+		if !selfClosing {
 			p.Print(';')
 		}
 		p.DecreaseIndent()
