@@ -122,6 +122,10 @@ func defaultScanner(sc *Scanner) token.Token {
 		sc.AdvanceChar()
 		return token.Token{Type: token.COMMA, Literal: string(c)}
 	case '.':
+		if isDigit(sc.PeekChar()) {
+			lit, typ := sc.consumeNumber()
+			return token.Token{Type: typ, Literal: lit}
+		}
 		c := sc.currentChar
 		sc.AdvanceChar()
 		return token.Token{Type: token.DOT, Literal: string(c)}
@@ -173,8 +177,8 @@ func defaultScanner(sc *Scanner) token.Token {
 			typ := lookup(lit)
 			return token.Token{Type: typ, Literal: lit}
 		} else if isDigit(sc.currentChar) {
-			lit := sc.consumeNumber()
-			return token.Token{Type: token.NUMBER, Literal: lit}
+			lit, typ := sc.consumeNumber()
+			return token.Token{Type: typ, Literal: lit}
 		} else if sc.currentChar == utf8.RuneError {
 			c := sc.currentChar
 			sc.AdvanceChar()
