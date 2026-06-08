@@ -57,13 +57,33 @@ func (sc *Scanner) consumeIdentifier() string {
 	return sb.String()
 }
 
-func (sc *Scanner) consumeNumber() string {
+func (sc *Scanner) consumeNumber() (string, token.Type) {
 	sb := strings.Builder{}
-	sb.WriteRune(sc.currentChar)
-	for sc.AdvanceChar(); isDigit(sc.currentChar); sc.AdvanceChar() {
-		sb.WriteRune(sc.currentChar)
+	readDigits := func() {
+		for sc.AdvanceChar(); isDigit(sc.currentChar); sc.AdvanceChar() {
+			sb.WriteRune(sc.currentChar)
+		}
 	}
-	return sb.String()
+	sb.WriteRune(sc.currentChar)
+	readDigits()
+	if sc.currentChar == '.' {
+		sb.WriteRune(sc.currentChar)
+		readDigits()
+	}
+	if sc.currentChar == 'e' || sc.currentChar == 'E' {
+		sb.WriteRune(sc.currentChar)
+		sc.AdvanceChar()
+		if sc.currentChar == '+' || sc.currentChar == '-' {
+			sb.WriteRune(sc.currentChar)
+			sc.AdvanceChar()
+		}
+		if !isDigit(sc.currentChar) {
+			return sb.String(), token.ILLEGAL
+		}
+		sb.WriteRune(sc.currentChar)
+		readDigits()
+	}
+	return sb.String(), token.NUMBER
 }
 
 func (sc *Scanner) consumeString(delimiter rune) (string, token.Type) {
