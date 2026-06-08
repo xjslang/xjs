@@ -63,7 +63,7 @@ func ParseValue(p *parser.Parser) (ast.Expr, error) {
 		p.AdvanceToken()
 		return &Literal{Value: val}, nil
 	}
-	msg := "Expected value"
+	msg := "Unknown expression"
 	p.AddError(msg)
 	return nil, errors.New(msg)
 }

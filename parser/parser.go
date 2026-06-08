@@ -2,7 +2,7 @@ package parser
 
 import (
 	"errors"
-	"strings"
+	"strconv"
 	"unicode/utf8"
 
 	"github.com/xjslang/xjs/ast"
@@ -26,11 +26,14 @@ type Error struct {
 type ErrorList []Error
 
 func (list ErrorList) Error() string {
-	var result []string
-	for _, err := range list {
-		result = append(result, err.Message)
+	if len(list) > 0 {
+		item := list[0]
+		start := item.Range.Start
+		return "[line:" + strconv.Itoa(start.Line) +
+			", col:" + strconv.Itoa(start.Column) +
+			"] " + item.Message
 	}
-	return strings.Join(result, "\n")
+	return ""
 }
 
 type Parser struct {
