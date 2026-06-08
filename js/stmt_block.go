@@ -1,8 +1,6 @@
 package js
 
 import (
-	"errors"
-
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
@@ -27,7 +25,7 @@ func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
 	if node.Layout.Lbrace, err = p.Expect(token.LBRACE); err != nil {
 		return
 	}
-	var errs []error
+	var lastError error
 	var stmt ast.Stmt
 	for i := 0; p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE; i++ {
 		selfClosing := false
@@ -47,7 +45,7 @@ func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
 					// advance position to avoid infinite loop
 					p.AdvanceToken()
 				}
-				errs = append(errs, err)
+				lastError = err
 				p.AdvanceToStmtEnd()
 				continue
 			}
@@ -55,10 +53,10 @@ func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
 		}
 	}
 	if node.Layout.Rbrace, err = p.Expect(token.RBRACE); err != nil {
-		errs = append(errs, err)
+		lastError = err
 	}
-	if len(errs) > 0 {
-		return node, errors.Join(errs...)
+	if lastError != nil {
+		return node, lastError
 	}
 	return node, nil
 }
