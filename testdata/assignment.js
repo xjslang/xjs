@@ -19,6 +19,11 @@ console.log(x);
 x = 10;
 console.log(x);
 
+// Unary operators
+let y = -x;
+let z = +x;
+console.log(y, z);
+
 let z = !true;
 console.log(z);
 
