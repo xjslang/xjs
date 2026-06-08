@@ -57,7 +57,24 @@ func (sc *Scanner) consumeIdentifier() string {
 	return sb.String()
 }
 
-func (sc *Scanner) consumeNumber() (string, token.Type) {
+func (sc *Scanner) consumeHexNumber() (string, token.Type) {
+	sb := strings.Builder{}
+	// consume 0x / 0X prefix
+	for range 2 {
+		sb.WriteRune(sc.currentChar)
+		sc.AdvanceChar()
+	}
+	if !isHexDigit(sc.currentChar) {
+		return sb.String(), token.ILLEGAL
+	}
+	sb.WriteRune(sc.currentChar)
+	for sc.AdvanceChar(); isHexDigit(sc.currentChar); sc.AdvanceChar() {
+		sb.WriteRune(sc.currentChar)
+	}
+	return sb.String(), token.NUMBER
+}
+
+func (sc *Scanner) consumeDecimalNumber() (string, token.Type) {
 	sb := strings.Builder{}
 	readDigits := func() {
 		for sc.AdvanceChar(); isDigit(sc.currentChar); sc.AdvanceChar() {
@@ -84,6 +101,16 @@ func (sc *Scanner) consumeNumber() (string, token.Type) {
 		readDigits()
 	}
 	return sb.String(), token.NUMBER
+}
+
+func (sc *Scanner) consumeNumber() (string, token.Type) {
+	if sc.currentChar == '0' {
+		pc := sc.PeekChar()
+		if pc == 'x' || pc == 'X' {
+			return sc.consumeHexNumber()
+		}
+	}
+	return sc.consumeDecimalNumber()
 }
 
 func (sc *Scanner) consumeString(delimiter rune) (string, token.Type) {
