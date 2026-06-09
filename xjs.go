@@ -90,28 +90,36 @@ func jsPlugin(b *builder.Builder) {
 
 	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) (tok token.Token) {
 		tok = next()
-		if tok.Type != token.IDENT {
-			return
-		}
-		switch tok.Literal {
-		case "function":
-			tok.Type = js.FUNCTION
-		case "let":
-			tok.Type = js.LET
-		case "if":
-			tok.Type = js.IF
-		case "else":
-			tok.Type = js.ELSE
-		case "while":
-			tok.Type = js.WHILE
-		case "for":
-			tok.Type = js.FOR
-		case "return":
-			tok.Type = js.RETURN
-		case "break":
-			tok.Type = js.BREAK
-		case "continue":
-			tok.Type = js.CONTINUE
+		switch tok.Type {
+		case token.IDENT:
+			switch tok.Literal {
+			case "function":
+				tok.Type = js.FUNCTION
+			case "let":
+				tok.Type = js.LET
+			case "if":
+				tok.Type = js.IF
+			case "else":
+				tok.Type = js.ELSE
+			case "while":
+				tok.Type = js.WHILE
+			case "for":
+				tok.Type = js.FOR
+			case "return":
+				tok.Type = js.RETURN
+			case "break":
+				tok.Type = js.BREAK
+			case "continue":
+				tok.Type = js.CONTINUE
+			}
+		case token.NUMBER:
+			if tok.Literal == "0" {
+				switch sc.CurrentChar() {
+				case 'x', 'X':
+					lit, typ := js.ScanHexNumber(sc)
+					return token.Token{Type: typ, Literal: tok.Literal + lit}
+				}
+			}
 		}
 		return
 	})
