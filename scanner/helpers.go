@@ -7,3 +7,11 @@ func isLetter(r rune) bool {
 func isDigit(r rune) bool {
 	return r >= '0' && r <= '9'
 }
+
+func isHexDigit(r rune) bool {
+	return isDigit(r) || r >= 'a' && r <= 'f' || r >= 'A' && r <= 'F'
+}
+
+func isOctalDigit(r rune) bool {
+	return r >= '0' && r <= '7'
+}

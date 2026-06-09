@@ -112,17 +112,6 @@ func jsPlugin(b *builder.Builder) {
 			case "continue":
 				tok.Type = js.CONTINUE
 			}
-		case token.NUMBER:
-			if tok.Literal == "0" {
-				switch sc.CurrentChar() {
-				case 'x', 'X':
-					lit, typ := js.ScanHexNumber(sc)
-					return token.Token{Type: typ, Literal: tok.Literal + lit}
-				case 'o', 'O':
-					lit, typ := js.ScanOctalNumber(sc)
-					return token.Token{Type: typ, Literal: tok.Literal + lit}
-				}
-			}
 		}
 		return
 	})
