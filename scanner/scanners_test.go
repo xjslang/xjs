@@ -54,3 +54,22 @@ func TestScanNumber(t *testing.T) {
 		}
 	})
 }
+
+func TestScanString(t *testing.T) {
+	tests := []struct {
+		delimiter rune
+		input     string
+	}{
+		{'\'', `'string with \'escaped single quotes\''`},
+		{'"', `"string with \"escaped quotes\""`},
+	}
+	for _, test := range tests {
+		sc := &Scanner{}
+		sc.Init([]byte(test.input))
+		result, typ := scanString(sc, test.delimiter)
+		if !assert.Equal(t, token.STRING, typ) {
+			continue
+		}
+		assert.Equal(t, test.input, result)
+	}
+}

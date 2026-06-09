@@ -135,6 +135,14 @@ func scanString(sc *Scanner, delimiter rune) (string, token.Type) {
 	sb.WriteRune(sc.currentChar)
 	for {
 		sc.AdvanceChar()
+		if sc.currentChar == '\\' {
+			sb.WriteRune(sc.currentChar)
+			sc.AdvanceChar()
+			if sc.currentChar == delimiter {
+				sb.WriteRune(sc.currentChar)
+				continue
+			}
+		}
 		if sc.currentChar == delimiter {
 			sb.WriteRune(sc.currentChar)
 			sc.AdvanceChar()
