@@ -174,8 +174,7 @@ func defaultScanner(sc *Scanner) token.Token {
 	default:
 		if isLetter(sc.currentChar) {
 			lit := scanIdentifier(sc)
-			typ := lookup(lit)
-			return token.Token{Type: typ, Literal: lit}
+			return token.Token{Type: token.IDENT, Literal: lit}
 		} else if isDigit(sc.currentChar) {
 			lit, typ := scanNumber(sc)
 			return token.Token{Type: typ, Literal: lit}
@@ -191,12 +190,4 @@ func defaultScanner(sc *Scanner) token.Token {
 	c := sc.currentChar
 	sc.AdvanceChar()
 	return token.Token{Type: token.UNKNOWN, Literal: string(c)}
-}
-
-func lookup(lit string) token.Type {
-	switch lit {
-	case "true", "false":
-		return token.BOOLEAN
-	}
-	return token.IDENT
 }
