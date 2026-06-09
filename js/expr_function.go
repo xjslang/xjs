@@ -14,6 +14,7 @@ type FunctionExpr struct {
 		Lparen   token.Token
 		Rparen   token.Token
 	}
+	Name   *Ident
 	Params []*Ident
 	Body   *BlockStmt
 }
@@ -22,6 +23,10 @@ func ParseFunctionExpr(p *parser.Parser) (_ *FunctionExpr, err error) {
 	node := &FunctionExpr{}
 	if node.Layout.Function, err = p.Expect(FUNCTION); err != nil {
 		return
+	}
+	if p.CurrentToken.Type == token.IDENT {
+		node.Name = &Ident{Token: p.CurrentToken}
+		p.AdvanceToken()
 	}
 	if node.Layout.Lparen, err = p.Expect(token.LPAREN); err != nil {
 		return
@@ -48,7 +53,11 @@ func ParseFunctionExpr(p *parser.Parser) (_ *FunctionExpr, err error) {
 
 func PrintFunctionExpr(p *printer.Printer, node *FunctionExpr) {
 	p.Print(node.Layout.Function)
-	p.SpPrint(node.Layout.Lparen)
+	p.EnsureSpace()
+	if node.Name != nil {
+		p.Print(node.Name)
+	}
+	p.Print(node.Layout.Lparen)
 	p.IncreaseIndent()
 	for i, param := range node.Params {
 		if i > 0 {
