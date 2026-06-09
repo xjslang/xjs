@@ -57,7 +57,39 @@ func scanIdentifier(sc *Scanner) string {
 	return sb.String()
 }
 
-func scanNumber(sc *Scanner) (string, token.Type) {
+func scanHexNumber(sc *Scanner) (string, token.Type) {
+	sb := strings.Builder{}
+	sb.WriteRune(sc.currentChar)
+	sc.AdvanceChar() // consume 0
+	sb.WriteRune(sc.currentChar)
+	sc.AdvanceChar() // consume x | X
+	if !isHexDigit(sc.currentChar) {
+		return sb.String(), token.ILLEGAL
+	}
+	sb.WriteRune(sc.currentChar)
+	for sc.AdvanceChar(); isHexDigit(sc.currentChar); sc.AdvanceChar() {
+		sb.WriteRune(sc.currentChar)
+	}
+	return sb.String(), token.NUMBER
+}
+
+func scanOctalNumber(sc *Scanner) (string, token.Type) {
+	sb := strings.Builder{}
+	sb.WriteRune(sc.currentChar)
+	sc.AdvanceChar() // consume 0
+	sb.WriteRune(sc.currentChar)
+	sc.AdvanceChar() // consume x | X
+	if !isOctalDigit(sc.currentChar) {
+		return sb.String(), token.ILLEGAL
+	}
+	sb.WriteRune(sc.currentChar)
+	for sc.AdvanceChar(); isOctalDigit(sc.currentChar); sc.AdvanceChar() {
+		sb.WriteRune(sc.currentChar)
+	}
+	return sb.String(), token.NUMBER
+}
+
+func scanFloatNumber(sc *Scanner) (string, token.Type) {
 	sb := strings.Builder{}
 	readDigits := func() {
 		for sc.AdvanceChar(); isDigit(sc.currentChar); sc.AdvanceChar() {
@@ -84,6 +116,18 @@ func scanNumber(sc *Scanner) (string, token.Type) {
 		readDigits()
 	}
 	return sb.String(), token.NUMBER
+}
+
+func scanNumber(sc *Scanner) (string, token.Type) {
+	if sc.currentChar == '0' {
+		switch sc.PeekChar() {
+		case 'x', 'X':
+			return scanHexNumber(sc)
+		case 'o', 'O':
+			return scanOctalNumber(sc)
+		}
+	}
+	return scanFloatNumber(sc)
 }
 
 func scanString(sc *Scanner, delimiter rune) (string, token.Type) {

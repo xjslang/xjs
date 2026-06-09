@@ -88,10 +88,9 @@ func Parse(input []byte) (*js.Program, error) {
 func jsPlugin(b *builder.Builder) {
 	token.RegisterUnaryType(js.FUNCTION)
 
-	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) (tok token.Token) {
-		tok = next()
-		switch tok.Type {
-		case token.IDENT:
+	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
+		tok := next()
+		if tok.Type == token.IDENT {
 			switch tok.Literal {
 			case "function":
 				tok.Type = js.FUNCTION
@@ -112,19 +111,8 @@ func jsPlugin(b *builder.Builder) {
 			case "continue":
 				tok.Type = js.CONTINUE
 			}
-		case token.NUMBER:
-			if tok.Literal == "0" {
-				switch sc.CurrentChar() {
-				case 'x', 'X':
-					lit, typ := js.ScanHexNumber(sc)
-					return token.Token{Type: typ, Literal: tok.Literal + lit}
-				case 'o', 'O':
-					lit, typ := js.ScanOctalNumber(sc)
-					return token.Token{Type: typ, Literal: tok.Literal + lit}
-				}
-			}
 		}
-		return
+		return tok
 	})
 	b.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (ast.Stmt, error) {
 		switch p.CurrentToken.Type {
