@@ -105,16 +105,16 @@ func defaultScanner(sc *Scanner) token.Token {
 		c1 := sc.currentChar
 		sc.AdvanceChar()
 		if sc.currentChar == '/' {
-			comment := sc.consumeLineComment()
+			comment := scanLineComment(sc)
 			return token.Token{Type: token.LINE_COMMENT, Literal: comment}
 		}
 		if sc.currentChar == '*' {
-			comment, typ := sc.consumeBlockComment()
+			comment, typ := scanBlockComment(sc)
 			return token.Token{Type: typ, Literal: comment}
 		}
 		return token.Token{Type: token.DIVIDE, Literal: string(c1)}
 	case '\'', '"':
-		lit, typ := sc.consumeString(sc.currentChar)
+		lit, typ := scanString(sc, sc.currentChar)
 		return token.Token{Type: typ, Literal: lit}
 	// delimiters
 	case ',':
@@ -123,7 +123,7 @@ func defaultScanner(sc *Scanner) token.Token {
 		return token.Token{Type: token.COMMA, Literal: string(c)}
 	case '.':
 		if isDigit(sc.PeekChar()) {
-			lit, typ := sc.consumeNumber()
+			lit, typ := scanNumber(sc)
 			return token.Token{Type: typ, Literal: lit}
 		}
 		c := sc.currentChar
@@ -173,11 +173,11 @@ func defaultScanner(sc *Scanner) token.Token {
 		return token.Token{Type: token.NEWLINE, Literal: "\n"}
 	default:
 		if isLetter(sc.currentChar) {
-			lit := sc.consumeIdentifier()
+			lit := scanIdentifier(sc)
 			typ := lookup(lit)
 			return token.Token{Type: typ, Literal: lit}
 		} else if isDigit(sc.currentChar) {
-			lit, typ := sc.consumeNumber()
+			lit, typ := scanNumber(sc)
 			return token.Token{Type: typ, Literal: lit}
 		} else if sc.currentChar == utf8.RuneError {
 			c := sc.currentChar

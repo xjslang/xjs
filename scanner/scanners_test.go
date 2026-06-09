@@ -16,7 +16,7 @@ func TestConsumeNumber(t *testing.T) {
 			input := fmt.Sprintf("%s%s", test, suffix)
 			sc := &Scanner{}
 			sc.Init([]byte(input))
-			result, typ := sc.consumeNumber()
+			result, typ := scanNumber(sc)
 			if !assert.Equal(t, token.NUMBER, typ) {
 				continue
 			}
@@ -29,7 +29,7 @@ func TestConsumeNumber(t *testing.T) {
 		for _, test := range tests {
 			sc := &Scanner{}
 			sc.Init([]byte(test))
-			_, typ := sc.consumeNumber()
+			_, typ := scanNumber(sc)
 			assert.Equal(t, token.ILLEGAL, typ)
 		}
 	})
