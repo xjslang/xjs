@@ -118,6 +118,9 @@ func jsPlugin(b *builder.Builder) {
 				case 'x', 'X':
 					lit, typ := js.ScanHexNumber(sc)
 					return token.Token{Type: typ, Literal: tok.Literal + lit}
+				case 'o', 'O':
+					lit, typ := js.ScanOctalNumber(sc)
+					return token.Token{Type: typ, Literal: tok.Literal + lit}
 				}
 			}
 		}
