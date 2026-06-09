@@ -6,7 +6,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func (sc *Scanner) consumeBlockComment() (string, token.Type) {
+func scanBlockComment(sc *Scanner) (string, token.Type) {
 	sb := strings.Builder{}
 	sc.AdvanceChar() // consume "*"
 	for {
@@ -24,7 +24,7 @@ func (sc *Scanner) consumeBlockComment() (string, token.Type) {
 	return sb.String(), token.BLOCK_COMMENT
 }
 
-func (sc *Scanner) consumeLineComment() string {
+func scanLineComment(sc *Scanner) string {
 	sb := strings.Builder{}
 	for {
 		sc.AdvanceChar()
@@ -48,7 +48,7 @@ func (sc *Scanner) consumeLineComment() string {
 	return sb.String()
 }
 
-func (sc *Scanner) consumeIdentifier() string {
+func scanIdentifier(sc *Scanner) string {
 	sb := strings.Builder{}
 	sb.WriteRune(sc.currentChar)
 	for sc.AdvanceChar(); isLetter(sc.currentChar) || isDigit(sc.currentChar); sc.AdvanceChar() {
@@ -57,7 +57,7 @@ func (sc *Scanner) consumeIdentifier() string {
 	return sb.String()
 }
 
-func (sc *Scanner) consumeNumber() (string, token.Type) {
+func scanNumber(sc *Scanner) (string, token.Type) {
 	sb := strings.Builder{}
 	readDigits := func() {
 		for sc.AdvanceChar(); isDigit(sc.currentChar); sc.AdvanceChar() {
@@ -86,7 +86,7 @@ func (sc *Scanner) consumeNumber() (string, token.Type) {
 	return sb.String(), token.NUMBER
 }
 
-func (sc *Scanner) consumeString(delimiter rune) (string, token.Type) {
+func scanString(sc *Scanner, delimiter rune) (string, token.Type) {
 	sb := strings.Builder{}
 	sb.WriteRune(sc.currentChar)
 	for {
