@@ -11,6 +11,7 @@ import (
 )
 
 func assertLexerTokens(t *testing.T, sc *scanner.Scanner, expectedToks []token.Token, opts ...testutil.TokenCompareOption) {
+	t.Helper()
 	var toks []token.Token
 	for {
 		tok := sc.NextToken()
@@ -23,6 +24,7 @@ func assertLexerTokens(t *testing.T, sc *scanner.Scanner, expectedToks []token.T
 }
 
 func assertInputTokens(t *testing.T, input string, expectedToks []token.Token, opts ...testutil.TokenCompareOption) {
+	t.Helper()
 	sc := &scanner.Scanner{}
 	sc.Init([]byte(input))
 	assertLexerTokens(t, sc, expectedToks, opts...)
@@ -302,14 +304,6 @@ func TestReadIdent(t *testing.T) {
 func TestReadNumber(t *testing.T) {
 	assertInputTokens(t, "123", []token.Token{
 		{Type: token.NUMBER, Literal: "123"},
-		{Type: token.EOF},
-	})
-}
-
-func TestReadBoolean(t *testing.T) {
-	assertInputTokens(t, "true false", []token.Token{
-		{Type: token.BOOLEAN, Literal: "true"},
-		{Type: token.BOOLEAN, Literal: "false"},
 		{Type: token.EOF},
 	})
 }

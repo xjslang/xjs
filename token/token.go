@@ -39,7 +39,6 @@ const (
 	// literals
 	STRING
 	NUMBER
-	BOOLEAN
 	// operators
 	ASSIGN   // =
 	PLUS     // +
@@ -85,9 +84,8 @@ var tokenLiterals = map[Type]string{
 	ILLEGAL: "illegal",
 	UNKNOWN: "unknown",
 	// literals
-	STRING:  "string",
-	NUMBER:  "number",
-	BOOLEAN: "boolean",
+	STRING: "string",
+	NUMBER: "number",
 	// operators
 	ASSIGN:   "=",
 	PLUS:     "+",
