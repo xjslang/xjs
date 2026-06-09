@@ -122,10 +122,6 @@ func defaultScanner(sc *Scanner) token.Token {
 		sc.AdvanceChar()
 		return token.Token{Type: token.COMMA, Literal: string(c)}
 	case '.':
-		if isDigit(sc.PeekChar()) {
-			lit, typ := scanNumber(sc)
-			return token.Token{Type: typ, Literal: lit}
-		}
 		c := sc.currentChar
 		sc.AdvanceChar()
 		return token.Token{Type: token.DOT, Literal: string(c)}

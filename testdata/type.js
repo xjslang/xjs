@@ -5,8 +5,6 @@ console.log(integer);
 // Floating point numbers
 let float = 3.14159;
 console.log(float);
-let x = .123;
-console.log(x);
 
 // Strings
 let string = "Hello World";
