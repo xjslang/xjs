@@ -1,6 +1,8 @@
 package printer
 
 import (
+	"errors"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -9,6 +11,17 @@ import (
 )
 
 const eol = rune(-1)
+
+type Error struct {
+	token.Position
+	Message string
+}
+
+func (err Error) Error() string {
+	return "[line:" + strconv.Itoa(err.Line) +
+		", col:" + strconv.Itoa(err.Column) +
+		"] " + err.Message
+}
 
 type config struct {
 	indent        string
@@ -69,8 +82,9 @@ type Printer struct {
 	ensureBeside  bool
 	ensureLine    bool
 	ensureSpace   bool
-	printer       func(*Printer, ast.Node)
+	printer       func(*Printer, ast.Node) error
 	context       []map[string]string
+	errors        []error
 }
 
 // Init initializes the printer.
@@ -100,6 +114,7 @@ func (p *Printer) Init(opts ...Option) {
 	if p.printer == nil {
 		p.printer = defaultPrinter
 	}
+	p.errors = nil
 }
 
 func (p *Printer) IncreaseIndent() {
@@ -198,12 +213,20 @@ func (p *Printer) PrintTrivia(trivia []token.Token) {
 	}
 }
 
+func (p *Printer) Errors() []error {
+	return append([]error{}, p.errors...)
+}
+
 func (p *Printer) String() string {
 	return p.doc.String()
 }
 
 func (p *Printer) Bytes() []byte {
 	return []byte(p.String())
+}
+
+func (p *Printer) Result() (string, error) {
+	return p.String(), errors.Join(p.errors...)
 }
 
 func (p *Printer) writeString(s string) {
@@ -221,7 +244,9 @@ func (p *Printer) writeRune(r rune) {
 }
 
 func (p *Printer) printNode(node ast.Node) {
-	p.printer(p, node)
+	if err := p.printer(p, node); err != nil {
+		p.errors = append(p.errors, err)
+	}
 }
 
 func (p *Printer) printString(s string) {

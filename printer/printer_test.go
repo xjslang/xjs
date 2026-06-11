@@ -23,12 +23,12 @@ func ExamplePrinter_Init() {
 	p := &printer.Printer{}
 
 	// Declare "middlewares" BEFORE calling Init
-	p.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node)) {
+	p.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
 		if node, ok := node.(*FactorialNode); ok {
 			p.Print(node.Value, "!")
-			return
+			return nil
 		}
-		next(node) // delegate to the "next" middleware
+		return next(node) // delegate to the "next" middleware
 	})
 
 	// Now you can use the printer
@@ -269,12 +269,12 @@ type MyCustomStmt struct {
 
 func TestEnsureBeside(t *testing.T) {
 	pr := printer.Printer{}
-	pr.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node)) {
+	pr.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
 		if v, ok := node.(*MyCustomStmt); ok {
 			p.LnPrint(v.name)
-			return
+			return nil
 		}
-		next(node)
+		return next(node)
 	})
 	pr.Init()
 	pr.Print("aaa")
