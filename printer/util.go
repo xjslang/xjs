@@ -1,5 +1,14 @@
 package printer
 
+import "github.com/xjslang/xjs/token"
+
+func ErrorAt(tok token.Token, msg string) error {
+	return &Error{
+		Position: tok.Position,
+		Message:  msg,
+	}
+}
+
 func Fork(p *Printer) *Printer {
 	p1 := &Printer{printer: p.printer}
 	p1.Init(

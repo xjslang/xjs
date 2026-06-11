@@ -67,7 +67,7 @@ func TestPrinterContext(t *testing.T) {
 		return next()
 	})
 
-	input := `async function fetchUserData() {
+	input := `function fetchUserData() {
 		await http.fetch('/user/data')
 	}`
 	p := b.Build([]byte(input))
@@ -75,7 +75,7 @@ func TestPrinterContext(t *testing.T) {
 	require.NoError(t, err)
 
 	pr := xjs.NewPrinter()
-	pr.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node)) {
+	pr.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
 		switch v := node.(type) {
 		case *AsyncFunctionDecl:
 			ctx := p.PushContext()
@@ -83,18 +83,24 @@ func TestPrinterContext(t *testing.T) {
 			ctx["async"] = "yes"
 			pr.LnPrint(v.Layout.Async)
 			pr.SpPrint(v.FunctionDecl)
-			return
+			return nil
 		case *AwaitStmt:
 			ctx := p.Context()
-			require.NotNil(t, ctx)
-			require.Equal(t, "yes", ctx["async"], "await is allowed only inside async functions")
+			_, ok := ctx["async"]
+			if !ok {
+				return printer.ErrorAt(v.Layout.Await, "await is allowed only inside async functions")
+			}
 			pr.LnPrint(v.Layout.Await)
 			pr.SpPrint(v.Expr)
-			return
+			return nil
 		}
-		next(node)
+		return next(node)
 	})
 	pr.Print(result)
-	expected := "async function fetchUserData() {\n  await http.fetch('/user/data');\n}"
-	require.Equal(t, expected, pr.String())
+	_, err = pr.Output()
+	require.ErrorContains(t, err, "await is allowed only inside async functions")
+	// validate pr.Errors()
+	errs := pr.Errors()
+	require.Len(t, errs, 1)
+	require.IsType(t, &printer.Error{}, errs[0])
 }

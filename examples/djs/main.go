@@ -70,15 +70,15 @@ func main() {
 
 	// create a compiler that can compile `DeferStmt`
 	djsCompiler := xjs.NewPrinter()
-	djsCompiler.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node)) {
+	djsCompiler.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node) error) error {
 		if node, ok := node.(*DeferStmt); ok {
 			pr.PrintTrivia(node.DeferToken.LeadingTrivia) // print previous comments and new lines
 			pr.LnPrint("{using _ = {[Symbol.dispose]() {")
 			pr.Print(node.Stmt)
 			pr.Print("}}}")
-			return
+			return nil
 		}
-		next(node)
+		return next(node)
 	})
 	djsCompiler.Init()
 	djsCompiler.Print(node)
@@ -86,7 +86,7 @@ func main() {
 
 	// create a formatter that can format `DeferStmt`
 	djsFormatter := xjs.NewPrinter()
-	djsFormatter.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node)) {
+	djsFormatter.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node) error) error {
 		if node, ok := node.(*DeferStmt); ok {
 			pr.EnsureLine() // ensure a new line is added before printing
 			pr.Print(node.DeferToken)
@@ -96,9 +96,9 @@ func main() {
 			} else {
 				pr.Print(node.Stmt)
 			}
-			return
+			return nil
 		}
-		next(node)
+		return next(node)
 	})
 	djsFormatter.Init()
 	djsFormatter.Print(node)

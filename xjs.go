@@ -16,7 +16,7 @@ func NewBuilder() *builder.Builder {
 
 func NewPrinter(opts ...printer.Option) *printer.Printer {
 	p := &printer.Printer{}
-	p.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node)) {
+	p.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
 		switch v := node.(type) {
 		case *js.Program:
 			js.PrintProgram(p, v)
@@ -73,8 +73,9 @@ func NewPrinter(opts ...printer.Option) *printer.Printer {
 		case *js.DecStmt:
 			js.PrintDecStmt(p, v)
 		default:
-			next(node)
+			return next(node)
 		}
+		return nil
 	})
 	p.Init(opts...)
 	return p
