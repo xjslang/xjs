@@ -70,6 +70,7 @@ type Printer struct {
 	ensureLine    bool
 	ensureSpace   bool
 	printer       func(*Printer, ast.Node)
+	context       []map[string]string
 }
 
 // Init initializes the printer.

@@ -1,0 +1,100 @@
+package printer_test
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+	"github.com/xjslang/xjs"
+	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/js"
+	"github.com/xjslang/xjs/parser"
+	"github.com/xjslang/xjs/printer"
+	"github.com/xjslang/xjs/scanner"
+	"github.com/xjslang/xjs/token"
+)
+
+type AsyncFunctionDecl struct {
+	*js.FunctionDecl
+	Layout struct {
+		Async token.Token
+	}
+}
+
+type AwaitStmt struct {
+	ast.BaseStmt
+	Layout struct {
+		Await token.Token
+	}
+	Expr ast.Expr
+}
+
+func TestPrinterContext(t *testing.T) {
+	asyncTyp := token.RegisterType("async")
+	awaitTyp := token.RegisterType("await")
+
+	b := xjs.NewBuilder()
+	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
+		tok := next()
+		if tok.Type == token.IDENT {
+			switch tok.Literal {
+			case "async":
+				tok.Type = asyncTyp
+			case "await":
+				tok.Type = awaitTyp
+			}
+		}
+		return tok
+	})
+	b.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (_ ast.Stmt, err error) {
+		switch p.CurrentToken.Type {
+		case asyncTyp:
+			node := &AsyncFunctionDecl{}
+			node.Layout.Async = p.CurrentToken
+			p.AdvanceToken() // consume "async"
+			if node.FunctionDecl, err = js.ParseFunctionDecl(p); err != nil {
+				return
+			}
+			return node, nil
+		case awaitTyp:
+			node := &AwaitStmt{}
+			node.Layout.Await = p.CurrentToken
+			p.AdvanceToken() // consume "await"
+			if node.Expr, err = p.ParseExpr(); err != nil {
+				return
+			}
+			return node, nil
+		}
+		return next()
+	})
+
+	input := `async function fetchUserData() {
+		await http.fetch('/user/data')
+	}`
+	p := b.Build([]byte(input))
+	result, err := js.ParseProgram(p)
+	require.NoError(t, err)
+
+	pr := xjs.NewPrinter()
+	pr.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node)) {
+		switch v := node.(type) {
+		case *AsyncFunctionDecl:
+			ctx := p.PushContext()
+			defer p.PopContext()
+			ctx["async"] = "yes"
+			pr.LnPrint(v.Layout.Async)
+			pr.SpPrint(v.FunctionDecl)
+			return
+		case *AwaitStmt:
+			ctx := p.Context()
+			require.NotNil(t, ctx)
+			require.Equal(t, "yes", ctx["async"], "await is allowed only inside async functions")
+			pr.LnPrint(v.Layout.Await)
+			pr.SpPrint(v.Expr)
+			return
+		}
+		next(node)
+	})
+	pr.Print(result)
+	expected := "async function fetchUserData() {\n  await http.fetch('/user/data');\n}"
+	require.Equal(t, expected, pr.String())
+}
