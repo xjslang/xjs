@@ -23,17 +23,17 @@ type Error struct {
 	Message string `json:"message"`
 }
 
-type ErrorList []Error
+func (err Error) Error() string {
+	start := err.Range.Start
+	return "[line:" + strconv.Itoa(start.Line) +
+		", col:" + strconv.Itoa(start.Column) +
+		"] " + err.Message
+}
+
+type ErrorList []error
 
 func (list ErrorList) Error() string {
-	if len(list) > 0 {
-		item := list[0]
-		start := item.Range.Start
-		return "[line:" + strconv.Itoa(start.Line) +
-			", col:" + strconv.Itoa(start.Column) +
-			"] " + item.Message
-	}
-	return ""
+	return errors.Join(list...).Error()
 }
 
 type Parser struct {
@@ -78,7 +78,7 @@ func (p *Parser) Init(sc Scanner) {
 	}
 	p.CurrentToken = token.Token{}
 	p.PeekToken = token.Token{}
-	p.errors = ErrorList{}
+	p.errors = nil
 	// call twice to update CurrentToken and PeekToken
 	p.AdvanceToken()
 	p.AdvanceToken()
