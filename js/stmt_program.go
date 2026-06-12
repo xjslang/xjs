@@ -43,10 +43,7 @@ func ParseProgram(p *parser.Parser) (_ *Program, err error) {
 		}
 	}
 	node.Layout.EOF = p.CurrentToken
-	if errors := p.Errors(); len(errors) > 0 {
-		return node, errors
-	}
-	return node, nil
+	return node, p.Errors()
 }
 
 func PrintProgram(p *printer.Printer, node *Program) {

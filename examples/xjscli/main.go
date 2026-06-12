@@ -8,7 +8,6 @@ import (
 	"os"
 
 	"github.com/xjslang/xjs"
-	"github.com/xjslang/xjs/parser"
 )
 
 func usage() {
@@ -71,15 +70,12 @@ func main() {
 
 	// prints errors
 	if checkFlag {
-		list := parser.ErrorList{}
-		if l, ok := err.(parser.ErrorList); ok {
-			list = l
-		}
-		result, err := json.Marshal(list)
-		if err != nil {
+		json, jsonErr := json.Marshal(err)
+		if jsonErr != nil {
 			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
 		}
-		fmt.Println(string(result))
+		fmt.Fprintln(os.Stdout, string(json))
 		return
 	}
 	if err != nil {
