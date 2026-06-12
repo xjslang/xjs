@@ -23,6 +23,12 @@ func (err Error) Error() string {
 		"] " + err.Message
 }
 
+type ErrorList []error
+
+func (list ErrorList) Error() string {
+	return errors.Join(list...).Error()
+}
+
 type config struct {
 	indent        string
 	lineComments  bool
@@ -84,7 +90,7 @@ type Printer struct {
 	ensureSpace   bool
 	printer       func(*Printer, ast.Node) error
 	context       []map[string]string
-	errors        []error
+	errors        ErrorList
 }
 
 // Init initializes the printer.
@@ -213,8 +219,8 @@ func (p *Printer) PrintTrivia(trivia []token.Token) {
 	}
 }
 
-func (p *Printer) Errors() []error {
-	return append([]error{}, p.errors...)
+func (p *Printer) Errors() ErrorList {
+	return append(ErrorList{}, p.errors...)
 }
 
 func (p *Printer) Output() (string, error) {
