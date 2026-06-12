@@ -82,7 +82,11 @@ func main() {
 	})
 	djsCompiler.Init()
 	djsCompiler.Print(node)
-	fmt.Println(djsCompiler.String())
+	jsCode, err := djsCompiler.Output()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(jsCode)
 
 	// create a formatter that can format `DeferStmt`
 	djsFormatter := xjs.NewPrinter()
@@ -102,5 +106,9 @@ func main() {
 	})
 	djsFormatter.Init()
 	djsFormatter.Print(node)
-	fmt.Println(djsFormatter.String())
+	djsCode, err := djsFormatter.Output()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(djsCode)
 }

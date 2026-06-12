@@ -82,14 +82,19 @@ func main() {
 		fmt.Println(string(result))
 		return
 	}
-
-	// prints the formatted output
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+
+	// prints the formatted output
 	pr := xjs.NewPrinter()
 	pr.Init()
 	pr.Print(program)
-	fmt.Print(pr.String())
+	code, err := pr.Output()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	fmt.Print(code)
 }
