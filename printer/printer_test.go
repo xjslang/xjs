@@ -170,20 +170,6 @@ func TestLastComment(t *testing.T) {
 	}
 }
 
-func TestBytes(t *testing.T) {
-	input := "hello"
-	p := printer.Printer{}
-	p.Init()
-	p.Print(input)
-	b := p.Bytes()
-	// try to modify the underlying data
-	b[0] = 'H'
-	expected := "hello"
-	if got := p.String(); got != expected {
-		t.Errorf("Expected %q, got %q", expected, got)
-	}
-}
-
 func TestEnsureLine(t *testing.T) {
 	pr := printer.Printer{}
 	pr.Init()
@@ -348,7 +334,9 @@ func TestWithComments(t *testing.T) {
 			result, err := xjs.Parse([]byte(input))
 			require.NoError(t, err)
 			test.pr.Print(result)
-			golden.Assert(t, test.pr.Bytes())
+			out, err := test.pr.Output()
+			require.NoError(t, err)
+			golden.Assert(t, []byte(out))
 		})
 	}
 }
@@ -369,7 +357,9 @@ func TestWithNewLines(t *testing.T) {
 			result, err := xjs.Parse([]byte(input))
 			require.NoError(t, err)
 			test.pr.Print(result)
-			golden.Assert(t, test.pr.Bytes())
+			out, err := test.pr.Output()
+			require.NoError(t, err)
+			golden.Assert(t, []byte(out))
 		})
 	}
 }
@@ -389,7 +379,9 @@ func TestCompact(t *testing.T) {
 	require.NoError(t, err)
 	pr := xjs.NewPrinter(printer.Compact())
 	pr.Print(result)
-	golden.Assert(t, pr.Bytes())
+	out, err := pr.Output()
+	require.NoError(t, err)
+	golden.Assert(t, []byte(out))
 }
 
 func TestFork(t *testing.T) {

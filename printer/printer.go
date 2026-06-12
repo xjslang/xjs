@@ -221,10 +221,6 @@ func (p *Printer) String() string {
 	return p.doc.String()
 }
 
-func (p *Printer) Bytes() []byte {
-	return []byte(p.String())
-}
-
 func (p *Printer) Output() (string, error) {
 	return p.String(), errors.Join(p.errors...)
 }
