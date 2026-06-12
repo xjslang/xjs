@@ -34,7 +34,11 @@ func ExamplePrinter_Init() {
 	// Now you can use the printer
 	p.Init()
 	p.Print(&FactorialNode{Value: "125"})
-	fmt.Println(p.String())
+	out, err := p.Output()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(out)
 	// Output: 125!
 }
 
@@ -49,7 +53,9 @@ func TestInit(t *testing.T) {
 		pr.LnPrint("ccc")
 		pr.DecreaseIndent()
 		pr.LnPrint("end")
-		require.Equal(t, "begin:\n\taaa\n\tbbb\n\tccc\nend", pr.String())
+		out, err := pr.Output()
+		require.NoError(t, err)
+		require.Equal(t, "begin:\n\taaa\n\tbbb\n\tccc\nend", out)
 	})
 }
 
@@ -64,34 +70,36 @@ func TestIndent(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			f := printer.Printer{}
-			f.Init(printer.WithIndent(test.indent))
-			f.Print("block {\n")
-			f.IncreaseIndent()
+			pr := printer.Printer{}
+			pr.Init(printer.WithIndent(test.indent))
+			pr.Print("block {\n")
+			pr.IncreaseIndent()
 			for i := range 3 {
-				f.PrintIndent()
-				f.Print(fmt.Sprintf("line %d", i))
-				f.Print(';')
+				pr.PrintIndent()
+				pr.Print(fmt.Sprintf("line %d", i))
+				pr.Print(';')
 				if i == 1 {
-					f.Print('\n')
-					f.PrintIndent()
-					f.Print("nested block {\n")
-					f.IncreaseIndent()
+					pr.Print('\n')
+					pr.PrintIndent()
+					pr.Print("nested block {\n")
+					pr.IncreaseIndent()
 					for j := range 2 {
-						f.PrintIndent()
-						f.Print(fmt.Sprintf("line %d", j))
-						f.Print(";\n")
+						pr.PrintIndent()
+						pr.Print(fmt.Sprintf("line %d", j))
+						pr.Print(";\n")
 					}
-					f.DecreaseIndent()
-					f.PrintIndent()
-					f.Print('}')
+					pr.DecreaseIndent()
+					pr.PrintIndent()
+					pr.Print('}')
 				}
-				f.Print('\n')
+				pr.Print('\n')
 			}
-			f.DecreaseIndent()
-			f.PrintIndent()
-			f.Print('}')
-			if result := f.String(); result != test.expected {
+			pr.DecreaseIndent()
+			pr.PrintIndent()
+			pr.Print('}')
+			out, err := pr.Output()
+			require.NoError(t, err)
+			if result := out; result != test.expected {
 				t.Errorf("Expected %q, got %q", test.expected, result)
 			}
 		})
@@ -130,7 +138,9 @@ func TestPrintCallExpr(t *testing.T) {
 			pr := xjs.NewPrinter()
 			pr.Init()
 			js.PrintProgram(pr, node)
-			if got := pr.String(); got != test.expected {
+			out, err := pr.Output()
+			require.NoError(t, err)
+			if got := out; got != test.expected {
 				t.Errorf("Expected:\n\n%s\n\nGot:\n\n%s", test.expected, got)
 			}
 		})
@@ -163,7 +173,9 @@ func TestLastComment(t *testing.T) {
 			pr := xjs.NewPrinter()
 			pr.Init()
 			js.PrintProgram(pr, node)
-			if got := pr.String(); got != test.expected {
+			out, err := pr.Output()
+			require.NoError(t, err)
+			if got := out; got != test.expected {
 				t.Errorf("Expected\n\n%s\n\ngot\n\n%s", test.expected, got)
 			}
 		})
@@ -195,7 +207,9 @@ func TestEnsureLine(t *testing.T) {
 	pr.Print("")
 	pr.Print("ggg")
 	expected := "aaa\nbbbccc\ndddeee\rfff\nggg"
-	if got := pr.String(); got != expected {
+	out, err := pr.Output()
+	require.NoError(t, err)
+	if got := out; got != expected {
 		t.Errorf("Expected %q, got %q", expected, got)
 	}
 
@@ -205,7 +219,9 @@ func TestEnsureLine(t *testing.T) {
 		pr.Print("aaa")
 		pr.EnsureLine()
 		pr.Print("")
-		require.Equal(t, "aaa", pr.String())
+		out, err := pr.Output()
+		require.NoError(t, err)
+		require.Equal(t, "aaa", out)
 	})
 
 	t.Run("printing empty string does not consume ensureSpace", func(t *testing.T) {
@@ -214,7 +230,9 @@ func TestEnsureLine(t *testing.T) {
 		pr.Print("aaa")
 		pr.EnsureSpace()
 		pr.Print("")
-		require.Equal(t, "aaa", pr.String())
+		out, err := pr.Output()
+		require.NoError(t, err)
+		require.Equal(t, "aaa", out)
 	})
 }
 
@@ -243,7 +261,9 @@ func TestEnsureSpace(t *testing.T) {
 	pr.Print("")
 	pr.Print("ggg")
 	expected := "aaa bbbccc\ndddeee\rfff ggg"
-	if got := pr.String(); got != expected {
+	out, err := pr.Output()
+	require.NoError(t, err)
+	if got := out; got != expected {
 		t.Errorf("Expected %q, got %q", expected, got)
 	}
 }
@@ -271,7 +291,9 @@ func TestEnsureBeside(t *testing.T) {
 	pr.LnPrint("bbb")
 	// EnsureBeside takes priority over custom printers
 	pr.BsPrint(&MyCustomStmt{name: "custom_stmt"})
-	require.Equal(t, "aaabbbbbbcustom_stmt", pr.String())
+	out, err := pr.Output()
+	require.NoError(t, err)
+	require.Equal(t, "aaabbbbbbcustom_stmt", out)
 }
 
 func TestPrint(t *testing.T) {
@@ -281,7 +303,9 @@ func TestPrint(t *testing.T) {
 		pr.Print("aaa")
 		pr.LnPrint('b')
 		pr.SpPrint('c')
-		require.Equal(t, "aaa\nb c", pr.String())
+		out, err := pr.Output()
+		require.NoError(t, err)
+		require.Equal(t, "aaa\nb c", out)
 	})
 	t.Run("panic on unsupported types", func(t *testing.T) {
 		pr := printer.Printer{}
@@ -297,7 +321,9 @@ func TestLnPrint(t *testing.T) {
 		pr.LnPrint("aaa")
 		pr.LnPrint("bbb")
 		pr.LnPrint("ccc")
-		require.Equal(t, "aaa\nbbb\nccc", pr.String())
+		out, err := pr.Output()
+		require.NoError(t, err)
+		require.Equal(t, "aaa\nbbb\nccc", out)
 	})
 }
 
@@ -306,7 +332,9 @@ func TestSpacesTakePriorityOverLines(t *testing.T) {
 	pr.Print("aaa")
 	// ensureSpace should take priority over ensureLine (by default statements are printed in a new line)
 	pr.SpPrint(&js.ExprStmt{Expr: &js.Literal{Value: token.Token{Literal: "125"}}})
-	require.Equal(t, "aaa 125", pr.String())
+	out, err := pr.Output()
+	require.NoError(t, err)
+	require.Equal(t, "aaa 125", out)
 }
 
 func TestSpPrint(t *testing.T) {
@@ -314,7 +342,9 @@ func TestSpPrint(t *testing.T) {
 	pr.Init()
 	pr.SpPrint("aaa")
 	pr.SpPrint("bbb")
-	require.Equal(t, "aaa bbb", pr.String())
+	out, err := pr.Output()
+	require.NoError(t, err)
+	require.Equal(t, "aaa bbb", out)
 }
 
 func TestWithComments(t *testing.T) {
@@ -385,14 +415,18 @@ func TestCompact(t *testing.T) {
 }
 
 func TestFork(t *testing.T) {
-	p := xjs.NewPrinter()
-	p.Print("for (")
-	p1 := printer.Fork(p)
+	pr := xjs.NewPrinter()
+	pr.Print("for (")
+	p1 := printer.Fork(pr)
 	p1.LnPrint("aaa;")
 	p1.SpPrint("bbb;")
 	p1.SpPrint("ccc;")
-	s := p1.String()
+	out1, err := p1.Output()
+	require.NoError(t, err)
+	s := out1
 	s = strings.TrimRight(s, ";")
-	p.Print(s, ") {}")
-	require.Equal(t, "for (aaa; bbb; ccc) {}", p.String())
+	pr.Print(s, ") {}")
+	out, err := pr.Output()
+	require.NoError(t, err)
+	require.Equal(t, "for (aaa; bbb; ccc) {}", out)
 }

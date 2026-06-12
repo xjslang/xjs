@@ -30,7 +30,11 @@ func Example_basic() {
 	pr := xjs.NewPrinter()
 	pr.Init()
 	pr.Print(result)
-	fmt.Print(pr.String())
+	out, err := pr.Output()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Print(out)
 	// Output:
 	// function hello() {
 	//   let x = 100;
@@ -54,14 +58,15 @@ func TestLanguageFeatures(t *testing.T) {
 			// print without newlines trivia and parse it again
 			pr := xjs.NewPrinter()
 			pr.Print(result)
-			out, _ := pr.Output()
+			out, err := pr.Output()
+			require.NoError(t, err)
 			result, err = xjs.Parse([]byte(out))
 			require.NoError(t, err)
 			// print with default options
 			pr = xjs.NewPrinter()
 			pr.Print(result)
 			// the original must match the final printed result
-			require.Equal(t, string(dat), pr.String())
+			require.Equal(t, string(dat), out)
 		})
 	}
 }
@@ -97,7 +102,9 @@ func TestParseCommaDangle(t *testing.T) {
 			require.NoError(t, err)
 			pr := xjs.NewPrinter(printer.WithIndent("\t"))
 			pr.Print(result)
-			assert.Equal(t, test.expected, pr.String())
+			out, err := pr.Output()
+			require.NoError(t, err)
+			assert.Equal(t, test.expected, out)
 		})
 	}
 }
@@ -147,5 +154,7 @@ func TestMiddlewares(t *testing.T) {
 	pr.Init(printer.WithIndent("\t"))
 	pr.Print(result)
 	expected := "(\nfunction foo() {\n\tprint('Hello, World!');\n})();"
-	require.Equal(t, expected, pr.String())
+	out, err := pr.Output()
+	require.NoError(t, err)
+	require.Equal(t, expected, out)
 }

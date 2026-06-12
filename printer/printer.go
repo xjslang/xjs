@@ -217,12 +217,8 @@ func (p *Printer) Errors() []error {
 	return append([]error{}, p.errors...)
 }
 
-func (p *Printer) String() string {
-	return p.doc.String()
-}
-
 func (p *Printer) Output() (string, error) {
-	return p.String(), errors.Join(p.errors...)
+	return p.doc.String(), errors.Join(p.errors...)
 }
 
 func (p *Printer) writeString(s string) {
