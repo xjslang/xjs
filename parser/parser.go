@@ -3,6 +3,7 @@ package parser
 import (
 	"errors"
 	"strconv"
+	"strings"
 	"unicode/utf8"
 
 	"github.com/xjslang/xjs/ast"
@@ -30,10 +31,38 @@ func (err Error) Error() string {
 		"] " + err.Message
 }
 
+func NewErrorAtToken(tok token.Token, msg string) Error {
+	line := tok.Line
+	column := tok.Column
+	return Error{
+		Range: Range{
+			Start: token.Position{
+				Line:   line,
+				Column: column,
+			},
+			End: token.Position{
+				Line:   line,
+				Column: column + utf8.RuneCountInString(tok.Literal),
+			},
+		},
+		Message: msg,
+	}
+}
+
 type ErrorList []error
 
 func (list ErrorList) Error() string {
-	return errors.Join(list...).Error()
+	s := strings.Builder{}
+	for i, err := range list {
+		if err == nil {
+			continue
+		}
+		if i > 0 {
+			s.WriteRune('\n')
+		}
+		s.WriteString(err.Error())
+	}
+	return s.String()
 }
 
 type Parser struct {
@@ -46,7 +75,6 @@ type Parser struct {
 	exprParser       func(p *Parser) (ast.Expr, error)
 	binaryExprParser func(p *Parser, left ast.Expr) (ast.Expr, error)
 	unaryExprParser  func(p *Parser) (ast.Expr, error)
-	errors           ErrorList
 }
 
 // Init initializes the parser.
@@ -78,7 +106,6 @@ func (p *Parser) Init(sc Scanner) {
 	}
 	p.CurrentToken = token.Token{}
 	p.PeekToken = token.Token{}
-	p.errors = nil
 	// call twice to update CurrentToken and PeekToken
 	p.AdvanceToken()
 	p.AdvanceToken()
@@ -100,24 +127,6 @@ func (p *Parser) ParseUnaryExpr() (ast.Expr, error) {
 	return p.unaryExprParser(p)
 }
 
-func (p *Parser) AddError(msg string) {
-	line := p.CurrentToken.Line
-	column := p.CurrentToken.Column
-	p.errors = append(p.errors, Error{
-		Range: Range{
-			Start: token.Position{
-				Line:   line,
-				Column: column,
-			},
-			End: token.Position{
-				Line:   line,
-				Column: column + utf8.RuneCountInString(p.CurrentToken.Literal),
-			},
-		},
-		Message: msg,
-	})
-}
-
 func (p *Parser) AdvanceToken() {
 	p.CurrentToken = p.PeekToken
 	p.PeekToken = p.scanner.NextToken()
@@ -126,9 +135,7 @@ func (p *Parser) AdvanceToken() {
 func (p *Parser) Expect(typ token.Type) (token.Token, error) {
 	tok := p.CurrentToken
 	if p.CurrentToken.Type != typ {
-		msg := "Expected " + typ.String()
-		p.AddError(msg)
-		return tok, errors.New(msg)
+		return tok, NewErrorAtToken(p.CurrentToken, "Expected "+typ.String())
 	}
 	p.AdvanceToken()
 	return tok, nil
@@ -144,10 +151,6 @@ func (p *Parser) ExitScope(sc Scope) {
 
 func (p *Parser) InScope(sc Scope) bool {
 	return p.scopes.In(sc)
-}
-
-func (p *Parser) Errors() ErrorList {
-	return append(ErrorList{}, p.errors...)
 }
 
 func (p *Parser) AdvanceToStmtEnd() {

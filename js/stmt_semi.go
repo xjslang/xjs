@@ -1,8 +1,6 @@
 package js
 
 import (
-	"errors"
-
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
@@ -42,7 +40,5 @@ func expectSemi(p *parser.Parser) (token.Token, error) {
 		tok = token.Token{Type: token.SEMICOLON, Literal: token.SEMICOLON.String(), Position: tok.Position}
 		return tok, nil
 	}
-	msg := "Expected ; or newline"
-	p.AddError(msg)
-	return tok, errors.New(msg)
+	return tok, parser.NewErrorAtToken(p.CurrentToken, "Expected ; or newline")
 }

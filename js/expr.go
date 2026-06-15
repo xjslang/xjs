@@ -1,8 +1,6 @@
 package js
 
 import (
-	"errors"
-
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/token"
@@ -63,7 +61,5 @@ func ParseValue(p *parser.Parser) (ast.Expr, error) {
 		p.AdvanceToken()
 		return &Literal{Value: val}, nil
 	}
-	msg := "Unknown expression"
-	p.AddError(msg)
-	return nil, errors.New(msg)
+	return nil, parser.NewErrorAtToken(p.CurrentToken, "Unknown expression")
 }
