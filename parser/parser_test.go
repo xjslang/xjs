@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/internal/testutil"
@@ -201,7 +202,7 @@ func TestMalformedExpr(t *testing.T) {
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
 			}
-			if got := err.Error(); got != test.expectedErr {
+			if got := err.Error(); !strings.HasSuffix(got, test.expectedErr) {
 				t.Fatalf("%d: Expected error to be %q, got %q", i, test.expectedErr, got)
 			}
 		}
@@ -323,9 +324,9 @@ func TestInvalidTokenAfterNewline(t *testing.T) {
 				} else {
 					_, err = js.ParseProgram(p)
 				}
-				if err == nil {
-					t.Fatal("Expected an error, got nil")
-				}
+				var errList parser.ErrorList
+				require.ErrorAs(t, err, &errList)
+				require.NotEmpty(t, errList)
 			})
 		}
 	}

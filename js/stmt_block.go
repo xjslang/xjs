@@ -25,7 +25,7 @@ func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
 	if node.Layout.Lbrace, err = p.Expect(token.LBRACE); err != nil {
 		return
 	}
-	var lastError error
+	var errList parser.ErrorList
 	var stmt ast.Stmt
 	for i := 0; p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE; i++ {
 		selfClosing := false
@@ -34,7 +34,8 @@ func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
 		}
 		if i > 0 && !selfClosing {
 			if stmt, err = ParseSemiStmt(p); err != nil {
-				return
+				errList = append(errList, err)
+				return nil, errList
 			}
 			node.Stmts = append(node.Stmts, stmt)
 		}
@@ -45,7 +46,11 @@ func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
 					// advance position to avoid infinite loop
 					p.AdvanceToken()
 				}
-				lastError = err
+				if eList, ok := err.(parser.ErrorList); ok {
+					errList = append(errList, eList...)
+				} else {
+					errList = append(errList, err)
+				}
 				p.AdvanceToStmtEnd()
 				continue
 			}
@@ -53,10 +58,10 @@ func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
 		}
 	}
 	if node.Layout.Rbrace, err = p.Expect(token.RBRACE); err != nil {
-		lastError = err
+		errList = append(errList, err)
 	}
-	if lastError != nil {
-		return node, lastError
+	if errList != nil {
+		return node, errList
 	}
 	return node, nil
 }
