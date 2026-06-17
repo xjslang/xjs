@@ -35,7 +35,7 @@ func ParseBlockStmt(p *parser.Parser) (node *BlockStmt, err error) {
 		if i > 0 && !selfClosing {
 			if stmt, err = ParseSemiStmt(p); err != nil {
 				errList = append(errList, err)
-				return nil, errList
+				continue
 			}
 			node.Stmts = append(node.Stmts, stmt)
 		}

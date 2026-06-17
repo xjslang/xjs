@@ -174,8 +174,8 @@ func TestMalformedExpr(t *testing.T) {
 			input       string
 			expectedErr string
 		}{
-			{"let x = 100 }", "Expected {"},
-			{"{ let x = 100", "Expected }"},
+			{"let x = 100 }", "{ expected"},
+			{"{ let x = 100", "} expected"},
 		}
 		for i, test := range tests {
 			p := xjs.NewBuilder().Build([]byte(test.input))
@@ -193,8 +193,8 @@ func TestMalformedExpr(t *testing.T) {
 			input       string
 			expectedErr string
 		}{
-			{"1 + 2)", "Expected ("},
-			{"(1 + 2", "Expected )"},
+			{"1 + 2)", "( expected"},
+			{"(1 + 2", ") expected"},
 		}
 		for i, test := range tests {
 			p := xjs.NewBuilder().Build([]byte(test.input))

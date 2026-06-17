@@ -34,6 +34,9 @@ func (err Error) Error() string {
 func NewErrorAtToken(tok token.Token, msg string) Error {
 	line := tok.Line
 	column := tok.Column
+	if tok.Type == token.EOF {
+		column++
+	}
 	return Error{
 		Range: Range{
 			Start: token.Position{
@@ -135,7 +138,7 @@ func (p *Parser) AdvanceToken() {
 func (p *Parser) Expect(typ token.Type) (token.Token, error) {
 	tok := p.CurrentToken
 	if p.CurrentToken.Type != typ {
-		return tok, NewErrorAtToken(p.CurrentToken, "Expected "+typ.String())
+		return tok, NewErrorAtToken(p.CurrentToken, typ.String()+" expected")
 	}
 	p.AdvanceToken()
 	return tok, nil
@@ -153,6 +156,7 @@ func (p *Parser) InScope(sc Scope) bool {
 	return p.scopes.In(sc)
 }
 
+// TODO: move to js package
 func (p *Parser) AdvanceToStmtEnd() {
 	for {
 		typ := p.CurrentToken.Type
@@ -160,7 +164,7 @@ func (p *Parser) AdvanceToStmtEnd() {
 			p.AdvanceToken()
 			break
 		}
-		if typ == token.EOF || typ == token.RBRACE || p.CurrentToken.AfterNewline {
+		if typ == token.EOF || typ == token.RBRACE || typ == token.LBRACE || p.CurrentToken.AfterNewline {
 			break
 		}
 		p.AdvanceToken()
