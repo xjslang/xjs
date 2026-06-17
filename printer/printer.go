@@ -159,6 +159,8 @@ func (p *Printer) Print(args ...any) {
 		switch v := arg.(type) {
 		case string:
 			p.printString(v)
+		case int:
+			p.printString(strconv.Itoa(v))
 		case rune:
 			p.printRune(v)
 		case token.Token:

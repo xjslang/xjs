@@ -310,7 +310,7 @@ func TestPrint(t *testing.T) {
 	t.Run("panic on unsupported types", func(t *testing.T) {
 		pr := printer.Printer{}
 		pr.Init()
-		require.Panics(t, func() { pr.Print(100) })
+		require.Panics(t, func() { pr.Print(true) })
 	})
 }
 
