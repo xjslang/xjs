@@ -6,19 +6,19 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func (s *Scanner) UseScanner(scanner func(s *Scanner, next func() token.Token) token.Token) {
+func (s *Scanner) UseScanner(scanner func(s *Scanner, next func() (token.Token, error)) (token.Token, error)) {
 	next := s.scanner
 	if next == nil {
 		next = defaultScanner
 	}
-	s.scanner = func(s *Scanner) token.Token {
-		return scanner(s, func() token.Token {
+	s.scanner = func(s *Scanner) (token.Token, error) {
+		return scanner(s, func() (token.Token, error) {
 			return next(s)
 		})
 	}
 }
 
-func defaultScanner(s *Scanner) token.Token {
+func defaultScanner(s *Scanner) (tok token.Token, err error) {
 	switch s.currentChar {
 	// operators
 	case '=':
@@ -27,54 +27,60 @@ func defaultScanner(s *Scanner) token.Token {
 		if s.currentChar == '=' {
 			c2 := s.currentChar
 			s.AdvanceChar()
-			return token.Token{Type: token.EQ, Literal: string([]rune{c1, c2})}
+			tok = token.Token{Type: token.EQ, Literal: string([]rune{c1, c2})}
+		} else {
+			tok = token.Token{Type: token.ASSIGN, Literal: string(c1)}
 		}
-		return token.Token{Type: token.ASSIGN, Literal: string(c1)}
 	case '!':
 		c1 := s.currentChar
 		s.AdvanceChar()
 		if s.currentChar == '=' {
 			c2 := s.currentChar
 			s.AdvanceChar()
-			return token.Token{Type: token.NOT_EQ, Literal: string([]rune{c1, c2})}
+			tok = token.Token{Type: token.NOT_EQ, Literal: string([]rune{c1, c2})}
+		} else {
+			tok = token.Token{Type: token.NOT, Literal: string(c1)}
 		}
-		return token.Token{Type: token.NOT, Literal: string(c1)}
 	case '<':
 		c1 := s.currentChar
 		s.AdvanceChar()
 		if s.currentChar == '=' {
 			c2 := s.currentChar
 			s.AdvanceChar()
-			return token.Token{Type: token.LTE, Literal: string([]rune{c1, c2})}
+			tok = token.Token{Type: token.LTE, Literal: string([]rune{c1, c2})}
+		} else {
+			tok = token.Token{Type: token.LT, Literal: string(c1)}
 		}
-		return token.Token{Type: token.LT, Literal: string(c1)}
 	case '>':
 		c1 := s.currentChar
 		s.AdvanceChar()
 		if s.currentChar == '=' {
 			c2 := s.currentChar
 			s.AdvanceChar()
-			return token.Token{Type: token.GTE, Literal: string([]rune{c1, c2})}
+			tok = token.Token{Type: token.GTE, Literal: string([]rune{c1, c2})}
+		} else {
+			tok = token.Token{Type: token.GT, Literal: string(c1)}
 		}
-		return token.Token{Type: token.GT, Literal: string(c1)}
 	case '|':
 		c1 := s.currentChar
 		s.AdvanceChar()
 		if s.currentChar == '|' {
 			c2 := s.currentChar
 			s.AdvanceChar()
-			return token.Token{Type: token.OR, Literal: string([]rune{c1, c2})}
+			tok = token.Token{Type: token.OR, Literal: string([]rune{c1, c2})}
+		} else {
+			tok = token.Token{Type: token.UNKNOWN, Literal: string(c1)}
 		}
-		return token.Token{Type: token.UNKNOWN, Literal: string(c1)}
 	case '&':
 		c1 := s.currentChar
 		s.AdvanceChar()
 		if s.currentChar == '&' {
 			c2 := s.currentChar
 			s.AdvanceChar()
-			return token.Token{Type: token.AND, Literal: string([]rune{c1, c2})}
+			tok = token.Token{Type: token.AND, Literal: string([]rune{c1, c2})}
+		} else {
+			tok = token.Token{Type: token.UNKNOWN, Literal: string(c1)}
 		}
-		return token.Token{Type: token.UNKNOWN, Literal: string(c1)}
 	// maths operators
 	case '+':
 		c1 := s.currentChar
@@ -82,108 +88,120 @@ func defaultScanner(s *Scanner) token.Token {
 		if s.currentChar == '+' {
 			c2 := s.currentChar
 			s.AdvanceChar()
-			return token.Token{Type: token.INCREMENT, Literal: string([]rune{c1, c2})}
+			tok = token.Token{Type: token.INCREMENT, Literal: string([]rune{c1, c2})}
+		} else {
+			tok = token.Token{Type: token.PLUS, Literal: string(c1)}
 		}
-		return token.Token{Type: token.PLUS, Literal: string(c1)}
 	case '-':
 		c1 := s.currentChar
 		s.AdvanceChar()
 		if s.currentChar == '-' {
 			c2 := s.currentChar
 			s.AdvanceChar()
-			return token.Token{Type: token.DECREMENT, Literal: string([]rune{c1, c2})}
+			tok = token.Token{Type: token.DECREMENT, Literal: string([]rune{c1, c2})}
+		} else {
+			tok = token.Token{Type: token.MINUS, Literal: string(c1)}
 		}
-		return token.Token{Type: token.MINUS, Literal: string(c1)}
 	case '*':
 		s.AdvanceChar()
-		return token.Token{Type: token.MULTIPLY, Literal: token.MULTIPLY.String()}
+		tok = token.Token{Type: token.MULTIPLY, Literal: token.MULTIPLY.String()}
 	case '%':
 		s.AdvanceChar()
-		return token.Token{Type: token.MODULO, Literal: token.MODULO.String()}
+		tok = token.Token{Type: token.MODULO, Literal: token.MODULO.String()}
 	// divide operator and comments
 	case '/':
 		c1 := s.currentChar
 		s.AdvanceChar()
-		if s.currentChar == '/' {
+		switch s.currentChar {
+		case '/':
 			comment := scanLineComment(s)
-			return token.Token{Type: token.LINE_COMMENT, Literal: comment}
+			tok = token.Token{Type: token.LINE_COMMENT, Literal: comment}
+		case '*':
+			var comment string
+			comment, err = scanBlockComment(s)
+			// TODO: (high) https://github.com/xjslang/xjs/pull/260#discussion_r3439298639
+			tok = token.Token{Type: token.BLOCK_COMMENT, Literal: comment}
+		default:
+			tok = token.Token{Type: token.DIVIDE, Literal: string(c1)}
 		}
-		if s.currentChar == '*' {
-			comment, typ := scanBlockComment(s)
-			return token.Token{Type: typ, Literal: comment}
-		}
-		return token.Token{Type: token.DIVIDE, Literal: string(c1)}
 	case '\'', '"':
-		lit, typ := scanString(s, s.currentChar)
-		return token.Token{Type: typ, Literal: lit}
+		var lit string
+		lit, err = scanString(s, s.currentChar)
+		// TODO: (high) https://github.com/xjslang/xjs/pull/260#discussion_r3439298663
+		tok = token.Token{Type: token.STRING, Literal: lit}
 	// delimiters
 	case ',':
 		c := s.currentChar
 		s.AdvanceChar()
-		return token.Token{Type: token.COMMA, Literal: string(c)}
+		tok = token.Token{Type: token.COMMA, Literal: string(c)}
 	case '.':
 		c := s.currentChar
 		s.AdvanceChar()
-		return token.Token{Type: token.DOT, Literal: string(c)}
+		tok = token.Token{Type: token.DOT, Literal: string(c)}
 	case ';':
 		c := s.currentChar
 		s.AdvanceChar()
-		return token.Token{Type: token.SEMICOLON, Literal: string(c)}
+		tok = token.Token{Type: token.SEMICOLON, Literal: string(c)}
 	case '(':
 		c := s.currentChar
 		s.AdvanceChar()
-		return token.Token{Type: token.LPAREN, Literal: string(c)}
+		tok = token.Token{Type: token.LPAREN, Literal: string(c)}
 	case ')':
 		c := s.currentChar
 		s.AdvanceChar()
-		return token.Token{Type: token.RPAREN, Literal: string(c)}
+		tok = token.Token{Type: token.RPAREN, Literal: string(c)}
 	case '{':
 		c := s.currentChar
 		s.AdvanceChar()
-		return token.Token{Type: token.LBRACE, Literal: string(c)}
+		tok = token.Token{Type: token.LBRACE, Literal: string(c)}
 	case '}':
 		c := s.currentChar
 		s.AdvanceChar()
-		return token.Token{Type: token.RBRACE, Literal: string(c)}
+		tok = token.Token{Type: token.RBRACE, Literal: string(c)}
 	case '[':
 		c := s.currentChar
 		s.AdvanceChar()
-		return token.Token{Type: token.LBRACKET, Literal: string(c)}
+		tok = token.Token{Type: token.LBRACKET, Literal: string(c)}
+		return
 	case ']':
 		c := s.currentChar
 		s.AdvanceChar()
-		return token.Token{Type: token.RBRACKET, Literal: string(c)}
+		tok = token.Token{Type: token.RBRACKET, Literal: string(c)}
 	case ':':
 		c := s.currentChar
 		s.AdvanceChar()
-		return token.Token{Type: token.COLON, Literal: string(c)}
+		tok = token.Token{Type: token.COLON, Literal: string(c)}
 	case '\r':
 		s.AdvanceChar()
 		if s.currentChar == '\n' {
 			s.AdvanceChar()
-			return token.Token{Type: token.NEWLINE, Literal: "\r\n"}
+			tok = token.Token{Type: token.NEWLINE, Literal: "\r\n"}
+		} else {
+			tok = token.Token{Type: token.NEWLINE, Literal: "\r"}
 		}
-		return token.Token{Type: token.NEWLINE, Literal: "\r"}
 	case '\n':
 		s.AdvanceChar()
-		return token.Token{Type: token.NEWLINE, Literal: "\n"}
+		tok = token.Token{Type: token.NEWLINE, Literal: "\n"}
 	default:
 		if isLetter(s.currentChar) {
 			lit := scanIdentifier(s)
-			return token.Token{Type: token.IDENT, Literal: lit}
+			tok = token.Token{Type: token.IDENT, Literal: lit}
 		} else if isDigit(s.currentChar) {
-			lit, typ := scanNumber(s)
-			return token.Token{Type: typ, Literal: lit}
+			var lit string
+			lit, err = scanNumber(s)
+			// TODO: (high) https://github.com/xjslang/xjs/pull/260#discussion_r3439298671
+			tok = token.Token{Type: token.NUMBER, Literal: lit}
 		} else if s.currentChar == utf8.RuneError {
 			c := s.currentChar
 			s.AdvanceChar()
-			return token.Token{Type: token.ILLEGAL, Literal: string(c)}
+			tok = token.Token{Type: token.ILLEGAL, Literal: string(c)}
 		} else if s.currentChar == eof {
-			return token.Token{Type: token.EOF, Literal: ""}
+			tok = token.Token{Type: token.EOF, Literal: ""}
+		} else {
+			c := s.currentChar
+			s.AdvanceChar()
+			tok = token.Token{Type: token.UNKNOWN, Literal: string(c)}
 		}
 	}
-
-	c := s.currentChar
-	s.AdvanceChar()
-	return token.Token{Type: token.UNKNOWN, Literal: string(c)}
+	return
 }

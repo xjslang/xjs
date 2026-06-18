@@ -14,7 +14,7 @@ type Scanner struct {
 	offset       int
 	line, column int
 
-	scanner func(*Scanner) token.Token
+	scanner func(*Scanner) (token.Token, error)
 
 	currentChar rune
 }
@@ -85,7 +85,11 @@ func (sc *Scanner) NextToken() token.Token {
 	next := func() token.Token {
 		sc.skipWhitespaces()
 		line, column := sc.line, sc.column
-		tok := sc.scanner(sc)
+		tok, err := sc.scanner(sc)
+		// TODO: (medium) Scanner.NextToken converts scanner/middleware errors into token.ILLEGAL but discards the error value entirely. With the new middleware signature returning errors, callers still have no way to observe why a token is illegal other than inspecting Literal. Consider exposing the error (e.g., NextToken returning (token.Token, error) or storing the last error on Scanner) so downstream code can surface better diagnostics.
+		if err != nil {
+			tok.Type = token.ILLEGAL
+		}
 		tok.Line = line
 		tok.Column = max(0, column)
 		return tok

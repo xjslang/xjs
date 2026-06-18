@@ -10,12 +10,12 @@ import (
 func TestUseScanner(t *testing.T) {
 	sc := &scanner.Scanner{}
 	powType := token.RegisterType("**")
-	sc.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
+	sc.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
 		if sc.CurrentChar() == '*' && sc.PeekChar() == '*' {
 			// consume **
 			sc.AdvanceChar()
 			sc.AdvanceChar()
-			return token.Token{Type: powType, Literal: powType.String()}
+			return token.Token{Type: powType, Literal: powType.String()}, nil
 		}
 		return next()
 	})

@@ -24,12 +24,14 @@ func TestUseExprParser(t *testing.T) {
 	input := "let x = openDb() or exit('failed opening db')"
 	b := xjs.NewBuilder()
 	// the scanner can now scan "or"
-	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
-		tok := next()
+	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
+		if tok, err = next(); err != nil {
+			return
+		}
 		if tok.Type == token.IDENT && tok.Literal == orType.String() {
 			tok.Type = orType
 		}
-		return tok
+		return
 	})
 	// the parser can now parse "or"
 	b.UseExprParser(func(p *parser.Parser, next func() (ast.Expr, error)) (node ast.Expr, err error) {
@@ -77,10 +79,10 @@ func TestUseUnaryParser(t *testing.T) {
 	notBitwise := token.RegisterUnaryOp("~")
 	input := "1 + ~7"
 	b := xjs.NewBuilder()
-	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
+	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
 		if sc.CurrentChar() == '~' {
 			sc.AdvanceChar()
-			return token.Token{Type: notBitwise, Literal: "~"}
+			return token.Token{Type: notBitwise, Literal: "~"}, nil
 		}
 		return next()
 	})
@@ -124,10 +126,10 @@ func TestUseBinaryParser(t *testing.T) {
 	powType := token.RegisterBinaryOp("^", token.MULTIPLY.Precedence()+1)
 	input := "1+5^2"
 	b := xjs.NewBuilder()
-	b.UseScanner(func(s *scanner.Scanner, next func() token.Token) token.Token {
+	b.UseScanner(func(s *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
 		if s.CurrentChar() == '^' {
 			s.AdvanceChar()
-			return token.Token{Type: powType, Literal: "^"}
+			return token.Token{Type: powType, Literal: "^"}, nil
 		}
 		return next()
 	})
@@ -173,10 +175,10 @@ func TestUseBinaryParser_postfix(t *testing.T) {
 	facTyp := token.RegisterBinaryOp("!", -1)
 	input := "5! + 1"
 	b := xjs.NewBuilder()
-	b.UseScanner(func(s *scanner.Scanner, next func() token.Token) token.Token {
+	b.UseScanner(func(s *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
 		if s.CurrentChar() == '!' {
 			s.AdvanceChar()
-			return token.Token{Type: facTyp, Literal: "!"}
+			return token.Token{Type: facTyp, Literal: "!"}, nil
 		}
 		return next()
 	})

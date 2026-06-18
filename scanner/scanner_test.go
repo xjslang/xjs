@@ -36,17 +36,17 @@ func ExampleScanner_Init() {
 	s := &scanner.Scanner{}
 
 	// Declare "middlewares" BEFORE calling Init
-	s.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
+	s.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
 		if sc.CurrentChar() == '#' {
 			sc.AdvanceChar()
-			return token.Token{Type: hashTyp, Literal: "#"}
+			return token.Token{Type: hashTyp, Literal: "#"}, nil
 		}
 		return next() // Delegate to the "next" middleware
 	})
-	s.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
+	s.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
 		if sc.CurrentChar() == '^' {
 			sc.AdvanceChar()
-			return token.Token{Type: caretType, Literal: "^"}
+			return token.Token{Type: caretType, Literal: "^"}, nil
 		}
 		return next() // Delegate to the "next" middleware
 	})
