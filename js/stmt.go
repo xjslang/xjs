@@ -11,7 +11,7 @@ type SelfClosingStmt interface {
 	SelfClosing() bool
 }
 
-func ParseStmt(p *parser.Parser) (_ ast.Stmt, err error) {
+func ParseStmt(p *parser.Parser) (ast.Stmt, error) {
 	if p.CurrentToken.Type == token.LBRACE {
 		return ParseBlockStmt(p)
 	}

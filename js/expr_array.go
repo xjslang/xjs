@@ -16,8 +16,8 @@ type ArrayExpr struct {
 	Values []ast.Expr
 }
 
-func ParseArrayExpr(p *parser.Parser) (_ *ArrayExpr, err error) {
-	node := &ArrayExpr{}
+func ParseArrayExpr(p *parser.Parser) (node *ArrayExpr, err error) {
+	node = &ArrayExpr{}
 	if node.Layout.Lbracket, err = p.Expect(token.LBRACKET); err != nil {
 		return
 	}

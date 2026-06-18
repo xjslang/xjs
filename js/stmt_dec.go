@@ -15,8 +15,8 @@ type DecStmt struct {
 	Name *Ident
 }
 
-func ParseDecStmt(p *parser.Parser) (_ *DecStmt, err error) {
-	node := &DecStmt{}
+func ParseDecStmt(p *parser.Parser) (node *DecStmt, err error) {
+	node = &DecStmt{}
 	if node.Name, err = ParseIdent(p); err != nil {
 		return
 	}

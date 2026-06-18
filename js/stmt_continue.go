@@ -17,8 +17,8 @@ type ContinueStmt struct {
 	Label *Ident
 }
 
-func ParseContinueStmt(p *parser.Parser) (_ *ContinueStmt, err error) {
-	node := &ContinueStmt{}
+func ParseContinueStmt(p *parser.Parser) (node *ContinueStmt, err error) {
+	node = &ContinueStmt{}
 	if node.Layout.Continue, err = p.Expect(CONTINUE); err != nil {
 		return
 	}

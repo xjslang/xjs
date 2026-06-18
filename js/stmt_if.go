@@ -38,8 +38,8 @@ func (node *IfStmt) SelfClosing() bool {
 	return false
 }
 
-func ParseIfStmt(p *parser.Parser) (_ *IfStmt, err error) {
-	node := &IfStmt{}
+func ParseIfStmt(p *parser.Parser) (node *IfStmt, err error) {
+	node = &IfStmt{}
 	// if
 	if node.Layout.If, err = p.Expect(IF); err != nil {
 		return
@@ -70,7 +70,7 @@ func ParseIfStmt(p *parser.Parser) (_ *IfStmt, err error) {
 	} else if node.Then, err = p.ParseStmt(); err != nil {
 		return
 	}
-	return node, nil
+	return
 }
 
 func PrintIfStmt(p *printer.Printer, node *IfStmt) {

@@ -19,8 +19,8 @@ type LetStmt struct {
 	Value ast.Expr
 }
 
-func ParseLetStmt(p *parser.Parser) (_ *LetStmt, err error) {
-	node := &LetStmt{}
+func ParseLetStmt(p *parser.Parser) (node *LetStmt, err error) {
+	node = &LetStmt{}
 	if node.Layout.Let, err = p.Expect(LET); err != nil {
 		return
 	}

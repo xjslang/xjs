@@ -20,8 +20,8 @@ func (node *BlockStmt) SelfClosing() bool {
 	return true
 }
 
-func ParseBlockStmt(p *parser.Parser) (_ *BlockStmt, err error) {
-	node := &BlockStmt{}
+func ParseBlockStmt(p *parser.Parser) (node *BlockStmt, err error) {
+	node = &BlockStmt{}
 	if node.Layout.Lbrace, err = p.Expect(token.LBRACE); err != nil {
 		return
 	}

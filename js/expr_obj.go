@@ -21,8 +21,8 @@ type ObjExpr struct {
 	Entries []ObjEntry
 }
 
-func ParseObjExpr(p *parser.Parser) (_ *ObjExpr, err error) {
-	node := &ObjExpr{}
+func ParseObjExpr(p *parser.Parser) (node *ObjExpr, err error) {
+	node = &ObjExpr{}
 	if node.Layout.Lbrace, err = p.Expect(token.LBRACE); err != nil {
 		return
 	}

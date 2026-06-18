@@ -19,8 +19,8 @@ type FunctionExpr struct {
 	Body   *BlockStmt
 }
 
-func ParseFunctionExpr(p *parser.Parser) (_ *FunctionExpr, err error) {
-	node := &FunctionExpr{}
+func ParseFunctionExpr(p *parser.Parser) (node *FunctionExpr, err error) {
+	node = &FunctionExpr{}
 	if node.Layout.Function, err = p.Expect(FUNCTION); err != nil {
 		return
 	}

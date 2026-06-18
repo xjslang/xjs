@@ -27,8 +27,8 @@ func (node *WhileStmt) SelfClosing() bool {
 	return false
 }
 
-func ParseWhileStmt(p *parser.Parser) (_ *WhileStmt, err error) {
-	node := &WhileStmt{}
+func ParseWhileStmt(p *parser.Parser) (node *WhileStmt, err error) {
+	node = &WhileStmt{}
 	// while
 	if node.Layout.While, err = p.Expect(WHILE); err != nil {
 		return
