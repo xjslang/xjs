@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/xjslang/xjs/token"
 )
 
 func TestScanNumber(t *testing.T) {
@@ -31,10 +30,8 @@ func TestScanNumber(t *testing.T) {
 			for _, input := range test.inputs {
 				sc := &Scanner{}
 				sc.Init([]byte(input))
-				result, typ := scanNumber(sc)
-				if !assert.Equal(t, token.NUMBER, typ) {
-					continue
-				}
+				result, err := scanNumber(sc)
+				assert.NoError(t, err)
 				assert.Equal(t, input, result)
 			}
 		})
@@ -49,8 +46,8 @@ func TestScanNumber(t *testing.T) {
 		for _, input := range inputs {
 			sc := &Scanner{}
 			sc.Init([]byte(input))
-			_, typ := scanNumber(sc)
-			assert.Equal(t, token.ILLEGAL, typ)
+			_, err := scanNumber(sc)
+			assert.Error(t, err)
 		}
 	})
 }
@@ -66,8 +63,8 @@ func TestScanString(t *testing.T) {
 	for _, test := range tests {
 		sc := &Scanner{}
 		sc.Init([]byte(test.input))
-		result, typ := scanString(sc, test.delimiter)
-		if !assert.Equal(t, token.STRING, typ) {
+		result, err := scanString(sc, test.delimiter)
+		if !assert.NoError(t, err) {
 			continue
 		}
 		assert.Equal(t, test.input, result)

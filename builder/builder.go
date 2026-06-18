@@ -19,7 +19,7 @@ func New() *Builder {
 	}
 }
 
-func (b *Builder) UseScanner(scanner func(sc *scanner.Scanner, next func() token.Token) token.Token) {
+func (b *Builder) UseScanner(scanner func(sc *scanner.Scanner, next func() (token.Token, error)) (token.Token, error)) {
 	b.scanner.UseScanner(scanner)
 }
 

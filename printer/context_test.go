@@ -33,8 +33,10 @@ func TestPrinterContext(t *testing.T) {
 	awaitTyp := token.RegisterType("await")
 
 	b := xjs.NewBuilder()
-	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
-		tok := next()
+	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
+		if tok, err = next(); err != nil {
+			return
+		}
 		if tok.Type == token.IDENT {
 			switch tok.Literal {
 			case "async":
@@ -43,7 +45,7 @@ func TestPrinterContext(t *testing.T) {
 				tok.Type = awaitTyp
 			}
 		}
-		return tok
+		return
 	})
 	b.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (_ ast.Stmt, err error) {
 		switch p.CurrentToken.Type {

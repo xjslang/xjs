@@ -23,12 +23,14 @@ type DeferStmt struct {
 
 func djsPlugin(b *builder.Builder) {
 	// the scanner that can read "defer"
-	b.UseScanner(func(sc *scanner.Scanner, next func() token.Token) token.Token {
-		tok := next()
+	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
+		if tok, err = next(); err != nil {
+			return
+		}
 		if tok.Type == token.IDENT && tok.Literal == "defer" {
 			tok.Type = deferTyp
 		}
-		return tok
+		return
 	})
 	// the parser can now parse "defer"
 	b.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (node ast.Stmt, err error) {

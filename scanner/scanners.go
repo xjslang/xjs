@@ -1,12 +1,11 @@
 package scanner
 
 import (
+	"errors"
 	"strings"
-
-	"github.com/xjslang/xjs/token"
 )
 
-func scanBlockComment(sc *Scanner) (string, token.Type) {
+func scanBlockComment(sc *Scanner) (string, error) {
 	sb := strings.Builder{}
 	sc.AdvanceChar() // consume "*"
 	for {
@@ -16,12 +15,12 @@ func scanBlockComment(sc *Scanner) (string, token.Type) {
 			sc.AdvanceChar()
 			break
 		} else if sc.currentChar == eof {
-			return sb.String(), token.ILLEGAL
+			return sb.String(), errors.New("unexpected end of file")
 		}
 		sb.WriteRune(sc.currentChar)
 		sc.AdvanceChar()
 	}
-	return sb.String(), token.BLOCK_COMMENT
+	return sb.String(), nil
 }
 
 func scanLineComment(sc *Scanner) string {
@@ -57,39 +56,39 @@ func scanIdentifier(sc *Scanner) string {
 	return sb.String()
 }
 
-func scanHexNumber(sc *Scanner) (string, token.Type) {
+func scanHexNumber(sc *Scanner) (string, error) {
 	sb := strings.Builder{}
 	sb.WriteRune(sc.currentChar)
 	sc.AdvanceChar() // consume 0
 	sb.WriteRune(sc.currentChar)
 	sc.AdvanceChar() // consume x | X
 	if !isHexDigit(sc.currentChar) {
-		return sb.String(), token.ILLEGAL
+		return sb.String(), errors.New("hex digit expected")
 	}
 	sb.WriteRune(sc.currentChar)
 	for sc.AdvanceChar(); isHexDigit(sc.currentChar); sc.AdvanceChar() {
 		sb.WriteRune(sc.currentChar)
 	}
-	return sb.String(), token.NUMBER
+	return sb.String(), nil
 }
 
-func scanOctalNumber(sc *Scanner) (string, token.Type) {
+func scanOctalNumber(sc *Scanner) (string, error) {
 	sb := strings.Builder{}
 	sb.WriteRune(sc.currentChar)
 	sc.AdvanceChar() // consume 0
 	sb.WriteRune(sc.currentChar)
-	sc.AdvanceChar() // consume x | X
+	sc.AdvanceChar() // consume o | O
 	if !isOctalDigit(sc.currentChar) {
-		return sb.String(), token.ILLEGAL
+		return sb.String(), errors.New("octal digit expected")
 	}
 	sb.WriteRune(sc.currentChar)
 	for sc.AdvanceChar(); isOctalDigit(sc.currentChar); sc.AdvanceChar() {
 		sb.WriteRune(sc.currentChar)
 	}
-	return sb.String(), token.NUMBER
+	return sb.String(), nil
 }
 
-func scanFloatNumber(sc *Scanner) (string, token.Type) {
+func scanFloatNumber(sc *Scanner) (string, error) {
 	sb := strings.Builder{}
 	readDigits := func() {
 		for sc.AdvanceChar(); isDigit(sc.currentChar); sc.AdvanceChar() {
@@ -110,15 +109,15 @@ func scanFloatNumber(sc *Scanner) (string, token.Type) {
 			sc.AdvanceChar()
 		}
 		if !isDigit(sc.currentChar) {
-			return sb.String(), token.ILLEGAL
+			return sb.String(), errors.New("decimal digit expected")
 		}
 		sb.WriteRune(sc.currentChar)
 		readDigits()
 	}
-	return sb.String(), token.NUMBER
+	return sb.String(), nil
 }
 
-func scanNumber(sc *Scanner) (string, token.Type) {
+func scanNumber(sc *Scanner) (string, error) {
 	if sc.currentChar == '0' {
 		switch sc.PeekChar() {
 		case 'x', 'X':
@@ -130,7 +129,7 @@ func scanNumber(sc *Scanner) (string, token.Type) {
 	return scanFloatNumber(sc)
 }
 
-func scanString(sc *Scanner, delimiter rune) (string, token.Type) {
+func scanString(sc *Scanner, delimiter rune) (string, error) {
 	sb := strings.Builder{}
 	sb.WriteRune(sc.currentChar)
 	for {
@@ -148,9 +147,9 @@ func scanString(sc *Scanner, delimiter rune) (string, token.Type) {
 			sc.AdvanceChar()
 			break
 		} else if sc.currentChar == eof || sc.currentChar == '\n' || sc.currentChar == '\r' {
-			return sb.String(), token.ILLEGAL
+			return sb.String(), errors.New("unexpected end of line")
 		}
 		sb.WriteRune(sc.currentChar)
 	}
-	return sb.String(), token.STRING
+	return sb.String(), nil
 }
