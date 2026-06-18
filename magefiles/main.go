@@ -30,6 +30,6 @@ func Bench() error {
 	return sh.RunV("go", "test", "./...", "-bench=.", "-benchtime=3s", "-run=^$")
 }
 
-func Update() error {
-	return sh.RunV("go", "test", "./printer", "-update")
+func UpdateGoldenFiles() error {
+	return sh.RunV("go", "test", ".", "./printer", "-update")
 }
