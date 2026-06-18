@@ -17,8 +17,8 @@ type IndexExpr struct {
 	Index ast.Expr
 }
 
-func ParseIndexExpr(p *parser.Parser, left ast.Expr) (_ *IndexExpr, err error) {
-	node := &IndexExpr{Value: left}
+func ParseIndexExpr(p *parser.Parser, left ast.Expr) (node *IndexExpr, err error) {
+	node = &IndexExpr{Value: left}
 	if node.Layout.Lbracket, err = p.Expect(token.LBRACKET); err != nil {
 		return
 	}

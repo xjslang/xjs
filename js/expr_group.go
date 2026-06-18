@@ -16,8 +16,8 @@ type GroupExpr struct {
 	Value ast.Expr
 }
 
-func ParseGroupExpr(p *parser.Parser) (_ *GroupExpr, err error) {
-	node := &GroupExpr{}
+func ParseGroupExpr(p *parser.Parser) (node *GroupExpr, err error) {
+	node = &GroupExpr{}
 	if node.Layout.Lparen, err = p.Expect(token.LPAREN); err != nil {
 		return
 	}

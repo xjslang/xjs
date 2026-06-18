@@ -13,8 +13,8 @@ type UnaryExpr struct {
 	Value ast.Expr
 }
 
-func ParseUnaryExpr(p *parser.Parser) (_ ast.Expr, err error) {
-	node := &UnaryExpr{}
+func ParseUnaryExpr(p *parser.Parser) (node *UnaryExpr, err error) {
+	node = &UnaryExpr{}
 	node.Op = p.CurrentToken
 	p.AdvanceToken()
 	if node.Value, err = ParseValue(p); err != nil {

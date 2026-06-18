@@ -17,8 +17,8 @@ type BreakStmt struct {
 	Label *Ident
 }
 
-func ParseBreakStmt(p *parser.Parser) (_ *BreakStmt, err error) {
-	node := &BreakStmt{}
+func ParseBreakStmt(p *parser.Parser) (node *BreakStmt, err error) {
+	node = &BreakStmt{}
 	if node.Layout.Break, err = p.Expect(BREAK); err != nil {
 		return
 	}

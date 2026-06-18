@@ -15,8 +15,8 @@ type IncStmt struct {
 	Name *Ident
 }
 
-func ParseIncStmt(p *parser.Parser) (_ *IncStmt, err error) {
-	node := &IncStmt{}
+func ParseIncStmt(p *parser.Parser) (node *IncStmt, err error) {
+	node = &IncStmt{}
 	if node.Name, err = ParseIdent(p); err != nil {
 		return
 	}

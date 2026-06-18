@@ -12,8 +12,8 @@ type Ident struct {
 	token.Token
 }
 
-func ParseIdent(p *parser.Parser) (_ *Ident, err error) {
-	node := &Ident{}
+func ParseIdent(p *parser.Parser) (node *Ident, err error) {
+	node = &Ident{}
 	if node.Token, err = p.Expect(token.IDENT); err != nil {
 		return
 	}

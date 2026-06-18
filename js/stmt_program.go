@@ -15,8 +15,8 @@ type Program struct {
 	Stmts []ast.Stmt
 }
 
-func ParseProgram(p *parser.Parser) (_ *Program, err error) {
-	node := &Program{}
+func ParseProgram(p *parser.Parser) (node *Program, err error) {
+	node = &Program{}
 	var stmt ast.Stmt
 	var errList parser.ErrorList
 	for i := 0; p.CurrentToken.Type != token.EOF; i++ {

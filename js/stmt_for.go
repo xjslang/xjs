@@ -31,8 +31,8 @@ func (node *ForStmt) SelfClosing() bool {
 	return false
 }
 
-func ParseForStmt(p *parser.Parser) (_ *ForStmt, err error) {
-	node := &ForStmt{}
+func ParseForStmt(p *parser.Parser) (node *ForStmt, err error) {
+	node = &ForStmt{}
 	// for
 	if node.Layout.For, err = p.Expect(FOR); err != nil {
 		return

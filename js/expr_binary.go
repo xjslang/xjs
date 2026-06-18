@@ -14,9 +14,9 @@ type BinaryExpr struct {
 	Right ast.Expr
 }
 
-func ParseBinaryExpr(p *parser.Parser, left ast.Expr) (_ *BinaryExpr, err error) {
+func ParseBinaryExpr(p *parser.Parser, left ast.Expr) (node *BinaryExpr, err error) {
 	op := p.CurrentToken
-	node := &BinaryExpr{Left: left, Op: op}
+	node = &BinaryExpr{Left: left, Op: op}
 	p.AdvanceToken()
 	if node.Right, err = ParseRightExpr(p, op.Type.Precedence()); err != nil {
 		return

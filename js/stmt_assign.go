@@ -16,8 +16,8 @@ type AssignStmt struct {
 	Value ast.Expr
 }
 
-func ParseAssignStmt(p *parser.Parser) (_ *AssignStmt, err error) {
-	node := &AssignStmt{}
+func ParseAssignStmt(p *parser.Parser) (node *AssignStmt, err error) {
+	node = &AssignStmt{}
 	if node.Name, err = ParseIdent(p); err != nil {
 		return
 	}

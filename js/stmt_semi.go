@@ -18,8 +18,8 @@ func (node *SemiStmt) SelfClosing() bool {
 	return true
 }
 
-func ParseSemiStmt(p *parser.Parser) (_ *SemiStmt, err error) {
-	node := &SemiStmt{}
+func ParseSemiStmt(p *parser.Parser) (node *SemiStmt, err error) {
+	node = &SemiStmt{}
 	if node.Layout.Semi, err = expectSemi(p); err != nil {
 		return
 	}

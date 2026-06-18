@@ -11,8 +11,8 @@ type ExprStmt struct {
 	Expr ast.Expr
 }
 
-func ParseExprStmt(p *parser.Parser) (_ *ExprStmt, err error) {
-	node := &ExprStmt{}
+func ParseExprStmt(p *parser.Parser) (node *ExprStmt, err error) {
+	node = &ExprStmt{}
 	if node.Expr, err = p.ParseExpr(); err != nil {
 		return
 	}

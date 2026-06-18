@@ -17,8 +17,8 @@ type ReturnStmt struct {
 	Value ast.Expr
 }
 
-func ParseReturnStmt(p *parser.Parser) (_ *ReturnStmt, err error) {
-	node := &ReturnStmt{}
+func ParseReturnStmt(p *parser.Parser) (node *ReturnStmt, err error) {
+	node = &ReturnStmt{}
 	if node.Layout.Return, err = p.Expect(RETURN); err != nil {
 		return
 	}
