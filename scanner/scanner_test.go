@@ -26,7 +26,7 @@ func assertLexerTokens(t *testing.T, sc *scanner.Scanner, expectedToks []token.T
 func assertInputTokens(t *testing.T, input string, expectedToks []token.Token, opts ...testutil.TokenCompareOption) {
 	t.Helper()
 	sc := &scanner.Scanner{}
-	sc.Init([]byte(input))
+	sc.Init([]byte(input), scanner.WithCommentTypes(token.LINE_COMMENT, token.BLOCK_COMMENT))
 	assertLexerTokens(t, sc, expectedToks, opts...)
 }
 

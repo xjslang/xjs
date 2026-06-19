@@ -1,11 +1,22 @@
 package scanner
 
 import (
+	"slices"
 	"strings"
 	"unicode/utf8"
 
 	"github.com/xjslang/xjs/token"
 )
+
+type config struct {
+	withTriviaTypes []token.Type
+}
+
+func WithCommentTypes(typ ...token.Type) func(*config) {
+	return func(cfg *config) {
+		cfg.withTriviaTypes = append(cfg.withTriviaTypes, typ...)
+	}
+}
 
 const eof = rune(-1)
 
@@ -13,17 +24,21 @@ type Scanner struct {
 	input        []byte
 	offset       int
 	line, column int
-
-	scanner func(*Scanner) (token.Token, error)
-
-	currentChar rune
+	scanner      func(*Scanner) (token.Token, error)
+	currentChar  rune
+	triviaTypes  []token.Type
 }
 
 // Init initializes the scanner.
 //
 // Call Init before scanning tokens with NextToken.
 // Scanner middleware must be registered via UseScanner BEFORE Init.
-func (sc *Scanner) Init(input []byte) {
+func (sc *Scanner) Init(input []byte, opts ...func(*config)) {
+	cfg := &config{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+	sc.triviaTypes = cfg.withTriviaTypes
 	sc.input = input
 	if sc.scanner == nil {
 		sc.scanner = defaultScanner
@@ -99,10 +114,10 @@ func (sc *Scanner) NextToken() token.Token {
 	tok := next()
 triviaLoop:
 	for {
-		switch tok.Type {
-		case token.NEWLINE:
+		switch {
+		case tok.Type == token.NEWLINE:
 			afterNewline = true
-		case token.LINE_COMMENT, token.BLOCK_COMMENT:
+		case slices.Contains(sc.triviaTypes, tok.Type):
 			afterNewline = afterNewline || strings.ContainsAny(tok.Literal, "\n\r")
 		default:
 			break triviaLoop
