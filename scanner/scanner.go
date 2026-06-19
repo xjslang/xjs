@@ -18,7 +18,7 @@ func WithCommentTypes(typ ...token.Type) func(*config) {
 	}
 }
 
-const eof = rune(-1)
+const EOF = rune(-1)
 
 type Scanner struct {
 	input        []byte
@@ -51,7 +51,7 @@ func (sc *Scanner) Reset() {
 		sc.scanner = defaultScanner
 	}
 	sc.offset = 0
-	sc.currentChar = eof
+	sc.currentChar = EOF
 	sc.line = 0
 	sc.column = -1
 	sc.AdvanceChar()
@@ -66,7 +66,7 @@ func (sc *Scanner) PeekChar() rune {
 		r, _ := utf8.DecodeRune(sc.input[sc.offset:])
 		return r
 	}
-	return eof
+	return EOF
 }
 
 func (sc *Scanner) AdvanceChar() {
@@ -88,7 +88,7 @@ func (sc *Scanner) AdvanceChar() {
 			sc.column++
 		} else {
 			// reached the end of the file
-			r = eof
+			r = EOF
 		}
 	default:
 		sc.column++

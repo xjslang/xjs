@@ -110,20 +110,9 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 		tok = token.Token{Type: token.MODULO, Literal: token.MODULO.String()}
 	// divide operator and comments
 	case '/':
-		c1 := s.currentChar
+		c := s.currentChar
 		s.AdvanceChar()
-		switch s.currentChar {
-		case '/':
-			comment := scanLineComment(s)
-			tok = token.Token{Type: token.LINE_COMMENT, Literal: "//" + comment}
-		case '*':
-			var comment string
-			comment, err = scanBlockComment(s)
-			// TODO: (high) https://github.com/xjslang/xjs/pull/260#discussion_r3439298639
-			tok = token.Token{Type: token.BLOCK_COMMENT, Literal: "/*" + comment}
-		default:
-			tok = token.Token{Type: token.DIVIDE, Literal: string(c1)}
-		}
+		tok = token.Token{Type: token.DIVIDE, Literal: string(c)}
 	case '\'', '"':
 		var lit string
 		lit, err = scanString(s, s.currentChar)
@@ -195,7 +184,7 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 			c := s.currentChar
 			s.AdvanceChar()
 			tok = token.Token{Type: token.ILLEGAL, Literal: string(c)}
-		} else if s.currentChar == eof {
+		} else if s.currentChar == EOF {
 			tok = token.Token{Type: token.EOF, Literal: ""}
 		} else {
 			c := s.currentChar

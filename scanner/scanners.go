@@ -5,50 +5,6 @@ import (
 	"strings"
 )
 
-func scanBlockComment(sc *Scanner) (string, error) {
-	sb := strings.Builder{}
-	sc.AdvanceChar() // consume "*"
-	for {
-		if sc.currentChar == '*' && sc.PeekChar() == '/' {
-			// consume "*/"
-			for range 2 {
-				sb.WriteRune(sc.currentChar)
-				sc.AdvanceChar()
-			}
-			break
-		} else if sc.currentChar == eof {
-			return sb.String(), errors.New("unexpected end of file")
-		}
-		sb.WriteRune(sc.currentChar)
-		sc.AdvanceChar()
-	}
-	return sb.String(), nil
-}
-
-func scanLineComment(sc *Scanner) string {
-	sb := strings.Builder{}
-	for {
-		sc.AdvanceChar()
-		if sc.currentChar == '\n' {
-			sb.WriteRune(sc.currentChar)
-			sc.AdvanceChar()
-			break
-		} else if sc.currentChar == '\r' {
-			sb.WriteRune(sc.currentChar)
-			sc.AdvanceChar()
-			if sc.currentChar == '\n' {
-				sb.WriteRune(sc.currentChar)
-				sc.AdvanceChar()
-			}
-			break
-		} else if sc.currentChar == eof {
-			break
-		}
-		sb.WriteRune(sc.currentChar)
-	}
-	return sb.String()
-}
-
 func scanIdentifier(sc *Scanner) string {
 	sb := strings.Builder{}
 	sb.WriteRune(sc.currentChar)
@@ -148,7 +104,7 @@ func scanString(sc *Scanner, delimiter rune) (string, error) {
 			sb.WriteRune(sc.currentChar)
 			sc.AdvanceChar()
 			break
-		} else if sc.currentChar == eof || sc.currentChar == '\n' || sc.currentChar == '\r' {
+		} else if sc.currentChar == EOF || sc.currentChar == '\n' || sc.currentChar == '\r' {
 			return sb.String(), errors.New("unexpected end of line")
 		}
 		sb.WriteRune(sc.currentChar)
