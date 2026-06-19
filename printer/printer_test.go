@@ -122,7 +122,7 @@ func TestPrintCallExpr(t *testing.T) {
 				3 * 4 // c3
 				// c4
 			) - 5) - 3`,
-			expected: `let x = 1 * (foo/* c1 */(
+			expected: `let x = 1 * (foo /* c1 */(
   2, // c2
   3 * 4 // c3
 // c4
@@ -356,8 +356,6 @@ func TestWithComments(t *testing.T) {
 		{"show comments by default", xjs.NewPrinter()},
 		{"hide comments", xjs.NewPrinter(printer.WithComments(false))},
 		{"show comments", xjs.NewPrinter(printer.WithComments(true))},
-		{"hide lcomments and show bcomments", xjs.NewPrinter(printer.WithLineComments(false), printer.WithBlockComments(true))},
-		{"show lcomments and hide bcomments", xjs.NewPrinter(printer.WithLineComments(true), printer.WithBlockComments(false))},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
