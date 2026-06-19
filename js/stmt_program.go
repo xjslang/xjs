@@ -43,7 +43,7 @@ func ParseProgram(p *parser.Parser) (node *Program, err error) {
 					// advance position to avoid infinite loop
 					p.AdvanceToken()
 				}
-				p.AdvanceToStmtEnd()
+				AdvanceToStmtEnd(p)
 				continue
 			}
 			node.Stmts = append(node.Stmts, stmt)
