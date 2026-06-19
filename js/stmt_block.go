@@ -51,7 +51,7 @@ func ParseBlockStmt(p *parser.Parser) (node *BlockStmt, err error) {
 				} else {
 					errList = append(errList, err)
 				}
-				p.AdvanceToStmtEnd()
+				AdvanceToStmtEnd(p)
 				continue
 			}
 			node.Stmts = append(node.Stmts, stmt)

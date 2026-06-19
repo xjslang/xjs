@@ -155,18 +155,3 @@ func (p *Parser) ExitScope(sc Scope) {
 func (p *Parser) InScope(sc Scope) bool {
 	return p.scopes.In(sc)
 }
-
-// TODO: move to js package
-func (p *Parser) AdvanceToStmtEnd() {
-	for {
-		typ := p.CurrentToken.Type
-		if typ == token.SEMICOLON {
-			p.AdvanceToken()
-			break
-		}
-		if typ == token.EOF || typ == token.RBRACE || typ == token.LBRACE || p.CurrentToken.AfterNewline {
-			break
-		}
-		p.AdvanceToken()
-	}
-}

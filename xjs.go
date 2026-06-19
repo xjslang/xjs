@@ -10,6 +10,11 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
+func Parse(input []byte) (*js.Program, error) {
+	p := NewBuilder().Build(input)
+	return js.ParseProgram(p)
+}
+
 func NewBuilder() *builder.Builder {
 	return builder.New().Install(jsPlugin)
 }
@@ -79,11 +84,6 @@ func NewPrinter(opts ...printer.Option) *printer.Printer {
 	})
 	p.Init(opts...)
 	return p
-}
-
-func Parse(input []byte) (*js.Program, error) {
-	p := NewBuilder().Build(input)
-	return js.ParseProgram(p)
 }
 
 func jsPlugin(b *builder.Builder) {
