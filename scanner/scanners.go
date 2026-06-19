@@ -10,9 +10,11 @@ func scanBlockComment(sc *Scanner) (string, error) {
 	sc.AdvanceChar() // consume "*"
 	for {
 		if sc.currentChar == '*' && sc.PeekChar() == '/' {
-			// skip "*/"
-			sc.AdvanceChar()
-			sc.AdvanceChar()
+			// consume "*/"
+			for range 2 {
+				sb.WriteRune(sc.currentChar)
+				sc.AdvanceChar()
+			}
 			break
 		} else if sc.currentChar == eof {
 			return sb.String(), errors.New("unexpected end of file")

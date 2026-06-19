@@ -12,9 +12,8 @@ func ErrorAt(tok token.Token, msg string) error {
 func Fork(p *Printer) *Printer {
 	p1 := &Printer{printer: p.printer}
 	p1.Init(
-		WithLineComments(p.lineComments),
-		WithBlockComments(p.blockComments),
-		WithNewLines(p.newLines),
+		WithComments(p.withComments),
+		WithNewLines(p.withNewLines),
 		WithIndent(p.indent),
 	)
 	return p1

@@ -30,19 +30,17 @@ func (list ErrorList) Error() string {
 }
 
 type config struct {
-	indent        string
-	lineComments  bool
-	blockComments bool
-	newLines      bool
+	indent       string
+	withComments bool
+	withNewLines bool
 }
 
 type Option func(*config)
 
 func Compact() Option {
 	return func(cfg *config) {
-		cfg.lineComments = false
-		cfg.blockComments = false
-		cfg.newLines = false
+		cfg.withComments = false
+		cfg.withNewLines = false
 	}
 }
 
@@ -54,43 +52,29 @@ func WithIndent(value string) Option {
 
 func WithComments(value bool) Option {
 	return func(cfg *config) {
-		cfg.lineComments = value
-		cfg.blockComments = value
-	}
-}
-
-func WithLineComments(value bool) Option {
-	return func(cfg *config) {
-		cfg.lineComments = value
-	}
-}
-
-func WithBlockComments(value bool) Option {
-	return func(cfg *config) {
-		cfg.blockComments = value
+		cfg.withComments = value
 	}
 }
 
 func WithNewLines(value bool) Option {
 	return func(cfg *config) {
-		cfg.newLines = value
+		cfg.withNewLines = value
 	}
 }
 
 type Printer struct {
-	doc           strings.Builder
-	lineComments  bool
-	blockComments bool
-	newLines      bool
-	indent        string
-	indentLevel   int
-	lastChar      rune
-	ensureBeside  bool
-	ensureLine    bool
-	ensureSpace   bool
-	printer       func(*Printer, ast.Node) error
-	context       []map[string]string
-	errors        ErrorList
+	doc          strings.Builder
+	withComments bool
+	withNewLines bool
+	indent       string
+	indentLevel  int
+	lastChar     rune
+	ensureBeside bool
+	ensureLine   bool
+	ensureSpace  bool
+	printer      func(*Printer, ast.Node) error
+	context      []map[string]string
+	errors       ErrorList
 }
 
 // Init initializes the printer.
@@ -99,18 +83,16 @@ type Printer struct {
 // Printer middleware can be registered via UsePrinter BEFORE Init.
 func (p *Printer) Init(opts ...Option) {
 	cfg := &config{
-		lineComments:  true,
-		blockComments: true,
-		newLines:      true,
-		indent:        "  ",
+		withComments: true,
+		withNewLines: true,
+		indent:       "  ",
 	}
 	for _, opt := range opts {
 		opt(cfg)
 	}
 	p.doc.Reset()
-	p.lineComments = cfg.lineComments
-	p.blockComments = cfg.blockComments
-	p.newLines = cfg.newLines
+	p.withComments = cfg.withComments
+	p.withNewLines = cfg.withNewLines
 	p.indent = cfg.indent
 	p.indentLevel = 0
 	p.lastChar = eol
@@ -197,28 +179,21 @@ func (p *Printer) SpPrint(arg any) {
 }
 
 func (p *Printer) PrintTrivia(trivia []token.Token) {
+	eb, es, el := p.ensureBeside, p.ensureSpace, p.ensureLine
 	for _, tok := range trivia {
-		switch tok.Type {
-		case token.NEWLINE:
-			if !p.newLines {
-				continue
+		if tok.Type == token.NEWLINE {
+			if p.withNewLines {
+				p.writeRune('\n')
 			}
-			p.writeRune('\n')
-		case token.LINE_COMMENT:
-			if !p.lineComments {
-				continue
-			}
+			continue
+		}
+		if p.withComments {
 			p.printSpaceIfNeeded()
 			p.printIndentIfNeeded()
-			p.writeString("//" + tok.Literal)
-		case token.BLOCK_COMMENT:
-			if !p.blockComments {
-				continue
-			}
-			p.printIndentIfNeeded()
-			p.writeString("/*" + tok.Literal + "*/")
+			p.writeString(tok.Literal)
 		}
 	}
+	p.ensureBeside, p.ensureSpace, p.ensureLine = eb, es, el
 }
 
 func (p *Printer) Errors() ErrorList {
@@ -268,7 +243,7 @@ func (p *Printer) printToken(tok token.Token) {
 }
 
 func (p *Printer) printLineIfNeeded() {
-	if p.newLines && !isNewLine(p.lastChar) {
+	if p.withNewLines && !isNewLine(p.lastChar) {
 		p.writeRune('\n')
 	}
 }

@@ -115,12 +115,12 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 		switch s.currentChar {
 		case '/':
 			comment := scanLineComment(s)
-			tok = token.Token{Type: token.LINE_COMMENT, Literal: comment}
+			tok = token.Token{Type: token.LINE_COMMENT, Literal: "//" + comment}
 		case '*':
 			var comment string
 			comment, err = scanBlockComment(s)
 			// TODO: (high) https://github.com/xjslang/xjs/pull/260#discussion_r3439298639
-			tok = token.Token{Type: token.BLOCK_COMMENT, Literal: comment}
+			tok = token.Token{Type: token.BLOCK_COMMENT, Literal: "/*" + comment}
 		default:
 			tok = token.Token{Type: token.DIVIDE, Literal: string(c1)}
 		}
