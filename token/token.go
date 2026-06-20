@@ -102,6 +102,7 @@ var tokenLiterals = map[Type]string{
 	OR:  "||",
 	NOT: "!",
 	// delimiters
+	QUOTE:     "quote",
 	COMMA:     ",",
 	SEMICOLON: ";",
 	COLON:     ":",
