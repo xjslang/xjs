@@ -12,6 +12,7 @@ var (
 	LINE_COMMENT  = token.RegisterType("//")
 	BLOCK_COMMENT = token.RegisterType("/*")
 	NUMBER        = token.RegisterType("number")
+	STRING        = token.RegisterType("string")
 )
 
 func ScanLineComment(s *scanner.Scanner) string {
@@ -53,6 +54,31 @@ func ScanBlockComment(sc *scanner.Scanner) (string, error) {
 			break
 		} else if sc.CurrentChar() == scanner.EOF {
 			return sb.String(), errors.New("unexpected end of file")
+		}
+		sb.WriteRune(sc.CurrentChar())
+		sc.AdvanceChar()
+	}
+	return sb.String(), nil
+}
+
+func ScanString(sc *scanner.Scanner, delimiter rune) (string, error) {
+	sb := strings.Builder{}
+	for {
+		if sc.CurrentChar() == '\\' {
+			sb.WriteRune(sc.CurrentChar())
+			sc.AdvanceChar()
+			if sc.CurrentChar() == delimiter {
+				sb.WriteRune(sc.CurrentChar())
+				sc.AdvanceChar()
+				continue
+			}
+		}
+		if sc.CurrentChar() == delimiter {
+			sb.WriteRune(sc.CurrentChar())
+			sc.AdvanceChar()
+			break
+		} else if sc.CurrentChar() == scanner.EOF || sc.CurrentChar() == '\n' || sc.CurrentChar() == '\r' {
+			return sb.String(), errors.New("unexpected end of line")
 		}
 		sb.WriteRune(sc.CurrentChar())
 		sc.AdvanceChar()
