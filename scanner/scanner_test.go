@@ -323,7 +323,9 @@ func TestReadIdent(t *testing.T) {
 
 func TestReadNumber(t *testing.T) {
 	assertInputTokens(t, "123", []token.Token{
-		{Type: token.NUMBER, Literal: "123"},
+		{Type: token.DIGIT, Literal: "1"},
+		{Type: token.DIGIT, Literal: "2"},
+		{Type: token.DIGIT, Literal: "3"},
 		{Type: token.EOF},
 	})
 }

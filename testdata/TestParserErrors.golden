@@ -33,3 +33,8 @@
 [line:62, col:7] expression expected
 [line:63, col:12] identifier expected
 [line:64, col:11] } expected
+[line:67, col:0] expression expected
+[line:68, col:1] ; or newline expected
+[line:69, col:1] ; or newline expected
+[line:70, col:0] expression expected
+[line:71, col:0] expression expected
