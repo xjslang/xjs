@@ -38,7 +38,6 @@ const (
 	UNKNOWN
 	// literals
 	STRING
-	NUMBER
 	// operators
 	ASSIGN   // =
 	PLUS     // +
@@ -72,6 +71,8 @@ const (
 	LBRACKET  // [
 	RBRACKET  // ]
 	NEWLINE   // \r, \n, \r\n
+	// others
+	DIGIT // 0..9
 )
 
 var tokenLiterals = map[Type]string{
@@ -82,7 +83,6 @@ var tokenLiterals = map[Type]string{
 	UNKNOWN: "unknown",
 	// literals
 	STRING: "string",
-	NUMBER: "number",
 	// operators
 	ASSIGN:   "=",
 	PLUS:     "+",
@@ -116,6 +116,8 @@ var tokenLiterals = map[Type]string{
 	LBRACKET:  "[",
 	RBRACKET:  "]",
 	NEWLINE:   "new line",
+	// others
+	DIGIT: "digit",
 }
 
 const initCustomType Type = 1000

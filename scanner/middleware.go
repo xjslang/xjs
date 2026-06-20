@@ -176,10 +176,9 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 			lit := scanIdentifier(s)
 			tok = token.Token{Type: token.IDENT, Literal: lit}
 		} else if isDigit(s.currentChar) {
-			var lit string
-			lit, err = scanNumber(s)
-			// TODO: (high) https://github.com/xjslang/xjs/pull/260#discussion_r3439298671
-			tok = token.Token{Type: token.NUMBER, Literal: lit}
+			c := s.currentChar
+			s.AdvanceChar()
+			tok = token.Token{Type: token.DIGIT, Literal: string(c)}
 		} else if s.currentChar == utf8.RuneError {
 			c := s.currentChar
 			s.AdvanceChar()

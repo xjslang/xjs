@@ -94,6 +94,29 @@ func jsPlugin(b *builder.Builder) {
 			return
 		}
 		switch tok.Type {
+		case token.DIGIT:
+			tok.Type = js.NUMBER
+			var lit string
+			if c := sc.CurrentChar(); c == '.' || c == 'e' || c == 'E' || '0' <= c && c <= '9' {
+				if lit, err = js.ScanNumber(sc); err != nil {
+					tok.Type = token.ILLEGAL
+					return
+				}
+			} else if tok.Literal == "0" {
+				switch sc.CurrentChar() {
+				case 'x', 'X':
+					if lit, err = js.ScanHexNumber(sc); err != nil {
+						tok.Type = token.ILLEGAL
+						return
+					}
+				case 'o', 'O':
+					if lit, err = js.ScanOctalNumber(sc); err != nil {
+						tok.Type = token.ILLEGAL
+						return
+					}
+				}
+			}
+			tok.Literal += lit
 		case token.DIVIDE:
 			switch sc.CurrentChar() {
 			case '/':

@@ -108,7 +108,14 @@ a[100; // ] expected
 ({name; // : expected
 ({name:; // expression expected
 ({name: 100,; // identifier expected
-({name: 100; // } expected`
+({name: 100; // } expected
+
+// numbers
+.123; // expression expected (numbers cannot start with '.')
+1x123; // ; or newline expected (invalid hex)
+2O123; // ; or newline expected (invalid octal)
+0X; // expression expected (incomplete hex)
+0o; // expression expected (incomplete octal)`
 	_, errs := xjs.Parse([]byte(input))
 	require.IsType(t, parser.ErrorList{}, errs)
 	golden.Assert(t, []byte(errs.Error()))

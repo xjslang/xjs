@@ -19,11 +19,11 @@ func TestUseScanner(t *testing.T) {
 		}
 		return next()
 	})
-	sc.Init([]byte("125 ** 2"))
+	sc.Init([]byte("5 ** 2"))
 	assertLexerTokens(t, sc, []token.Token{
-		{Type: token.NUMBER, Literal: "125"},
+		{Type: token.DIGIT, Literal: "5"},
 		{Type: powType, Literal: "**"},
-		{Type: token.NUMBER, Literal: "2"},
+		{Type: token.DIGIT, Literal: "2"},
 		{Type: token.EOF},
 	})
 }
