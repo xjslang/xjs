@@ -29,9 +29,24 @@ type MyCustomStmt struct {
 
 func ExampleParser_Init() {
 	s := &scanner.Scanner{}
+	s.UseScanner(func(s *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
+		if tok, err = next(); err != nil {
+			return
+		}
+		if tok.Type == token.QUOTE {
+			tok.Type = js.STRING
+			var lit string
+			if lit, err = js.ScanString(s, rune(tok.Literal[0])); err != nil {
+				tok.Type = token.ILLEGAL
+				tok.Literal += lit
+				return
+			}
+			tok.Literal += lit
+		}
+		return
+	})
 	s.Init([]byte("print('Hello, World!')"))
 	p := &parser.Parser{}
-
 	// Declare "middlewares" BEFORE calling Init
 	p.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (_ ast.Stmt, err error) {
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "print" {
@@ -40,7 +55,7 @@ func ExampleParser_Init() {
 			if node.LparenToken, err = p.Expect(token.LPAREN); err != nil { // expect (
 				return
 			}
-			if node.Message, err = p.Expect(token.STRING); err != nil { // expect a string
+			if node.Message, err = p.Expect(js.STRING); err != nil { // expect a string
 				return
 			}
 			if node.RparenToken, err = p.Expect(token.RPAREN); err != nil { // expect )

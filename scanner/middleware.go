@@ -113,12 +113,11 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 		c := s.currentChar
 		s.AdvanceChar()
 		tok = token.Token{Type: token.DIVIDE, Literal: string(c)}
-	case '\'', '"':
-		var lit string
-		lit, err = scanString(s, s.currentChar)
-		// TODO: (high) https://github.com/xjslang/xjs/pull/260#discussion_r3439298663
-		tok = token.Token{Type: token.STRING, Literal: lit}
 	// delimiters
+	case '\'', '"':
+		c := s.currentChar
+		s.AdvanceChar()
+		tok = token.Token{Type: token.QUOTE, Literal: string(c)}
 	case ',':
 		c := s.currentChar
 		s.AdvanceChar()

@@ -36,8 +36,6 @@ const (
 	IDENT
 	ILLEGAL
 	UNKNOWN
-	// literals
-	STRING
 	// operators
 	ASSIGN   // =
 	PLUS     // +
@@ -60,6 +58,7 @@ const (
 	OR  // ||
 	NOT // !
 	// delimiters
+	QUOTE     // ' "
 	COMMA     // ,
 	SEMICOLON // ;
 	COLON     // :
@@ -81,8 +80,6 @@ var tokenLiterals = map[Type]string{
 	IDENT:   "identifier",
 	ILLEGAL: "illegal",
 	UNKNOWN: "unknown",
-	// literals
-	STRING: "string",
 	// operators
 	ASSIGN:   "=",
 	PLUS:     "+",
@@ -105,6 +102,7 @@ var tokenLiterals = map[Type]string{
 	OR:  "||",
 	NOT: "!",
 	// delimiters
+	QUOTE:     "quote",
 	COMMA:     ",",
 	SEMICOLON: ";",
 	COLON:     ":",

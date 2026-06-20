@@ -31,7 +31,17 @@ func assertInputTokens(t *testing.T, input string, expectedToks []token.Token, o
 		if tok, err = next(); err != nil {
 			return
 		}
-		if tok.Type == token.DIVIDE {
+		switch tok.Type {
+		case token.QUOTE:
+			tok.Type = js.STRING
+			var lit string
+			if lit, err = js.ScanString(sc, rune(tok.Literal[0])); err != nil {
+				tok.Type = token.ILLEGAL
+				tok.Literal += lit
+				return
+			}
+			tok.Literal += lit
+		case token.DIVIDE:
 			switch sc.CurrentChar() {
 			case '/':
 				tok.Type = js.LINE_COMMENT
@@ -157,7 +167,7 @@ func TestUnicodeChars(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			var expectedToks []token.Token
 			for _, item := range test.items {
-				expectedToks = append(expectedToks, token.Token{Type: token.STRING, Literal: fmt.Sprintf("'%s'", item)})
+				expectedToks = append(expectedToks, token.Token{Type: js.STRING, Literal: fmt.Sprintf("'%s'", item)})
 			}
 			expectedToks = append(expectedToks, token.Token{Type: token.EOF})
 			item := "'" + strings.Join(test.items, "' '") + "'"
@@ -333,8 +343,8 @@ func TestReadNumber(t *testing.T) {
 func TestReadString(t *testing.T) {
 	t.Run("legal string", func(t *testing.T) {
 		assertInputTokens(t, " 'Hello, World!' \"Hello, World!\"", []token.Token{
-			{Type: token.STRING, Literal: "'Hello, World!'"},
-			{Type: token.STRING, Literal: "\"Hello, World!\""},
+			{Type: js.STRING, Literal: "'Hello, World!'"},
+			{Type: js.STRING, Literal: "\"Hello, World!\""},
 			{Type: token.EOF},
 		})
 	})
