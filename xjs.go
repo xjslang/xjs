@@ -93,7 +93,20 @@ func jsPlugin(b *builder.Builder) {
 		if tok, err = next(); err != nil {
 			return
 		}
-		if tok.Type == token.IDENT {
+		switch tok.Type {
+		case token.DIVIDE:
+			switch sc.CurrentChar() {
+			case '/':
+				tok.Type = js.LINE_COMMENT
+				tok.Literal = js.ScanLineComment(sc)
+			case '*':
+				tok.Type = js.BLOCK_COMMENT
+				if tok.Literal, err = js.ScanBlockComment(sc); err != nil {
+					tok.Type = token.ILLEGAL
+					return
+				}
+			}
+		case token.IDENT:
 			switch tok.Literal {
 			case "function":
 				tok.Type = js.FUNCTION

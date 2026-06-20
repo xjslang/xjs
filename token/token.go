@@ -72,9 +72,6 @@ const (
 	LBRACKET  // [
 	RBRACKET  // ]
 	NEWLINE   // \r, \n, \r\n
-	// comments
-	LINE_COMMENT  // //
-	BLOCK_COMMENT // /* ... */
 )
 
 var tokenLiterals = map[Type]string{
@@ -119,9 +116,6 @@ var tokenLiterals = map[Type]string{
 	LBRACKET:  "[",
 	RBRACKET:  "]",
 	NEWLINE:   "new line",
-	// comments
-	LINE_COMMENT:  "line comment",
-	BLOCK_COMMENT: "block comment",
 }
 
 const initCustomType Type = 1000

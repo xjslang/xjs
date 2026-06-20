@@ -229,12 +229,12 @@ func TestKeysAreSaved(t *testing.T) {
 			[]token.Token{
 				{Type: token.LBRACE, Literal: "{", LeadingTrivia: []token.Token{
 					{Type: token.NEWLINE, Literal: "\n"},
-					{Type: token.LINE_COMMENT, Literal: "// comment before {\n"},
+					{Type: js.LINE_COMMENT, Literal: "// comment before {\n"},
 					{Type: token.NEWLINE, Literal: "\n"},
 				}},
 				{Type: token.RBRACE, Literal: "}", LeadingTrivia: []token.Token{
-					{Type: token.LINE_COMMENT, Literal: "// comment before }\n"},
-					{Type: token.BLOCK_COMMENT, Literal: "/* block comment */"},
+					{Type: js.LINE_COMMENT, Literal: "// comment before }\n"},
+					{Type: js.BLOCK_COMMENT, Literal: "/* block comment */"},
 				}},
 			},
 			testutil.CompareLeadingTrivia(),
@@ -254,10 +254,10 @@ func TestKeysAreSaved(t *testing.T) {
 			[]token.Token{result.Layout.Lparen, result.Layout.Rparen},
 			[]token.Token{
 				{Type: token.LPAREN, Literal: "(", LeadingTrivia: []token.Token{
-					{Type: token.LINE_COMMENT, Literal: "// comment before\n"},
+					{Type: js.LINE_COMMENT, Literal: "// comment before\n"},
 				}},
 				{Type: token.RPAREN, Literal: ")", LeadingTrivia: []token.Token{
-					{Type: token.LINE_COMMENT, Literal: "// comment after\n"},
+					{Type: js.LINE_COMMENT, Literal: "// comment after\n"},
 				}},
 			},
 			testutil.CompareLeadingTrivia(),

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/xjslang/xjs/internal/testutil"
+	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
 )
@@ -26,7 +27,26 @@ func assertLexerTokens(t *testing.T, sc *scanner.Scanner, expectedToks []token.T
 func assertInputTokens(t *testing.T, input string, expectedToks []token.Token, opts ...testutil.TokenCompareOption) {
 	t.Helper()
 	sc := &scanner.Scanner{}
-	sc.Init([]byte(input))
+	sc.UseScanner(func(s *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
+		if tok, err = next(); err != nil {
+			return
+		}
+		if tok.Type == token.DIVIDE {
+			switch sc.CurrentChar() {
+			case '/':
+				tok.Type = js.LINE_COMMENT
+				tok.Literal = js.ScanLineComment(sc)
+			case '*':
+				tok.Type = js.BLOCK_COMMENT
+				if tok.Literal, err = js.ScanBlockComment(sc); err != nil {
+					tok.Type = token.ILLEGAL
+					return
+				}
+			}
+		}
+		return
+	})
+	sc.Init([]byte(input), scanner.WithCommentTypes(js.LINE_COMMENT, js.BLOCK_COMMENT))
 	assertLexerTokens(t, sc, expectedToks, opts...)
 }
 
@@ -175,7 +195,7 @@ func TestBlockComments(t *testing.T) {
 	input := "/* lorem\nipsum dolor */\n\rhello\r\n/* unfinished comment"
 	assertInputTokens(t, input, []token.Token{
 		{Type: token.IDENT, Literal: "hello", LeadingTrivia: []token.Token{
-			{Type: token.BLOCK_COMMENT, Literal: "/* lorem\nipsum dolor */"},
+			{Type: js.BLOCK_COMMENT, Literal: "/* lorem\nipsum dolor */"},
 			{Type: token.NEWLINE, Literal: "\n"},
 			{Type: token.NEWLINE, Literal: "\r"},
 		}},
@@ -198,17 +218,17 @@ func TestLineComments(t *testing.T) {
 	assertInputTokens(t, input, []token.Token{
 		{Type: token.IDENT, Literal: "John", LeadingTrivia: []token.Token{
 			{Type: token.NEWLINE, Literal: "\n"},
-			{Type: token.LINE_COMMENT, Literal: "// First Name\n"},
+			{Type: js.LINE_COMMENT, Literal: "// First Name\n"},
 		}},
 		{Type: token.IDENT, Literal: "Smith", LeadingTrivia: []token.Token{
 			{Type: token.NEWLINE, Literal: "\n"},
 			{Type: token.NEWLINE, Literal: "\n"},
-			{Type: token.LINE_COMMENT, Literal: "// Last Name\n"},
+			{Type: js.LINE_COMMENT, Literal: "// Last Name\n"},
 		}},
 		{Type: token.EOF, LeadingTrivia: []token.Token{
 			{Type: token.NEWLINE, Literal: "\n"},
 			{Type: token.NEWLINE, Literal: "\n"},
-			{Type: token.LINE_COMMENT, Literal: "// Final comment"},
+			{Type: js.LINE_COMMENT, Literal: "// Final comment"},
 		}},
 	}, testutil.CompareLeadingTrivia())
 }
@@ -216,20 +236,20 @@ func TestLineComments(t *testing.T) {
 func TestEmptySinglelineComment(t *testing.T) {
 	assertInputTokens(t, "//\nhello//\n\npeople//\r\nthere//\r!//", []token.Token{
 		{Type: token.IDENT, Literal: "hello", LeadingTrivia: []token.Token{
-			{Type: token.LINE_COMMENT, Literal: "//\n"},
+			{Type: js.LINE_COMMENT, Literal: "//\n"},
 		}},
 		{Type: token.IDENT, Literal: "people", LeadingTrivia: []token.Token{
-			{Type: token.LINE_COMMENT, Literal: "//\n"},
+			{Type: js.LINE_COMMENT, Literal: "//\n"},
 			{Type: token.NEWLINE, Literal: "\n"},
 		}},
 		{Type: token.IDENT, Literal: "there", LeadingTrivia: []token.Token{
-			{Type: token.LINE_COMMENT, Literal: "//\r\n"},
+			{Type: js.LINE_COMMENT, Literal: "//\r\n"},
 		}},
 		{Type: token.NOT, Literal: "!", LeadingTrivia: []token.Token{
-			{Type: token.LINE_COMMENT, Literal: "//\r"},
+			{Type: js.LINE_COMMENT, Literal: "//\r"},
 		}},
 		{Type: token.EOF, Literal: "", LeadingTrivia: []token.Token{
-			{Type: token.LINE_COMMENT, Literal: "//"},
+			{Type: js.LINE_COMMENT, Literal: "//"},
 		}},
 	}, testutil.CompareLeadingTrivia())
 }
@@ -237,7 +257,7 @@ func TestEmptySinglelineComment(t *testing.T) {
 func TestLastLineComment(t *testing.T) {
 	assertInputTokens(t, "// last comment", []token.Token{
 		{Type: token.EOF, Literal: "", AfterNewline: false, LeadingTrivia: []token.Token{
-			{Type: token.LINE_COMMENT, Literal: "// last comment"},
+			{Type: js.LINE_COMMENT, Literal: "// last comment"},
 		}},
 	}, testutil.CompareLeadingTrivia(), testutil.CompareAfterNewline())
 }
