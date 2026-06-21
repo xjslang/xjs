@@ -158,24 +158,27 @@ func (p *Printer) Print(args ...any) {
 // BsPrint ensures that the next text to print appears "beside" the previous text.
 // This is a combination of EnsureBeside() + Print(a).
 // It takes priority over LnPrint() and SpPrint().
-func (p *Printer) BsPrint(arg any) {
+func (p *Printer) BsPrint(arg any) *Printer {
 	p.EnsureBeside()
 	p.Print(arg)
+	return p
 }
 
 // LnPrint ensures that a newline is printed before printing the next text.
 // This is a combination of EnsureLine() + Print(a).
-func (p *Printer) LnPrint(arg any) {
+func (p *Printer) LnPrint(arg any) *Printer {
 	p.EnsureLine()
 	p.Print(arg)
+	return p
 }
 
 // SpPrint ensures that a space is printed before printing the next text.
 // This is a combination of EnsureSpace() + Print(a).
 // It takes priority over LnPrint().
-func (p *Printer) SpPrint(arg any) {
+func (p *Printer) SpPrint(arg any) *Printer {
 	p.EnsureSpace()
 	p.Print(arg)
+	return p
 }
 
 func (p *Printer) PrintTrivia(trivia []token.Token) {
