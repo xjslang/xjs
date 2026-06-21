@@ -40,5 +40,5 @@ func expectSemi(p *parser.Parser) (token.Token, error) {
 		tok = token.Token{Type: token.SEMICOLON, Literal: token.SEMICOLON.String(), Position: tok.Position}
 		return tok, nil
 	}
-	return tok, parser.NewErrorAtToken(p.CurrentToken, "; or newline expected")
+	return tok, p.Error("; or newline expected")
 }

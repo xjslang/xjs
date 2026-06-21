@@ -31,27 +31,6 @@ func (err Error) Error() string {
 		"] " + err.Message
 }
 
-func NewErrorAtToken(tok token.Token, msg string) Error {
-	line := tok.Line
-	column := tok.Column
-	if tok.Type == token.EOF {
-		column++
-	}
-	return Error{
-		Range: Range{
-			Start: token.Position{
-				Line:   line,
-				Column: column,
-			},
-			End: token.Position{
-				Line:   line,
-				Column: column + utf8.RuneCountInString(tok.Literal),
-			},
-		},
-		Message: msg,
-	}
-}
-
 type ErrorList []error
 
 func (list ErrorList) Error() string {
@@ -138,10 +117,35 @@ func (p *Parser) AdvanceToken() {
 func (p *Parser) Expect(typ token.Type) (token.Token, error) {
 	tok := p.CurrentToken
 	if p.CurrentToken.Type != typ {
-		return tok, NewErrorAtToken(p.CurrentToken, typ.String()+" expected")
+		return tok, p.Error(typ.String() + " expected")
 	}
 	p.AdvanceToken()
 	return tok, nil
+}
+
+func (p *Parser) Error(msg string) error {
+	return p.ErrorAt(p.CurrentToken, msg)
+}
+
+func (p *Parser) ErrorAt(tok token.Token, msg string) error {
+	line := tok.Line
+	column := tok.Column
+	if tok.Type == token.EOF {
+		column++
+	}
+	return Error{
+		Range: Range{
+			Start: token.Position{
+				Line:   line,
+				Column: column,
+			},
+			End: token.Position{
+				Line:   line,
+				Column: column + utf8.RuneCountInString(tok.Literal),
+			},
+		},
+		Message: msg,
+	}
 }
 
 func (p *Parser) EnterScope(sc Scope) {
