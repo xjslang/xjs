@@ -1,9 +1,9 @@
 package scanner
 
-func isLetter(r rune) bool {
+func IsLetter(r rune) bool {
 	return r == '_' || r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z'
 }
 
-func isDigit(r rune) bool {
+func IsDigit(r rune) bool {
 	return r >= '0' && r <= '9'
 }
