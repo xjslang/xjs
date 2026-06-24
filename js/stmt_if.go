@@ -55,20 +55,16 @@ func ParseIfStmt(p *parser.Parser) (node *IfStmt, err error) {
 		return
 	}
 	// then
-	if p.CurrentToken.Type == token.LBRACE {
-		if node.Then, err = p.ParseStmt(); err != nil {
+	if node.Then, err = p.ParseStmt(); err != nil {
+		return
+	}
+	// else
+	if p.CurrentToken.Type == ELSE {
+		node.Layout.Else = p.CurrentToken
+		p.AdvanceToken()
+		if node.Else, err = p.ParseStmt(); err != nil {
 			return
 		}
-		// else
-		if p.CurrentToken.Type == ELSE {
-			node.Layout.Else = p.CurrentToken
-			p.AdvanceToken()
-			if node.Else, err = p.ParseStmt(); err != nil {
-				return
-			}
-		}
-	} else if node.Then, err = p.ParseStmt(); err != nil {
-		return
 	}
 	return
 }

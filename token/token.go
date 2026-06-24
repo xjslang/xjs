@@ -128,6 +128,10 @@ var (
 func RegisterType(lit string) Type {
 	registerMu.Lock()
 	defer registerMu.Unlock()
+	return registerType(lit)
+}
+
+func registerType(lit string) Type {
 	typ := nextType
 	tokenLiterals[typ] = lit
 	nextType++
@@ -182,8 +186,10 @@ func RegisterBinaryType(typ Type, precedence int) {
 
 // RegisterBinaryOp registers a "binary operator".
 func RegisterBinaryOp(lit string, precedence int) Type {
-	typ := RegisterType(lit)
-	RegisterBinaryType(typ, precedence)
+	registerMu.Lock()
+	defer registerMu.Unlock()
+	typ := registerType(lit)
+	binaryOps[typ] = precedence
 	return typ
 }
 
@@ -212,7 +218,9 @@ func RegisterUnaryType(typ Type) {
 
 // RegisterUnaryOp registers a "unary operator".
 func RegisterUnaryOp(lit string) Type {
-	typ := RegisterType(lit)
-	RegisterUnaryType(typ)
+	registerMu.Lock()
+	defer registerMu.Unlock()
+	typ := registerType(lit)
+	unaryTypes[typ] = true
 	return typ
 }

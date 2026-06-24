@@ -150,7 +150,6 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 		c := s.currentChar
 		s.AdvanceChar()
 		tok = token.Token{Type: token.LBRACKET, Literal: string(c)}
-		return
 	case ']':
 		c := s.currentChar
 		s.AdvanceChar()

@@ -46,7 +46,9 @@ func (b *Builder) Install(plugin func(b *Builder)) *Builder {
 }
 
 func (b *Builder) Build(src []byte) *parser.Parser {
-	b.scanner.Init(src, scanner.WithCommentTypes(js.LINE_COMMENT, js.BLOCK_COMMENT))
-	b.parser.Init(b.scanner)
-	return b.parser
+	sc := *b.scanner
+	p := *b.parser
+	sc.Init(src, scanner.WithCommentTypes(js.LINE_COMMENT, js.BLOCK_COMMENT))
+	p.Init(&sc)
+	return &p
 }
