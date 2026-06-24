@@ -108,6 +108,20 @@ func BenchmarkLexer(b *testing.B) {
 	_ = tok
 }
 
+func TestIdentifier(t *testing.T) {
+	input := "abc _abc $abc Abc0123 _$AbC0$__ 0abc"
+	assertInputTokens(t, input, []token.Token{
+		{Type: token.IDENT, Literal: "abc"},
+		{Type: token.IDENT, Literal: "_abc"},
+		{Type: token.IDENT, Literal: "$abc"},
+		{Type: token.IDENT, Literal: "Abc0123"},
+		{Type: token.IDENT, Literal: "_$AbC0$__"},
+		{Type: token.DIGIT, Literal: "0"},
+		{Type: token.IDENT, Literal: "abc"},
+		{Type: token.EOF},
+	})
+}
+
 func TestTokenPosition(t *testing.T) {
 	input := " aaa   bbb /* block comment*/ ccc\n// comment\rddd\r\ne!\n"
 	assertInputTokens(t, input, []token.Token{
