@@ -1,7 +1,7 @@
 package scanner
 
 func IsLetter(r rune) bool {
-	return r == '_' || r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z'
+	return r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r == '_' || r == '$'
 }
 
 func IsDigit(r rune) bool {
