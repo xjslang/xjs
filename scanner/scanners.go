@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-func scanIdentifier(sc *Scanner) string {
+func ScanIdentifier(sc *Scanner) string {
 	sb := strings.Builder{}
 	sb.WriteRune(sc.currentChar)
 	for sc.AdvanceChar(); IsLetter(sc.currentChar) || IsDigit(sc.currentChar); sc.AdvanceChar() {

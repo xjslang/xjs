@@ -172,7 +172,7 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 		tok = token.Token{Type: token.NEWLINE, Literal: "\n"}
 	default:
 		if IsLetter(s.currentChar) {
-			lit := scanIdentifier(s)
+			lit := ScanIdentifier(s)
 			tok = token.Token{Type: token.IDENT, Literal: lit}
 		} else if IsDigit(s.currentChar) {
 			c := s.currentChar
