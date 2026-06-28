@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/builder"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/scanner"
@@ -22,7 +23,7 @@ type orExpr struct {
 func TestUseExprParser(t *testing.T) {
 	orType := token.RegisterType("or")
 	input := "let x = openDb() or exit('failed opening db')"
-	b := xjs.NewBuilder()
+	b := builder.New().Install(xjs.Plugin)
 	// the scanner can now scan "or"
 	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
 		if tok, err = next(); err != nil {
@@ -78,7 +79,7 @@ type notBitwiseExpr struct {
 func TestUseUnaryParser(t *testing.T) {
 	notBitwise := token.RegisterUnaryOp("~")
 	input := "1 + ~7"
-	b := xjs.NewBuilder()
+	b := builder.New().Install(xjs.Plugin)
 	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
 		if sc.CurrentChar() == '~' {
 			sc.AdvanceChar()
@@ -125,7 +126,7 @@ type powExpr struct {
 func TestUseBinaryParser(t *testing.T) {
 	powType := token.RegisterBinaryOp("^", token.MULTIPLY.Precedence()+1)
 	input := "1+5^2"
-	b := xjs.NewBuilder()
+	b := builder.New().Install(xjs.Plugin)
 	b.UseScanner(func(s *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
 		if s.CurrentChar() == '^' {
 			s.AdvanceChar()
@@ -174,7 +175,7 @@ type factorialExpr struct {
 func TestUseBinaryParser_postfix(t *testing.T) {
 	facTyp := token.RegisterBinaryOp("!", -1)
 	input := "5! + 1"
-	b := xjs.NewBuilder()
+	b := builder.New().Install(xjs.Plugin)
 	b.UseScanner(func(s *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
 		if s.CurrentChar() == '!' {
 			s.AdvanceChar()

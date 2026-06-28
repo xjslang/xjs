@@ -135,7 +135,8 @@ func TestPrintCallExpr(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			pr := xjs.NewPrinter()
+			pr := &printer.Printer{}
+			pr.UsePrinter(xjs.Printer)
 			pr.Init()
 			js.PrintProgram(pr, node)
 			out, err := pr.Output()
@@ -170,7 +171,8 @@ func TestLastComment(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			pr := xjs.NewPrinter()
+			pr := &printer.Printer{}
+			pr.UsePrinter(xjs.Printer)
 			pr.Init()
 			js.PrintProgram(pr, node)
 			out, err := pr.Output()
@@ -328,7 +330,9 @@ func TestLnPrint(t *testing.T) {
 }
 
 func TestSpacesTakePriorityOverLines(t *testing.T) {
-	pr := xjs.NewPrinter()
+	pr := &printer.Printer{}
+	pr.UsePrinter(xjs.Printer)
+	pr.Init()
 	pr.Print("aaa")
 	// ensureSpace should take priority over ensureLine (by default statements are printed in a new line)
 	pr.SpPrint(&js.ExprStmt{Expr: &js.Literal{Value: token.Token{Literal: "125"}}})
@@ -353,9 +357,24 @@ func TestWithComments(t *testing.T) {
 		name string
 		pr   *printer.Printer
 	}{
-		{"show comments by default", xjs.NewPrinter()},
-		{"hide comments", xjs.NewPrinter(printer.WithComments(false))},
-		{"show comments", xjs.NewPrinter(printer.WithComments(true))},
+		{"show comments by default", (func() *printer.Printer {
+			pr := &printer.Printer{}
+			pr.UsePrinter(xjs.Printer)
+			pr.Init()
+			return pr
+		})()},
+		{"hide comments", (func() *printer.Printer {
+			pr := &printer.Printer{}
+			pr.UsePrinter(xjs.Printer)
+			pr.Init(printer.WithComments(false))
+			return pr
+		})()},
+		{"show comments", (func() *printer.Printer {
+			pr := &printer.Printer{}
+			pr.UsePrinter(xjs.Printer)
+			pr.Init(printer.WithComments(true))
+			return pr
+		})()},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -375,10 +394,30 @@ func TestWithNewLines(t *testing.T) {
 		name string
 		pr   *printer.Printer
 	}{
-		{"show new lines by default", xjs.NewPrinter()},
-		{"show new lines", xjs.NewPrinter(printer.WithNewLines(true))},
-		{"hide new lines", xjs.NewPrinter(printer.WithNewLines(false))},
-		{"hide new lines and comments", xjs.NewPrinter(printer.WithNewLines(false), printer.WithComments(false))},
+		{"show new lines by default", (func() *printer.Printer {
+			pr := &printer.Printer{}
+			pr.UsePrinter(xjs.Printer)
+			pr.Init()
+			return pr
+		})()},
+		{"show new lines", (func() *printer.Printer {
+			pr := &printer.Printer{}
+			pr.UsePrinter(xjs.Printer)
+			pr.Init(printer.WithNewLines(true))
+			return pr
+		})()},
+		{"hide new lines", (func() *printer.Printer {
+			pr := &printer.Printer{}
+			pr.UsePrinter(xjs.Printer)
+			pr.Init(printer.WithNewLines(false))
+			return pr
+		})()},
+		{"hide new lines and comments", (func() *printer.Printer {
+			pr := &printer.Printer{}
+			pr.UsePrinter(xjs.Printer)
+			pr.Init(printer.WithNewLines(false), printer.WithComments(false))
+			return pr
+		})()},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -405,15 +444,15 @@ func TestCompact(t *testing.T) {
 	let y = 200`
 	result, err := xjs.Parse([]byte(input))
 	require.NoError(t, err)
-	pr := xjs.NewPrinter(printer.Compact())
-	pr.Print(result)
-	out, err := pr.Output()
+	out, err := xjs.Print(result, printer.Compact())
 	require.NoError(t, err)
 	golden.Assert(t, []byte(out))
 }
 
 func TestFork(t *testing.T) {
-	pr := xjs.NewPrinter()
+	pr := &printer.Printer{}
+	pr.UsePrinter(xjs.Printer)
+	pr.Init()
 	pr.Print("for (")
 	p1 := printer.Fork(pr)
 	p1.LnPrint("aaa;")

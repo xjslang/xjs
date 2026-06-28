@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/builder"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
@@ -27,11 +28,7 @@ func Example_basic() {
 	if err != nil {
 		panic(err)
 	}
-
-	pr := xjs.NewPrinter()
-	pr.Init()
-	pr.Print(result)
-	out, err := pr.Output()
+	out, err := xjs.Print(result)
 	if err != nil {
 		panic(err)
 	}
@@ -129,21 +126,21 @@ func TestLanguageFeatures(t *testing.T) {
 	for _, file := range files {
 		testName := strings.TrimSuffix(filepath.Base(file), ".js")
 		t.Run(testName, func(t *testing.T) {
-			// read and parse file
+			// read file
 			dat, err := os.ReadFile(file)
 			require.NoError(t, err)
+			// parse data
 			result, err := xjs.Parse(dat)
 			require.NoError(t, err)
-			// print without newlines trivia and parse it again
-			pr := xjs.NewPrinter()
-			pr.Print(result)
-			out, err := pr.Output()
+			// print result
+			out, err := xjs.Print(result)
 			require.NoError(t, err)
+			// re-parse the output
 			result, err = xjs.Parse([]byte(out))
 			require.NoError(t, err)
-			// print with default options
-			pr = xjs.NewPrinter()
-			pr.Print(result)
+			// re-print the result
+			out, err = xjs.Print(result)
+			require.NoError(t, err)
 			// the original must match the final printed result
 			require.Equal(t, string(dat), out)
 		})
@@ -179,9 +176,7 @@ func TestParseCommaDangle(t *testing.T) {
 		t.Run(fmt.Sprintf("case_%d", i), func(t *testing.T) {
 			result, err := xjs.Parse([]byte(test.input))
 			require.NoError(t, err)
-			pr := xjs.NewPrinter(printer.WithIndent("\t"))
-			pr.Print(result)
-			out, err := pr.Output()
+			out, err := xjs.Print(result, printer.WithIndent("\t"))
 			require.NoError(t, err)
 			assert.Equal(t, test.expected, out)
 		})
@@ -199,7 +194,7 @@ func TestMiddlewares(t *testing.T) {
 	input := `(function foo() {
 		print('Hello, World!')
 	})()`
-	b := xjs.NewBuilder()
+	b := builder.New().Install(xjs.Plugin)
 	// parse IIFE expressions
 	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Expr, error)) (_ ast.Expr, err error) {
 		if p.CurrentToken.Type == token.LPAREN && p.PeekToken.Type == js.FUNCTION {
@@ -220,7 +215,8 @@ func TestMiddlewares(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	pr := xjs.NewPrinter()
+	pr := &printer.Printer{}
+	pr.UsePrinter(xjs.Printer)
 	pr.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
 		if node, ok := node.(*iifeExpr); ok {
 			p.Print(node.LparenToken)
