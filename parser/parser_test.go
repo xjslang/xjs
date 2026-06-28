@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/builder"
 	"github.com/xjslang/xjs/internal/testutil"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
@@ -171,7 +172,7 @@ func TestExprs(t *testing.T) {
 	}
 	for i, test := range tests {
 		t.Run("exp "+strconv.Itoa(i), func(t *testing.T) {
-			p := xjs.NewBuilder().Build([]byte(test.input))
+			p := builder.New().Install(xjs.Plugin).Build([]byte(test.input))
 			result, err := js.ParseExpr(p)
 			if err != nil {
 				t.Fatal(err)
@@ -193,7 +194,7 @@ func TestMalformedExpr(t *testing.T) {
 			{"{ let x = 100", "} expected"},
 		}
 		for i, test := range tests {
-			p := xjs.NewBuilder().Build([]byte(test.input))
+			p := builder.New().Install(xjs.Plugin).Build([]byte(test.input))
 			_, err := js.ParseBlockStmt(p)
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
@@ -212,7 +213,7 @@ func TestMalformedExpr(t *testing.T) {
 			{"(1 + 2", ") expected"},
 		}
 		for i, test := range tests {
-			p := xjs.NewBuilder().Build([]byte(test.input))
+			p := builder.New().Install(xjs.Plugin).Build([]byte(test.input))
 			_, err := js.ParseGroupExpr(p)
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
@@ -233,7 +234,7 @@ func TestKeysAreSaved(t *testing.T) {
 		let x = 100
 		let y = 200 // comment before }
 		/* block comment */ }`
-		p := xjs.NewBuilder().Build([]byte(input))
+		p := builder.New().Install(xjs.Plugin).Build([]byte(input))
 		result, err := js.ParseBlockStmt(p)
 		if err != nil {
 			t.Fatal(err)
@@ -259,7 +260,7 @@ func TestKeysAreSaved(t *testing.T) {
 		input := `// comment before
 	(1 + 2// comment after
 	)`
-		p := xjs.NewBuilder().Build([]byte(input))
+		p := builder.New().Install(xjs.Plugin).Build([]byte(input))
 		result, err := js.ParseGroupExpr(p)
 		if err != nil {
 			t.Fatal(err)
@@ -309,7 +310,7 @@ func TestStmt(t *testing.T) {
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
-			p := xjs.NewBuilder().Build([]byte(test.input))
+			p := builder.New().Install(xjs.Plugin).Build([]byte(test.input))
 			node, err := js.ParseExprStmt(p)
 			if err != nil {
 				t.Fatal(err)
@@ -332,7 +333,7 @@ func TestInvalidTokenAfterNewline(t *testing.T) {
 				} else {
 					input = test
 				}
-				p := xjs.NewBuilder().Build([]byte(input))
+				p := builder.New().Install(xjs.Plugin).Build([]byte(input))
 				var err error
 				if i > 0 {
 					_, err = js.ParseBlockStmt(p)
