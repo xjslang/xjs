@@ -62,7 +62,8 @@ func main() {
 		}
 	}`
 
-	djsParser := xjs.NewBuilder().
+	djsParser := builder.New().
+		Install(xjs.Plugin).
 		Install(djsPlugin).
 		Build([]byte(input))
 	node, err := js.ParseProgram(djsParser)
@@ -71,7 +72,8 @@ func main() {
 	}
 
 	// create a compiler that can compile `DeferStmt`
-	djsCompiler := xjs.NewPrinter()
+	djsCompiler := &printer.Printer{}
+	djsCompiler.UsePrinter(xjs.Printer)
 	djsCompiler.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node) error) error {
 		if node, ok := node.(*DeferStmt); ok {
 			pr.PrintTrivia(node.DeferToken.LeadingTrivia) // print previous comments and new lines
@@ -91,7 +93,8 @@ func main() {
 	fmt.Println(jsCode)
 
 	// create a formatter that can format `DeferStmt`
-	djsFormatter := xjs.NewPrinter()
+	djsFormatter := &printer.Printer{}
+	djsFormatter.UsePrinter(xjs.Printer)
 	djsFormatter.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node) error) error {
 		if node, ok := node.(*DeferStmt); ok {
 			pr.EnsureLine() // ensure a new line is added before printing

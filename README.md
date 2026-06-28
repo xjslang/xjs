@@ -8,19 +8,24 @@ XJS **is not and will not be** a complete JavaScript parser, as that is outside 
 
 ## How does it work?
 
-The `xjs` package exposes the `NewBuilder()` and `NewPrinter()` functions to create our own custom parsers and printers.
+The `xjs` package exposes the `Plugin` and `Printer` functions to create our own custom parsers and printers.
 
 The first step is to create a custom parser that transforms the input code into an AST (Abstract Syntax Tree). That input code may contain our custom constructs:
 
 ```go
 import (
   "github.com/xjslang/xjs"
+  "github.com/xjslang/xjs/builder"
   "github.com/xjslang/xjs/js"
+  "github.com/xjslang/xjs/printer"
 )
 
 // create a builder and install the plugins
 // that will "enrich" our parser
-b := xjs.NewBuilder().
+b := builder.New().
+  // "base" plugin
+  Install(xjs.Plugin).
+  // our custom plugins
   Install(arrowFuncPlugin).
   Install(tryCatchPlugin).
   Install(strictEqPlugin).
@@ -37,16 +42,20 @@ The second step is to create a custom printer. The printer is responsible for tr
 
 ```go
 // here we are creating a compiler
-c := xjs.NewPrinter(printer.Compact()).
-  UsePrinter(compiler) // tells it how to compile custom nodes
+c := &printer.Printer{}
+c.UsePrinter(xjs.Printer) // "base" printer
+c.UsePrinter(compiler)    //  tells it how to compile custom nodes
+c.Init(printer.Compact()) // don't forget to init!
 c.Print(result)
 jsCode, err := c.Output() // returns the compiled code
 
 // here we are creating a formatter
-fmt := xjs.NewPrinter().
-  UsePrinter(formatter) // tells it how to format custom nodes
+fmt := &printer.Printer{}
+fmt.UsePrinter(xjs.Printer) // "base" printer
+fmt.UsePrinter(formatter)   // tells it how to format custom nodes
+fmt.Init()                  // don't forget to init!
 fmt.Print(result)
-formattedCode, err := c.Output() // returns the formatted code
+formattedCode, err := fmt.Output() // returns the formatted code
 ```
 
 ## Show me an example!
