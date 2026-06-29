@@ -2,9 +2,9 @@ package jsx
 
 import (
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/builder"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
+	"github.com/xjslang/xjs/plugin"
 	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
 )
@@ -63,7 +63,7 @@ func ParseTag(p *parser.Parser) (_ *Tag, err error) {
 }
 
 // Plugin enriches the JavaScript parser, so that we can parse expressions that are not part of the JS standard.
-func Plugin(b *builder.Builder) {
+func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(startTag)
 	token.RegisterBinaryType(concatTag, token.OR.Precedence())
 

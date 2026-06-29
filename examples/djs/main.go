@@ -5,9 +5,9 @@ import (
 
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/builder"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
+	"github.com/xjslang/xjs/plugin"
 	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
@@ -21,7 +21,7 @@ type DeferStmt struct {
 	Stmt       ast.Stmt
 }
 
-func djsPlugin(b *builder.Builder) {
+func djsPlugin(b *plugin.Builder) {
 	// the scanner that can read "defer"
 	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
 		if tok, err = next(); err != nil {

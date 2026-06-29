@@ -1,4 +1,4 @@
-package builder
+package plugin
 
 import (
 	"github.com/xjslang/xjs/ast"
