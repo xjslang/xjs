@@ -8,7 +8,7 @@ XJS **is not and will not be** a complete JavaScript parser, as that is outside 
 
 ## How does it work?
 
-The `xjs` package exposes the `Plugin` and `Printer` functions to create our own custom parsers and printers.
+The `xjs` package exposes the `PluginBuilder` and `PrinterBuilder` functions to create our own custom parsers and printers.
 
 The first step is to create a custom parser that transforms the input code into an AST (Abstract Syntax Tree). That input code may contain our custom constructs:
 
@@ -22,10 +22,8 @@ import (
 
 // create a builder and install the plugins
 // that will "enrich" our parser
-b := builder.New().
-  // "base" plugin
-  Install(xjs.Plugin).
-  // our custom plugins
+b := xjs.PluginBuilder().
+  // install our custom plugins
   Install(arrowFuncPlugin).
   Install(tryCatchPlugin).
   Install(strictEqPlugin).
@@ -34,7 +32,7 @@ b := builder.New().
 // now the parser knows how to interpret
 // our custom constructs
 data, _ := os.ReadFile(file)
-p := b.Build(data) // returns the "enriched" parser
+p := b.Build(data) // returns an "enriched" parser
 result, err := js.ParseProgram(p) // returns the AST
 ```
 
@@ -42,18 +40,16 @@ The second step is to create a custom printer. The printer is responsible for tr
 
 ```go
 // here we are creating a compiler
-c := &printer.Printer{}
-c.UsePrinter(xjs.Printer) // "base" printer
-c.UsePrinter(compiler)    // tells it how to compile custom nodes
-c.Init(printer.Compact()) // don't forget to init!
+c := xjs.ParserBuilder().
+  UsePrinter(compiler).    // tells it how to compile custom nodes
+  Build(printer.Compact()) // returns an "enriched" parser
 c.Print(result)
 jsCode, err := c.Output() // returns the compiled code
 
 // here we are creating a formatter
-fmt := &printer.Printer{}
-fmt.UsePrinter(xjs.Printer) // "base" printer
-fmt.UsePrinter(formatter)   // tells it how to format custom nodes
-fmt.Init()                  // don't forget to init!
+fmt := xjs.ParserBuilder().
+  UsePrinter(formatter). // tells it how to format custom nodes
+  Build()                // returns an "enriched" parser
 fmt.Print(result)
 formattedCode, err := fmt.Output() // returns the formatted code
 ```

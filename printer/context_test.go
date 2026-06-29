@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/builder"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
@@ -33,7 +32,7 @@ func TestPrinterContext(t *testing.T) {
 	asyncTyp := token.RegisterType("async")
 	awaitTyp := token.RegisterType("await")
 
-	b := builder.New().Install(xjs.Plugin)
+	b := xjs.PluginBuilder()
 	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
 		if tok, err = next(); err != nil {
 			return
@@ -77,8 +76,7 @@ func TestPrinterContext(t *testing.T) {
 	result, err := js.ParseProgram(p)
 	require.NoError(t, err)
 
-	pr := printer.NewBuilder().
-		UsePrinter(xjs.Printer).
+	pr := xjs.PrinterBuilder().
 		UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
 			switch v := node.(type) {
 			case *AsyncFunctionDecl:

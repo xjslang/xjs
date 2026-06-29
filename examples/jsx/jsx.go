@@ -3,22 +3,19 @@ package jsx
 import (
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/builder"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/printer"
 )
 
 func Parse(input []byte) (*js.Program, error) {
-	b := builder.New().
-		Install(xjs.Plugin).
+	b := xjs.PluginBuilder().
 		Install(Plugin)
 	p := b.Build(input)
 	return js.ParseProgram(p)
 }
 
 func Compile(result ast.Node) (string, error) {
-	pr := printer.NewBuilder().
-		UsePrinter(xjs.Printer).
+	pr := xjs.PrinterBuilder().
 		UsePrinter(Compiler).
 		Build(printer.Compact())
 	pr.Print(result)
@@ -26,8 +23,7 @@ func Compile(result ast.Node) (string, error) {
 }
 
 func Format(result ast.Node, opts ...printer.Option) (string, error) {
-	pr := printer.NewBuilder().
-		UsePrinter(xjs.Printer).
+	pr := xjs.PrinterBuilder().
 		UsePrinter(Formatter).
 		Build(opts...)
 	pr.Print(result)
