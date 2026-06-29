@@ -72,19 +72,18 @@ func main() {
 	}
 
 	// create a compiler that can compile `DeferStmt`
-	djsCompiler := &printer.Printer{}
-	djsCompiler.UsePrinter(xjs.Printer)
-	djsCompiler.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node) error) error {
-		if node, ok := node.(*DeferStmt); ok {
-			pr.PrintTrivia(node.DeferToken.LeadingTrivia) // print previous comments and new lines
-			pr.LnPrint("{using _ = {[Symbol.dispose]() {")
-			pr.Print(node.Stmt)
-			pr.Print("}}}")
-			return nil
-		}
-		return next(node)
-	})
-	djsCompiler.Init()
+	djsCompiler := printer.NewBuilder().
+		UsePrinter(xjs.Printer).
+		UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node) error) error {
+			if node, ok := node.(*DeferStmt); ok {
+				pr.PrintTrivia(node.DeferToken.LeadingTrivia) // print previous comments and new lines
+				pr.LnPrint("{using _ = {[Symbol.dispose]() {")
+				pr.Print(node.Stmt)
+				pr.Print("}}}")
+				return nil
+			}
+			return next(node)
+		}).Build()
 	djsCompiler.Print(node)
 	jsCode, err := djsCompiler.Output()
 	if err != nil {
@@ -93,23 +92,23 @@ func main() {
 	fmt.Println(jsCode)
 
 	// create a formatter that can format `DeferStmt`
-	djsFormatter := &printer.Printer{}
-	djsFormatter.UsePrinter(xjs.Printer)
-	djsFormatter.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node) error) error {
-		if node, ok := node.(*DeferStmt); ok {
-			pr.EnsureLine() // ensure a new line is added before printing
-			pr.Print(node.DeferToken)
-			pr.EnsureSpace() // ensure a new space is added before printing
-			if deferNode, ok := node.Stmt.(*js.ExprStmt); ok {
-				pr.Print(deferNode.Expr)
-			} else {
-				pr.Print(node.Stmt)
+	djsFormatter := printer.NewBuilder().
+		UsePrinter(xjs.Printer).
+		UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node) error) error {
+			if node, ok := node.(*DeferStmt); ok {
+				pr.EnsureLine() // ensure a new line is added before printing
+				pr.Print(node.DeferToken)
+				pr.EnsureSpace() // ensure a new space is added before printing
+				if deferNode, ok := node.Stmt.(*js.ExprStmt); ok {
+					pr.Print(deferNode.Expr)
+				} else {
+					pr.Print(node.Stmt)
+				}
+				return nil
 			}
-			return nil
-		}
-		return next(node)
-	})
-	djsFormatter.Init()
+			return next(node)
+		}).
+		Build()
 	djsFormatter.Print(node)
 	djsCode, err := djsFormatter.Output()
 	if err != nil {

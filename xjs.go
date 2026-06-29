@@ -16,9 +16,9 @@ func Parse(input []byte) (*js.Program, error) {
 }
 
 func Print(result ast.Node, opts ...printer.Option) (string, error) {
-	p := &printer.Printer{}
-	p.UsePrinter(Printer)
-	p.Init(opts...)
+	p := printer.NewBuilder().
+		UsePrinter(Printer).
+		Build(opts...)
 	p.Print(result)
 	return p.Output()
 }

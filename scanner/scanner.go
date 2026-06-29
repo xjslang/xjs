@@ -29,11 +29,7 @@ type Scanner struct {
 	triviaTypes  []token.Type
 }
 
-// Init initializes the scanner.
-//
-// Call Init before scanning tokens with NextToken.
-// Scanner middleware must be registered via UseScanner BEFORE Init.
-func (sc *Scanner) Init(input []byte, opts ...func(*config)) {
+func (sc *Scanner) init(input []byte, opts ...func(*config)) {
 	cfg := &config{}
 	for _, opt := range opts {
 		opt(cfg)

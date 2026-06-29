@@ -17,19 +17,19 @@ func Parse(input []byte) (*js.Program, error) {
 }
 
 func Compile(result ast.Node) (string, error) {
-	pr := &printer.Printer{}
-	pr.UsePrinter(xjs.Printer)
-	pr.UsePrinter(Compiler)
-	pr.Init(printer.Compact())
+	pr := printer.NewBuilder().
+		UsePrinter(xjs.Printer).
+		UsePrinter(Compiler).
+		Build(printer.Compact())
 	pr.Print(result)
 	return pr.Output()
 }
 
 func Format(result ast.Node, opts ...printer.Option) (string, error) {
-	pr := &printer.Printer{}
-	pr.UsePrinter(xjs.Printer)
-	pr.UsePrinter(Formatter)
-	pr.Init(opts...)
+	pr := printer.NewBuilder().
+		UsePrinter(xjs.Printer).
+		UsePrinter(Formatter).
+		Build(opts...)
 	pr.Print(result)
 	return pr.Output()
 }

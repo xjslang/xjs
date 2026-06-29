@@ -215,18 +215,18 @@ func TestMiddlewares(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	pr := &printer.Printer{}
-	pr.UsePrinter(xjs.Printer)
-	pr.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
-		if node, ok := node.(*iifeExpr); ok {
-			p.Print(node.LparenToken)
-			p.Print(node.Function)
-			p.Print(node.RparenToken)
-			return nil
-		}
-		return next(node)
-	})
-	pr.Init(printer.WithIndent("\t"))
+	pr := printer.NewBuilder().
+		UsePrinter(xjs.Printer).
+		UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+			if node, ok := node.(*iifeExpr); ok {
+				p.Print(node.LparenToken)
+				p.Print(node.Function)
+				p.Print(node.RparenToken)
+				return nil
+			}
+			return next(node)
+		}).
+		Build(printer.WithIndent("\t"))
 	pr.Print(result)
 	expected := "(\nfunction foo() {\n\tprint('Hello, World!');\n})();"
 	out, err := pr.Output()

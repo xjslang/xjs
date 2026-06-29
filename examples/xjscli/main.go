@@ -85,9 +85,9 @@ func main() {
 	}
 
 	// prints the formatted output
-	pr := &printer.Printer{}
-	pr.UsePrinter(xjs.Printer)
-	pr.Init()
+	pr := printer.NewBuilder().
+		UsePrinter(xjs.Printer).
+		Build()
 	pr.Print(program)
 	code, err := pr.Output()
 	if err != nil {

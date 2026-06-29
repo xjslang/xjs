@@ -26,61 +26,59 @@ func assertLexerTokens(t *testing.T, sc *scanner.Scanner, expectedToks []token.T
 
 func assertInputTokens(t *testing.T, input string, expectedToks []token.Token, opts ...testutil.TokenCompareOption) {
 	t.Helper()
-	sc := &scanner.Scanner{}
-	sc.UseScanner(func(s *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
-		if tok, err = next(); err != nil {
-			return
-		}
-		switch tok.Type {
-		case token.QUOTE:
-			tok.Type = js.STRING
-			var lit string
-			if lit, err = js.ScanString(sc, rune(tok.Literal[0])); err != nil {
-				tok.Type = token.ILLEGAL
-				tok.Literal += lit
+	s := scanner.NewBuilder().
+		UseScanner(func(s *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
+			if tok, err = next(); err != nil {
 				return
 			}
-			tok.Literal += lit
-		case token.DIVIDE:
-			switch sc.CurrentChar() {
-			case '/':
-				tok.Type = js.LINE_COMMENT
-				tok.Literal = js.ScanLineComment(sc)
-			case '*':
-				tok.Type = js.BLOCK_COMMENT
-				if tok.Literal, err = js.ScanBlockComment(sc); err != nil {
+			switch tok.Type {
+			case token.QUOTE:
+				tok.Type = js.STRING
+				var lit string
+				if lit, err = js.ScanString(s, rune(tok.Literal[0])); err != nil {
 					tok.Type = token.ILLEGAL
+					tok.Literal += lit
 					return
 				}
+				tok.Literal += lit
+			case token.DIVIDE:
+				switch s.CurrentChar() {
+				case '/':
+					tok.Type = js.LINE_COMMENT
+					tok.Literal = js.ScanLineComment(s)
+				case '*':
+					tok.Type = js.BLOCK_COMMENT
+					if tok.Literal, err = js.ScanBlockComment(s); err != nil {
+						tok.Type = token.ILLEGAL
+						return
+					}
+				}
 			}
-		}
-		return
-	})
-	sc.Init([]byte(input), scanner.WithCommentTypes(js.LINE_COMMENT, js.BLOCK_COMMENT))
-	assertLexerTokens(t, sc, expectedToks, opts...)
+			return
+		}).
+		Build([]byte(input), scanner.WithCommentTypes(js.LINE_COMMENT, js.BLOCK_COMMENT))
+	assertLexerTokens(t, s, expectedToks, opts...)
 }
 
-func ExampleScanner_Init() {
+func ExampleBuilder_Build() {
 	hashTyp := token.RegisterType("hash")
 	caretType := token.RegisterType("caret")
-	s := &scanner.Scanner{}
-
-	// Declare "middlewares" BEFORE calling Init
-	s.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
-		if sc.CurrentChar() == '#' {
-			sc.AdvanceChar()
-			return token.Token{Type: hashTyp, Literal: "#"}, nil
-		}
-		return next() // Delegate to the "next" middleware
-	})
-	s.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
-		if sc.CurrentChar() == '^' {
-			sc.AdvanceChar()
-			return token.Token{Type: caretType, Literal: "^"}, nil
-		}
-		return next() // Delegate to the "next" middleware
-	})
-	s.Init([]byte("#some ^input"))
+	s := scanner.NewBuilder().
+		UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
+			if sc.CurrentChar() == '#' {
+				sc.AdvanceChar()
+				return token.Token{Type: hashTyp, Literal: "#"}, nil
+			}
+			return next() // Delegate to the "next" middleware
+		}).
+		UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
+			if sc.CurrentChar() == '^' {
+				sc.AdvanceChar()
+				return token.Token{Type: caretType, Literal: "^"}, nil
+			}
+			return next() // Delegate to the "next" middleware
+		}).
+		Build([]byte("#some ^input"))
 
 	// Now you can use the scanner
 	for tok := s.NextToken(); tok.Type != token.EOF; tok = s.NextToken() {
@@ -97,8 +95,7 @@ func ExampleScanner_Init() {
 }
 
 func BenchmarkLexer(b *testing.B) {
-	sc := &scanner.Scanner{}
-	sc.Init([]byte("lorem ipsum dolor"))
+	sc := scanner.NewBuilder().Build([]byte("lorem ipsum dolor"))
 	var tok token.Token // prevent dead code elimination
 	for b.Loop() {
 		for tok = sc.NextToken(); tok.Type != token.EOF; tok = sc.NextToken() {
@@ -137,8 +134,7 @@ func TestTokenPosition(t *testing.T) {
 
 func TestReset(t *testing.T) {
 	items := []string{"lorem", "ipsum", "dolor"}
-	sc := &scanner.Scanner{}
-	sc.Init([]byte(strings.Join(items, " ")))
+	sc := scanner.NewBuilder().Build([]byte(strings.Join(items, " ")))
 	for range 2 {
 		var toks []token.Token
 		for tok := sc.NextToken(); tok.Type != token.EOF; tok = sc.NextToken() {

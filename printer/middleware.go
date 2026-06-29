@@ -4,7 +4,7 @@ import (
 	"github.com/xjslang/xjs/ast"
 )
 
-func (pr *Printer) UsePrinter(printer func(pr *Printer, node ast.Node, next func(node ast.Node) error) error) {
+func (pr *Printer) usePrinter(printer func(pr *Printer, node ast.Node, next func(node ast.Node) error) error) {
 	print := pr.printer
 	if pr.printer == nil {
 		print = defaultPrinter

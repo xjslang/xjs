@@ -77,11 +77,7 @@ type Printer struct {
 	errors       ErrorList
 }
 
-// Init initializes the printer.
-//
-// Call Init before printing with Print/LnPrint/SpPrint.
-// Printer middleware can be registered via UsePrinter BEFORE Init.
-func (p *Printer) Init(opts ...Option) {
+func (p *Printer) init(opts ...Option) {
 	cfg := &config{
 		withComments: true,
 		withNewLines: true,

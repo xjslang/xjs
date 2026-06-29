@@ -2,7 +2,6 @@ package printer_test
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -19,20 +18,16 @@ type FactorialNode struct {
 	Value string
 }
 
-func ExamplePrinter_Init() {
-	p := &printer.Printer{}
-
-	// Declare "middlewares" BEFORE calling Init
-	p.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
-		if node, ok := node.(*FactorialNode); ok {
-			p.Print(node.Value, "!")
-			return nil
-		}
-		return next(node) // delegate to the "next" middleware
-	})
-
-	// Now you can use the printer
-	p.Init()
+func ExampleBuilder_Build() {
+	p := printer.NewBuilder().
+		UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+			if node, ok := node.(*FactorialNode); ok {
+				p.Print(node.Value, "!")
+				return nil
+			}
+			return next(node) // delegate to the "next" middleware
+		}).
+		Build()
 	p.Print(&FactorialNode{Value: "125"})
 	out, err := p.Output()
 	if err != nil {
@@ -44,8 +39,7 @@ func ExamplePrinter_Init() {
 
 func TestInit(t *testing.T) {
 	t.Run("with custom indent", func(t *testing.T) {
-		pr := printer.Printer{}
-		pr.Init(printer.WithIndent("\t"))
+		pr := printer.NewBuilder().Build(printer.WithIndent("\t"))
 		pr.Print("begin:")
 		pr.IncreaseIndent()
 		pr.LnPrint("aaa")
@@ -70,8 +64,7 @@ func TestIndent(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			pr := printer.Printer{}
-			pr.Init(printer.WithIndent(test.indent))
+			pr := printer.NewBuilder().Build(printer.WithIndent(test.indent))
 			pr.Print("block {\n")
 			pr.IncreaseIndent()
 			for i := range 3 {
@@ -135,9 +128,9 @@ func TestPrintCallExpr(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			pr := &printer.Printer{}
-			pr.UsePrinter(xjs.Printer)
-			pr.Init()
+			pr := printer.NewBuilder().
+				UsePrinter(xjs.Printer).
+				Build()
 			js.PrintProgram(pr, node)
 			out, err := pr.Output()
 			require.NoError(t, err)
@@ -171,9 +164,9 @@ func TestLastComment(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			pr := &printer.Printer{}
-			pr.UsePrinter(xjs.Printer)
-			pr.Init()
+			pr := printer.NewBuilder().
+				UsePrinter(xjs.Printer).
+				Build()
 			js.PrintProgram(pr, node)
 			out, err := pr.Output()
 			require.NoError(t, err)
@@ -185,8 +178,7 @@ func TestLastComment(t *testing.T) {
 }
 
 func TestEnsureLine(t *testing.T) {
-	pr := printer.Printer{}
-	pr.Init()
+	pr := printer.NewBuilder().Build()
 	// calling EnsureLine at the beginning of a document does not print a new line
 	pr.EnsureLine()
 	pr.Print("aaa")
@@ -216,8 +208,7 @@ func TestEnsureLine(t *testing.T) {
 	}
 
 	t.Run("printing empty string does not consume ensureLine", func(t *testing.T) {
-		pr := printer.Printer{}
-		pr.Init()
+		pr := printer.NewBuilder().Build()
 		pr.Print("aaa")
 		pr.EnsureLine()
 		pr.Print("")
@@ -227,8 +218,7 @@ func TestEnsureLine(t *testing.T) {
 	})
 
 	t.Run("printing empty string does not consume ensureSpace", func(t *testing.T) {
-		pr := printer.Printer{}
-		pr.Init()
+		pr := printer.NewBuilder().Build()
 		pr.Print("aaa")
 		pr.EnsureSpace()
 		pr.Print("")
@@ -239,8 +229,7 @@ func TestEnsureLine(t *testing.T) {
 }
 
 func TestEnsureSpace(t *testing.T) {
-	pr := printer.Printer{}
-	pr.Init()
+	pr := printer.NewBuilder().Build()
 	// calling EnsureSpace at the beginning of a document does not print a new space
 	pr.EnsureSpace()
 	pr.Print("aaa")
@@ -276,15 +265,15 @@ type MyCustomStmt struct {
 }
 
 func TestEnsureBeside(t *testing.T) {
-	pr := printer.Printer{}
-	pr.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
-		if v, ok := node.(*MyCustomStmt); ok {
-			p.LnPrint(v.name)
-			return nil
-		}
-		return next(node)
-	})
-	pr.Init()
+	pr := printer.NewBuilder().
+		UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+			if v, ok := node.(*MyCustomStmt); ok {
+				p.LnPrint(v.name)
+				return nil
+			}
+			return next(node)
+		}).
+		Build()
 	pr.Print("aaa")
 	// EnsureBeside takes priority over EnsureSpace and EnsureLine
 	pr.EnsureBeside()
@@ -300,8 +289,7 @@ func TestEnsureBeside(t *testing.T) {
 
 func TestPrint(t *testing.T) {
 	t.Run("append newlines and spaces before printing runes", func(t *testing.T) {
-		pr := printer.Printer{}
-		pr.Init()
+		pr := printer.NewBuilder().Build()
 		pr.Print("aaa")
 		pr.LnPrint('b')
 		pr.SpPrint('c')
@@ -310,16 +298,14 @@ func TestPrint(t *testing.T) {
 		require.Equal(t, "aaa\nb c", out)
 	})
 	t.Run("panic on unsupported types", func(t *testing.T) {
-		pr := printer.Printer{}
-		pr.Init()
+		pr := printer.NewBuilder().Build()
 		require.Panics(t, func() { pr.Print(true) })
 	})
 }
 
 func TestLnPrint(t *testing.T) {
 	t.Run("new line is added before printing", func(t *testing.T) {
-		pr := printer.Printer{}
-		pr.Init()
+		pr := printer.NewBuilder().Build()
 		pr.LnPrint("aaa")
 		pr.LnPrint("bbb")
 		pr.LnPrint("ccc")
@@ -330,9 +316,9 @@ func TestLnPrint(t *testing.T) {
 }
 
 func TestSpacesTakePriorityOverLines(t *testing.T) {
-	pr := &printer.Printer{}
-	pr.UsePrinter(xjs.Printer)
-	pr.Init()
+	pr := printer.NewBuilder().
+		UsePrinter(xjs.Printer).
+		Build()
 	pr.Print("aaa")
 	// ensureSpace should take priority over ensureLine (by default statements are printed in a new line)
 	pr.SpPrint(&js.ExprStmt{Expr: &js.Literal{Value: token.Token{Literal: "125"}}})
@@ -342,8 +328,7 @@ func TestSpacesTakePriorityOverLines(t *testing.T) {
 }
 
 func TestSpPrint(t *testing.T) {
-	pr := printer.Printer{}
-	pr.Init()
+	pr := printer.NewBuilder().Build()
 	pr.SpPrint("aaa")
 	pr.SpPrint("bbb")
 	out, err := pr.Output()
@@ -357,24 +342,14 @@ func TestWithComments(t *testing.T) {
 		name string
 		pr   *printer.Printer
 	}{
-		{"show comments by default", (func() *printer.Printer {
-			pr := &printer.Printer{}
-			pr.UsePrinter(xjs.Printer)
-			pr.Init()
-			return pr
-		})()},
-		{"hide comments", (func() *printer.Printer {
-			pr := &printer.Printer{}
-			pr.UsePrinter(xjs.Printer)
-			pr.Init(printer.WithComments(false))
-			return pr
-		})()},
-		{"show comments", (func() *printer.Printer {
-			pr := &printer.Printer{}
-			pr.UsePrinter(xjs.Printer)
-			pr.Init(printer.WithComments(true))
-			return pr
-		})()},
+		{"show comments by default", printer.NewBuilder().
+			UsePrinter(xjs.Printer).Build()},
+		{"hide comments", printer.NewBuilder().
+			UsePrinter(xjs.Printer).
+			Build(printer.WithComments(false))},
+		{"show comments", printer.NewBuilder().
+			UsePrinter(xjs.Printer).
+			Build(printer.WithComments(true))},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -394,30 +369,18 @@ func TestWithNewLines(t *testing.T) {
 		name string
 		pr   *printer.Printer
 	}{
-		{"show new lines by default", (func() *printer.Printer {
-			pr := &printer.Printer{}
-			pr.UsePrinter(xjs.Printer)
-			pr.Init()
-			return pr
-		})()},
-		{"show new lines", (func() *printer.Printer {
-			pr := &printer.Printer{}
-			pr.UsePrinter(xjs.Printer)
-			pr.Init(printer.WithNewLines(true))
-			return pr
-		})()},
-		{"hide new lines", (func() *printer.Printer {
-			pr := &printer.Printer{}
-			pr.UsePrinter(xjs.Printer)
-			pr.Init(printer.WithNewLines(false))
-			return pr
-		})()},
-		{"hide new lines and comments", (func() *printer.Printer {
-			pr := &printer.Printer{}
-			pr.UsePrinter(xjs.Printer)
-			pr.Init(printer.WithNewLines(false), printer.WithComments(false))
-			return pr
-		})()},
+		{"show new lines by default", printer.NewBuilder().
+			UsePrinter(xjs.Printer).
+			Build()},
+		{"show new lines", printer.NewBuilder().
+			UsePrinter(xjs.Printer).
+			Build(printer.WithNewLines(true))},
+		{"hide new lines", printer.NewBuilder().
+			UsePrinter(xjs.Printer).
+			Build(printer.WithNewLines(false))},
+		{"hide new lines and comments", printer.NewBuilder().
+			UsePrinter(xjs.Printer).
+			Build(printer.WithNewLines(false), printer.WithComments(false))},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -447,23 +410,4 @@ func TestCompact(t *testing.T) {
 	out, err := xjs.Print(result, printer.Compact())
 	require.NoError(t, err)
 	golden.Assert(t, []byte(out))
-}
-
-func TestFork(t *testing.T) {
-	pr := &printer.Printer{}
-	pr.UsePrinter(xjs.Printer)
-	pr.Init()
-	pr.Print("for (")
-	p1 := printer.Fork(pr)
-	p1.LnPrint("aaa;")
-	p1.SpPrint("bbb;")
-	p1.SpPrint("ccc;")
-	out1, err := p1.Output()
-	require.NoError(t, err)
-	s := out1
-	s = strings.TrimRight(s, ";")
-	pr.Print(s, ") {}")
-	out, err := pr.Output()
-	require.NoError(t, err)
-	require.Equal(t, "for (aaa; bbb; ccc) {}", out)
 }
