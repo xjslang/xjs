@@ -40,16 +40,16 @@ The second step is to create a custom printer. The printer is responsible for tr
 
 ```go
 // here we are creating a compiler
-c := xjs.ParserBuilder().
+c := xjs.PrinterBuilder().
   UsePrinter(compiler).    // tells it how to compile custom nodes
-  Build(printer.Compact()) // returns an "enriched" parser
+  Build(printer.Compact()) // returns an "enriched" printer
 c.Print(result)
 jsCode, err := c.Output() // returns the compiled code
 
 // here we are creating a formatter
-fmt := xjs.ParserBuilder().
+fmt := xjs.PrinterBuilder().
   UsePrinter(formatter). // tells it how to format custom nodes
-  Build()                // returns an "enriched" parser
+  Build()                // returns an "enriched" printer
 fmt.Print(result)
 formattedCode, err := fmt.Output() // returns the formatted code
 ```
