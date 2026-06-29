@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/builder"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
@@ -194,7 +193,7 @@ func TestMiddlewares(t *testing.T) {
 	input := `(function foo() {
 		print('Hello, World!')
 	})()`
-	b := builder.New().Install(xjs.Plugin)
+	b := xjs.PluginBuilder()
 	// parse IIFE expressions
 	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Expr, error)) (_ ast.Expr, err error) {
 		if p.CurrentToken.Type == token.LPAREN && p.PeekToken.Type == js.FUNCTION {
@@ -215,8 +214,7 @@ func TestMiddlewares(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	pr := printer.NewBuilder().
-		UsePrinter(xjs.Printer).
+	pr := xjs.PrinterBuilder().
 		UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
 			if node, ok := node.(*iifeExpr); ok {
 				p.Print(node.LparenToken)

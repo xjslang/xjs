@@ -8,7 +8,6 @@ import (
 	"os"
 
 	"github.com/xjslang/xjs"
-	"github.com/xjslang/xjs/printer"
 )
 
 func usage() {
@@ -85,8 +84,7 @@ func main() {
 	}
 
 	// prints the formatted output
-	pr := printer.NewBuilder().
-		UsePrinter(xjs.Printer).
+	pr := xjs.PrinterBuilder().
 		Build()
 	pr.Print(program)
 	code, err := pr.Output()

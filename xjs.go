@@ -11,219 +11,221 @@ import (
 )
 
 func Parse(input []byte) (*js.Program, error) {
-	p := builder.New().Install(Plugin).Build(input)
+	p := PluginBuilder().Build(input)
 	return js.ParseProgram(p)
 }
 
 func Print(result ast.Node, opts ...printer.Option) (string, error) {
-	p := printer.NewBuilder().
-		UsePrinter(Printer).
-		Build(opts...)
+	p := PrinterBuilder().Build(opts...)
 	p.Print(result)
 	return p.Output()
 }
 
-func Plugin(b *builder.Builder) {
-	token.RegisterUnaryType(js.FUNCTION)
+func PluginBuilder() *builder.Builder {
+	return builder.New().Install(func(b *builder.Builder) {
+		token.RegisterUnaryType(js.FUNCTION)
 
-	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
-		if tok, err = next(); err != nil {
-			return
-		}
-		switch tok.Type {
-		case token.QUOTE:
-			tok.Type = js.STRING
-			var lit string
-			if lit, err = js.ScanString(sc, rune(tok.Literal[0])); err != nil {
-				tok.Type = token.ILLEGAL
-				tok.Literal += lit
+		b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
+			if tok, err = next(); err != nil {
 				return
 			}
-			tok.Literal += lit
-		case token.DIGIT:
-			tok.Type = js.NUMBER
-			var lit string
-			if c := sc.CurrentChar(); c == '.' || c == 'e' || c == 'E' || '0' <= c && c <= '9' {
-				if lit, err = js.ScanNumber(sc); err != nil {
+			switch tok.Type {
+			case token.QUOTE:
+				tok.Type = js.STRING
+				var lit string
+				if lit, err = js.ScanString(sc, rune(tok.Literal[0])); err != nil {
 					tok.Type = token.ILLEGAL
+					tok.Literal += lit
 					return
 				}
-			} else if tok.Literal == "0" {
+				tok.Literal += lit
+			case token.DIGIT:
+				tok.Type = js.NUMBER
+				var lit string
+				if c := sc.CurrentChar(); c == '.' || c == 'e' || c == 'E' || '0' <= c && c <= '9' {
+					if lit, err = js.ScanNumber(sc); err != nil {
+						tok.Type = token.ILLEGAL
+						return
+					}
+				} else if tok.Literal == "0" {
+					switch sc.CurrentChar() {
+					case 'x', 'X':
+						if lit, err = js.ScanHexNumber(sc); err != nil {
+							tok.Type = token.ILLEGAL
+							return
+						}
+					case 'o', 'O':
+						if lit, err = js.ScanOctalNumber(sc); err != nil {
+							tok.Type = token.ILLEGAL
+							return
+						}
+					}
+				}
+				tok.Literal += lit
+			case token.DIVIDE:
 				switch sc.CurrentChar() {
-				case 'x', 'X':
-					if lit, err = js.ScanHexNumber(sc); err != nil {
+				case '/':
+					tok.Type = js.LINE_COMMENT
+					tok.Literal = js.ScanLineComment(sc)
+				case '*':
+					tok.Type = js.BLOCK_COMMENT
+					if tok.Literal, err = js.ScanBlockComment(sc); err != nil {
 						tok.Type = token.ILLEGAL
 						return
 					}
-				case 'o', 'O':
-					if lit, err = js.ScanOctalNumber(sc); err != nil {
-						tok.Type = token.ILLEGAL
-						return
+				}
+			case token.IDENT:
+				switch tok.Literal {
+				case "function":
+					tok.Type = js.FUNCTION
+				case "let":
+					tok.Type = js.LET
+				case "if":
+					tok.Type = js.IF
+				case "else":
+					tok.Type = js.ELSE
+				case "while":
+					tok.Type = js.WHILE
+				case "for":
+					tok.Type = js.FOR
+				case "return":
+					tok.Type = js.RETURN
+				case "break":
+					tok.Type = js.BREAK
+				case "continue":
+					tok.Type = js.CONTINUE
+				}
+			}
+			return
+		})
+		b.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (ast.Stmt, error) {
+			switch p.CurrentToken.Type {
+			case js.FUNCTION:
+				return js.ParseFunctionDecl(p)
+			case js.LET:
+				return js.ParseLetStmt(p)
+			case js.IF:
+				return js.ParseIfStmt(p)
+			case js.WHILE:
+				return js.ParseWhileStmt(p)
+			case js.FOR:
+				return js.ParseForStmt(p)
+			case js.RETURN:
+				return js.ParseReturnStmt(p)
+			case js.BREAK:
+				return js.ParseBreakStmt(p)
+			case js.CONTINUE:
+				return js.ParseContinueStmt(p)
+			case token.IDENT:
+				switch p.PeekToken.Type {
+				case token.ASSIGN:
+					if !p.PeekToken.AfterNewline {
+						return js.ParseAssignStmt(p)
+					}
+				case token.COLON:
+					return js.ParseLabelStmt(p)
+				case token.INCREMENT:
+					if !p.PeekToken.AfterNewline {
+						return js.ParseIncStmt(p)
+					}
+				case token.DECREMENT:
+					if !p.PeekToken.AfterNewline {
+						return js.ParseDecStmt(p)
 					}
 				}
+			case token.SEMICOLON:
+				return js.ParseSemiStmt(p)
 			}
-			tok.Literal += lit
-		case token.DIVIDE:
-			switch sc.CurrentChar() {
-			case '/':
-				tok.Type = js.LINE_COMMENT
-				tok.Literal = js.ScanLineComment(sc)
-			case '*':
-				tok.Type = js.BLOCK_COMMENT
-				if tok.Literal, err = js.ScanBlockComment(sc); err != nil {
-					tok.Type = token.ILLEGAL
-					return
-				}
+			return js.ParseStmt(p)
+		})
+		b.UseExprParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
+			return js.ParseExpr(p)
+		})
+		b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
+			switch p.CurrentToken.Type {
+			case js.FUNCTION:
+				return js.ParseFunctionExpr(p)
+			case token.LPAREN:
+				return js.ParseGroupExpr(p)
+			case token.LBRACE:
+				return js.ParseObjExpr(p)
+			case token.LBRACKET:
+				return js.ParseArrayExpr(p)
 			}
-		case token.IDENT:
-			switch tok.Literal {
-			case "function":
-				tok.Type = js.FUNCTION
-			case "let":
-				tok.Type = js.LET
-			case "if":
-				tok.Type = js.IF
-			case "else":
-				tok.Type = js.ELSE
-			case "while":
-				tok.Type = js.WHILE
-			case "for":
-				tok.Type = js.FOR
-			case "return":
-				tok.Type = js.RETURN
-			case "break":
-				tok.Type = js.BREAK
-			case "continue":
-				tok.Type = js.CONTINUE
+			return js.ParseUnaryExpr(p)
+		})
+		b.UseBinaryParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
+			switch p.CurrentToken.Type {
+			case token.LPAREN:
+				return js.ParseCallExpr(p, left)
+			case token.LBRACKET:
+				return js.ParseIndexExpr(p, left)
 			}
-		}
-		return
-	})
-	b.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (ast.Stmt, error) {
-		switch p.CurrentToken.Type {
-		case js.FUNCTION:
-			return js.ParseFunctionDecl(p)
-		case js.LET:
-			return js.ParseLetStmt(p)
-		case js.IF:
-			return js.ParseIfStmt(p)
-		case js.WHILE:
-			return js.ParseWhileStmt(p)
-		case js.FOR:
-			return js.ParseForStmt(p)
-		case js.RETURN:
-			return js.ParseReturnStmt(p)
-		case js.BREAK:
-			return js.ParseBreakStmt(p)
-		case js.CONTINUE:
-			return js.ParseContinueStmt(p)
-		case token.IDENT:
-			switch p.PeekToken.Type {
-			case token.ASSIGN:
-				if !p.PeekToken.AfterNewline {
-					return js.ParseAssignStmt(p)
-				}
-			case token.COLON:
-				return js.ParseLabelStmt(p)
-			case token.INCREMENT:
-				if !p.PeekToken.AfterNewline {
-					return js.ParseIncStmt(p)
-				}
-			case token.DECREMENT:
-				if !p.PeekToken.AfterNewline {
-					return js.ParseDecStmt(p)
-				}
-			}
-		case token.SEMICOLON:
-			return js.ParseSemiStmt(p)
-		}
-		return js.ParseStmt(p)
-	})
-	b.UseExprParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
-		return js.ParseExpr(p)
-	})
-	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
-		switch p.CurrentToken.Type {
-		case js.FUNCTION:
-			return js.ParseFunctionExpr(p)
-		case token.LPAREN:
-			return js.ParseGroupExpr(p)
-		case token.LBRACE:
-			return js.ParseObjExpr(p)
-		case token.LBRACKET:
-			return js.ParseArrayExpr(p)
-		}
-		return js.ParseUnaryExpr(p)
-	})
-	b.UseBinaryParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
-		switch p.CurrentToken.Type {
-		case token.LPAREN:
-			return js.ParseCallExpr(p, left)
-		case token.LBRACKET:
-			return js.ParseIndexExpr(p, left)
-		}
-		return js.ParseBinaryExpr(p, left)
+			return js.ParseBinaryExpr(p, left)
+		})
 	})
 }
 
-func Printer(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
-	switch v := node.(type) {
-	case *js.Program:
-		js.PrintProgram(p, v)
-	case *js.BlockStmt:
-		js.PrintBlockStmt(p, v)
-	case *js.IfStmt:
-		js.PrintIfStmt(p, v)
-	case *js.WhileStmt:
-		js.PrintWhileStmt(p, v)
-	case *js.FunctionDecl:
-		js.PrintFunctionDecl(p, v)
-	case *js.LetStmt:
-		js.PrintLetStmt(p, v)
-	case *js.AssignStmt:
-		js.PrintAssignStmt(p, v)
-	case *js.ForStmt:
-		js.PrintForStmt(p, v)
-	case *js.FunctionExpr:
-		js.PrintFunctionExpr(p, v)
-	case *js.CallExpr:
-		js.PrintCallExpr(p, v)
-	case *js.IndexExpr:
-		js.PrintIndexExpr(p, v)
-	case *js.GroupExpr:
-		js.PrintGroupExpr(p, v)
-	case *js.ObjExpr:
-		js.PrintObjExpr(p, v)
-	case *js.ArrayExpr:
-		js.PrintArrayExpr(p, v)
-	case *js.UnaryExpr:
-		js.PrintUnaryExpr(p, v)
-	case *js.BinaryExpr:
-		js.PrintBinaryExpr(p, v)
-	case *js.Ident:
-		js.PrintIdent(p, v)
-	case *js.Variable:
-		p.Print(v.Name)
-	case *js.Literal:
-		p.Print(v.Value)
-	case *js.ExprStmt:
-		js.PrintExprStmt(p, v)
-	case *js.ReturnStmt:
-		js.PrintReturnStmt(p, v)
-	case *js.SemiStmt:
-		js.PrintSemiStmt(p, v)
-	case *js.BreakStmt:
-		js.PrintBreakStmt(p, v)
-	case *js.ContinueStmt:
-		js.PrintContinueStmt(p, v)
-	case *js.LabelStmt:
-		js.PrintLabelStmt(p, v)
-	case *js.IncStmt:
-		js.PrintIncStmt(p, v)
-	case *js.DecStmt:
-		js.PrintDecStmt(p, v)
-	default:
-		return next(node)
-	}
-	return nil
+func PrinterBuilder() *printer.Builder {
+	return printer.NewBuilder().UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+		switch v := node.(type) {
+		case *js.Program:
+			js.PrintProgram(p, v)
+		case *js.BlockStmt:
+			js.PrintBlockStmt(p, v)
+		case *js.IfStmt:
+			js.PrintIfStmt(p, v)
+		case *js.WhileStmt:
+			js.PrintWhileStmt(p, v)
+		case *js.FunctionDecl:
+			js.PrintFunctionDecl(p, v)
+		case *js.LetStmt:
+			js.PrintLetStmt(p, v)
+		case *js.AssignStmt:
+			js.PrintAssignStmt(p, v)
+		case *js.ForStmt:
+			js.PrintForStmt(p, v)
+		case *js.FunctionExpr:
+			js.PrintFunctionExpr(p, v)
+		case *js.CallExpr:
+			js.PrintCallExpr(p, v)
+		case *js.IndexExpr:
+			js.PrintIndexExpr(p, v)
+		case *js.GroupExpr:
+			js.PrintGroupExpr(p, v)
+		case *js.ObjExpr:
+			js.PrintObjExpr(p, v)
+		case *js.ArrayExpr:
+			js.PrintArrayExpr(p, v)
+		case *js.UnaryExpr:
+			js.PrintUnaryExpr(p, v)
+		case *js.BinaryExpr:
+			js.PrintBinaryExpr(p, v)
+		case *js.Ident:
+			js.PrintIdent(p, v)
+		case *js.Variable:
+			p.Print(v.Name)
+		case *js.Literal:
+			p.Print(v.Value)
+		case *js.ExprStmt:
+			js.PrintExprStmt(p, v)
+		case *js.ReturnStmt:
+			js.PrintReturnStmt(p, v)
+		case *js.SemiStmt:
+			js.PrintSemiStmt(p, v)
+		case *js.BreakStmt:
+			js.PrintBreakStmt(p, v)
+		case *js.ContinueStmt:
+			js.PrintContinueStmt(p, v)
+		case *js.LabelStmt:
+			js.PrintLabelStmt(p, v)
+		case *js.IncStmt:
+			js.PrintIncStmt(p, v)
+		case *js.DecStmt:
+			js.PrintDecStmt(p, v)
+		default:
+			return next(node)
+		}
+		return nil
+	})
 }
