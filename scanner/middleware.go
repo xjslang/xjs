@@ -6,7 +6,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func (s *Scanner) UseScanner(scanner func(s *Scanner, next func() (token.Token, error)) (token.Token, error)) {
+func (s *Scanner) useScanner(scanner func(s *Scanner, next func() (token.Token, error)) (token.Token, error)) {
 	next := s.scanner
 	if next == nil {
 		next = defaultScanner

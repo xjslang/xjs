@@ -9,14 +9,14 @@ import (
 )
 
 type Builder struct {
-	scanner *scanner.Scanner
-	parser  *parser.Parser
+	scanner *scanner.Builder
+	parser  *parser.Builder
 }
 
 func New() *Builder {
 	return &Builder{
-		scanner: &scanner.Scanner{},
-		parser:  &parser.Parser{},
+		scanner: scanner.NewBuilder(),
+		parser:  parser.NewBuilder(),
 	}
 }
 
@@ -46,7 +46,6 @@ func (b *Builder) Install(plugin func(b *Builder)) *Builder {
 }
 
 func (b *Builder) Build(src []byte) *parser.Parser {
-	b.scanner.Init(src, scanner.WithCommentTypes(js.LINE_COMMENT, js.BLOCK_COMMENT))
-	b.parser.Init(b.scanner)
-	return b.parser
+	s := b.scanner.Build(src, scanner.WithCommentTypes(js.LINE_COMMENT, js.BLOCK_COMMENT))
+	return b.parser.Build(s)
 }

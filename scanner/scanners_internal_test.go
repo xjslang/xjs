@@ -17,8 +17,7 @@ func TestScanString(t *testing.T) {
 		{'"', `"string with \"escaped quotes\""`},
 	}
 	for _, test := range tests {
-		sc := &scanner.Scanner{}
-		sc.Init([]byte(test.input))
+		sc := scanner.NewBuilder().Build([]byte(test.input))
 		sc.AdvanceChar()
 		result, err := js.ScanString(sc, test.delimiter)
 		if !assert.NoError(t, err) {

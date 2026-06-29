@@ -9,16 +9,6 @@ func ErrorAt(tok token.Token, msg string) error {
 	}
 }
 
-func Fork(p *Printer) *Printer {
-	p1 := &Printer{printer: p.printer}
-	p1.Init(
-		WithComments(p.withComments),
-		WithNewLines(p.withNewLines),
-		WithIndent(p.indent),
-	)
-	return p1
-}
-
 func isNewLine(r rune) bool {
 	return r == eol || r == '\r' || r == '\n'
 }

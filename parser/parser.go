@@ -59,11 +59,7 @@ type Parser struct {
 	unaryExprParser  func(p *Parser) (ast.Expr, error)
 }
 
-// Init initializes the parser.
-//
-// Call Init before parsing with Parse/ParseExprStmt/ParseExpr.
-// Parser middleware must be registered via Use*Parser methods BEFORE Init.
-func (p *Parser) Init(sc Scanner) {
+func (p *Parser) init(sc Scanner) {
 	p.scopes = make(ScopeTracker)
 	p.scanner = sc
 	if p.stmtParser == nil {

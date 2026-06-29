@@ -30,8 +30,7 @@ func TestScanNumber(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			for _, input := range test.inputs {
-				sc := &scanner.Scanner{}
-				sc.Init([]byte(input))
+				sc := scanner.NewBuilder().Build([]byte(input))
 				var result string
 				var err error
 				switch sc.CurrentChar() {
@@ -55,8 +54,7 @@ func TestScanNumber(t *testing.T) {
 			"o", // invalid octal number
 		}
 		for _, input := range inputs {
-			sc := &scanner.Scanner{}
-			sc.Init([]byte(input))
+			sc := scanner.NewBuilder().Build([]byte(input))
 			var err error
 			switch sc.CurrentChar() {
 			case 'x', 'X':

@@ -77,30 +77,30 @@ func TestPrinterContext(t *testing.T) {
 	result, err := js.ParseProgram(p)
 	require.NoError(t, err)
 
-	pr := &printer.Printer{}
-	pr.UsePrinter(xjs.Printer)
-	pr.Init()
-	pr.UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
-		switch v := node.(type) {
-		case *AsyncFunctionDecl:
-			ctx := p.PushContext()
-			defer p.PopContext()
-			ctx["async"] = "yes"
-			pr.LnPrint(v.Layout.Async)
-			pr.SpPrint(v.FunctionDecl)
-			return nil
-		case *AwaitStmt:
-			ctx := p.Context()
-			_, ok := ctx["async"]
-			if !ok {
-				return printer.ErrorAt(v.Layout.Await, "await is allowed only inside async functions")
+	pr := printer.NewBuilder().
+		UsePrinter(xjs.Printer).
+		UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+			switch v := node.(type) {
+			case *AsyncFunctionDecl:
+				ctx := pr.PushContext()
+				defer pr.PopContext()
+				ctx["async"] = "yes"
+				pr.LnPrint(v.Layout.Async)
+				pr.SpPrint(v.FunctionDecl)
+				return nil
+			case *AwaitStmt:
+				ctx := pr.Context()
+				_, ok := ctx["async"]
+				if !ok {
+					return printer.ErrorAt(v.Layout.Await, "await is allowed only inside async functions")
+				}
+				pr.LnPrint(v.Layout.Await)
+				pr.SpPrint(v.Expr)
+				return nil
 			}
-			pr.LnPrint(v.Layout.Await)
-			pr.SpPrint(v.Expr)
-			return nil
-		}
-		return next(node)
-	})
+			return next(node)
+		}).
+		Build()
 	pr.Print(result)
 	_, err = pr.Output()
 	require.ErrorContains(t, err, "await is allowed only inside async functions")

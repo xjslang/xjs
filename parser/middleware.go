@@ -4,7 +4,7 @@ import (
 	"github.com/xjslang/xjs/ast"
 )
 
-func (p *Parser) UseUnaryParser(parser func(p *Parser, next func() (ast.Expr, error)) (ast.Expr, error)) {
+func (p *Parser) useUnaryParser(parser func(p *Parser, next func() (ast.Expr, error)) (ast.Expr, error)) {
 	next := p.unaryExprParser
 	p.unaryExprParser = func(p *Parser) (ast.Expr, error) {
 		return parser(p, func() (ast.Expr, error) {
@@ -13,7 +13,7 @@ func (p *Parser) UseUnaryParser(parser func(p *Parser, next func() (ast.Expr, er
 	}
 }
 
-func (p *Parser) UseBinaryParser(parser func(p *Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error)) {
+func (p *Parser) useBinaryParser(parser func(p *Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error)) {
 	next := p.binaryExprParser
 	p.binaryExprParser = func(p *Parser, left ast.Expr) (ast.Expr, error) {
 		return parser(p, left, func(left ast.Expr) (ast.Expr, error) {
@@ -22,7 +22,7 @@ func (p *Parser) UseBinaryParser(parser func(p *Parser, left ast.Expr, next func
 	}
 }
 
-func (p *Parser) UseStmtParser(parser func(p *Parser, next func() (ast.Stmt, error)) (ast.Stmt, error)) {
+func (p *Parser) useStmtParser(parser func(p *Parser, next func() (ast.Stmt, error)) (ast.Stmt, error)) {
 	next := p.stmtParser
 	p.stmtParser = func(p *Parser) (ast.Stmt, error) {
 		return parser(p, func() (ast.Stmt, error) {
@@ -31,7 +31,7 @@ func (p *Parser) UseStmtParser(parser func(p *Parser, next func() (ast.Stmt, err
 	}
 }
 
-func (p *Parser) UseExprParser(parser func(p *Parser, next func() (ast.Expr, error)) (ast.Expr, error)) {
+func (p *Parser) useExprParser(parser func(p *Parser, next func() (ast.Expr, error)) (ast.Expr, error)) {
 	next := p.exprParser
 	p.exprParser = func(p *Parser) (ast.Expr, error) {
 		return parser(p, func() (ast.Expr, error) {
