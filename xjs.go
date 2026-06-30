@@ -2,9 +2,9 @@ package xjs
 
 import (
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/builder"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
+	"github.com/xjslang/xjs/plugin"
 	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
@@ -21,8 +21,8 @@ func Print(result ast.Node, opts ...printer.Option) (string, error) {
 	return p.Output()
 }
 
-func PluginBuilder() *builder.Builder {
-	return builder.New().Install(func(b *builder.Builder) {
+func PluginBuilder() *plugin.Builder {
+	return plugin.New().Install(func(b *plugin.Builder) {
 		token.RegisterUnaryType(js.FUNCTION)
 
 		b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
