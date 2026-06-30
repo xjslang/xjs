@@ -1,10 +1,9 @@
-# XJS (eXtensible JavaScript)
+# XJS (eXtensible JavaScript parser)
 
-XJS is an extensible JavaScript parser. That is, we can design our own constructs so that the parser knows how to "interpret" them, even if they are not part of the ECMAScript standard.
+That is, we can design our own constructs so that the parser knows how to "interpret" them, even when they are not part of the ECMAScript standard.
 
-**What it is not?**
-
-XJS **is not and will not be** a complete JavaScript parser, as that is outside the scope of the project. For example, XJS does not support `arrow functions` or `try / catch / finally`. However, we can create plugins that support those and other constructs.
+> [!NOTE]  
+> **XJS is not a complete JavaScript parser**, as that is outside the scope of the project. For example, XJS does not support `arrow functions` or `try / catch`. However, we can create plugins that support those and other constructs.
 
 ## How does it work?
 
