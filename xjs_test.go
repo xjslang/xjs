@@ -173,7 +173,11 @@ func TestParseCommaDangle(t *testing.T) {
 		},
 		{
 			input:    "let a = point(\n\tx, \n\ty,\n)",
-			expected: "let a = point(\n\tx,\n\ty\n);",
+			expected: "let a = point(\nx,\ny\n);",
+		},
+		{
+			input:    "let a = setTimeout(function() { console.log('tick!') }, 1000,)",
+			expected: "let a = setTimeout(function () {\n\tconsole.log('tick!');\n}, 1000);",
 		},
 		{
 			input:    "let a = function (\n\tx, \n\ty,\n) {}",

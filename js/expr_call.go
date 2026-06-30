@@ -41,7 +41,6 @@ func ParseCallExpr(p *parser.Parser, left ast.Expr) (node *CallExpr, err error) 
 
 func PrintCallExpr(p *printer.Printer, node *CallExpr) {
 	p.Print(node.Callee, node.Layout.Lparen)
-	p.IncreaseIndent()
 	for i, arg := range node.Args {
 		if i > 0 {
 			p.Print(",")
@@ -49,6 +48,5 @@ func PrintCallExpr(p *printer.Printer, node *CallExpr) {
 		}
 		p.Print(arg)
 	}
-	p.DecreaseIndent()
 	p.Print(node.Layout.Rparen)
 }
