@@ -28,13 +28,17 @@
 [line:53, col:4] ) expected
 [line:56, col:2] expression expected
 [line:57, col:5] ] expected
-[line:60, col:2] identifier expected
+[line:60, col:2] key expected
 [line:61, col:6] : expected
 [line:62, col:7] expression expected
-[line:63, col:12] identifier expected
+[line:63, col:12] key expected
 [line:64, col:11] } expected
 [line:67, col:0] expression expected
 [line:68, col:1] ; or newline expected
 [line:69, col:1] ; or newline expected
 [line:70, col:0] expression expected
 [line:71, col:0] expression expected
+[line:74, col:2] key expected
+[line:75, col:2] key expected
+[line:76, col:2] key expected
+[line:79, col:4] identifier expected

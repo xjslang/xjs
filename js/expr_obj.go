@@ -29,7 +29,7 @@ func ParseObjExpr(p *parser.Parser) (node *ObjExpr, err error) {
 	for p.CurrentToken.Type != token.RBRACE {
 		entry := ObjEntry{}
 		// TODO: key can also be a number or a string
-		if entry.Key, err = ParseIdent(p); err != nil {
+		if entry.Key, err = ParseMemberKey(p); err != nil {
 			return
 		}
 		if _, err = p.Expect(token.COLON); err != nil {

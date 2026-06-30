@@ -160,6 +160,8 @@ func PluginBuilder() *builder.Builder {
 				return js.ParseCallExpr(p, left)
 			case token.LBRACKET:
 				return js.ParseIndexExpr(p, left)
+			case token.DOT:
+				return js.ParseMemberExpr(p, left)
 			}
 			return js.ParseBinaryExpr(p, left)
 		})
@@ -223,6 +225,8 @@ func PrinterBuilder() *printer.Builder {
 			js.PrintIncStmt(p, v)
 		case *js.DecStmt:
 			js.PrintDecStmt(p, v)
+		case *js.MemberExpr:
+			js.PrintMemberExpr(p, v)
 		default:
 			return next(node)
 		}
