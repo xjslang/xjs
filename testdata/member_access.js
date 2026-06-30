@@ -8,6 +8,7 @@ console.log(matrix[1][1]);
 console.log(matrix[2][0]);
 
 let person = {
+  if: 'reserved key', // reserved keys are allowed
   name: "John",
   address: {
     street: "123 Main St",
@@ -16,6 +17,7 @@ let person = {
   hobbies: ["reading", "coding", "gaming"]
 };
 
+console.log(person.if); // reserved keys are allowed
 console.log(person.name);
 console.log(person.address.street);
 console.log(person.address.city);

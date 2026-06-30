@@ -100,10 +100,10 @@ a[; // expression expected
 a[100; // ] expected
 
 // obj expr
-({; // identifier expected
+({; // key expected
 ({name; // : expected
 ({name:; // expression expected
-({name: 100,; // identifier expected
+({name: 100,; // key expected
 ({name: 100; // } expected
 
 // numbers
@@ -111,10 +111,23 @@ a[100; // ] expected
 1x123; // ; or newline expected (invalid hex)
 2O123; // ; or newline expected (invalid octal)
 0X; // expression expected (incomplete hex)
-0o; // expression expected (incomplete octal)`
+0o; // expression expected (incomplete octal)
+
+// member expr
+a.100; // key expected
+a.(b); // key expected
+a.(b + c); // key expected
+
+// reserved keys cannot be used as identifiers
+let if = 100; // identifier expected`
 	_, errs := xjs.Parse([]byte(input))
 	require.IsType(t, parser.ErrorList{}, errs)
 	golden.Assert(t, []byte(errs.Error()))
+
+	t.Run("key expected at eof", func(t *testing.T) {
+		_, err := xjs.Parse([]byte("a."))
+		require.EqualError(t, err, "[line:0, col:2] key expected")
+	})
 }
 
 func TestLanguageFeatures(t *testing.T) {

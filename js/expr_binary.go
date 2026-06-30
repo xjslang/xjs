@@ -25,12 +25,7 @@ func ParseBinaryExpr(p *parser.Parser, left ast.Expr) (node *BinaryExpr, err err
 }
 
 func PrintBinaryExpr(p *printer.Printer, node *BinaryExpr) {
-	switch node.Op.Type {
-	case token.DOT:
-		p.Print(node.Left, node.Op, node.Right)
-	default:
-		p.Print(node.Left)
-		p.SpPrint(node.Op)
-		p.SpPrint(node.Right)
-	}
+	p.Print(node.Left)
+	p.SpPrint(node.Op)
+	p.SpPrint(node.Right)
 }
