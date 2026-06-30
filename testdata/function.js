@@ -5,6 +5,9 @@ let y = function () {
 let z = 2 * (function () {
   return Math.PI;
 })();
+let int = setInterval(function () {
+  console.log('tick!');
+}, 1000);
 
 // IIFE
 (function () {
