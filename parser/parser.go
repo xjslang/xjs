@@ -118,6 +118,15 @@ func (p *Parser) Expect(typ token.Type) (token.Token, error) {
 	return tok, nil
 }
 
+func (p *Parser) ExpectString(s string) (token.Token, error) {
+	tok := p.CurrentToken
+	if tok.Literal != s {
+		return tok, p.Error(s + " expected")
+	}
+	p.AdvanceToken()
+	return tok, nil
+}
+
 func (p *Parser) Error(msg string) error {
 	return p.ErrorAt(p.CurrentToken, msg)
 }
