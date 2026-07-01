@@ -48,7 +48,6 @@ func (list ErrorList) Error() string {
 }
 
 type Parser struct {
-	// TODO: do not expose CurrentToken and PeekToken directly
 	CurrentToken     token.Token
 	PeekToken        token.Token
 	scanner          Scanner
