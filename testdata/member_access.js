@@ -14,7 +14,19 @@ let person = {
     street: "123 Main St",
     city: "Anytown"
   },
-  hobbies: ["reading", "coding", "gaming"]
+  hobbies: ["reading", "coding", "gaming"],
+  // numbers
+  100: 'number 1',
+  1.5: 'number 2',
+  1e2: 'number 3',
+  // strings
+  'hi there!': 'string',
+  // bracket expressions
+  ['hi there!']: 'aaa',
+  [100 + 1]: 'expression',
+  [
+  200 // comments are preserved
+  ]: 'expression'
 };
 
 console.log(person.if); // reserved keys are allowed

@@ -1,14 +1,26 @@
 package js
 
 import (
+	"unicode/utf8"
+
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
+	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
 )
 
+type ComputedExpr struct {
+	ast.BaseExpr
+	Layout struct {
+		Lbracket token.Token
+		Rbracket token.Token
+	}
+	Expr ast.Expr
+}
+
 type ObjEntry struct {
-	Key   *Ident
+	Key   ast.Expr
 	Value ast.Expr
 }
 
@@ -28,8 +40,7 @@ func ParseObjExpr(p *parser.Parser) (node *ObjExpr, err error) {
 	}
 	for p.CurrentToken.Type != token.RBRACE {
 		entry := ObjEntry{}
-		// TODO: key can also be a number or a string
-		if entry.Key, err = ParseMemberKey(p); err != nil {
+		if entry.Key, err = parseKeyExpr(p); err != nil {
 			return
 		}
 		if _, err = p.Expect(token.COLON); err != nil {
@@ -50,6 +61,36 @@ func ParseObjExpr(p *parser.Parser) (node *ObjExpr, err error) {
 	return node, nil
 }
 
+func parseKeyExpr(p *parser.Parser) (node ast.Expr, err error) {
+	switch p.CurrentToken.Type {
+	case token.LBRACKET:
+		n := &ComputedExpr{}
+		n.Layout.Lbracket = p.CurrentToken
+		p.AdvanceToken()
+		if n.Expr, err = p.ParseExpr(); err != nil {
+			return
+		}
+		if n.Layout.Rbracket, err = p.Expect(token.RBRACKET); err != nil {
+			return
+		}
+		node = n
+	case STRING, NUMBER:
+		if node, err = ParseValue(p); err != nil {
+			return
+		}
+	default:
+		if r, s := utf8.DecodeRuneInString(p.CurrentToken.Literal); s > 0 && scanner.IsLetter(r) {
+			p.CurrentToken.Type = token.IDENT
+			node = &Variable{Name: p.CurrentToken}
+			p.AdvanceToken()
+		} else {
+			err = p.Error("key expected")
+			return
+		}
+	}
+	return
+}
+
 func PrintObjExpr(p *printer.Printer, node *ObjExpr) {
 	p.Print(node.Layout.Lbrace)
 	if len(node.Entries) > 0 {
@@ -58,7 +99,12 @@ func PrintObjExpr(p *printer.Printer, node *ObjExpr) {
 			if i > 0 {
 				p.Print(",")
 			}
-			p.SpPrint(entry.Key)
+			switch v := entry.Key.(type) {
+			case *ComputedExpr:
+				p.SpPrint(v.Layout.Lbracket).Print(v.Expr, v.Layout.Rbracket)
+			default:
+				p.SpPrint(v)
+			}
 			p.Print(":")
 			p.SpPrint(entry.Value)
 		}
