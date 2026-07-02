@@ -8,7 +8,7 @@ import (
 
 type Variable struct {
 	ast.BaseExpr
-	Name token.Token
+	token.Token
 }
 
 type Literal struct {
@@ -55,7 +55,7 @@ func ParseValue(p *parser.Parser) (ast.Expr, error) {
 	case token.IDENT:
 		val := p.CurrentToken
 		p.AdvanceToken()
-		return &Variable{Name: val}, nil
+		return &Variable{Token: val}, nil
 	case NUMBER, STRING:
 		val := p.CurrentToken
 		p.AdvanceToken()

@@ -119,7 +119,7 @@ func TestExprs(t *testing.T) {
 			expected: `*js.BinaryExpr
 	Left: *js.BinaryExpr
 		Left: *js.CallExpr
-			Callee: *js.Variable{Name: "foo"}
+			Callee: *js.Variable{Token: "foo"}
 		Op: "*"
 		Right: *js.Literal{Value: "2"}
 	Op: "+"
@@ -128,7 +128,7 @@ func TestExprs(t *testing.T) {
 		{
 			input: "foo(1, 2, 3)",
 			expected: `*js.CallExpr
-	Callee: *js.Variable{Name: "foo"}
+	Callee: *js.Variable{Token: "foo"}
 	Args[0]: *js.Literal{Value: "1"}
 	Args[1]: *js.Literal{Value: "2"}
 	Args[2]: *js.Literal{Value: "3"}`,
@@ -141,7 +141,7 @@ func TestExprs(t *testing.T) {
 	Right: *js.GroupExpr
 		Value: *js.BinaryExpr
 			Left: *js.CallExpr
-				Callee: *js.Variable{Name: "pow"}
+				Callee: *js.Variable{Token: "pow"}
 				Args[0]: *js.Literal{Value: "2"}
 				Args[1]: *js.BinaryExpr
 					Left: *js.Literal{Value: "1"}
@@ -156,7 +156,7 @@ func TestExprs(t *testing.T) {
 	Left: *js.Literal{Value: "1"}
 	Op: "+"
 	Right: *js.CallExpr
-		Callee: *js.Variable{Name: "foo"}`,
+		Callee: *js.Variable{Token: "foo"}`,
 		},
 		{
 			input: "1 + foo()()",
@@ -165,7 +165,7 @@ func TestExprs(t *testing.T) {
 	Op: "+"
 	Right: *js.CallExpr
 		Callee: *js.CallExpr
-			Callee: *js.Variable{Name: "foo"}`,
+			Callee: *js.Variable{Token: "foo"}`,
 		},
 	}
 	for i, test := range tests {
@@ -288,20 +288,20 @@ func TestStmt(t *testing.T) {
 			input: "log()",
 			expected: `*js.ExprStmt
 	Expr: *js.CallExpr
-		Callee: *js.Variable{Name: "log"}`,
+		Callee: *js.Variable{Token: "log"}`,
 		},
 		{
 			input: "log(1)",
 			expected: `*js.ExprStmt
 	Expr: *js.CallExpr
-		Callee: *js.Variable{Name: "log"}
+		Callee: *js.Variable{Token: "log"}
 		Args[0]: *js.Literal{Value: "1"}`,
 		},
 		{
 			input: "log(1, 2)",
 			expected: `*js.ExprStmt
 	Expr: *js.CallExpr
-		Callee: *js.Variable{Name: "log"}
+		Callee: *js.Variable{Token: "log"}
 		Args[0]: *js.Literal{Value: "1"}
 		Args[1]: *js.Literal{Value: "2"}`,
 		},
