@@ -113,7 +113,7 @@ func NodeString(node ast.Node) string {
 			fmt.Fprintf(s, "\n%sOp: %q", indent, v.Op.Literal)
 			fmt.Fprintf(s, "\n%sRight: %s", indent, print(v.Right))
 		case *js.Variable:
-			fmt.Fprintf(s, "{Name: %q}", v.Name.Literal)
+			fmt.Fprintf(s, "{Token: %q}", v.Token.Literal)
 		case *js.Literal:
 			fmt.Fprintf(s, "{Value: %q}", v.Value.Literal)
 		}

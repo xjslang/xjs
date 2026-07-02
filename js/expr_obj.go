@@ -81,7 +81,7 @@ func parseKeyExpr(p *parser.Parser) (node ast.Expr, err error) {
 	default:
 		if r, s := utf8.DecodeRuneInString(p.CurrentToken.Literal); s > 0 && scanner.IsLetter(r) {
 			p.CurrentToken.Type = token.IDENT
-			node = &Variable{Name: p.CurrentToken}
+			node = &Variable{Token: p.CurrentToken}
 			p.AdvanceToken()
 		} else {
 			err = p.Error("key expected")

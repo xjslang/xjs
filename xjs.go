@@ -206,7 +206,7 @@ func PrinterBuilder() *printer.Builder {
 		case *js.Ident:
 			js.PrintIdent(p, v)
 		case *js.Variable:
-			p.Print(v.Name)
+			p.Print(v.Token)
 		case *js.Literal:
 			p.Print(v.Value)
 		case *js.ExprStmt:
