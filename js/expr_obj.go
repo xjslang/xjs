@@ -20,7 +20,7 @@ type ComputedExpr struct {
 }
 
 type ObjEntry struct {
-	Key   ast.Expr
+	Key   ast.Node
 	Value ast.Expr
 }
 
@@ -40,8 +40,19 @@ func ParseObjExpr(p *parser.Parser) (node *ObjExpr, err error) {
 	}
 	for p.CurrentToken.Type != token.RBRACE {
 		entry := ObjEntry{}
-		if entry.Key, err = parseKeyExpr(p); err != nil {
-			return
+		switch p.CurrentToken.Type {
+		case token.LBRACKET:
+			if entry.Key, err = ParseComputedExpr(p); err != nil {
+				return
+			}
+		case STRING, NUMBER:
+			if entry.Key, err = ParseValue(p); err != nil {
+				return
+			}
+		default:
+			if entry.Key, err = ParseObjKey(p); err != nil {
+				return
+			}
 		}
 		if _, err = p.Expect(token.COLON); err != nil {
 			return
@@ -61,32 +72,26 @@ func ParseObjExpr(p *parser.Parser) (node *ObjExpr, err error) {
 	return node, nil
 }
 
-func parseKeyExpr(p *parser.Parser) (node ast.Expr, err error) {
-	switch p.CurrentToken.Type {
-	case token.LBRACKET:
-		n := &ComputedExpr{}
-		n.Layout.Lbracket = p.CurrentToken
-		p.AdvanceToken()
-		if n.Expr, err = p.ParseExpr(); err != nil {
-			return
-		}
-		if n.Layout.Rbracket, err = p.Expect(token.RBRACKET); err != nil {
-			return
-		}
-		node = n
-	case STRING, NUMBER:
-		if node, err = ParseValue(p); err != nil {
-			return
-		}
-	default:
-		if r, s := utf8.DecodeRuneInString(p.CurrentToken.Literal); s > 0 && scanner.IsLetter(r) {
-			p.CurrentToken.Type = token.IDENT
-			node = &Variable{Token: p.CurrentToken}
-			p.AdvanceToken()
-		} else {
-			err = p.Error("key expected")
-			return
-		}
+func ParseObjKey(p *parser.Parser) (node *Ident, err error) {
+	tok := p.CurrentToken
+	if r, s := utf8.DecodeRuneInString(tok.Literal); s == 0 || !scanner.IsLetter(r) {
+		err = p.Error("key expected")
+		return
+	}
+	node = &Ident{Token: tok}
+	p.AdvanceToken()
+	return
+}
+
+func ParseComputedExpr(p *parser.Parser) (node *ComputedExpr, err error) {
+	node = &ComputedExpr{}
+	node.Layout.Lbracket = p.CurrentToken
+	p.AdvanceToken()
+	if node.Expr, err = p.ParseExpr(); err != nil {
+		return
+	}
+	if node.Layout.Rbracket, err = p.Expect(token.RBRACKET); err != nil {
+		return
 	}
 	return
 }
