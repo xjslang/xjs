@@ -123,11 +123,17 @@ func (p *Printer) EnsureBeside() {
 }
 
 // EnsureLine ensures that a newline is printed before printing the next text.
+//
+// It does not print a newline inmediately, but "ensures" that a newline is printed
+// between the current print and the next print.
 func (p *Printer) EnsureLine() {
 	p.ensureLine = true
 }
 
 // EnsureSpace ensures that a space is printed before printing the next text.
+//
+// It does not print a space inmediately, but "ensures" that a space is printed
+// between the current print and the next print "on the same line".
 func (p *Printer) EnsureSpace() {
 	p.ensureSpace = true
 }
