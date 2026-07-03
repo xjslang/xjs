@@ -330,6 +330,34 @@ func TestSpPrint(t *testing.T) {
 	require.Equal(t, "aaa bbb", out)
 }
 
+func TestPrintPriority(t *testing.T) {
+	t.Run("EnsureBeside takes priority over EnsureSpace and EnsureLine", func(t *testing.T) {
+		pr := printer.NewBuilder().Build()
+		pr.Print("a").
+			EnsureBeside().SpPrint("b").
+			EnsureBeside().LnPrint("c")
+		out, err := pr.Output()
+		require.NoError(t, err)
+		require.Equal(t, "abc", out)
+	})
+	t.Run("EnsureSpace takes priority over EnsureLine", func(t *testing.T) {
+		pr := printer.NewBuilder().Build()
+		pr.Print("a").
+			EnsureSpace().LnPrint("b")
+		out, err := pr.Output()
+		require.NoError(t, err)
+		require.Equal(t, "a b", out)
+	})
+	t.Run("EnsureLine has the lowest priority", func(t *testing.T) {
+		pr := printer.NewBuilder().Build()
+		pr.Print("a").
+			EnsureLine().Print("b")
+		out, err := pr.Output()
+		require.NoError(t, err)
+		require.Equal(t, "a\nb", out)
+	})
+}
+
 func TestWithComments(t *testing.T) {
 	input := "// c\nlet x = 100\n/* c */let y = 200"
 	tests := []struct {
