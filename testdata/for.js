@@ -3,6 +3,31 @@ for (let i = 0; i < 10; i++) {
   console.log(i);
 }
 
+let i = 0;
+for (i = 0; i < 10; i++) {
+  console.log(i);
+}
+
+// omit init clause
+let i = 0;
+for (; i < 10; i++) {
+  console.log(i);
+}
+
+// omit cond clause
+for (let i = 0;; i++) {
+  if (i >= 10) {
+    break;
+  }
+  console.log(i);
+}
+
+// omit after clause
+for (let i = 0; i < 10;) {
+  console.log(i);
+  i++;
+}
+
 // indented version
 for (
   let i = 0;

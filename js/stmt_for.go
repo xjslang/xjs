@@ -19,7 +19,7 @@ type ForStmt struct {
 		Rparen token.Token
 	}
 	Init  ast.Stmt
-	Cond  ast.Stmt
+	Cond  ast.Expr
 	After ast.Stmt
 	Then  ast.Stmt
 }
@@ -41,19 +41,19 @@ func ParseForStmt(p *parser.Parser) (node *ForStmt, err error) {
 	if node.Layout.Lparen, err = p.Expect(token.LPAREN); err != nil {
 		return
 	}
-	if node.Init, err = parseForClause(p); err != nil {
+	if node.Init, err = parseInitClause(p); err != nil {
 		return
 	}
 	if node.Layout.Semi1, err = p.Expect(token.SEMICOLON); err != nil {
 		return
 	}
-	if node.Cond, err = parseForClause(p); err != nil {
+	if node.Cond, err = parseCondClause(p); err != nil {
 		return
 	}
 	if node.Layout.Semi2, err = p.Expect(token.SEMICOLON); err != nil {
 		return
 	}
-	if node.After, err = parseForClause(p); err != nil {
+	if node.After, err = parseAfterClause(p); err != nil {
 		return
 	}
 	if node.Layout.Rparen, err = p.Expect(token.RPAREN); err != nil {
@@ -66,40 +66,98 @@ func ParseForStmt(p *parser.Parser) (node *ForStmt, err error) {
 	return node, nil
 }
 
+func parseInitClause(p *parser.Parser) (node ast.Stmt, err error) {
+	if p.CurrentToken.Type == token.SEMICOLON {
+		// omit init clause
+		return
+	}
+	switch p.CurrentToken.Type {
+	case LET:
+		n := &LetStmt{}
+		n.Layout.Let = p.CurrentToken
+		p.AdvanceToken()
+		if n.Name, err = ParseIdent(p); err != nil {
+			return
+		}
+		if n.Layout.Assign, err = p.Expect(token.ASSIGN); err != nil {
+			return
+		}
+		if n.Value, err = p.ParseExpr(); err != nil {
+			return
+		}
+		node = n
+	case token.IDENT:
+		n := &AssignStmt{}
+		if n.Name, err = ParseIdent(p); err != nil {
+			return
+		}
+		if n.Layout.Assign, err = p.Expect(token.ASSIGN); err != nil {
+			return
+		}
+		if n.Value, err = p.ParseExpr(); err != nil {
+			return
+		}
+		node = n
+	default:
+		err = p.Error("init expected")
+		return
+	}
+	return
+}
+
+func parseCondClause(p *parser.Parser) (node ast.Expr, err error) {
+	if p.CurrentToken.Type == token.SEMICOLON {
+		// omit cond clause
+		return
+	}
+	return p.ParseExpr()
+}
+
+func parseAfterClause(p *parser.Parser) (node ast.Stmt, err error) {
+	if p.CurrentToken.Type == token.RPAREN {
+		// omit after clause
+		return
+	}
+	var ident *Ident
+	if ident, err = ParseIdent(p); err != nil {
+		return
+	}
+	switch p.CurrentToken.Type {
+	case token.INCREMENT:
+		n := &IncStmt{Name: ident}
+		n.Layout.Increment = p.CurrentToken
+		p.AdvanceToken()
+		node = n
+	case token.DECREMENT:
+		n := &DecStmt{Name: ident}
+		n.Layout.Decrement = p.CurrentToken
+		p.AdvanceToken()
+		node = n
+	default:
+		err = p.Error("++/-- expected")
+	}
+	return
+}
+
 func PrintForStmt(p *printer.Printer, node *ForStmt) {
 	// for
 	p.LnPrint(node.Layout.For)
 	p.SpPrint(node.Layout.Lparen)
 	// (init; condition; after)
 	p.IncreaseIndent()
-	p.BsPrint(node.Init)
+	if node.Init != nil {
+		p.BsPrint(node.Init)
+	}
 	p.Print(node.Layout.Semi1)
-	p.SpPrint(node.Cond)
+	if node.Cond != nil {
+		p.SpPrint(node.Cond)
+	}
 	p.Print(node.Layout.Semi2)
-	p.SpPrint(node.After)
+	if node.After != nil {
+		p.SpPrint(node.After)
+	}
 	p.DecreaseIndent()
 	// then
 	p.Print(node.Layout.Rparen)
 	p.SpPrint(node.Then)
-}
-
-func parseForClause(p *parser.Parser) (node ast.Stmt, err error) {
-	switch p.CurrentToken.Type {
-	case LET:
-		return ParseLetStmt(p)
-	case token.IDENT:
-		switch p.PeekToken.Type {
-		case token.ASSIGN:
-			return ParseAssignStmt(p)
-		case token.INCREMENT:
-			if !p.PeekToken.AfterNewline {
-				return ParseIncStmt(p)
-			}
-		case token.DECREMENT:
-			if !p.PeekToken.AfterNewline {
-				return ParseDecStmt(p)
-			}
-		}
-	}
-	return ParseExprStmt(p)
 }
