@@ -11,9 +11,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/internal/testutil"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
+	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
 	"github.com/xorcare/golden"
 )
@@ -39,15 +41,57 @@ func Example_basic() {
 	// }
 }
 
+func TestExpectSemi(t *testing.T) {
+	tests := []struct {
+		name         string
+		input        string
+		expectedToks []token.Token // current and next token
+	}{
+		{"consume semi", ";aaa", []token.Token{
+			{Type: token.SEMICOLON, Literal: ";"},
+			{Type: token.IDENT, Literal: "aaa"},
+		}},
+		{"consume semi after newline", "\n;aaa", []token.Token{
+			{Type: token.SEMICOLON, Literal: ";", AfterNewline: true},
+			{Type: token.IDENT, Literal: "aaa"},
+		}},
+		{"do not consume }", "}aaa", []token.Token{
+			{Type: token.RBRACE, Literal: "}"},
+			{Type: token.RBRACE, Literal: "}"},
+		}},
+		{"do not consume )", ")aaa", []token.Token{
+			{Type: token.RPAREN, Literal: ")"},
+			{Type: token.RPAREN, Literal: ")"},
+		}},
+		{"return synthetic token on newline", "\naaa", []token.Token{
+			{Type: token.SEMICOLON, Literal: ";"},
+			{Type: token.IDENT, Literal: "aaa", AfterNewline: true},
+		}},
+		{"return synthetic token on end of line", "", []token.Token{
+			{Type: token.SEMICOLON, Literal: ";"},
+			{Type: token.EOF, Literal: ""},
+		}},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			s := scanner.NewBuilder().Build([]byte(test.input))
+			p := parser.NewBuilder().Build(s)
+			tok, err := js.ExpectSemi(p)
+			require.NoError(t, err)
+			testutil.AssertTokens(t, []token.Token{tok, p.CurrentToken}, test.expectedToks, testutil.CompareAfterNewline())
+		})
+	}
+}
+
 func TestParserErrors(t *testing.T) {
 	input := `// program stmt
-aaa bbb // ; or newline expected
+aaa bbb // ; expected
 
 // assign stmt
 x =; // expression expected
 
 // block stmt
-{ aaa bbb } // ; or newline expected
+{ aaa bbb } // ; expected
 
 // for stmt
 for; // ( expected
@@ -83,7 +127,7 @@ let x =; // expression expected
 
 // call expr
 print(; // expression expected
-print(1, // expression expected
+print(1,; // expression expected
 print(1; // ) expected
 
 // function expr
@@ -108,8 +152,8 @@ a[100; // ] expected
 
 // numbers
 .123; // expression expected (numbers cannot start with '.')
-1x123; // ; or newline expected (invalid hex)
-2O123; // ; or newline expected (invalid octal)
+1x123; // ; expected (invalid hex)
+2O123; // ; expected (invalid octal)
 0X; // expression expected (incomplete hex)
 0o; // expression expected (incomplete octal)
 

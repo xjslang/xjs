@@ -21,10 +21,6 @@ type FunctionDecl struct {
 	Body   *BlockStmt
 }
 
-func (node *FunctionDecl) SelfClosing() bool {
-	return true
-}
-
 func ParseFunctionDecl(p *parser.Parser) (node *FunctionDecl, err error) {
 	node = &FunctionDecl{}
 	if node.Layout.Function, err = p.Expect(FUNCTION); err != nil {

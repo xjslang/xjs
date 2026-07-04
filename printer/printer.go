@@ -37,6 +37,7 @@ type config struct {
 
 type Option func(*config)
 
+// TODO: the compact option should ignore spaces introduced by the `Space()` function
 func Compact() Option {
 	return func(cfg *config) {
 		cfg.withComments = false

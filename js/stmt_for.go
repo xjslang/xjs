@@ -24,13 +24,7 @@ type ForStmt struct {
 	Then  ast.Stmt
 }
 
-func (node *ForStmt) SelfClosing() bool {
-	if v, ok := node.Then.(SelfClosingStmt); ok {
-		return v.SelfClosing()
-	}
-	return false
-}
-
+// TODO: for(;;); fails
 func ParseForStmt(p *parser.Parser) (node *ForStmt, err error) {
 	node = &ForStmt{}
 	// for

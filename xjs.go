@@ -133,8 +133,6 @@ func PluginBuilder() *plugin.Builder {
 						return js.ParseDecStmt(p)
 					}
 				}
-			case token.SEMICOLON:
-				return js.ParseSemiStmt(p)
 			}
 			return js.ParseStmt(p)
 		})
@@ -213,8 +211,6 @@ func PrinterBuilder() *printer.Builder {
 			js.PrintExprStmt(p, v)
 		case *js.ReturnStmt:
 			js.PrintReturnStmt(p, v)
-		case *js.SemiStmt:
-			js.PrintSemiStmt(p, v)
 		case *js.BreakStmt:
 			js.PrintBreakStmt(p, v)
 		case *js.ContinueStmt:

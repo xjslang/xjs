@@ -16,46 +16,29 @@ type BlockStmt struct {
 	Stmts []ast.Stmt
 }
 
-func (node *BlockStmt) SelfClosing() bool {
-	return true
-}
-
 func ParseBlockStmt(p *parser.Parser) (node *BlockStmt, err error) {
 	node = &BlockStmt{}
 	if node.Layout.Lbrace, err = p.Expect(token.LBRACE); err != nil {
 		return
 	}
 	var errList parser.ErrorList
-	var stmt ast.Stmt
-	for i := 0; p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE; i++ {
-		selfClosing := false
-		if v, ok := stmt.(SelfClosingStmt); ok {
-			selfClosing = v.SelfClosing()
-		}
-		if i > 0 && !selfClosing {
-			if stmt, err = ParseSemiStmt(p); err != nil {
+	for p.CurrentToken.Type != token.RBRACE && p.CurrentToken.Type != token.EOF {
+		prevToken := p.CurrentToken
+		var stmt ast.Stmt
+		if stmt, err = p.ParseStmt(); err != nil {
+			if eList, ok := err.(parser.ErrorList); ok {
+				errList = append(errList, eList...)
+			} else {
 				errList = append(errList, err)
-				continue
 			}
-			node.Stmts = append(node.Stmts, stmt)
-		}
-		if p.CurrentToken.Type != token.EOF && p.CurrentToken.Type != token.RBRACE {
-			prevToken := p.CurrentToken
-			if stmt, err = p.ParseStmt(); err != nil {
-				if prevToken.Position == p.CurrentToken.Position {
-					// advance position to avoid infinite loop
-					p.AdvanceToken()
-				}
-				if eList, ok := err.(parser.ErrorList); ok {
-					errList = append(errList, eList...)
-				} else {
-					errList = append(errList, err)
-				}
-				AdvanceToStmtEnd(p)
-				continue
+			if prevToken.Position == p.CurrentToken.Position {
+				// advance position to avoid infinite loop
+				p.AdvanceToken()
 			}
-			node.Stmts = append(node.Stmts, stmt)
+			advanceToStmtEnd(p)
+			continue
 		}
+		node.Stmts = append(node.Stmts, stmt)
 	}
 	if node.Layout.Rbrace, err = p.Expect(token.RBRACE); err != nil {
 		errList = append(errList, err)
@@ -63,7 +46,7 @@ func ParseBlockStmt(p *parser.Parser) (node *BlockStmt, err error) {
 	if errList != nil {
 		return node, errList
 	}
-	return node, nil
+	return
 }
 
 func PrintBlockStmt(p *printer.Printer, node *BlockStmt) {
@@ -74,15 +57,22 @@ func PrintBlockStmt(p *printer.Printer, node *BlockStmt) {
 		for _, stmt = range node.Stmts {
 			p.Print(stmt)
 		}
-		selfClosing := false
-		if v, ok := stmt.(SelfClosingStmt); ok {
-			selfClosing = v.SelfClosing()
-		}
-		if !selfClosing {
-			p.Print(';')
-		}
 		p.DecreaseIndent()
 		p.Line()
 	}
 	p.Print(node.Layout.Rbrace)
+}
+
+func advanceToStmtEnd(p *parser.Parser) {
+	for {
+		typ := p.CurrentToken.Type
+		if typ == token.SEMICOLON {
+			p.AdvanceToken()
+			break
+		}
+		if typ == token.EOF || typ == token.RBRACE || typ == token.LBRACE || p.CurrentToken.AfterNewline {
+			break
+		}
+		p.AdvanceToken()
+	}
 }

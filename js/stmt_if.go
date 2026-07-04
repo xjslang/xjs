@@ -25,19 +25,6 @@ type IfStmt struct {
 	Else ast.Stmt
 }
 
-func (node *IfStmt) SelfClosing() bool {
-	if node.Else != nil {
-		if v, ok := node.Else.(SelfClosingStmt); ok {
-			return v.SelfClosing()
-		}
-		return false
-	}
-	if v, ok := node.Then.(SelfClosingStmt); ok {
-		return v.SelfClosing()
-	}
-	return false
-}
-
 func ParseIfStmt(p *parser.Parser) (node *IfStmt, err error) {
 	node = &IfStmt{}
 	// if
