@@ -146,7 +146,7 @@ func PrintForStmt(p *printer.Printer, node *ForStmt) {
 	// (init; condition; after)
 	p.IncreaseIndent()
 	if node.Init != nil {
-		p.BsPrint(node.Init)
+		printInitClause(p, node.Init)
 	}
 	p.Print(node.Layout.Semi1)
 	if node.Cond != nil {
@@ -154,10 +154,39 @@ func PrintForStmt(p *printer.Printer, node *ForStmt) {
 	}
 	p.Print(node.Layout.Semi2)
 	if node.After != nil {
-		p.SpPrint(node.After)
+		printAfterClause(p, node.After)
 	}
 	p.DecreaseIndent()
 	// then
 	p.Print(node.Layout.Rparen)
 	p.SpPrint(node.Then)
+}
+
+func printInitClause(p *printer.Printer, node ast.Stmt) {
+	switch v := node.(type) {
+	case *LetStmt:
+		p.Print(v.Layout.Let)
+		p.SpPrint(v.Name)
+		p.SpPrint(v.Layout.Assign)
+		p.SpPrint(v.Value)
+	case *AssignStmt:
+		p.Print(v.Name)
+		p.SpPrint(v.Layout.Assign)
+		p.SpPrint(v.Value)
+	default:
+		panic("unexpected init clause type")
+	}
+}
+
+func printAfterClause(p *printer.Printer, node ast.Stmt) {
+	switch v := node.(type) {
+	case *IncStmt:
+		p.SpPrint(v.Name)
+		p.Print(v.Layout.Increment)
+	case *DecStmt:
+		p.SpPrint(v.Name)
+		p.Print(v.Layout.Decrement)
+	default:
+		panic("unexpected after clause type")
+	}
 }
