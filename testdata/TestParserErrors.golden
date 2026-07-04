@@ -2,7 +2,7 @@
 [line:4, col:3] expression expected
 [line:7, col:6] ; or newline expected
 [line:10, col:3] ( expected
-[line:11, col:5] expression expected
+[line:11, col:5] init expected
 [line:12, col:27] ) expected
 [line:15, col:8] identifier expected
 [line:16, col:12] ( expected

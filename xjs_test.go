@@ -51,7 +51,7 @@ x =; // expression expected
 
 // for stmt
 for; // ( expected
-for (; // expression expected
+for (?; // init expected
 for (let i = 0; i < 10; i++; // ) expected
 
 // function stmt
