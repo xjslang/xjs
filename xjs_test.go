@@ -20,6 +20,25 @@ import (
 	"github.com/xorcare/golden"
 )
 
+func TestStandaloneSemicolons(t *testing.T) {
+	input := `;;;;; // collapse semicolons
+	;; // collapse semicolons
+	aaa()
+	;
+	bbb();
+	ccc()`
+	result, err := xjs.Parse([]byte(input))
+	require.NoError(t, err)
+	out, err := xjs.Print(result, printer.WithComments(false))
+	require.NoError(t, err)
+	require.Equal(t, `;
+;
+aaa()
+;
+bbb();
+ccc();`, out)
+}
+
 func Example_basic() {
 	input := `function hello() {
 	let x = 100

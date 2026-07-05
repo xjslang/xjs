@@ -28,6 +28,9 @@ for (let i = 0; i < 10;) {
   i++;
 }
 
+// omit all
+for (;;);
+
 // indented version
 for (
   let i = 0;
