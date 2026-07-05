@@ -133,6 +133,8 @@ func PluginBuilder() *plugin.Builder {
 						return js.ParseDecStmt(p)
 					}
 				}
+			case token.SEMICOLON:
+				return js.ParseSemiStmt(p)
 			}
 			return js.ParseStmt(p)
 		})
@@ -223,6 +225,8 @@ func PrinterBuilder() *printer.Builder {
 			js.PrintDecStmt(p, v)
 		case *js.MemberExpr:
 			js.PrintMemberExpr(p, v)
+		case *js.SemiStmt:
+			js.PrintSemiStmt(p, v)
 		default:
 			return next(node)
 		}

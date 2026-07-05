@@ -153,7 +153,12 @@ func PrintForStmt(p *printer.Printer, node *ForStmt) {
 	p.DecreaseIndent()
 	// then
 	p.Print(node.Layout.Rparen)
-	p.Space().Print(node.Then)
+	switch v := node.Then.(type) {
+	case *SemiStmt:
+		p.Beside().Print(v)
+	default:
+		p.Space().Print(node.Then)
+	}
 }
 
 func printInitClause(p *printer.Printer, node ast.Stmt) {

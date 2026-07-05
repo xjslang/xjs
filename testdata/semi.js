@@ -6,3 +6,7 @@ foo() // leading trivia is printed
 /* c2 */
 ;
 foo();
+
+{
+  ;
+}
