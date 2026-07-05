@@ -45,7 +45,7 @@ func PrintArrayExpr(p *printer.Printer, node *ArrayExpr) {
 		for i, val := range node.Values {
 			if i > 0 {
 				p.Print(",")
-				p.EnsureSpace()
+				p.Space()
 			}
 			p.Print(val)
 		}

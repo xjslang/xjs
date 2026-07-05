@@ -31,8 +31,8 @@ func ParseContinueStmt(p *parser.Parser) (node *ContinueStmt, err error) {
 }
 
 func PrintContinueStmt(p *printer.Printer, node *ContinueStmt) {
-	p.LnPrint(node.Layout.Continue)
+	p.Line().Print(node.Layout.Continue)
 	if node.Label != nil {
-		p.SpPrint(node.Label)
+		p.Space().Print(node.Label)
 	}
 }

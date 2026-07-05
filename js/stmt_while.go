@@ -51,8 +51,8 @@ func ParseWhileStmt(p *parser.Parser) (node *WhileStmt, err error) {
 }
 
 func PrintWhileStmt(p *printer.Printer, node *WhileStmt) {
-	p.LnPrint(node.Layout.While)
-	p.SpPrint(node.Layout.Lparen)
+	p.Line().Print(node.Layout.While)
+	p.Space().Print(node.Layout.Lparen)
 	p.Print(node.Cond, node.Layout.Rparen)
-	p.SpPrint(node.Then)
+	p.Space().Print(node.Then)
 }

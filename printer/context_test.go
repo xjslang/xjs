@@ -83,8 +83,8 @@ func TestPrinterContext(t *testing.T) {
 				ctx := pr.PushContext()
 				defer pr.PopContext()
 				ctx["async"] = "yes"
-				pr.LnPrint(v.Layout.Async)
-				pr.SpPrint(v.FunctionDecl)
+				pr.Line().Print(v.Layout.Async)
+				pr.Space().Print(v.FunctionDecl)
 				return nil
 			case *AwaitStmt:
 				ctx := pr.Context()
@@ -92,8 +92,8 @@ func TestPrinterContext(t *testing.T) {
 				if !ok {
 					return printer.ErrorAt(v.Layout.Await, "await is allowed only inside async functions")
 				}
-				pr.LnPrint(v.Layout.Await)
-				pr.SpPrint(v.Expr)
+				pr.Line().Print(v.Layout.Await)
+				pr.Space().Print(v.Expr)
 				return nil
 			}
 			return next(node)

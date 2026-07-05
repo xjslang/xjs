@@ -82,7 +82,7 @@ func PrintBlockStmt(p *printer.Printer, node *BlockStmt) {
 			p.Print(';')
 		}
 		p.DecreaseIndent()
-		p.EnsureLine()
+		p.Line()
 	}
 	p.Print(node.Layout.Rbrace)
 }

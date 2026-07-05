@@ -106,15 +106,15 @@ func PrintObjExpr(p *printer.Printer, node *ObjExpr) {
 			}
 			switch v := entry.Key.(type) {
 			case *ComputedExpr:
-				p.SpPrint(v.Layout.Lbracket).Print(v.Expr, v.Layout.Rbracket)
+				p.Space().Print(v.Layout.Lbracket).Print(v.Expr, v.Layout.Rbracket)
 			default:
-				p.SpPrint(v)
+				p.Space().Print(v)
 			}
 			p.Print(":")
-			p.SpPrint(entry.Value)
+			p.Space().Print(entry.Value)
 		}
 		p.DecreaseIndent()
-		p.EnsureSpace()
+		p.Space()
 	}
 	p.Print(node.Layout.Rbrace)
 }

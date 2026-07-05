@@ -75,13 +75,13 @@ func ParseIfStmt(p *parser.Parser) (node *IfStmt, err error) {
 
 func PrintIfStmt(p *printer.Printer, node *IfStmt) {
 	// if (condition) stmt
-	p.LnPrint(node.Layout.If)
-	p.SpPrint(node.Layout.Lparen)
+	p.Line().Print(node.Layout.If)
+	p.Space().Print(node.Layout.Lparen)
 	p.Print(node.Cond, node.Layout.Rparen)
-	p.SpPrint(node.Then)
+	p.Space().Print(node.Then)
 	// else
 	if node.Else != nil {
-		p.SpPrint(node.Layout.Else)
-		p.SpPrint(node.Else)
+		p.Space().Print(node.Layout.Else)
+		p.Space().Print(node.Else)
 	}
 }

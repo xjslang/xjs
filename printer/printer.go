@@ -117,26 +117,26 @@ func (p *Printer) PrintIndent() {
 	}
 }
 
-// EnsureBeside ensures that the next text to print appears "beside" the previous text.
-func (p *Printer) EnsureBeside() *Printer {
+// Beside ensures that the next text to print appears "beside" the previous text.
+func (p *Printer) Beside() *Printer {
 	p.ensureBeside = true
 	return p
 }
 
-// EnsureLine ensures that a newline is printed before printing the next text.
+// Line ensures that a newline is printed before printing the next text.
 //
 // It does not print a newline immediately, but "ensures" that a newline is printed
 // between the current print and the next print.
-func (p *Printer) EnsureLine() *Printer {
+func (p *Printer) Line() *Printer {
 	p.ensureLine = true
 	return p
 }
 
-// EnsureSpace ensures that a space is printed before printing the next text.
+// Space ensures that a space is printed before printing the next text.
 //
 // It does not print a space immediately, but "ensures" that a space is printed
 // between the current print and the next print "on the same line".
-func (p *Printer) EnsureSpace() *Printer {
+func (p *Printer) Space() *Printer {
 	p.ensureSpace = true
 	return p
 }
@@ -159,26 +159,6 @@ func (p *Printer) Print(args ...any) *Printer {
 		}
 	}
 	return p
-}
-
-// BsPrint ensures that the next text to print appears "beside" the previous text.
-// This is a combination of EnsureBeside() + Print(a).
-// It takes priority over LnPrint() and SpPrint().
-func (p *Printer) BsPrint(arg any) *Printer {
-	return p.EnsureBeside().Print(arg)
-}
-
-// LnPrint ensures that a newline is printed before printing the next text.
-// This is a combination of EnsureLine() + Print(a).
-func (p *Printer) LnPrint(arg any) *Printer {
-	return p.EnsureLine().Print(arg)
-}
-
-// SpPrint ensures that a space is printed before printing the next text.
-// This is a combination of EnsureSpace() + Print(a).
-// It takes priority over LnPrint().
-func (p *Printer) SpPrint(arg any) *Printer {
-	return p.EnsureSpace().Print(arg)
 }
 
 func (p *Printer) PrintTrivia(trivia []token.Token) {

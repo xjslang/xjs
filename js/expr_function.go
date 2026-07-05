@@ -53,7 +53,7 @@ func ParseFunctionExpr(p *parser.Parser) (node *FunctionExpr, err error) {
 
 func PrintFunctionExpr(p *printer.Printer, node *FunctionExpr) {
 	p.Print(node.Layout.Function)
-	p.EnsureSpace()
+	p.Space()
 	if node.Name != nil {
 		p.Print(node.Name)
 	}
@@ -62,11 +62,11 @@ func PrintFunctionExpr(p *printer.Printer, node *FunctionExpr) {
 	for i, param := range node.Params {
 		if i > 0 {
 			p.Print(",")
-			p.EnsureSpace()
+			p.Space()
 		}
 		p.Print(param)
 	}
 	p.DecreaseIndent()
 	p.Print(node.Layout.Rparen)
-	p.SpPrint(node.Body)
+	p.Space().Print(node.Body)
 }

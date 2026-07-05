@@ -20,5 +20,5 @@ func ParseExprStmt(p *parser.Parser) (node *ExprStmt, err error) {
 }
 
 func PrintExprStmt(p *printer.Printer, node *ExprStmt) {
-	p.LnPrint(node.Expr)
+	p.Line().Print(node.Expr)
 }

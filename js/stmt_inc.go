@@ -27,6 +27,6 @@ func ParseIncStmt(p *parser.Parser) (node *IncStmt, err error) {
 }
 
 func PrintIncStmt(p *printer.Printer, node *IncStmt) {
-	p.LnPrint(node.Name)
+	p.Line().Print(node.Name)
 	p.Print(node.Layout.Increment)
 }

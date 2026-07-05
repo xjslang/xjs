@@ -57,18 +57,18 @@ func ParseFunctionDecl(p *parser.Parser) (node *FunctionDecl, err error) {
 }
 
 func PrintFunctionDecl(p *printer.Printer, node *FunctionDecl) {
-	p.LnPrint(node.Layout.Function)
-	p.SpPrint(node.Name)
+	p.Line().Print(node.Layout.Function)
+	p.Space().Print(node.Name)
 	p.Print(node.Layout.Lparen)
 	p.IncreaseIndent()
 	for i, param := range node.Params {
 		if i > 0 {
 			p.Print(",")
-			p.EnsureSpace()
+			p.Space()
 		}
 		p.Print(param)
 	}
 	p.DecreaseIndent()
 	p.Print(node.Layout.Rparen)
-	p.SpPrint(node.Body)
+	p.Space().Print(node.Body)
 }

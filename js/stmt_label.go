@@ -39,5 +39,5 @@ func ParseLabelStmt(p *parser.Parser) (node *LabelStmt, err error) {
 
 func PrintLabelStmt(p *printer.Printer, node *LabelStmt) {
 	p.Print(node.Name, node.Layout.Colon)
-	p.SpPrint(node.Stmt)
+	p.Space().Print(node.Stmt)
 }

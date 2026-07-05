@@ -10,13 +10,13 @@ func Formatter(pr *printer.Printer, node ast.Node, next func(node ast.Node) erro
 	case *ConcatExpr:
 		pr.Print(v.Left, " | ", v.Right)
 	case *Tag:
-		pr.SpPrint("<").Print(v.Name, ">")
+		pr.Space().Print("<").Print(v.Name, ">")
 		pr.IncreaseIndent()
 		if v.Children != nil {
-			pr.LnPrint(v.Children)
+			pr.Line().Print(v.Children)
 		}
 		pr.DecreaseIndent()
-		pr.LnPrint("</").Print(v.Name, ">")
+		pr.Line().Print("</").Print(v.Name, ">")
 	default:
 		return next(node)
 	}
