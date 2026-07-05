@@ -44,7 +44,7 @@ func PrintCallExpr(p *printer.Printer, node *CallExpr) {
 	for i, arg := range node.Args {
 		if i > 0 {
 			p.Print(",")
-			p.EnsureSpace()
+			p.Space()
 		}
 		p.Print(arg)
 	}

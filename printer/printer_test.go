@@ -42,11 +42,11 @@ func TestInit(t *testing.T) {
 		pr := printer.NewBuilder().Build(printer.WithIndent("\t"))
 		pr.Print("begin:")
 		pr.IncreaseIndent()
-		pr.LnPrint("aaa")
-		pr.LnPrint("bbb")
-		pr.LnPrint("ccc")
+		pr.Line().Print("aaa")
+		pr.Line().Print("bbb")
+		pr.Line().Print("ccc")
 		pr.DecreaseIndent()
-		pr.LnPrint("end")
+		pr.Line().Print("end")
 		out, err := pr.Output()
 		require.NoError(t, err)
 		require.Equal(t, "begin:\n\taaa\n\tbbb\n\tccc\nend", out)
@@ -173,26 +173,26 @@ func TestLastComment(t *testing.T) {
 	}
 }
 
-func TestEnsureLine(t *testing.T) {
+func TestLine(t *testing.T) {
 	pr := printer.NewBuilder().Build()
-	// calling EnsureLine at the beginning of a document does not print a new line
-	pr.EnsureLine()
+	// calling Line at the beginning of a document does not print a new line
+	pr.Line()
 	pr.Print("aaa")
-	// calling EnsureLine multiple times only prints a new line (it is idempotent)
+	// calling Line multiple times only prints a new line (it is idempotent)
 	for range 2 {
-		pr.EnsureLine()
+		pr.Line()
 	}
 	pr.Print("bbb")
-	// calling EnsureLine on a `\n` line does not print a new line
+	// calling Line on a `\n` line does not print a new line
 	pr.Print("ccc\n")
-	pr.EnsureLine()
+	pr.Line()
 	pr.Print("ddd")
-	// calling EnsureLine on a `\r` line does not print a new line
+	// calling Line on a `\r` line does not print a new line
 	pr.Print("eee\r")
-	pr.EnsureLine()
+	pr.Line()
 	pr.Print("fff")
 	// printing empty string does not reset `ensureLine`
-	pr.EnsureLine()
+	pr.Line()
 	pr.Print("")
 	pr.Print("")
 	pr.Print("ggg")
@@ -206,7 +206,7 @@ func TestEnsureLine(t *testing.T) {
 	t.Run("printing empty string does not consume ensureLine", func(t *testing.T) {
 		pr := printer.NewBuilder().Build()
 		pr.Print("aaa")
-		pr.EnsureLine()
+		pr.Line()
 		pr.Print("")
 		out, err := pr.Output()
 		require.NoError(t, err)
@@ -216,7 +216,7 @@ func TestEnsureLine(t *testing.T) {
 	t.Run("printing empty string does not consume ensureSpace", func(t *testing.T) {
 		pr := printer.NewBuilder().Build()
 		pr.Print("aaa")
-		pr.EnsureSpace()
+		pr.Space()
 		pr.Print("")
 		out, err := pr.Output()
 		require.NoError(t, err)
@@ -224,26 +224,26 @@ func TestEnsureLine(t *testing.T) {
 	})
 }
 
-func TestEnsureSpace(t *testing.T) {
+func TestSpace(t *testing.T) {
 	pr := printer.NewBuilder().Build()
-	// calling EnsureSpace at the beginning of a document does not print a new space
-	pr.EnsureSpace()
+	// calling Space at the beginning of a document does not print a new space
+	pr.Space()
 	pr.Print("aaa")
-	// calling EnsureSpace multiple times only prints a new space (it is idempotent)
+	// calling Space multiple times only prints a new space (it is idempotent)
 	for range 2 {
-		pr.EnsureSpace()
+		pr.Space()
 	}
 	pr.Print("bbb")
-	// calling EnsureSpace on a `\n` line does not print a new space
+	// calling Space on a `\n` line does not print a new space
 	pr.Print("ccc\n")
-	pr.EnsureSpace()
+	pr.Space()
 	pr.Print("ddd")
-	// calling EnsureSpace on a `\r` line does not print a new space
+	// calling Space on a `\r` line does not print a new space
 	pr.Print("eee\r")
-	pr.EnsureSpace()
+	pr.Space()
 	pr.Print("fff")
 	// printing empty string does not reset `ensureSpace`
-	pr.EnsureSpace()
+	pr.Space()
 	pr.Print("")
 	pr.Print("")
 	pr.Print("ggg")
@@ -260,24 +260,24 @@ type MyCustomStmt struct {
 	name string
 }
 
-func TestEnsureBeside(t *testing.T) {
+func TestBeside(t *testing.T) {
 	pr := printer.NewBuilder().
 		UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
 			if v, ok := node.(*MyCustomStmt); ok {
-				p.LnPrint(v.name)
+				p.Line().Print(v.name)
 				return nil
 			}
 			return next(node)
 		}).
 		Build()
 	pr.Print("aaa")
-	// EnsureBeside takes priority over EnsureSpace and EnsureLine
-	pr.EnsureBeside()
-	pr.SpPrint("bbb")
-	pr.EnsureBeside()
-	pr.LnPrint("bbb")
-	// EnsureBeside takes priority over custom printers
-	pr.BsPrint(&MyCustomStmt{name: "custom_stmt"})
+	// Beside takes priority over Space and Line
+	pr.Beside()
+	pr.Space().Print("bbb")
+	pr.Beside()
+	pr.Line().Print("bbb")
+	// Beside takes priority over custom printers
+	pr.Beside().Print(&MyCustomStmt{name: "custom_stmt"})
 	out, err := pr.Output()
 	require.NoError(t, err)
 	require.Equal(t, "aaabbbbbbcustom_stmt", out)
@@ -287,8 +287,8 @@ func TestPrint(t *testing.T) {
 	t.Run("append newlines and spaces before printing runes", func(t *testing.T) {
 		pr := printer.NewBuilder().Build()
 		pr.Print("aaa")
-		pr.LnPrint('b')
-		pr.SpPrint('c')
+		pr.Line().Print('b')
+		pr.Space().Print('c')
 		out, err := pr.Output()
 		require.NoError(t, err)
 		require.Equal(t, "aaa\nb c", out)
@@ -299,12 +299,12 @@ func TestPrint(t *testing.T) {
 	})
 }
 
-func TestLnPrint(t *testing.T) {
+func TestLineAndPrint(t *testing.T) {
 	t.Run("new line is added before printing", func(t *testing.T) {
 		pr := printer.NewBuilder().Build()
-		pr.LnPrint("aaa")
-		pr.LnPrint("bbb")
-		pr.LnPrint("ccc")
+		pr.Line().Print("aaa")
+		pr.Line().Print("bbb")
+		pr.Line().Print("ccc")
 		out, err := pr.Output()
 		require.NoError(t, err)
 		require.Equal(t, "aaa\nbbb\nccc", out)
@@ -315,43 +315,43 @@ func TestSpacesTakePriorityOverLines(t *testing.T) {
 	pr := xjs.PrinterBuilder().Build()
 	pr.Print("aaa")
 	// ensureSpace should take priority over ensureLine (by default statements are printed in a new line)
-	pr.SpPrint(&js.ExprStmt{Expr: &js.Literal{Value: token.Token{Literal: "125"}}})
+	pr.Space().Print(&js.ExprStmt{Expr: &js.Literal{Value: token.Token{Literal: "125"}}})
 	out, err := pr.Output()
 	require.NoError(t, err)
 	require.Equal(t, "aaa 125", out)
 }
 
-func TestSpPrint(t *testing.T) {
+func TestSpaceAndPrint(t *testing.T) {
 	pr := printer.NewBuilder().Build()
-	pr.SpPrint("aaa")
-	pr.SpPrint("bbb")
+	pr.Space().Print("aaa")
+	pr.Space().Print("bbb")
 	out, err := pr.Output()
 	require.NoError(t, err)
 	require.Equal(t, "aaa bbb", out)
 }
 
 func TestPrintPriority(t *testing.T) {
-	t.Run("EnsureBeside takes priority over EnsureSpace and EnsureLine", func(t *testing.T) {
+	t.Run("Beside takes priority over Space and Line", func(t *testing.T) {
 		pr := printer.NewBuilder().Build()
 		pr.Print("a").
-			EnsureBeside().SpPrint("b").
-			EnsureBeside().LnPrint("c")
+			Beside().Space().Print("b").
+			Beside().Line().Print("c")
 		out, err := pr.Output()
 		require.NoError(t, err)
 		require.Equal(t, "abc", out)
 	})
-	t.Run("EnsureSpace takes priority over EnsureLine", func(t *testing.T) {
+	t.Run("Space takes priority over Line", func(t *testing.T) {
 		pr := printer.NewBuilder().Build()
 		pr.Print("a").
-			EnsureSpace().LnPrint("b")
+			Space().Line().Print("b")
 		out, err := pr.Output()
 		require.NoError(t, err)
 		require.Equal(t, "a b", out)
 	})
-	t.Run("EnsureLine has the lowest priority", func(t *testing.T) {
+	t.Run("Line has the lowest priority", func(t *testing.T) {
 		pr := printer.NewBuilder().Build()
 		pr.Print("a").
-			EnsureLine().Print("b")
+			Line().Print("b")
 		out, err := pr.Output()
 		require.NoError(t, err)
 		require.Equal(t, "a\nb", out)

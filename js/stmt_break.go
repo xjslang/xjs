@@ -31,8 +31,8 @@ func ParseBreakStmt(p *parser.Parser) (node *BreakStmt, err error) {
 }
 
 func PrintBreakStmt(p *printer.Printer, node *BreakStmt) {
-	p.LnPrint(node.Layout.Break)
+	p.Line().Print(node.Layout.Break)
 	if node.Label != nil {
-		p.SpPrint(node.Label)
+		p.Space().Print(node.Label)
 	}
 }

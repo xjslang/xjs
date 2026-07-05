@@ -38,8 +38,8 @@ func ParseLetStmt(p *parser.Parser) (node *LetStmt, err error) {
 }
 
 func PrintLetStmt(p *printer.Printer, node *LetStmt) {
-	p.LnPrint(node.Layout.Let)
-	p.SpPrint(node.Name)
-	p.SpPrint(node.Layout.Assign)
-	p.SpPrint(node.Value)
+	p.Line().Print(node.Layout.Let)
+	p.Space().Print(node.Name)
+	p.Space().Print(node.Layout.Assign)
+	p.Space().Print(node.Value)
 }

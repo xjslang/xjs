@@ -32,8 +32,8 @@ func ParseReturnStmt(p *parser.Parser) (node *ReturnStmt, err error) {
 }
 
 func PrintReturnStmt(p *printer.Printer, node *ReturnStmt) {
-	p.LnPrint(node.Layout.Return)
+	p.Line().Print(node.Layout.Return)
 	if node.Value != nil {
-		p.SpPrint(node.Value)
+		p.Space().Print(node.Value)
 	}
 }

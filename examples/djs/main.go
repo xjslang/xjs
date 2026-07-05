@@ -75,7 +75,7 @@ func main() {
 		UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node) error) error {
 			if node, ok := node.(*DeferStmt); ok {
 				pr.PrintTrivia(node.DeferToken.LeadingTrivia) // print previous comments and new lines
-				pr.LnPrint("{using _ = {[Symbol.dispose]() {")
+				pr.Line().Print("{using _ = {[Symbol.dispose]() {")
 				pr.Print(node.Stmt)
 				pr.Print("}}}")
 				return nil
@@ -93,9 +93,9 @@ func main() {
 	djsFormatter := xjs.PrinterBuilder().
 		UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node) error) error {
 			if node, ok := node.(*DeferStmt); ok {
-				pr.EnsureLine() // ensure a new line is added before printing
+				pr.Line() // ensure a new line is added before printing
 				pr.Print(node.DeferToken)
-				pr.EnsureSpace() // ensure a new space is added before printing
+				pr.Space() // ensure a new space is added before printing
 				if deferNode, ok := node.Stmt.(*js.ExprStmt); ok {
 					pr.Print(deferNode.Expr)
 				} else {

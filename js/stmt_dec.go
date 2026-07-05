@@ -27,6 +27,6 @@ func ParseDecStmt(p *parser.Parser) (node *DecStmt, err error) {
 }
 
 func PrintDecStmt(p *printer.Printer, node *DecStmt) {
-	p.LnPrint(node.Name)
+	p.Line().Print(node.Name)
 	p.Print(node.Layout.Decrement)
 }

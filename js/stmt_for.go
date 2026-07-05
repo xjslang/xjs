@@ -141,8 +141,8 @@ func parseAfterClause(p *parser.Parser) (node ast.Stmt, err error) {
 
 func PrintForStmt(p *printer.Printer, node *ForStmt) {
 	// for
-	p.LnPrint(node.Layout.For)
-	p.SpPrint(node.Layout.Lparen)
+	p.Line().Print(node.Layout.For)
+	p.Space().Print(node.Layout.Lparen)
 	// (init; condition; after)
 	p.IncreaseIndent()
 	if node.Init != nil {
@@ -150,7 +150,7 @@ func PrintForStmt(p *printer.Printer, node *ForStmt) {
 	}
 	p.Print(node.Layout.Semi1)
 	if node.Cond != nil {
-		p.SpPrint(node.Cond)
+		p.Space().Print(node.Cond)
 	}
 	p.Print(node.Layout.Semi2)
 	if node.After != nil {
@@ -159,20 +159,20 @@ func PrintForStmt(p *printer.Printer, node *ForStmt) {
 	p.DecreaseIndent()
 	// then
 	p.Print(node.Layout.Rparen)
-	p.SpPrint(node.Then)
+	p.Space().Print(node.Then)
 }
 
 func printInitClause(p *printer.Printer, node ast.Stmt) {
 	switch v := node.(type) {
 	case *LetStmt:
 		p.Print(v.Layout.Let)
-		p.SpPrint(v.Name)
-		p.SpPrint(v.Layout.Assign)
-		p.SpPrint(v.Value)
+		p.Space().Print(v.Name)
+		p.Space().Print(v.Layout.Assign)
+		p.Space().Print(v.Value)
 	case *AssignStmt:
 		p.Print(v.Name)
-		p.SpPrint(v.Layout.Assign)
-		p.SpPrint(v.Value)
+		p.Space().Print(v.Layout.Assign)
+		p.Space().Print(v.Value)
 	default:
 		panic("unexpected init clause type")
 	}
@@ -181,10 +181,10 @@ func printInitClause(p *printer.Printer, node ast.Stmt) {
 func printAfterClause(p *printer.Printer, node ast.Stmt) {
 	switch v := node.(type) {
 	case *IncStmt:
-		p.SpPrint(v.Name)
+		p.Space().Print(v.Name)
 		p.Print(v.Layout.Increment)
 	case *DecStmt:
-		p.SpPrint(v.Name)
+		p.Space().Print(v.Name)
 		p.Print(v.Layout.Decrement)
 	default:
 		panic("unexpected after clause type")

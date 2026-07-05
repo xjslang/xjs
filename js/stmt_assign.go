@@ -31,7 +31,7 @@ func ParseAssignStmt(p *parser.Parser) (node *AssignStmt, err error) {
 }
 
 func PrintAssignStmt(p *printer.Printer, node *AssignStmt) {
-	p.LnPrint(node.Name)
-	p.SpPrint(node.Layout.Assign)
-	p.SpPrint(node.Value)
+	p.Line().Print(node.Name)
+	p.Space().Print(node.Layout.Assign)
+	p.Space().Print(node.Value)
 }
