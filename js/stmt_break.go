@@ -13,6 +13,7 @@ type BreakStmt struct {
 	ast.BaseStmt
 	Layout struct {
 		Break token.Token
+		Semi  token.Token
 	}
 	Label *Ident
 }
@@ -27,7 +28,7 @@ func ParseBreakStmt(p *parser.Parser) (node *BreakStmt, err error) {
 			return
 		}
 	}
-	if _, err = ExpectSemi(p); err != nil {
+	if node.Layout.Semi, err = ExpectSemi(p); err != nil {
 		return
 	}
 	return
@@ -38,5 +39,5 @@ func PrintBreakStmt(p *printer.Printer, node *BreakStmt) {
 	if node.Label != nil {
 		p.Space().Print(node.Label)
 	}
-	p.Print(";")
+	p.Print(node.Layout.Semi)
 }

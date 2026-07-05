@@ -56,11 +56,11 @@ func TestExpectSemi(t *testing.T) {
 			{Type: token.IDENT, Literal: "aaa"},
 		}},
 		{"do not consume }", "}aaa", []token.Token{
-			{Type: token.RBRACE, Literal: "}"},
+			{Type: token.SEMICOLON, Literal: ";"},
 			{Type: token.RBRACE, Literal: "}"},
 		}},
 		{"do not consume )", ")aaa", []token.Token{
-			{Type: token.RPAREN, Literal: ")"},
+			{Type: token.SEMICOLON, Literal: ";"},
 			{Type: token.RPAREN, Literal: ")"},
 		}},
 		{"return synthetic token on newline", "\naaa", []token.Token{

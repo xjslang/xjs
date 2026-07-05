@@ -14,14 +14,20 @@ func ExpectSemi(p *parser.Parser) (tok token.Token, err error) {
 	case token.SEMICOLON:
 		p.AdvanceToken()
 		return
-	case token.RBRACE, token.RPAREN:
+	case token.RBRACE, token.RPAREN, token.EOF:
+		tok = token.Token{
+			Type:     token.SEMICOLON,
+			Literal:  token.SEMICOLON.String(),
+			Position: tok.Position,
+		}
 		return
 	default:
-		if tok.AfterNewline || tok.Type == token.EOF {
+		if tok.AfterNewline {
 			tok = token.Token{
 				Type:     token.SEMICOLON,
 				Literal:  token.SEMICOLON.String(),
-				Position: tok.Position}
+				Position: tok.Position,
+			}
 			return
 		}
 	}

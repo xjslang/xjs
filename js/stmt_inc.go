@@ -11,6 +11,7 @@ type IncStmt struct {
 	ast.BaseStmt
 	Layout struct {
 		Increment token.Token
+		Semi      token.Token
 	}
 	Name *Ident
 }
@@ -23,7 +24,7 @@ func ParseIncStmt(p *parser.Parser) (node *IncStmt, err error) {
 	if node.Layout.Increment, err = p.Expect(token.INCREMENT); err != nil {
 		return
 	}
-	if _, err = ExpectSemi(p); err != nil {
+	if node.Layout.Semi, err = ExpectSemi(p); err != nil {
 		return
 	}
 	return
@@ -32,5 +33,5 @@ func ParseIncStmt(p *parser.Parser) (node *IncStmt, err error) {
 func PrintIncStmt(p *printer.Printer, node *IncStmt) {
 	p.Line().Print(node.Name)
 	p.Print(node.Layout.Increment)
-	p.Print(";")
+	p.Print(node.Layout.Semi)
 }
