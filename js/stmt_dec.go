@@ -23,10 +23,14 @@ func ParseDecStmt(p *parser.Parser) (node *DecStmt, err error) {
 	if node.Layout.Decrement, err = p.Expect(token.DECREMENT); err != nil {
 		return
 	}
-	return node, nil
+	if _, err = ExpectSemi(p); err != nil {
+		return
+	}
+	return
 }
 
 func PrintDecStmt(p *printer.Printer, node *DecStmt) {
 	p.Line().Print(node.Name)
 	p.Print(node.Layout.Decrement)
+	p.Print(";")
 }

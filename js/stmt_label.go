@@ -16,13 +16,6 @@ type LabelStmt struct {
 	Stmt ast.Stmt
 }
 
-func (node *LabelStmt) SelfClosing() bool {
-	if v, ok := node.Stmt.(SelfClosingStmt); ok {
-		return v.SelfClosing()
-	}
-	return false
-}
-
 func ParseLabelStmt(p *parser.Parser) (node *LabelStmt, err error) {
 	node = &LabelStmt{}
 	if node.Name, err = ParseIdent(p); err != nil {

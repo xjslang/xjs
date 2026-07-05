@@ -28,6 +28,9 @@ func ParseReturnStmt(p *parser.Parser) (node *ReturnStmt, err error) {
 			return
 		}
 	}
+	if _, err = ExpectSemi(p); err != nil {
+		return
+	}
 	return node, nil
 }
 
@@ -36,4 +39,5 @@ func PrintReturnStmt(p *printer.Printer, node *ReturnStmt) {
 	if node.Value != nil {
 		p.Space().Print(node.Value)
 	}
+	p.Print(";")
 }

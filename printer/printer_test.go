@@ -318,7 +318,7 @@ func TestSpacesTakePriorityOverLines(t *testing.T) {
 	pr.Space().Print(&js.ExprStmt{Expr: &js.Literal{Value: token.Token{Literal: "125"}}})
 	out, err := pr.Output()
 	require.NoError(t, err)
-	require.Equal(t, "aaa 125", out)
+	require.Equal(t, "aaa 125;", out)
 }
 
 func TestSpaceAndPrint(t *testing.T) {

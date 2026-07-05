@@ -1,6 +1,6 @@
-[line:1, col:4] ; or newline expected
+[line:1, col:4] ; expected
 [line:4, col:3] expression expected
-[line:7, col:6] ; or newline expected
+[line:7, col:6] ; expected
 [line:10, col:3] ( expected
 [line:11, col:5] init expected
 [line:12, col:27] ) expected
@@ -20,6 +20,7 @@
 [line:36, col:2] expression expected
 [line:39, col:1] expression expected
 [line:42, col:6] expression expected
+[line:43, col:8] expression expected
 [line:44, col:7] ) expected
 [line:47, col:9] ( expected
 [line:48, col:10] identifier expected
@@ -34,8 +35,8 @@
 [line:63, col:12] key expected
 [line:64, col:11] } expected
 [line:67, col:0] expression expected
-[line:68, col:1] ; or newline expected
-[line:69, col:1] ; or newline expected
+[line:68, col:1] ; expected
+[line:69, col:1] ; expected
 [line:70, col:0] expression expected
 [line:71, col:0] expression expected
 [line:74, col:2] key expected

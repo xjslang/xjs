@@ -23,10 +23,14 @@ func ParseIncStmt(p *parser.Parser) (node *IncStmt, err error) {
 	if node.Layout.Increment, err = p.Expect(token.INCREMENT); err != nil {
 		return
 	}
-	return node, nil
+	if _, err = ExpectSemi(p); err != nil {
+		return
+	}
+	return
 }
 
 func PrintIncStmt(p *printer.Printer, node *IncStmt) {
 	p.Line().Print(node.Name)
 	p.Print(node.Layout.Increment)
+	p.Print(";")
 }

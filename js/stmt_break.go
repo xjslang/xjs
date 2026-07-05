@@ -27,7 +27,10 @@ func ParseBreakStmt(p *parser.Parser) (node *BreakStmt, err error) {
 			return
 		}
 	}
-	return node, nil
+	if _, err = ExpectSemi(p); err != nil {
+		return
+	}
+	return
 }
 
 func PrintBreakStmt(p *printer.Printer, node *BreakStmt) {
@@ -35,4 +38,5 @@ func PrintBreakStmt(p *printer.Printer, node *BreakStmt) {
 	if node.Label != nil {
 		p.Space().Print(node.Label)
 	}
+	p.Print(";")
 }

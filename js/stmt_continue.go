@@ -27,7 +27,10 @@ func ParseContinueStmt(p *parser.Parser) (node *ContinueStmt, err error) {
 			return
 		}
 	}
-	return node, nil
+	if _, err = ExpectSemi(p); err != nil {
+		return
+	}
+	return
 }
 
 func PrintContinueStmt(p *printer.Printer, node *ContinueStmt) {
@@ -35,4 +38,5 @@ func PrintContinueStmt(p *printer.Printer, node *ContinueStmt) {
 	if node.Label != nil {
 		p.Space().Print(node.Label)
 	}
+	p.Print(";")
 }

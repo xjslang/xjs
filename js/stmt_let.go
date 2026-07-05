@@ -34,7 +34,10 @@ func ParseLetStmt(p *parser.Parser) (node *LetStmt, err error) {
 	if err != nil {
 		return
 	}
-	return node, nil
+	if _, err = ExpectSemi(p); err != nil {
+		return
+	}
+	return
 }
 
 func PrintLetStmt(p *printer.Printer, node *LetStmt) {
@@ -42,4 +45,5 @@ func PrintLetStmt(p *printer.Printer, node *LetStmt) {
 	p.Space().Print(node.Name)
 	p.Space().Print(node.Layout.Assign)
 	p.Space().Print(node.Value)
+	p.Print(";")
 }

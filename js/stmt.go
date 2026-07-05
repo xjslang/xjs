@@ -6,11 +6,6 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-type SelfClosingStmt interface {
-	ast.Stmt
-	SelfClosing() bool
-}
-
 func ParseStmt(p *parser.Parser) (ast.Stmt, error) {
 	if p.CurrentToken.Type == token.LBRACE {
 		return ParseBlockStmt(p)

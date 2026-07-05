@@ -16,9 +16,13 @@ func ParseExprStmt(p *parser.Parser) (node *ExprStmt, err error) {
 	if node.Expr, err = p.ParseExpr(); err != nil {
 		return
 	}
-	return node, nil
+	if _, err = ExpectSemi(p); err != nil {
+		return
+	}
+	return
 }
 
 func PrintExprStmt(p *printer.Printer, node *ExprStmt) {
 	p.Line().Print(node.Expr)
+	p.Print(";")
 }
