@@ -14,6 +14,7 @@ type LetStmt struct {
 	Layout struct {
 		Let    token.Token
 		Assign token.Token
+		Semi   token.Token
 	}
 	Name  *Ident
 	Value ast.Expr
@@ -34,7 +35,7 @@ func ParseLetStmt(p *parser.Parser) (node *LetStmt, err error) {
 	if err != nil {
 		return
 	}
-	if _, err = ExpectSemi(p); err != nil {
+	if node.Layout.Semi, err = ExpectSemi(p); err != nil {
 		return
 	}
 	return
@@ -45,5 +46,5 @@ func PrintLetStmt(p *printer.Printer, node *LetStmt) {
 	p.Space().Print(node.Name)
 	p.Space().Print(node.Layout.Assign)
 	p.Space().Print(node.Value)
-	p.Print(";")
+	p.Print(node.Layout.Semi)
 }

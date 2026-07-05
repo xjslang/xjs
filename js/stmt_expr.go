@@ -4,10 +4,14 @@ import (
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
+	"github.com/xjslang/xjs/token"
 )
 
 type ExprStmt struct {
 	ast.BaseStmt
+	Layout struct {
+		Semi token.Token
+	}
 	Expr ast.Expr
 }
 
@@ -16,7 +20,7 @@ func ParseExprStmt(p *parser.Parser) (node *ExprStmt, err error) {
 	if node.Expr, err = p.ParseExpr(); err != nil {
 		return
 	}
-	if _, err = ExpectSemi(p); err != nil {
+	if node.Layout.Semi, err = ExpectSemi(p); err != nil {
 		return
 	}
 	return
@@ -24,5 +28,5 @@ func ParseExprStmt(p *parser.Parser) (node *ExprStmt, err error) {
 
 func PrintExprStmt(p *printer.Printer, node *ExprStmt) {
 	p.Line().Print(node.Expr)
-	p.Print(";")
+	p.Print(node.Layout.Semi)
 }
