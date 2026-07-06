@@ -180,13 +180,6 @@ func RegisterBinaryType(typ Type, precedence int) {
 	binaryOps[typ] = precedence
 }
 
-// RegisterBinaryOp registers a "binary operator".
-func RegisterBinaryOp(lit string, precedence int) Type {
-	typ := RegisterType(lit)
-	RegisterBinaryType(typ, precedence)
-	return typ
-}
-
 var unaryTypes = map[Type]bool{
 	NOT:      true,
 	PLUS:     true,
@@ -208,11 +201,4 @@ func RegisterUnaryType(typ Type) {
 	registerMu.Lock()
 	defer registerMu.Unlock()
 	unaryTypes[typ] = true
-}
-
-// RegisterUnaryOp registers a "unary operator".
-func RegisterUnaryOp(lit string) Type {
-	typ := RegisterType(lit)
-	RegisterUnaryType(typ)
-	return typ
 }
