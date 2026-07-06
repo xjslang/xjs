@@ -70,9 +70,8 @@ type Printer struct {
 	indent       string
 	indentLevel  int
 	lastChar     rune
-	ensureBeside bool
-	ensureLine   bool
-	ensureSpace  bool
+	ensureChar   rune
+	ensure       bool
 	printer      func(*Printer, ast.Node) error
 	context      []map[string]string
 	errors       ErrorList
@@ -93,9 +92,8 @@ func (p *Printer) init(opts ...Option) {
 	p.indent = cfg.indent
 	p.indentLevel = 0
 	p.lastChar = eol
-	p.ensureBeside = false
-	p.ensureLine = false
-	p.ensureSpace = false
+	p.ensureChar = eol
+	p.ensure = false
 	if p.printer == nil {
 		p.printer = defaultPrinter
 	}
@@ -118,10 +116,22 @@ func (p *Printer) PrintIndent() {
 	}
 }
 
+// Ensure ensures that a character is printed before printing the next text.
+//
+// Only one ensure character can be pending at a time. For example,
+// Ensure(' ').Ensure('\n') will print a space and discard the newline request.
+func (p *Printer) Ensure(c rune) *Printer {
+	if p.ensure {
+		return p
+	}
+	p.ensureChar = c
+	p.ensure = true
+	return p
+}
+
 // Beside ensures that the next text to print appears "beside" the previous text.
 func (p *Printer) Beside() *Printer {
-	p.ensureBeside = true
-	return p
+	return p.Ensure(eol)
 }
 
 // Line ensures that a newline is printed before printing the next text.
@@ -129,8 +139,7 @@ func (p *Printer) Beside() *Printer {
 // It does not print a newline immediately, but "ensures" that a newline is printed
 // between the current print and the next print.
 func (p *Printer) Line() *Printer {
-	p.ensureLine = true
-	return p
+	return p.Ensure('\n')
 }
 
 // Space ensures that a space is printed before printing the next text.
@@ -138,8 +147,7 @@ func (p *Printer) Line() *Printer {
 // It does not print a space immediately, but "ensures" that a space is printed
 // between the current print and the next print "on the same line".
 func (p *Printer) Space() *Printer {
-	p.ensureSpace = true
-	return p
+	return p.Ensure(' ')
 }
 
 func (p *Printer) Print(args ...any) *Printer {
@@ -163,7 +171,7 @@ func (p *Printer) Print(args ...any) *Printer {
 }
 
 func (p *Printer) PrintTrivia(trivia []token.Token) {
-	eb, es, el := p.ensureBeside, p.ensureSpace, p.ensureLine
+	es, e := p.ensureChar, p.ensure
 	for _, tok := range trivia {
 		if tok.Type == token.NEWLINE {
 			if p.withNewLines {
@@ -177,7 +185,7 @@ func (p *Printer) PrintTrivia(trivia []token.Token) {
 			p.writeString(tok.Literal)
 		}
 	}
-	p.ensureBeside, p.ensureSpace, p.ensureLine = eb, es, el
+	p.ensureChar, p.ensure = es, e
 }
 
 func (p *Printer) Errors() ErrorList {
@@ -226,12 +234,6 @@ func (p *Printer) printToken(tok token.Token) {
 	p.printString(tok.Literal)
 }
 
-func (p *Printer) printLineIfNeeded() {
-	if p.withNewLines && !isNewLine(p.lastChar) {
-		p.writeRune('\n')
-	}
-}
-
 func (p *Printer) printSpaceIfNeeded() {
 	if !isWhitespace(p.lastChar) {
 		p.writeRune(' ')
@@ -245,19 +247,24 @@ func (p *Printer) printIndentIfNeeded() {
 }
 
 func (p *Printer) printSeparatorIfNeeded() {
-	if p.ensureBeside {
-		p.ensureBeside = false
-		p.ensureSpace = false
-		p.ensureLine = false
-	}
-	if p.ensureSpace {
-		p.printSpaceIfNeeded()
-		p.ensureSpace = false
-		p.ensureLine = false
-	}
-	if p.ensureLine {
-		p.printLineIfNeeded()
-		p.ensureLine = false
+	if p.ensure {
+		switch p.ensureChar {
+		case '\n':
+			if p.withNewLines && !isNewLine(p.lastChar) {
+				p.writeRune(p.ensureChar)
+			}
+		case ' ':
+			if !isWhitespace(p.lastChar) {
+				p.writeRune(' ')
+			}
+		case eol:
+		default:
+			if p.lastChar != p.ensureChar {
+				p.writeRune(p.ensureChar)
+			}
+		}
+		p.ensureChar = eol
+		p.ensure = false
 	}
 	p.printIndentIfNeeded()
 }
