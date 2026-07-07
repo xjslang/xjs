@@ -30,8 +30,9 @@ func ParseIncStmt(p *parser.Parser) (node *IncStmt, err error) {
 	return
 }
 
-func PrintIncStmt(p *printer.Printer, node *IncStmt) {
+func PrintIncStmt(p *printer.Printer, node *IncStmt) error {
 	p.Line().Print(node.Name)
 	p.Print(node.Layout.Increment)
 	p.Print(node.Layout.Semi)
+	return nil
 }

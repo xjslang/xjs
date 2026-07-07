@@ -90,7 +90,7 @@ func TestPrinterContext(t *testing.T) {
 				ctx := pr.Context()
 				_, ok := ctx["async"]
 				if !ok {
-					return printer.ErrorAt(v.Layout.Await, "await is allowed only inside async functions")
+					return printer.ErrorAt(v.Layout.Await.Position, "await is allowed only inside async functions")
 				}
 				pr.Line().Print(v.Layout.Await)
 				pr.Space().Print(v.Expr)
@@ -105,5 +105,5 @@ func TestPrinterContext(t *testing.T) {
 	// validate pr.Errors()
 	errs := pr.Errors()
 	require.Len(t, errs, 1)
-	require.IsType(t, &printer.Error{}, errs[0])
+	require.IsType(t, printer.Error{}, errs[0])
 }

@@ -52,7 +52,7 @@ func ParseFunctionDecl(p *parser.Parser) (node *FunctionDecl, err error) {
 	return node, nil
 }
 
-func PrintFunctionDecl(p *printer.Printer, node *FunctionDecl) {
+func PrintFunctionDecl(p *printer.Printer, node *FunctionDecl) error {
 	p.Line().Print(node.Layout.Function)
 	p.Space().Print(node.Name)
 	p.Print(node.Layout.Lparen)
@@ -67,4 +67,5 @@ func PrintFunctionDecl(p *printer.Printer, node *FunctionDecl) {
 	p.DecreaseIndent()
 	p.Print(node.Layout.Rparen)
 	p.Space().Print(node.Body)
+	return nil
 }

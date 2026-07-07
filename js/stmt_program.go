@@ -43,10 +43,11 @@ func ParseProgram(p *parser.Parser) (node *Program, err error) {
 	return
 }
 
-func PrintProgram(p *printer.Printer, node *Program) {
+func PrintProgram(p *printer.Printer, node *Program) error {
 	var stmt ast.Stmt
 	for _, stmt = range node.Stmts {
 		p.Print(stmt)
 	}
 	p.Print(node.Layout.EOF)
+	return nil
 }

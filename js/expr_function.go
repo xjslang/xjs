@@ -51,7 +51,7 @@ func ParseFunctionExpr(p *parser.Parser) (node *FunctionExpr, err error) {
 	return node, nil
 }
 
-func PrintFunctionExpr(p *printer.Printer, node *FunctionExpr) {
+func PrintFunctionExpr(p *printer.Printer, node *FunctionExpr) error {
 	p.Print(node.Layout.Function)
 	p.Space()
 	if node.Name != nil {
@@ -69,4 +69,5 @@ func PrintFunctionExpr(p *printer.Printer, node *FunctionExpr) {
 	p.DecreaseIndent()
 	p.Print(node.Layout.Rparen)
 	p.Space().Print(node.Body)
+	return nil
 }

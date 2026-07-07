@@ -23,6 +23,7 @@ func ParseUnaryExpr(p *parser.Parser) (node *UnaryExpr, err error) {
 	return node, nil
 }
 
-func PrintUnaryExpr(p *printer.Printer, node *UnaryExpr) {
+func PrintUnaryExpr(p *printer.Printer, node *UnaryExpr) error {
 	p.Print(node.Op, node.Value)
+	return nil
 }
