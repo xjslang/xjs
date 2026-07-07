@@ -35,10 +35,11 @@ func ParseReturnStmt(p *parser.Parser) (node *ReturnStmt, err error) {
 	return node, nil
 }
 
-func PrintReturnStmt(p *printer.Printer, node *ReturnStmt) {
+func PrintReturnStmt(p *printer.Printer, node *ReturnStmt) error {
 	p.Line().Print(node.Layout.Return)
 	if node.Value != nil {
 		p.Space().Print(node.Value)
 	}
 	p.Print(node.Layout.Semi)
+	return nil
 }

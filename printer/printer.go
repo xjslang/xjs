@@ -188,6 +188,22 @@ func (p *Printer) PrintTrivia(trivia []token.Token) {
 	p.ensureChar, p.ensure = es, e
 }
 
+func (p *Printer) Error(msg string) error {
+	s := p.doc.String()
+	line, col := 0, 0
+	for _, c := range s {
+		if c == '\n' {
+			line++
+			col = -1
+		}
+		col++
+	}
+	return ErrorAt(token.Position{
+		Line:   line,
+		Column: col,
+	}, msg)
+}
+
 func (p *Printer) Errors() ErrorList {
 	return append(ErrorList{}, p.errors...)
 }

@@ -26,7 +26,8 @@ func ParseExprStmt(p *parser.Parser) (node *ExprStmt, err error) {
 	return
 }
 
-func PrintExprStmt(p *printer.Printer, node *ExprStmt) {
+func PrintExprStmt(p *printer.Printer, node *ExprStmt) error {
 	p.Line().Print(node.Expr)
 	p.Print(node.Layout.Semi)
+	return nil
 }

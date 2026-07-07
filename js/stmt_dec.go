@@ -30,8 +30,9 @@ func ParseDecStmt(p *parser.Parser) (node *DecStmt, err error) {
 	return
 }
 
-func PrintDecStmt(p *printer.Printer, node *DecStmt) {
+func PrintDecStmt(p *printer.Printer, node *DecStmt) error {
 	p.Line().Print(node.Name)
 	p.Print(node.Layout.Decrement)
 	p.Print(node.Layout.Semi)
+	return nil
 }

@@ -96,7 +96,7 @@ func ParseComputedExpr(p *parser.Parser) (node *ComputedExpr, err error) {
 	return
 }
 
-func PrintObjExpr(p *printer.Printer, node *ObjExpr) {
+func PrintObjExpr(p *printer.Printer, node *ObjExpr) error {
 	p.Print(node.Layout.Lbrace)
 	if len(node.Entries) > 0 {
 		p.IncreaseIndent()
@@ -117,4 +117,5 @@ func PrintObjExpr(p *printer.Printer, node *ObjExpr) {
 		p.Space()
 	}
 	p.Print(node.Layout.Rbrace)
+	return nil
 }

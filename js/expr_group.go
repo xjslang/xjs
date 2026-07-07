@@ -30,6 +30,7 @@ func ParseGroupExpr(p *parser.Parser) (node *GroupExpr, err error) {
 	return node, nil
 }
 
-func PrintGroupExpr(p *printer.Printer, node *GroupExpr) {
+func PrintGroupExpr(p *printer.Printer, node *GroupExpr) error {
 	p.Print(node.Layout.Lparen, node.Value, node.Layout.Rparen)
+	return nil
 }

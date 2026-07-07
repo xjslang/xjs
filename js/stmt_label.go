@@ -30,7 +30,8 @@ func ParseLabelStmt(p *parser.Parser) (node *LabelStmt, err error) {
 	return node, nil
 }
 
-func PrintLabelStmt(p *printer.Printer, node *LabelStmt) {
+func PrintLabelStmt(p *printer.Printer, node *LabelStmt) error {
 	p.Print(node.Name, node.Layout.Colon)
 	p.Space().Print(node.Stmt)
+	return nil
 }

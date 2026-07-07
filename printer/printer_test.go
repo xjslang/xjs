@@ -8,7 +8,9 @@ import (
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/js"
+	"github.com/xjslang/xjs/plugin"
 	"github.com/xjslang/xjs/printer"
+	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
 	"github.com/xorcare/golden"
 )
@@ -129,7 +131,9 @@ func TestPrintCallExpr(t *testing.T) {
 				t.Fatal(err)
 			}
 			pr := xjs.PrinterBuilder().Build()
-			js.PrintProgram(pr, node)
+			if err := js.PrintProgram(pr, node); err != nil {
+				t.Fatal(err)
+			}
 			out, err := pr.Output()
 			require.NoError(t, err)
 			if got := out; got != test.expected {
@@ -163,7 +167,9 @@ func TestLastComment(t *testing.T) {
 				t.Fatal(err)
 			}
 			pr := xjs.PrinterBuilder().Build()
-			js.PrintProgram(pr, node)
+			if err := js.PrintProgram(pr, node); err != nil {
+				t.Fatal(err)
+			}
 			out, err := pr.Output()
 			require.NoError(t, err)
 			if got := out; got != test.expected {
@@ -419,4 +425,55 @@ func TestCompact(t *testing.T) {
 	out, err := xjs.Print(result, printer.Compact())
 	require.NoError(t, err)
 	golden.Assert(t, []byte(out))
+}
+
+func TestErrorAt(t *testing.T) {
+	spreadOp := token.RegisterType("...")
+	token.RegisterUnaryType(spreadOp)
+
+	b := xjs.PluginBuilder().Install(func(b *plugin.Builder) {
+		b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
+			if tok, err = next(); err != nil {
+				return
+			}
+			// instruct the scanner to recognize the spread operator
+			if tok.Type == token.DOT {
+				if sc.CurrentChar() == '.' && sc.PeekChar() == '.' {
+					sc.AdvanceChar()
+					sc.AdvanceChar()
+					tok.Type = spreadOp
+					tok.Literal = "..."
+				}
+			}
+			return
+		})
+	})
+
+	pr := xjs.PrinterBuilder().UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+		switch v := node.(type) {
+		case *js.UnaryExpr:
+			if v.Op.Type == spreadOp {
+				return printer.ErrorAt(v.Op.Position, "spread operator is not printable")
+			}
+		}
+		return next(node)
+	}).Build()
+
+	input := `let x = ...rest`
+	p := b.Build([]byte(input))
+	result, err := js.ParseProgram(p)
+	require.NoError(t, err)
+	pr.Print(result)
+	_, err = pr.Output()
+	require.EqualError(t, err, "[line:0, col:8] spread operator is not printable")
+}
+
+func TestError(t *testing.T) {
+	pr := printer.NewBuilder().Build()
+	pr.Print("aaa\nbbb")
+	err := pr.Error("something went wrong")
+	var errPos printer.Error
+	require.ErrorAs(t, err, &errPos)
+	require.Equal(t, "something went wrong", errPos.Message)
+	require.EqualError(t, err, "[line:1, col:3] something went wrong")
 }

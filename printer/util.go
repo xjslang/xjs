@@ -2,9 +2,9 @@ package printer
 
 import "github.com/xjslang/xjs/token"
 
-func ErrorAt(tok token.Token, msg string) error {
-	return &Error{
-		Position: tok.Position,
+func ErrorAt(pos token.Position, msg string) error {
+	return Error{
+		Position: pos,
 		Message:  msg,
 	}
 }

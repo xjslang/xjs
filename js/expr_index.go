@@ -31,6 +31,7 @@ func ParseIndexExpr(p *parser.Parser, left ast.Expr) (node *IndexExpr, err error
 	return node, nil
 }
 
-func PrintIndexExpr(p *printer.Printer, node *IndexExpr) {
+func PrintIndexExpr(p *printer.Printer, node *IndexExpr) error {
 	p.Print(node.Value, node.Layout.Lbracket, node.Index, node.Layout.Rbracket)
+	return nil
 }

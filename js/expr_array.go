@@ -38,7 +38,7 @@ func ParseArrayExpr(p *parser.Parser) (node *ArrayExpr, err error) {
 	return node, nil
 }
 
-func PrintArrayExpr(p *printer.Printer, node *ArrayExpr) {
+func PrintArrayExpr(p *printer.Printer, node *ArrayExpr) error {
 	p.Print(node.Layout.Lbracket)
 	if len(node.Values) > 0 {
 		p.IncreaseIndent()
@@ -52,4 +52,5 @@ func PrintArrayExpr(p *printer.Printer, node *ArrayExpr) {
 		p.DecreaseIndent()
 	}
 	p.Print(node.Layout.Rbracket)
+	return nil
 }

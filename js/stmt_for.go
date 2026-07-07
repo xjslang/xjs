@@ -133,7 +133,7 @@ func parseAfterClause(p *parser.Parser) (node ast.Stmt, err error) {
 	return
 }
 
-func PrintForStmt(p *printer.Printer, node *ForStmt) {
+func PrintForStmt(p *printer.Printer, node *ForStmt) error {
 	// for
 	p.Line().Print(node.Layout.For)
 	p.Space().Print(node.Layout.Lparen)
@@ -159,6 +159,7 @@ func PrintForStmt(p *printer.Printer, node *ForStmt) {
 	default:
 		p.Space().Print(node.Then)
 	}
+	return nil
 }
 
 func printInitClause(p *printer.Printer, node ast.Stmt) {

@@ -60,7 +60,7 @@ func ParseIfStmt(p *parser.Parser) (node *IfStmt, err error) {
 	return
 }
 
-func PrintIfStmt(p *printer.Printer, node *IfStmt) {
+func PrintIfStmt(p *printer.Printer, node *IfStmt) error {
 	// if (condition) stmt
 	p.Line().Print(node.Layout.If)
 	p.Space().Print(node.Layout.Lparen)
@@ -71,4 +71,5 @@ func PrintIfStmt(p *printer.Printer, node *IfStmt) {
 		p.Space().Print(node.Layout.Else)
 		p.Space().Print(node.Else)
 	}
+	return nil
 }
