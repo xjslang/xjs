@@ -8,6 +8,15 @@ for (i = 0; i < 10; i++) {
   console.log(i);
 }
 
+// with comments before semicolons
+for (
+  let i = 0; // init clause
+  i < 10; // cond clause
+  i++ // after clause
+) {
+  console.log(i);
+}
+
 // omit init clause
 let i = 0;
 for (; i < 10; i++) {

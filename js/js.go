@@ -13,13 +13,6 @@ func ExpectSemi(p *parser.Parser) (tok token.Token, err error) {
 	switch tok.Type {
 	case token.SEMICOLON:
 		p.AdvanceToken()
-		// ignore consecutive semicolons without leading trivia
-		for {
-			if t := p.CurrentToken; t.Type != token.SEMICOLON || len(t.LeadingTrivia) > 0 {
-				break
-			}
-			p.AdvanceToken()
-		}
 		return
 	case token.RBRACE, token.RPAREN, token.EOF:
 		tok = token.Token{

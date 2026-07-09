@@ -124,14 +124,6 @@ func PluginBuilder() *plugin.Builder {
 					}
 				case token.COLON:
 					return js.ParseLabelStmt(p)
-				case token.INCREMENT:
-					if !p.PeekToken.AfterNewline {
-						return js.ParseIncStmt(p)
-					}
-				case token.DECREMENT:
-					if !p.PeekToken.AfterNewline {
-						return js.ParseDecStmt(p)
-					}
 				}
 			case token.SEMICOLON:
 				return js.ParseSemiStmt(p)
@@ -162,6 +154,10 @@ func PluginBuilder() *plugin.Builder {
 				return js.ParseIndexExpr(p, left)
 			case token.DOT:
 				return js.ParseMemberExpr(p, left)
+			case token.INCREMENT:
+				return js.ParseIncExpr(p, left)
+			case token.DECREMENT:
+				return js.ParseDecExpr(p, left)
 			}
 			return js.ParseBinaryExpr(p, left)
 		})
@@ -199,6 +195,10 @@ func PrinterBuilder() *printer.Builder {
 			return js.PrintObjExpr(p, v)
 		case *js.ArrayExpr:
 			return js.PrintArrayExpr(p, v)
+		case *js.IncExpr:
+			return js.PrintIncExpr(p, v)
+		case *js.DecExpr:
+			return js.PrintDecExpr(p, v)
 		case *js.UnaryExpr:
 			return js.PrintUnaryExpr(p, v)
 		case *js.BinaryExpr:
@@ -221,10 +221,6 @@ func PrinterBuilder() *printer.Builder {
 			return js.PrintContinueStmt(p, v)
 		case *js.LabelStmt:
 			return js.PrintLabelStmt(p, v)
-		case *js.IncStmt:
-			return js.PrintIncStmt(p, v)
-		case *js.DecStmt:
-			return js.PrintDecStmt(p, v)
 		case *js.MemberExpr:
 			return js.PrintMemberExpr(p, v)
 		case *js.SemiStmt:

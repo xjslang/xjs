@@ -154,10 +154,12 @@ var binaryOps = map[Type]int{
 	MULTIPLY: 6,
 	DIVIDE:   6,
 	MODULO:   6,
-	// ( [ .
-	LPAREN:   7,
-	LBRACKET: 7,
-	DOT:      7,
+	// ( [ . ++ --
+	LPAREN:    7,
+	LBRACKET:  7,
+	DOT:       7,
+	INCREMENT: 7,
+	DECREMENT: 7,
 }
 
 func (typ Type) IsBinaryOp() (ok bool) {

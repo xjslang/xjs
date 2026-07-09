@@ -21,8 +21,8 @@ import (
 )
 
 func TestStandaloneSemicolons(t *testing.T) {
-	input := `;;;;; // collapse semicolons
-	;; // collapse semicolons
+	input := `; // c1
+	; // c2
 	aaa()
 	;
 	bbb();
@@ -114,7 +114,7 @@ x =; // expression expected
 
 // for stmt
 for; // ( expected
-for (?; // init expected
+for (?; // expression expected
 for (let i = 0; i < 10; i++; // ) expected
 
 // function stmt
