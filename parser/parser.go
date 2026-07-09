@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"errors"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -62,24 +61,16 @@ func (p *Parser) init(sc Scanner) {
 	p.scopes = make(ScopeTracker)
 	p.scanner = sc
 	if p.stmtParser == nil {
-		p.stmtParser = func(p *Parser) (ast.Stmt, error) {
-			return nil, errors.New("unknown statement")
-		}
+		p.stmtParser = defaultStmtParser
 	}
 	if p.exprParser == nil {
-		p.exprParser = func(p *Parser) (ast.Expr, error) {
-			return nil, errors.New("unknown expression")
-		}
+		p.exprParser = defaultExprParser
 	}
 	if p.binaryExprParser == nil {
-		p.binaryExprParser = func(p *Parser, left ast.Expr) (ast.Expr, error) {
-			return nil, errors.New("unknown binary expression")
-		}
+		p.binaryExprParser = defaultBinaryParser
 	}
 	if p.unaryExprParser == nil {
-		p.unaryExprParser = func(p *Parser) (ast.Expr, error) {
-			return nil, errors.New("unknown unary expression")
-		}
+		p.unaryExprParser = defaultUnaryParser
 	}
 	p.CurrentToken = token.Token{}
 	p.PeekToken = token.Token{}
