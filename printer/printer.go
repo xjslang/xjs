@@ -37,7 +37,6 @@ type config struct {
 
 type Option func(*config)
 
-// TODO: the compact option should ignore spaces introduced by the `Space()` function
 func Compact() Option {
 	return func(cfg *config) {
 		cfg.withComments = false
@@ -77,7 +76,7 @@ type Printer struct {
 	errors       ErrorList
 }
 
-func (p *Printer) init(opts ...Option) {
+func (pr *Printer) init(opts ...Option) {
 	cfg := &config{
 		withComments: true,
 		withNewLines: true,
@@ -86,33 +85,33 @@ func (p *Printer) init(opts ...Option) {
 	for _, opt := range opts {
 		opt(cfg)
 	}
-	p.doc.Reset()
-	p.withComments = cfg.withComments
-	p.withNewLines = cfg.withNewLines
-	p.indent = cfg.indent
-	p.indentLevel = 0
-	p.lastChar = eol
-	p.ensureChar = eol
-	p.ensure = false
-	if p.printer == nil {
-		p.printer = defaultPrinter
+	pr.doc.Reset()
+	pr.withComments = cfg.withComments
+	pr.withNewLines = cfg.withNewLines
+	pr.indent = cfg.indent
+	pr.indentLevel = 0
+	pr.lastChar = eol
+	pr.ensureChar = eol
+	pr.ensure = false
+	if pr.printer == nil {
+		pr.printer = defaultPrinter
 	}
-	p.errors = nil
+	pr.errors = nil
 }
 
-func (p *Printer) IncreaseIndent() {
-	p.indentLevel++
+func (pr *Printer) IncreaseIndent() {
+	pr.indentLevel++
 }
 
-func (p *Printer) DecreaseIndent() {
-	if p.indentLevel > 0 {
-		p.indentLevel--
+func (pr *Printer) DecreaseIndent() {
+	if pr.indentLevel > 0 {
+		pr.indentLevel--
 	}
 }
 
-func (p *Printer) PrintIndent() {
-	for range p.indentLevel {
-		p.writeString(p.indent)
+func (pr *Printer) PrintIndent() {
+	for range pr.indentLevel {
+		pr.writeString(pr.indent)
 	}
 }
 
@@ -120,76 +119,76 @@ func (p *Printer) PrintIndent() {
 //
 // Only one ensure character can be pending at a time. For example,
 // Ensure(' ').Ensure('\n') will print a space and discard the newline request.
-func (p *Printer) Ensure(c rune) *Printer {
-	if p.ensure {
-		return p
+func (pr *Printer) Ensure(c rune) *Printer {
+	if pr.ensure {
+		return pr
 	}
-	p.ensureChar = c
-	p.ensure = true
-	return p
+	pr.ensureChar = c
+	pr.ensure = true
+	return pr
 }
 
 // Beside ensures that the next text to print appears "beside" the previous text.
-func (p *Printer) Beside() *Printer {
-	return p.Ensure(eol)
+func (pr *Printer) Beside() *Printer {
+	return pr.Ensure(eol)
 }
 
 // Line ensures that a newline is printed before printing the next text.
 //
 // It does not print a newline immediately, but "ensures" that a newline is printed
 // between the current print and the next print.
-func (p *Printer) Line() *Printer {
-	return p.Ensure('\n')
+func (pr *Printer) Line() *Printer {
+	return pr.Ensure('\n')
 }
 
 // Space ensures that a space is printed before printing the next text.
 //
 // It does not print a space immediately, but "ensures" that a space is printed
 // between the current print and the next print "on the same line".
-func (p *Printer) Space() *Printer {
-	return p.Ensure(' ')
+func (pr *Printer) Space() *Printer {
+	return pr.Ensure(' ')
 }
 
-func (p *Printer) Print(args ...any) *Printer {
+func (pr *Printer) Print(args ...any) *Printer {
 	for _, arg := range args {
 		switch v := arg.(type) {
 		case string:
-			p.printString(v)
+			pr.printString(v)
 		case int:
-			p.printString(strconv.Itoa(v))
+			pr.printString(strconv.Itoa(v))
 		case rune:
-			p.printRune(v)
+			pr.printRune(v)
 		case token.Token:
-			p.printToken(v)
+			pr.printToken(v)
 		case ast.Node:
-			p.printNode(v)
+			pr.printNode(v)
 		default:
 			panic("Unsupported type")
 		}
 	}
-	return p
+	return pr
 }
 
-func (p *Printer) PrintTrivia(trivia []token.Token) {
-	es, e := p.ensureChar, p.ensure
+func (pr *Printer) PrintTrivia(trivia []token.Token) {
+	es, e := pr.ensureChar, pr.ensure
 	for _, tok := range trivia {
 		if tok.Type == token.NEWLINE {
-			if p.withNewLines {
-				p.writeRune('\n')
+			if pr.withNewLines {
+				pr.writeRune('\n')
 			}
 			continue
 		}
-		if p.withComments {
-			p.printSpaceIfNeeded()
-			p.printIndentIfNeeded()
-			p.writeString(tok.Literal)
+		if pr.withComments {
+			pr.printSpaceIfNeeded()
+			pr.printIndentIfNeeded()
+			pr.writeString(tok.Literal)
 		}
 	}
-	p.ensureChar, p.ensure = es, e
+	pr.ensureChar, pr.ensure = es, e
 }
 
-func (p *Printer) Error(msg string) error {
-	s := p.doc.String()
+func (pr *Printer) Error(msg string) error {
+	s := pr.doc.String()
 	line, col := 0, 0
 	for _, c := range s {
 		if c == '\n' {
@@ -204,83 +203,83 @@ func (p *Printer) Error(msg string) error {
 	}, msg)
 }
 
-func (p *Printer) Errors() ErrorList {
-	return append(ErrorList{}, p.errors...)
+func (pr *Printer) Errors() ErrorList {
+	return append(ErrorList{}, pr.errors...)
 }
 
-func (p *Printer) Output() (string, error) {
-	return p.doc.String(), errors.Join(p.errors...)
+func (pr *Printer) Output() (string, error) {
+	return pr.doc.String(), errors.Join(pr.errors...)
 }
 
-func (p *Printer) writeString(s string) {
+func (pr *Printer) writeString(s string) {
 	if len(s) == 0 {
 		return
 	}
 	r, _ := utf8.DecodeLastRuneInString(s)
-	p.lastChar = r
-	p.doc.WriteString(s)
+	pr.lastChar = r
+	pr.doc.WriteString(s)
 }
 
-func (p *Printer) writeRune(r rune) {
-	p.lastChar = r
-	p.doc.WriteRune(r)
+func (pr *Printer) writeRune(r rune) {
+	pr.lastChar = r
+	pr.doc.WriteRune(r)
 }
 
-func (p *Printer) printNode(node ast.Node) {
-	if err := p.printer(p, node); err != nil {
-		p.errors = append(p.errors, err)
+func (pr *Printer) printNode(node ast.Node) {
+	if err := pr.printer(pr, node); err != nil {
+		pr.errors = append(pr.errors, err)
 	}
 }
 
-func (p *Printer) printString(s string) {
+func (pr *Printer) printString(s string) {
 	if len(s) == 0 {
 		return
 	}
-	p.printSeparatorIfNeeded()
-	p.writeString(s)
+	pr.printSeparatorIfNeeded()
+	pr.writeString(s)
 }
 
-func (p *Printer) printRune(r rune) {
-	p.printSeparatorIfNeeded()
-	p.writeRune(r)
+func (pr *Printer) printRune(r rune) {
+	pr.printSeparatorIfNeeded()
+	pr.writeRune(r)
 }
 
-func (p *Printer) printToken(tok token.Token) {
-	p.PrintTrivia(tok.LeadingTrivia)
-	p.printString(tok.Literal)
+func (pr *Printer) printToken(tok token.Token) {
+	pr.PrintTrivia(tok.LeadingTrivia)
+	pr.printString(tok.Literal)
 }
 
-func (p *Printer) printSpaceIfNeeded() {
-	if !isWhitespace(p.lastChar) {
-		p.writeRune(' ')
+func (pr *Printer) printSpaceIfNeeded() {
+	if !isWhitespace(pr.lastChar) {
+		pr.writeRune(' ')
 	}
 }
 
-func (p *Printer) printIndentIfNeeded() {
-	if isNewLine(p.lastChar) {
-		p.PrintIndent()
+func (pr *Printer) printIndentIfNeeded() {
+	if isNewLine(pr.lastChar) {
+		pr.PrintIndent()
 	}
 }
 
-func (p *Printer) printSeparatorIfNeeded() {
-	if p.ensure {
-		switch p.ensureChar {
+func (pr *Printer) printSeparatorIfNeeded() {
+	if pr.ensure {
+		switch pr.ensureChar {
 		case '\n':
-			if p.withNewLines && !isNewLine(p.lastChar) {
-				p.writeRune(p.ensureChar)
+			if pr.withNewLines && !isNewLine(pr.lastChar) {
+				pr.writeRune(pr.ensureChar)
 			}
 		case ' ':
-			if !isWhitespace(p.lastChar) {
-				p.writeRune(' ')
+			if !isWhitespace(pr.lastChar) {
+				pr.writeRune(' ')
 			}
 		case eol:
 		default:
-			if p.lastChar != p.ensureChar {
-				p.writeRune(p.ensureChar)
+			if pr.lastChar != pr.ensureChar {
+				pr.writeRune(pr.ensureChar)
 			}
 		}
-		p.ensureChar = eol
-		p.ensure = false
+		pr.ensureChar = eol
+		pr.ensure = false
 	}
-	p.printIndentIfNeeded()
+	pr.printIndentIfNeeded()
 }

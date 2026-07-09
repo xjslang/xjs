@@ -34,10 +34,10 @@ func ParseAssignStmt(p *parser.Parser) (node *AssignStmt, err error) {
 	return node, nil
 }
 
-func PrintAssignStmt(p *printer.Printer, node *AssignStmt) error {
-	p.Line().Print(node.Name)
-	p.Space().Print(node.Layout.Assign)
-	p.Space().Print(node.Value)
-	p.Print(node.Layout.Semi)
+func PrintAssignStmt(pr *printer.Printer, node *AssignStmt) error {
+	pr.Line().Print(node.Name)
+	pr.Space().Print(node.Layout.Assign)
+	pr.Space().Print(node.Value)
+	pr.Print(node.Layout.Semi)
 	return nil
 }

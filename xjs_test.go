@@ -295,11 +295,11 @@ func TestMiddlewares(t *testing.T) {
 		t.Fatal(err)
 	}
 	pr := xjs.PrinterBuilder().
-		UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+		UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
 			if node, ok := node.(*iifeExpr); ok {
-				p.Print(node.LparenToken)
-				p.Print(node.Function)
-				p.Print(node.RparenToken)
+				pr.Print(node.LparenToken)
+				pr.Print(node.Function)
+				pr.Print(node.RparenToken)
 				return nil
 			}
 			return next(node)

@@ -49,18 +49,18 @@ func ParseBlockStmt(p *parser.Parser) (node *BlockStmt, err error) {
 	return
 }
 
-func PrintBlockStmt(p *printer.Printer, node *BlockStmt) error {
-	p.Print(node.Layout.Lbrace)
+func PrintBlockStmt(pr *printer.Printer, node *BlockStmt) error {
+	pr.Print(node.Layout.Lbrace)
 	if len(node.Stmts) > 0 {
-		p.IncreaseIndent()
+		pr.IncreaseIndent()
 		var stmt ast.Stmt
 		for _, stmt = range node.Stmts {
-			p.Print(stmt)
+			pr.Print(stmt)
 		}
-		p.DecreaseIndent()
-		p.Line()
+		pr.DecreaseIndent()
+		pr.Line()
 	}
-	p.Print(node.Layout.Rbrace)
+	pr.Print(node.Layout.Rbrace)
 	return nil
 }
 

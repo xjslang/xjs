@@ -52,20 +52,20 @@ func ParseFunctionDecl(p *parser.Parser) (node *FunctionDecl, err error) {
 	return node, nil
 }
 
-func PrintFunctionDecl(p *printer.Printer, node *FunctionDecl) error {
-	p.Line().Print(node.Layout.Function)
-	p.Space().Print(node.Name)
-	p.Print(node.Layout.Lparen)
-	p.IncreaseIndent()
+func PrintFunctionDecl(pr *printer.Printer, node *FunctionDecl) error {
+	pr.Line().Print(node.Layout.Function)
+	pr.Space().Print(node.Name)
+	pr.Print(node.Layout.Lparen)
+	pr.IncreaseIndent()
 	for i, param := range node.Params {
 		if i > 0 {
-			p.Print(",")
-			p.Space()
+			pr.Print(",")
+			pr.Space()
 		}
-		p.Print(param)
+		pr.Print(param)
 	}
-	p.DecreaseIndent()
-	p.Print(node.Layout.Rparen)
-	p.Space().Print(node.Body)
+	pr.DecreaseIndent()
+	pr.Print(node.Layout.Rparen)
+	pr.Space().Print(node.Body)
 	return nil
 }

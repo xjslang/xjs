@@ -23,7 +23,7 @@ func ParseIncExpr(p *parser.Parser, left ast.Expr) (node *IncExpr, err error) {
 	return
 }
 
-func PrintIncExpr(p *printer.Printer, node *IncExpr) error {
-	p.Print(node.Left).Print(node.Layout.Increment)
+func PrintIncExpr(pr *printer.Printer, node *IncExpr) error {
+	pr.Print(node.Left).Print(node.Layout.Increment)
 	return nil
 }

@@ -22,7 +22,7 @@ func ParseSemiStmt(p *parser.Parser) (node *SemiStmt, err error) {
 	return node, nil
 }
 
-func PrintSemiStmt(p *printer.Printer, node *SemiStmt) error {
-	p.Line().Print(node.Layout.Semi)
+func PrintSemiStmt(pr *printer.Printer, node *SemiStmt) error {
+	pr.Line().Print(node.Layout.Semi)
 	return nil
 }

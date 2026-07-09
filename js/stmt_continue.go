@@ -34,11 +34,11 @@ func ParseContinueStmt(p *parser.Parser) (node *ContinueStmt, err error) {
 	return
 }
 
-func PrintContinueStmt(p *printer.Printer, node *ContinueStmt) error {
-	p.Line().Print(node.Layout.Continue)
+func PrintContinueStmt(pr *printer.Printer, node *ContinueStmt) error {
+	pr.Line().Print(node.Layout.Continue)
 	if node.Label != nil {
-		p.Space().Print(node.Label)
+		pr.Space().Print(node.Label)
 	}
-	p.Print(node.Layout.Semi)
+	pr.Print(node.Layout.Semi)
 	return nil
 }

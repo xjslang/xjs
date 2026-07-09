@@ -43,10 +43,10 @@ func ParseWhileStmt(p *parser.Parser) (node *WhileStmt, err error) {
 	return node, nil
 }
 
-func PrintWhileStmt(p *printer.Printer, node *WhileStmt) error {
-	p.Line().Print(node.Layout.While)
-	p.Space().Print(node.Layout.Lparen)
-	p.Print(node.Cond, node.Layout.Rparen)
-	p.Space().Print(node.Then)
+func PrintWhileStmt(pr *printer.Printer, node *WhileStmt) error {
+	pr.Line().Print(node.Layout.While)
+	pr.Space().Print(node.Layout.Lparen)
+	pr.Print(node.Cond, node.Layout.Rparen)
+	pr.Space().Print(node.Then)
 	return nil
 }

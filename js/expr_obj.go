@@ -96,26 +96,26 @@ func ParseComputedExpr(p *parser.Parser) (node *ComputedExpr, err error) {
 	return
 }
 
-func PrintObjExpr(p *printer.Printer, node *ObjExpr) error {
-	p.Print(node.Layout.Lbrace)
+func PrintObjExpr(pr *printer.Printer, node *ObjExpr) error {
+	pr.Print(node.Layout.Lbrace)
 	if len(node.Entries) > 0 {
-		p.IncreaseIndent()
+		pr.IncreaseIndent()
 		for i, entry := range node.Entries {
 			if i > 0 {
-				p.Print(",")
+				pr.Print(",")
 			}
 			switch v := entry.Key.(type) {
 			case *ComputedExpr:
-				p.Space().Print(v.Layout.Lbracket).Print(v.Expr, v.Layout.Rbracket)
+				pr.Space().Print(v.Layout.Lbracket).Print(v.Expr, v.Layout.Rbracket)
 			default:
-				p.Space().Print(v)
+				pr.Space().Print(v)
 			}
-			p.Print(":")
-			p.Space().Print(entry.Value)
+			pr.Print(":")
+			pr.Space().Print(entry.Value)
 		}
-		p.DecreaseIndent()
-		p.Space()
+		pr.DecreaseIndent()
+		pr.Space()
 	}
-	p.Print(node.Layout.Rbrace)
+	pr.Print(node.Layout.Rbrace)
 	return nil
 }

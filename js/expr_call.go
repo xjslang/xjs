@@ -39,15 +39,15 @@ func ParseCallExpr(p *parser.Parser, left ast.Expr) (node *CallExpr, err error) 
 	return node, nil
 }
 
-func PrintCallExpr(p *printer.Printer, node *CallExpr) error {
-	p.Print(node.Callee, node.Layout.Lparen)
+func PrintCallExpr(pr *printer.Printer, node *CallExpr) error {
+	pr.Print(node.Callee, node.Layout.Lparen)
 	for i, arg := range node.Args {
 		if i > 0 {
-			p.Print(",")
-			p.Space()
+			pr.Print(",")
+			pr.Space()
 		}
-		p.Print(arg)
+		pr.Print(arg)
 	}
-	p.Print(node.Layout.Rparen)
+	pr.Print(node.Layout.Rparen)
 	return nil
 }

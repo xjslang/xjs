@@ -20,7 +20,7 @@ func ParseIdent(p *parser.Parser) (node *Ident, err error) {
 	return node, nil
 }
 
-func PrintIdent(p *printer.Printer, node *Ident) error {
-	p.Print(node.Token)
+func PrintIdent(pr *printer.Printer, node *Ident) error {
+	pr.Print(node.Token)
 	return nil
 }

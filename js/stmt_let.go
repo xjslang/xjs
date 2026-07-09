@@ -41,11 +41,11 @@ func ParseLetStmt(p *parser.Parser) (node *LetStmt, err error) {
 	return
 }
 
-func PrintLetStmt(p *printer.Printer, node *LetStmt) error {
-	p.Line().Print(node.Layout.Let)
-	p.Space().Print(node.Name)
-	p.Space().Print(node.Layout.Assign)
-	p.Space().Print(node.Value)
-	p.Print(node.Layout.Semi)
+func PrintLetStmt(pr *printer.Printer, node *LetStmt) error {
+	pr.Line().Print(node.Layout.Let)
+	pr.Space().Print(node.Name)
+	pr.Space().Print(node.Layout.Assign)
+	pr.Space().Print(node.Value)
+	pr.Print(node.Layout.Semi)
 	return nil
 }

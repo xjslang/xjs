@@ -21,17 +21,17 @@ type FactorialNode struct {
 }
 
 func ExampleBuilder_Build() {
-	p := printer.NewBuilder().
-		UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+	pr := printer.NewBuilder().
+		UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
 			if node, ok := node.(*FactorialNode); ok {
-				p.Print(node.Value, "!")
+				pr.Print(node.Value, "!")
 				return nil
 			}
 			return next(node) // delegate to the "next" middleware
 		}).
 		Build()
-	p.Print(&FactorialNode{Value: "125"})
-	out, err := p.Output()
+	pr.Print(&FactorialNode{Value: "125"})
+	out, err := pr.Output()
 	if err != nil {
 		panic(err)
 	}
@@ -268,9 +268,9 @@ type MyCustomStmt struct {
 
 func TestBeside(t *testing.T) {
 	pr := printer.NewBuilder().
-		UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+		UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
 			if v, ok := node.(*MyCustomStmt); ok {
-				p.Line().Print(v.name)
+				pr.Line().Print(v.name)
 				return nil
 			}
 			return next(node)

@@ -23,7 +23,7 @@ func ParseDecExpr(p *parser.Parser, left ast.Expr) (node *DecExpr, err error) {
 	return
 }
 
-func PrintDecExpr(p *printer.Printer, node *DecExpr) error {
-	p.Print(node.Left).Print(node.Layout.Decrement)
+func PrintDecExpr(pr *printer.Printer, node *DecExpr) error {
+	pr.Print(node.Left).Print(node.Layout.Decrement)
 	return nil
 }

@@ -51,23 +51,23 @@ func ParseFunctionExpr(p *parser.Parser) (node *FunctionExpr, err error) {
 	return node, nil
 }
 
-func PrintFunctionExpr(p *printer.Printer, node *FunctionExpr) error {
-	p.Print(node.Layout.Function)
-	p.Space()
+func PrintFunctionExpr(pr *printer.Printer, node *FunctionExpr) error {
+	pr.Print(node.Layout.Function)
+	pr.Space()
 	if node.Name != nil {
-		p.Print(node.Name)
+		pr.Print(node.Name)
 	}
-	p.Print(node.Layout.Lparen)
-	p.IncreaseIndent()
+	pr.Print(node.Layout.Lparen)
+	pr.IncreaseIndent()
 	for i, param := range node.Params {
 		if i > 0 {
-			p.Print(",")
-			p.Space()
+			pr.Print(",")
+			pr.Space()
 		}
-		p.Print(param)
+		pr.Print(param)
 	}
-	p.DecreaseIndent()
-	p.Print(node.Layout.Rparen)
-	p.Space().Print(node.Body)
+	pr.DecreaseIndent()
+	pr.Print(node.Layout.Rparen)
+	pr.Space().Print(node.Body)
 	return nil
 }

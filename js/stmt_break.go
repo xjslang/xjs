@@ -34,11 +34,11 @@ func ParseBreakStmt(p *parser.Parser) (node *BreakStmt, err error) {
 	return
 }
 
-func PrintBreakStmt(p *printer.Printer, node *BreakStmt) error {
-	p.Line().Print(node.Layout.Break)
+func PrintBreakStmt(pr *printer.Printer, node *BreakStmt) error {
+	pr.Line().Print(node.Layout.Break)
 	if node.Label != nil {
-		p.Space().Print(node.Label)
+		pr.Space().Print(node.Label)
 	}
-	p.Print(node.Layout.Semi)
+	pr.Print(node.Layout.Semi)
 	return nil
 }

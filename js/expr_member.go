@@ -27,7 +27,7 @@ func ParseMemberExpr(p *parser.Parser, left ast.Expr) (node *MemberExpr, err err
 	return
 }
 
-func PrintMemberExpr(p *printer.Printer, node *MemberExpr) error {
-	p.Print(node.Left, node.Layout.Dot, node.Right)
+func PrintMemberExpr(pr *printer.Printer, node *MemberExpr) error {
+	pr.Print(node.Left, node.Layout.Dot, node.Right)
 	return nil
 }

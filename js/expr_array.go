@@ -38,19 +38,19 @@ func ParseArrayExpr(p *parser.Parser) (node *ArrayExpr, err error) {
 	return node, nil
 }
 
-func PrintArrayExpr(p *printer.Printer, node *ArrayExpr) error {
-	p.Print(node.Layout.Lbracket)
+func PrintArrayExpr(pr *printer.Printer, node *ArrayExpr) error {
+	pr.Print(node.Layout.Lbracket)
 	if len(node.Values) > 0 {
-		p.IncreaseIndent()
+		pr.IncreaseIndent()
 		for i, val := range node.Values {
 			if i > 0 {
-				p.Print(",")
-				p.Space()
+				pr.Print(",")
+				pr.Space()
 			}
-			p.Print(val)
+			pr.Print(val)
 		}
-		p.DecreaseIndent()
+		pr.DecreaseIndent()
 	}
-	p.Print(node.Layout.Rbracket)
+	pr.Print(node.Layout.Rbracket)
 	return nil
 }

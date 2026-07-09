@@ -16,9 +16,9 @@ func Parse(input []byte) (*js.Program, error) {
 }
 
 func Print(result ast.Node, opts ...printer.Option) (string, error) {
-	p := PrinterBuilder().Build(opts...)
-	p.Print(result)
-	return p.Output()
+	pr := PrinterBuilder().Build(opts...)
+	pr.Print(result)
+	return pr.Output()
 }
 
 func PluginBuilder() *plugin.Builder {
@@ -165,66 +165,66 @@ func PluginBuilder() *plugin.Builder {
 }
 
 func PrinterBuilder() *printer.Builder {
-	return printer.NewBuilder().UsePrinter(func(p *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+	return printer.NewBuilder().UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
 		switch v := node.(type) {
 		case *js.Program:
-			return js.PrintProgram(p, v)
+			return js.PrintProgram(pr, v)
 		case *js.BlockStmt:
-			return js.PrintBlockStmt(p, v)
+			return js.PrintBlockStmt(pr, v)
 		case *js.IfStmt:
-			return js.PrintIfStmt(p, v)
+			return js.PrintIfStmt(pr, v)
 		case *js.WhileStmt:
-			return js.PrintWhileStmt(p, v)
+			return js.PrintWhileStmt(pr, v)
 		case *js.FunctionDecl:
-			return js.PrintFunctionDecl(p, v)
+			return js.PrintFunctionDecl(pr, v)
 		case *js.LetStmt:
-			return js.PrintLetStmt(p, v)
+			return js.PrintLetStmt(pr, v)
 		case *js.AssignStmt:
-			return js.PrintAssignStmt(p, v)
+			return js.PrintAssignStmt(pr, v)
 		case *js.ForStmt:
-			return js.PrintForStmt(p, v)
+			return js.PrintForStmt(pr, v)
 		case *js.FunctionExpr:
-			return js.PrintFunctionExpr(p, v)
+			return js.PrintFunctionExpr(pr, v)
 		case *js.CallExpr:
-			return js.PrintCallExpr(p, v)
+			return js.PrintCallExpr(pr, v)
 		case *js.IndexExpr:
-			return js.PrintIndexExpr(p, v)
+			return js.PrintIndexExpr(pr, v)
 		case *js.GroupExpr:
-			return js.PrintGroupExpr(p, v)
+			return js.PrintGroupExpr(pr, v)
 		case *js.ObjExpr:
-			return js.PrintObjExpr(p, v)
+			return js.PrintObjExpr(pr, v)
 		case *js.ArrayExpr:
-			return js.PrintArrayExpr(p, v)
+			return js.PrintArrayExpr(pr, v)
 		case *js.IncExpr:
-			return js.PrintIncExpr(p, v)
+			return js.PrintIncExpr(pr, v)
 		case *js.DecExpr:
-			return js.PrintDecExpr(p, v)
+			return js.PrintDecExpr(pr, v)
 		case *js.UnaryExpr:
-			return js.PrintUnaryExpr(p, v)
+			return js.PrintUnaryExpr(pr, v)
 		case *js.BinaryExpr:
-			return js.PrintBinaryExpr(p, v)
+			return js.PrintBinaryExpr(pr, v)
 		case *js.Ident:
-			return js.PrintIdent(p, v)
+			return js.PrintIdent(pr, v)
 		case *js.Variable:
-			p.Print(v.Token)
+			pr.Print(v.Token)
 			return nil
 		case *js.Literal:
-			p.Print(v.Value)
+			pr.Print(v.Value)
 			return nil
 		case *js.ExprStmt:
-			return js.PrintExprStmt(p, v)
+			return js.PrintExprStmt(pr, v)
 		case *js.ReturnStmt:
-			return js.PrintReturnStmt(p, v)
+			return js.PrintReturnStmt(pr, v)
 		case *js.BreakStmt:
-			return js.PrintBreakStmt(p, v)
+			return js.PrintBreakStmt(pr, v)
 		case *js.ContinueStmt:
-			return js.PrintContinueStmt(p, v)
+			return js.PrintContinueStmt(pr, v)
 		case *js.LabelStmt:
-			return js.PrintLabelStmt(p, v)
+			return js.PrintLabelStmt(pr, v)
 		case *js.MemberExpr:
-			return js.PrintMemberExpr(p, v)
+			return js.PrintMemberExpr(pr, v)
 		case *js.SemiStmt:
-			return js.PrintSemiStmt(p, v)
+			return js.PrintSemiStmt(pr, v)
 		}
 		return next(node)
 	})

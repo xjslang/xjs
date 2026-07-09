@@ -62,28 +62,28 @@ func ParseForStmt(p *parser.Parser) (node *ForStmt, err error) {
 	return node, nil
 }
 
-func PrintForStmt(p *printer.Printer, node *ForStmt) error {
-	p.Line().Print(node.Layout.For)
-	p.Space().Print(node.Layout.Lparen)
-	p.IncreaseIndent()
+func PrintForStmt(pr *printer.Printer, node *ForStmt) error {
+	pr.Line().Print(node.Layout.For)
+	pr.Space().Print(node.Layout.Lparen)
+	pr.IncreaseIndent()
 	if node.Init != nil {
-		p.Beside().Print(node.Init)
+		pr.Beside().Print(node.Init)
 	}
-	p.Print(node.Layout.Semi1)
+	pr.Print(node.Layout.Semi1)
 	if node.Cond != nil {
-		p.Space().Print(node.Cond)
+		pr.Space().Print(node.Cond)
 	}
-	p.Print(node.Layout.Semi2)
+	pr.Print(node.Layout.Semi2)
 	if node.After != nil {
-		p.Space().Print(node.After)
+		pr.Space().Print(node.After)
 	}
-	p.DecreaseIndent()
-	p.Print(node.Layout.Rparen)
+	pr.DecreaseIndent()
+	pr.Print(node.Layout.Rparen)
 	switch v := node.Then.(type) {
 	case *SemiStmt:
-		p.Beside().Print(v)
+		pr.Beside().Print(v)
 	default:
-		p.Space().Print(node.Then)
+		pr.Space().Print(node.Then)
 	}
 	return nil
 }
