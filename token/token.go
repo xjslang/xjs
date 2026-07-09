@@ -5,6 +5,10 @@ import (
 	"sync"
 )
 
+type Scanner interface {
+	NextToken() Token
+}
+
 type Type int
 
 func (tt Type) String() string {

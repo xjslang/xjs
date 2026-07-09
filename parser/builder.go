@@ -1,6 +1,9 @@
 package parser
 
-import "github.com/xjslang/xjs/ast"
+import (
+	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/token"
+)
 
 type Builder struct {
 	stmtParsers   []func(*Parser, func() (ast.Stmt, error)) (ast.Stmt, error)
@@ -33,7 +36,7 @@ func (b *Builder) UseBinaryParser(parser func(p *Parser, left ast.Expr, next fun
 	return b
 }
 
-func (b *Builder) Build(sc Scanner) *Parser {
+func (b *Builder) Build(sc token.Scanner) *Parser {
 	p := &Parser{}
 	for _, stmt := range b.stmtParsers {
 		p.useStmtParser(stmt)

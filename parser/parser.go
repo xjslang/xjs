@@ -9,10 +9,6 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-type Scanner interface {
-	NextToken() token.Token
-}
-
 type Range struct {
 	Start token.Position `json:"start"`
 	End   token.Position `json:"end"`
@@ -49,7 +45,7 @@ func (list ErrorList) Error() string {
 type Parser struct {
 	CurrentToken     token.Token
 	PeekToken        token.Token
-	scanner          Scanner
+	scanner          token.Scanner
 	scopes           ScopeTracker
 	stmtParser       func(p *Parser) (ast.Stmt, error)
 	exprParser       func(p *Parser) (ast.Expr, error)
@@ -57,7 +53,7 @@ type Parser struct {
 	unaryExprParser  func(p *Parser) (ast.Expr, error)
 }
 
-func (p *Parser) init(sc Scanner) {
+func (p *Parser) init(sc token.Scanner) {
 	p.scopes = make(ScopeTracker)
 	p.scanner = sc
 	if p.stmtParser == nil {

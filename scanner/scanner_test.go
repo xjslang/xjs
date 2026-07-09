@@ -105,6 +105,42 @@ func BenchmarkLexer(b *testing.B) {
 	_ = tok
 }
 
+func TestLookahead(t *testing.T) {
+	input := "a b c d e f"
+	sc := scanner.NewBuilder().Build([]byte(input))
+	var toks []token.Token
+	for range 2 {
+		toks = append(toks, sc.NextToken())
+	}
+	testutil.AssertTokens(t, toks, []token.Token{
+		{Type: token.IDENT, Literal: "a"},
+		{Type: token.IDENT, Literal: "b"},
+	})
+	fork := sc.Fork()
+	toks = toks[:0]
+	for range 2 {
+		toks = append(toks, fork.NextToken())
+	}
+	testutil.AssertTokens(t, toks, []token.Token{
+		{Type: token.IDENT, Literal: "c"},
+		{Type: token.IDENT, Literal: "d"},
+	})
+	toks = toks[:0]
+	toks = append(toks, sc.NextToken())
+	testutil.AssertTokens(t, toks, []token.Token{
+		{Type: token.IDENT, Literal: "c"},
+	})
+	sc.Apply(fork)
+	toks = toks[:0]
+	for range 2 {
+		toks = append(toks, sc.NextToken())
+	}
+	testutil.AssertTokens(t, toks, []token.Token{
+		{Type: token.IDENT, Literal: "e"},
+		{Type: token.IDENT, Literal: "f"},
+	})
+}
+
 func TestIdentifier(t *testing.T) {
 	input := "abc _abc $abc Abc0123 _$AbC0$__ 0abc"
 	assertInputTokens(t, input, []token.Token{

@@ -42,6 +42,34 @@ func (sc *Scanner) init(input []byte, opts ...func(*config)) {
 	sc.Reset()
 }
 
+func (sc *Scanner) Fork() token.Scanner {
+	s := &Scanner{
+		input:       sc.input,
+		offset:      sc.offset,
+		line:        sc.line,
+		column:      sc.column,
+		currentChar: sc.currentChar,
+		triviaTypes: slices.Clone(sc.triviaTypes),
+	}
+	s.scanner = sc.scanner
+	if s.scanner == nil {
+		s.scanner = defaultScanner
+	}
+	return s
+}
+
+func (sc *Scanner) Apply(s token.Scanner) {
+	switch v := s.(type) {
+	case *Scanner:
+		sc.offset = v.offset
+		sc.line = v.line
+		sc.column = v.column
+		sc.currentChar = v.currentChar
+	default:
+		panic("*Scanner expected")
+	}
+}
+
 func (sc *Scanner) Reset() {
 	if sc.scanner == nil {
 		sc.scanner = defaultScanner
