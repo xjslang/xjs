@@ -20,6 +20,25 @@ import (
 	"github.com/xorcare/golden"
 )
 
+func TestAssignOperator(t *testing.T) {
+	t.Run("is right associative", func(t *testing.T) {
+		tests := []struct {
+			input    string
+			expected string
+		}{
+			{"a = b = c", "(a = (b = c));"}, // right associative
+			{"a + b + c", "((a + b) + c);"}, // left associative
+		}
+		for _, test := range tests {
+			result, err := xjs.Parse([]byte(test.input))
+			require.NoError(t, err)
+			code, err := xjs.Print(result, printer.WithLogs(true))
+			require.NoError(t, err)
+			require.Equal(t, test.expected, code)
+		}
+	})
+}
+
 func TestStandaloneSemicolons(t *testing.T) {
 	input := `; // c1
 	; // c2

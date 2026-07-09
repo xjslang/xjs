@@ -8,6 +8,10 @@ for (i = 0; i < 10; i++) {
   console.log(i);
 }
 
+// use classic inc/dec
+for (let i = 0; i < 10; i = i + 1);
+for (let i = 0; i < 10; i = i - 1);
+
 // with comments before semicolons
 for (
   let i = 0; // init clause
