@@ -25,6 +25,8 @@ func ParseBinaryExpr(p *parser.Parser, left ast.Expr) (node *BinaryExpr, err err
 }
 
 func PrintBinaryExpr(pr *printer.Printer, node *BinaryExpr) error {
+	pr.Log("(")
+	defer pr.Log(")")
 	pr.Print(node.Left)
 	pr.Space().Print(node.Op)
 	pr.Space().Print(node.Right)
