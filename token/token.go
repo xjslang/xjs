@@ -5,6 +5,11 @@ import (
 	"sync"
 )
 
+type ForkableScanner interface {
+	Fork() Scanner
+	Apply(Scanner)
+}
+
 type Scanner interface {
 	NextToken() Token
 }
