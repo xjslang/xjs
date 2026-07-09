@@ -118,10 +118,6 @@ func PluginBuilder() *plugin.Builder {
 				return js.ParseContinueStmt(p)
 			case token.IDENT:
 				switch p.PeekToken.Type {
-				case token.ASSIGN:
-					if !p.PeekToken.AfterNewline {
-						return js.ParseAssignStmt(p)
-					}
 				case token.COLON:
 					return js.ParseLabelStmt(p)
 				}
@@ -148,6 +144,8 @@ func PluginBuilder() *plugin.Builder {
 		})
 		b.UseBinaryParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
 			switch p.CurrentToken.Type {
+			case token.ASSIGN:
+				return js.ParseAssignExpr(p, left)
 			case token.LPAREN:
 				return js.ParseCallExpr(p, left)
 			case token.LBRACKET:
@@ -179,8 +177,6 @@ func PrinterBuilder() *printer.Builder {
 			return js.PrintFunctionDecl(pr, v)
 		case *js.LetStmt:
 			return js.PrintLetStmt(pr, v)
-		case *js.AssignStmt:
-			return js.PrintAssignStmt(pr, v)
 		case *js.ForStmt:
 			return js.PrintForStmt(pr, v)
 		case *js.FunctionExpr:
@@ -199,6 +195,8 @@ func PrinterBuilder() *printer.Builder {
 			return js.PrintIncExpr(pr, v)
 		case *js.DecExpr:
 			return js.PrintDecExpr(pr, v)
+		case *js.AssignExpr:
+			return js.PrintAssignExpr(pr, v)
 		case *js.UnaryExpr:
 			return js.PrintUnaryExpr(pr, v)
 		case *js.BinaryExpr:
