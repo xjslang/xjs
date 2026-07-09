@@ -82,6 +82,54 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+func TestLookahead(t *testing.T) {
+	parser1 := func(p *parser.Parser) (node *js.Variable, err error) {
+		node = &js.Variable{}
+		if node.Token, err = p.ExpectString("a"); err != nil {
+			return
+		}
+		return
+	}
+
+	parser2 := func(p *parser.Parser) (node *js.Variable, err error) {
+		node = &js.Variable{}
+		if node.Token, err = p.ExpectString("b"); err != nil {
+			return
+		}
+		return
+	}
+
+	t.Run("resolved", func(t *testing.T) {
+		input := "b"
+		sc := scanner.NewBuilder().Build([]byte(input))
+		p := parser.NewBuilder().Build(sc)
+		result, err := parser.Resolve(p, func(p *parser.Parser) (*js.Variable, error) {
+			return parser1(p)
+		}, func(p *parser.Parser) (*js.Variable, error) {
+			return parser2(p)
+		})
+		require.NoError(t, err)
+		testutil.AssertTokens(t, []token.Token{result.Token}, []token.Token{
+			{Type: token.IDENT, Literal: "b"},
+		})
+		require.Equal(t, token.EOF, p.CurrentToken.Type)
+	})
+
+	t.Run("not resolved", func(t *testing.T) {
+		input := "c"
+		sc := scanner.NewBuilder().Build([]byte(input))
+		p := parser.NewBuilder().Build(sc)
+		_, err := parser.Resolve(p, func(p *parser.Parser) (*js.Variable, error) {
+			return parser1(p)
+		}, func(p *parser.Parser) (*js.Variable, error) {
+			return parser2(p)
+		})
+		require.Error(t, err)
+		require.Equal(t, token.IDENT, p.CurrentToken.Type)
+		require.Equal(t, "c", p.CurrentToken.Literal)
+	})
+}
+
 func TestExprs(t *testing.T) {
 	tests := []struct {
 		input    string

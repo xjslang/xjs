@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"maps"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -73,6 +74,36 @@ func (p *Parser) init(sc token.Scanner) {
 	// call twice to update CurrentToken and PeekToken
 	p.AdvanceToken()
 	p.AdvanceToken()
+}
+
+func (p *Parser) Fork() *Parser {
+	switch sc := p.scanner.(type) {
+	case token.ForkableScanner:
+		return &Parser{
+			CurrentToken:     p.CurrentToken,
+			PeekToken:        p.PeekToken,
+			scanner:          sc.Fork(),
+			scopes:           maps.Clone(p.scopes),
+			stmtParser:       p.stmtParser,
+			exprParser:       p.exprParser,
+			binaryExprParser: p.binaryExprParser,
+			unaryExprParser:  p.unaryExprParser,
+		}
+	default:
+		panic("The scanner must implement token.ForkableScanner")
+	}
+}
+
+func (p *Parser) Apply(p1 *Parser) {
+	switch sc := p.scanner.(type) {
+	case token.ForkableScanner:
+		sc.Apply(p1.scanner)
+		p.CurrentToken = p1.CurrentToken
+		p.PeekToken = p1.PeekToken
+		p.scopes = maps.Clone(p1.scopes)
+	default:
+		panic("The scanner must implement token.ForkableScanner")
+	}
 }
 
 func (p *Parser) ParseStmt() (ast.Stmt, error) {
