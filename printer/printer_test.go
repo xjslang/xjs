@@ -39,6 +39,24 @@ func ExampleBuilder_Build() {
 	// Output: 125!
 }
 
+func TestLog(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+		withLogs bool
+	}{
+		{"a + b + c", "((a + b) + c);", true},
+		{"a + b + c", "a + b + c;", false},
+	}
+	for _, test := range tests {
+		result, err := xjs.Parse([]byte(test.input))
+		require.NoError(t, err)
+		code, err := xjs.Print(result, printer.WithLogs(test.withLogs))
+		require.NoError(t, err)
+		require.Equal(t, test.expected, code)
+	}
+}
+
 func TestInit(t *testing.T) {
 	t.Run("with custom indent", func(t *testing.T) {
 		pr := printer.NewBuilder().Build(printer.WithIndent("\t"))

@@ -33,6 +33,7 @@ type config struct {
 	indent       string
 	withComments bool
 	withNewLines bool
+	withLogs     bool
 }
 
 type Option func(*config)
@@ -62,10 +63,17 @@ func WithNewLines(value bool) Option {
 	}
 }
 
+func WithLogs(value bool) Option {
+	return func(cfg *config) {
+		cfg.withLogs = value
+	}
+}
+
 type Printer struct {
 	doc          strings.Builder
 	withComments bool
 	withNewLines bool
+	withLogs     bool
 	indent       string
 	indentLevel  int
 	lastChar     rune
@@ -88,6 +96,7 @@ func (pr *Printer) init(opts ...Option) {
 	pr.doc.Reset()
 	pr.withComments = cfg.withComments
 	pr.withNewLines = cfg.withNewLines
+	pr.withLogs = cfg.withLogs
 	pr.indent = cfg.indent
 	pr.indentLevel = 0
 	pr.lastChar = eol
@@ -165,6 +174,13 @@ func (pr *Printer) Print(args ...any) *Printer {
 		default:
 			panic("Unsupported type")
 		}
+	}
+	return pr
+}
+
+func (pr *Printer) Log(args ...any) *Printer {
+	if pr.withLogs {
+		return pr.Print(args...)
 	}
 	return pr
 }
