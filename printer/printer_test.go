@@ -357,25 +357,25 @@ func TestSpaceAndPrint(t *testing.T) {
 func TestPrintPriority(t *testing.T) {
 	t.Run("Beside takes priority over Space and Line", func(t *testing.T) {
 		pr := printer.NewBuilder().Build()
-		pr.Print("a").
-			Beside().Space().Print("b").
-			Beside().Line().Print("c")
+		pr.Print("a")
+		pr.Beside().Space().Print("b")
+		pr.Beside().Line().Print("c")
 		out, err := pr.Output()
 		require.NoError(t, err)
 		require.Equal(t, "abc", out)
 	})
 	t.Run("Space takes priority over Line", func(t *testing.T) {
 		pr := printer.NewBuilder().Build()
-		pr.Print("a").
-			Space().Line().Print("b")
+		pr.Print("a")
+		pr.Space().Line().Print("b")
 		out, err := pr.Output()
 		require.NoError(t, err)
 		require.Equal(t, "a b", out)
 	})
 	t.Run("Line has the lowest priority", func(t *testing.T) {
 		pr := printer.NewBuilder().Build()
-		pr.Print("a").
-			Line().Print("b")
+		pr.Print("a")
+		pr.Line().Print("b")
 		out, err := pr.Output()
 		require.NoError(t, err)
 		require.Equal(t, "a\nb", out)

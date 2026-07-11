@@ -158,7 +158,7 @@ func (pr *Printer) Space() *Printer {
 	return pr.Ensure(' ')
 }
 
-func (pr *Printer) Print(args ...any) *Printer {
+func (pr *Printer) Print(args ...any) {
 	for _, arg := range args {
 		switch v := arg.(type) {
 		case string:
@@ -175,14 +175,12 @@ func (pr *Printer) Print(args ...any) *Printer {
 			panic("Unsupported type")
 		}
 	}
-	return pr
 }
 
-func (pr *Printer) Log(args ...any) *Printer {
+func (pr *Printer) Log(args ...any) {
 	if pr.withLogs {
-		return pr.Print(args...)
+		pr.Print(args...)
 	}
-	return pr
 }
 
 func (pr *Printer) PrintTrivia(trivia []token.Token) {

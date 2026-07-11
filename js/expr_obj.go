@@ -106,7 +106,8 @@ func PrintObjExpr(pr *printer.Printer, node *ObjExpr) error {
 			}
 			switch v := entry.Key.(type) {
 			case *ComputedExpr:
-				pr.Space().Print(v.Layout.Lbracket).Print(v.Expr, v.Layout.Rbracket)
+				pr.Space().Print(v.Layout.Lbracket)
+				pr.Print(v.Expr, v.Layout.Rbracket)
 			default:
 				pr.Space().Print(v)
 			}
