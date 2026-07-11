@@ -20,6 +20,15 @@ import (
 	"github.com/xorcare/golden"
 )
 
+func TestExportStmt(t *testing.T) {
+	t.Run("declaration expected", func(t *testing.T) {
+		input := `export (function () { console.log('foo') })()`
+		_, err := xjs.Parse([]byte(input))
+		require.Error(t, err)
+		require.Equal(t, err.Error(), "[line:0, col:7] declaration expected")
+	})
+}
+
 func TestAssignOperator(t *testing.T) {
 	t.Run("is right associative", func(t *testing.T) {
 		tests := []struct {
