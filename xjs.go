@@ -94,6 +94,8 @@ func PluginBuilder() *plugin.Builder {
 					tok.Type = js.BREAK
 				case "continue":
 					tok.Type = js.CONTINUE
+				case "import":
+					tok.Type = js.IMPORT
 				}
 			}
 			return
@@ -116,6 +118,8 @@ func PluginBuilder() *plugin.Builder {
 				return js.ParseBreakStmt(p)
 			case js.CONTINUE:
 				return js.ParseContinueStmt(p)
+			case js.IMPORT:
+				return js.ParseImportStmt(p)
 			case token.IDENT:
 				switch p.PeekToken.Type {
 				case token.COLON:
@@ -223,6 +227,8 @@ func PrinterBuilder() *printer.Builder {
 			return js.PrintMemberExpr(pr, v)
 		case *js.SemiStmt:
 			return js.PrintSemiStmt(pr, v)
+		case *js.ImportStmt:
+			return js.PrintImportStmt(pr, v)
 		}
 		return next(node)
 	})
