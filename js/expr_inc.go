@@ -24,6 +24,6 @@ func ParseIncExpr(p *parser.Parser, left ast.Expr) (node *IncExpr, err error) {
 }
 
 func PrintIncExpr(pr *printer.Printer, node *IncExpr) error {
-	pr.Print(node.Left).Print(node.Layout.Increment)
+	pr.Print(node.Left, node.Layout.Increment)
 	return nil
 }
