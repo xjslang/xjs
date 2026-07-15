@@ -80,7 +80,9 @@ const (
 	RBRACKET  // ]
 	NEWLINE   // \r, \n, \r\n
 	// others
-	DIGIT // 0..9
+	DIGIT         // 0..9
+	LINE_COMMENT  // // ..
+	BLOCK_COMMENT // /* .. */
 )
 
 var tokenLiterals = map[Type]string{
@@ -124,7 +126,9 @@ var tokenLiterals = map[Type]string{
 	RBRACKET:  "]",
 	NEWLINE:   "new line",
 	// others
-	DIGIT: "digit",
+	DIGIT:         "digit",
+	LINE_COMMENT:  "line comment",
+	BLOCK_COMMENT: "block comment",
 }
 
 const initCustomType Type = 1000
