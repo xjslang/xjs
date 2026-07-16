@@ -1,7 +1,8 @@
-package js
+package jsextended
 
 import (
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/token"
@@ -22,7 +23,7 @@ func ParseNewExpr(p *parser.Parser) (node *NewExpr, err error) {
 	if node.Layout.New, err = p.Expect(NEW); err != nil {
 		return
 	}
-	if node.Value, err = ParseRightExpr(p, token.LPAREN.Precedence()-1); err != nil {
+	if node.Value, err = js.ParseRightExpr(p, token.LPAREN.Precedence()-1); err != nil {
 		return
 	}
 	return
