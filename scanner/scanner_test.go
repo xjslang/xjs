@@ -118,7 +118,7 @@ func TestIdentifier(t *testing.T) {
 		{Type: token.IDENT, Literal: "$abc"},
 		{Type: token.IDENT, Literal: "Abc0123"},
 		{Type: token.IDENT, Literal: "_$AbC0$__"},
-		{Type: token.DIGIT, Literal: "0"},
+		{Type: token.NUMBER, Literal: "0"},
 		{Type: token.IDENT, Literal: "abc"},
 		{Type: token.EOF},
 	})
@@ -347,10 +347,13 @@ func TestReadIdent(t *testing.T) {
 }
 
 func TestReadNumber(t *testing.T) {
-	assertInputTokens(t, "123", []token.Token{
-		{Type: token.DIGIT, Literal: "1"},
-		{Type: token.DIGIT, Literal: "2"},
-		{Type: token.DIGIT, Literal: "3"},
+	assertInputTokens(t, "123 0.5 0e2 0123 0x10 0o7", []token.Token{
+		{Type: token.NUMBER, Literal: "123"},
+		{Type: token.NUMBER, Literal: "0.5"},
+		{Type: token.NUMBER, Literal: "0e2"},
+		{Type: token.NUMBER, Literal: "0123"},
+		{Type: token.NUMBER, Literal: "0x10"},
+		{Type: token.NUMBER, Literal: "0o7"},
 		{Type: token.EOF},
 	})
 }

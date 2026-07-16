@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/scanner"
 )
 
@@ -35,11 +34,11 @@ func TestScanNumber(t *testing.T) {
 				var err error
 				switch sc.CurrentChar() {
 				case 'x', 'X':
-					result, err = js.ScanHexNumber(sc)
+					result, err = scanner.ScanHexNumber(sc)
 				case 'o', 'O':
-					result, err = js.ScanOctalNumber(sc)
+					result, err = scanner.ScanOctalNumber(sc)
 				default:
-					result, err = js.ScanNumber(sc)
+					result, err = scanner.ScanNumber(sc)
 				}
 				assert.NoError(t, err)
 				assert.Equal(t, input, result)
@@ -58,11 +57,11 @@ func TestScanNumber(t *testing.T) {
 			var err error
 			switch sc.CurrentChar() {
 			case 'x', 'X':
-				_, err = js.ScanHexNumber(sc)
+				_, err = scanner.ScanHexNumber(sc)
 			case 'o', 'O':
-				_, err = js.ScanOctalNumber(sc)
+				_, err = scanner.ScanOctalNumber(sc)
 			default:
-				_, err = js.ScanNumber(sc)
+				_, err = scanner.ScanNumber(sc)
 			}
 			assert.Error(t, err)
 		}
