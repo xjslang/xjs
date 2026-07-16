@@ -33,3 +33,7 @@ func Bench() error {
 func UpdateGoldenFiles() error {
 	return sh.RunV("go", "test", ".", "./printer", "-update")
 }
+
+func CleanTestCache() error {
+	return sh.RunV("go", "clean", "-testcache")
+}
