@@ -446,7 +446,7 @@ func TestCompact(t *testing.T) {
 }
 
 func TestErrorAt(t *testing.T) {
-	spreadOp := token.RegisterType("...")
+	spreadOp := token.RegisterType("..")
 	token.RegisterUnaryType(spreadOp)
 
 	b := xjs.PluginBuilder().Install(func(b *plugin.Builder) {
@@ -456,11 +456,11 @@ func TestErrorAt(t *testing.T) {
 			}
 			// instruct the scanner to recognize the spread operator
 			if tok.Type == token.DOT {
-				if sc.CurrentChar() == '.' && sc.PeekChar() == '.' {
+				if sc.CurrentChar() == '.' {
 					sc.AdvanceChar()
 					sc.AdvanceChar()
 					tok.Type = spreadOp
-					tok.Literal = "..."
+					tok.Literal = ".."
 				}
 			}
 			return
@@ -477,7 +477,7 @@ func TestErrorAt(t *testing.T) {
 		return next(node)
 	}).Build()
 
-	input := `let x = ...rest`
+	input := `let x = ..rest`
 	p := b.Build([]byte(input))
 	result, err := js.ParseProgram(p)
 	require.NoError(t, err)
