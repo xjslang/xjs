@@ -56,7 +56,7 @@ func ParseValue(p *parser.Parser) (ast.Expr, error) {
 		val := p.CurrentToken
 		p.AdvanceToken()
 		return &Variable{Token: val}, nil
-	case NUMBER, STRING:
+	case NUMBER, token.STRING:
 		val := p.CurrentToken
 		p.AdvanceToken()
 		return &Literal{Value: val}, nil

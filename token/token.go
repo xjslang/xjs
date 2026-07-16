@@ -67,7 +67,6 @@ const (
 	OR  // ||
 	NOT // !
 	// delimiters
-	QUOTE     // ' "
 	COMMA     // ,
 	SEMICOLON // ;
 	COLON     // :
@@ -83,6 +82,7 @@ const (
 	DIGIT         // 0..9
 	LINE_COMMENT  // // ..
 	BLOCK_COMMENT // /* .. */
+	STRING        // '..' or ".."
 )
 
 var tokenLiterals = map[Type]string{
@@ -113,7 +113,6 @@ var tokenLiterals = map[Type]string{
 	OR:  "||",
 	NOT: "!",
 	// delimiters
-	QUOTE:     "quote",
 	COMMA:     ",",
 	SEMICOLON: ";",
 	COLON:     ":",
@@ -129,6 +128,7 @@ var tokenLiterals = map[Type]string{
 	DIGIT:         "digit",
 	LINE_COMMENT:  "line comment",
 	BLOCK_COMMENT: "block comment",
+	STRING:        "string",
 }
 
 const initCustomType Type = 1000

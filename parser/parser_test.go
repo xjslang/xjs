@@ -28,24 +28,7 @@ type MyCustomStmt struct {
 }
 
 func ExampleBuilder_Build() {
-	s := scanner.NewBuilder().
-		UseScanner(func(s *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
-			if tok, err = next(); err != nil {
-				return
-			}
-			if tok.Type == token.QUOTE {
-				tok.Type = js.STRING
-				var lit string
-				if lit, err = js.ScanString(s, rune(tok.Literal[0])); err != nil {
-					tok.Type = token.ILLEGAL
-					tok.Literal += lit
-					return
-				}
-				tok.Literal += lit
-			}
-			return
-		}).
-		Build([]byte("print('Hello, World!')"))
+	s := scanner.NewBuilder().Build([]byte("print('Hello, World!')"))
 	p := parser.NewBuilder().
 		UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (_ ast.Stmt, err error) {
 			if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "print" {
@@ -54,7 +37,7 @@ func ExampleBuilder_Build() {
 				if node.LparenToken, err = p.Expect(token.LPAREN); err != nil { // expect (
 					return
 				}
-				if node.Message, err = p.Expect(js.STRING); err != nil { // expect a string
+				if node.Message, err = p.Expect(token.STRING); err != nil { // expect a string
 					return
 				}
 				if node.RparenToken, err = p.Expect(token.RPAREN); err != nil { // expect )

@@ -45,7 +45,7 @@ func ParseObjExpr(p *parser.Parser) (node *ObjExpr, err error) {
 			if entry.Key, err = ParseComputedExpr(p); err != nil {
 				return
 			}
-		case STRING, NUMBER:
+		case token.STRING, NUMBER:
 			if entry.Key, err = ParseValue(p); err != nil {
 				return
 			}

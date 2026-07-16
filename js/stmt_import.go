@@ -40,7 +40,7 @@ func ParseImportStmt(p *parser.Parser) (node *ImportStmt, err error) {
 	if node.Layout.Import, err = p.Expect(IMPORT); err != nil {
 		return
 	}
-	if p.CurrentToken.Type == STRING {
+	if p.CurrentToken.Type == token.STRING {
 		// side-effects import:
 		// import 'lib.js'
 		node.Path = p.CurrentToken
@@ -97,7 +97,7 @@ func ParseImportStmt(p *parser.Parser) (node *ImportStmt, err error) {
 		if node.Layout.From, err = p.ExpectString("from"); err != nil {
 			return
 		}
-		if node.Path, err = p.Expect(STRING); err != nil {
+		if node.Path, err = p.Expect(token.STRING); err != nil {
 			return
 		}
 	}
