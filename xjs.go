@@ -19,9 +19,13 @@ func Print(result ast.Node, opts ...printer.Option) (string, error) {
 }
 
 func PluginBuilder() *plugin.Builder {
-	return plugin.New().Install(js.Plugin)
+	return plugin.New().
+		Install(js.Plugin).
+		Install(js.ExtendedPlugin)
 }
 
 func PrinterBuilder() *printer.Builder {
-	return printer.NewBuilder().UsePrinter(js.Printer)
+	return printer.NewBuilder().
+		UsePrinter(js.Printer).
+		UsePrinter(js.ExtendedPrinter)
 }
