@@ -8,6 +8,7 @@ import (
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/js"
+	"github.com/xjslang/xjs/jsextended"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
@@ -56,8 +57,8 @@ func TestUseExprParser(t *testing.T) {
 	}
 	// check the result
 	require.Len(t, result.Stmts, 1)
-	require.IsType(t, &js.LetStmt{}, result.Stmts[0])
-	stmt := result.Stmts[0].(*js.LetStmt)
+	require.IsType(t, &jsextended.VarStmt{}, result.Stmts[0])
+	stmt := result.Stmts[0].(*jsextended.VarStmt)
 	require.IsType(t, &orExpr{}, stmt.Value)
 	orVal := stmt.Value.(*orExpr)
 	require.IsType(t, &js.ExprStmt{}, orVal.FallbackStmt)

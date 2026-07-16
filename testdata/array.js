@@ -1,4 +1,7 @@
 // basic
+let y = [];
+let z = [ , , 3];
+let w = [ , 2, , ...rest];
 let a = [1, 2, 3];
 let numbers = [1, 2, 3, 4, 5];
 let i = 0;

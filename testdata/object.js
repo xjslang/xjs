@@ -18,14 +18,17 @@ let item = {
 };
 
 function foo() {
+  let name = 'John Smith';
+  let age = 32;
   return {
-    name: 'John Smith',
-    age: 32 // age
+    name,
+    age // age
   // comments here
   };
-  let item = {
-    name: "John Smith",
-    age: 32,
-    status: "divorced"
-  };
 }
+
+let x = {
+  'name': John,
+  ['age']: 32,
+  3.14: 'PI approx.'
+};
