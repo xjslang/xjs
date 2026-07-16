@@ -191,9 +191,41 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 			lit := ScanIdentifier(s)
 			tok = token.Token{Type: token.IDENT, Literal: lit}
 		} else if IsDigit(s.currentChar) {
-			c := s.currentChar
-			s.AdvanceChar()
-			tok = token.Token{Type: token.DIGIT, Literal: string(c)}
+			tok = token.Token{Type: token.NUMBER, Literal: string(s.currentChar)}
+			if s.currentChar == '0' {
+				tok.Literal = string(s.currentChar)
+				s.AdvanceChar()
+				switch s.currentChar {
+				case 'x', 'X':
+					var lit string
+					if lit, err = ScanHexNumber(s); err != nil {
+						tok.Type = token.ILLEGAL
+						return
+					}
+					tok.Literal += lit
+				case 'o', 'O':
+					var lit string
+					if lit, err = ScanOctalNumber(s); err != nil {
+						tok.Type = token.ILLEGAL
+						return
+					}
+					tok.Literal += lit
+				default:
+					if s.currentChar == '.' || s.currentChar == 'e' || IsDigit(s.currentChar) {
+						var lit string
+						if lit, err = ScanNumber(s); err != nil {
+							tok.Type = token.ILLEGAL
+							return
+						}
+						tok.Literal += lit
+					}
+				}
+			} else {
+				if tok.Literal, err = ScanNumber(s); err != nil {
+					tok.Type = token.ILLEGAL
+					return
+				}
+			}
 		} else if s.currentChar == utf8.RuneError {
 			c := s.currentChar
 			s.AdvanceChar()

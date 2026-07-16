@@ -85,3 +85,60 @@ func ScanString(sc *Scanner, delimiter rune) (string, error) {
 	}
 	return sb.String(), nil
 }
+
+func ScanHexNumber(sc *Scanner) (string, error) {
+	sb := strings.Builder{}
+	sb.WriteRune(sc.currentChar)
+	sc.AdvanceChar() // consume x | X
+	if !IsHexDigit(sc.currentChar) {
+		return sb.String(), errors.New("hex digit expected")
+	}
+	sb.WriteRune(sc.currentChar)
+	for sc.AdvanceChar(); IsHexDigit(sc.currentChar); sc.AdvanceChar() {
+		sb.WriteRune(sc.currentChar)
+	}
+	return sb.String(), nil
+}
+
+func ScanOctalNumber(sc *Scanner) (string, error) {
+	sb := strings.Builder{}
+	sb.WriteRune(sc.currentChar)
+	sc.AdvanceChar() // consume o | O
+	if !IsOctalDigit(sc.currentChar) {
+		return sb.String(), errors.New("octal digit expected")
+	}
+	sb.WriteRune(sc.currentChar)
+	for sc.AdvanceChar(); IsOctalDigit(sc.currentChar); sc.AdvanceChar() {
+		sb.WriteRune(sc.currentChar)
+	}
+	return sb.String(), nil
+}
+
+func ScanNumber(sc *Scanner) (string, error) {
+	sb := strings.Builder{}
+	readDigits := func() {
+		for sc.AdvanceChar(); IsDigit(sc.currentChar); sc.AdvanceChar() {
+			sb.WriteRune(sc.currentChar)
+		}
+	}
+	sb.WriteRune(sc.currentChar)
+	readDigits()
+	if sc.currentChar == '.' {
+		sb.WriteRune(sc.currentChar)
+		readDigits()
+	}
+	if c := sc.currentChar; c == 'e' || c == 'E' {
+		sb.WriteRune(c)
+		sc.AdvanceChar()
+		if c := sc.currentChar; c == '+' || c == '-' {
+			sb.WriteRune(c)
+			sc.AdvanceChar()
+		}
+		if !IsDigit(sc.currentChar) {
+			return sb.String(), errors.New("decimal digit expected")
+		}
+		sb.WriteRune(sc.currentChar)
+		readDigits()
+	}
+	return sb.String(), nil
+}
