@@ -119,6 +119,7 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 		case '*':
 			tok = token.Token{Type: token.BLOCK_COMMENT}
 			if tok.Literal, err = ScanBlockComment(s); err != nil {
+				tok.Type = token.ILLEGAL
 				return
 			}
 		default:
@@ -128,7 +129,11 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 	case '\'', '"':
 		c := s.currentChar
 		s.AdvanceChar()
-		tok = token.Token{Type: token.QUOTE, Literal: string(c)}
+		tok = token.Token{Type: token.STRING}
+		if tok.Literal, err = ScanString(s, c); err != nil {
+			tok.Type = token.ILLEGAL
+			return
+		}
 	case ',':
 		c := s.currentChar
 		s.AdvanceChar()

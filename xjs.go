@@ -30,15 +30,6 @@ func PluginBuilder() *plugin.Builder {
 				return
 			}
 			switch tok.Type {
-			case token.QUOTE:
-				tok.Type = js.STRING
-				var lit string
-				if lit, err = js.ScanString(sc, rune(tok.Literal[0])); err != nil {
-					tok.Type = token.ILLEGAL
-					tok.Literal += lit
-					return
-				}
-				tok.Literal += lit
 			case token.DIGIT:
 				tok.Type = js.NUMBER
 				var lit string

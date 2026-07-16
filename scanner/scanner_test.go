@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/xjslang/xjs/internal/testutil"
-	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
 )
@@ -26,25 +25,7 @@ func assertLexerTokens(t *testing.T, sc *scanner.Scanner, expectedToks []token.T
 
 func assertInputTokens(t *testing.T, input string, expectedToks []token.Token, opts ...testutil.TokenCompareOption) {
 	t.Helper()
-	s := scanner.NewBuilder().
-		UseScanner(func(s *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
-			if tok, err = next(); err != nil {
-				return
-			}
-			switch tok.Type {
-			case token.QUOTE:
-				tok.Type = js.STRING
-				var lit string
-				if lit, err = js.ScanString(s, rune(tok.Literal[0])); err != nil {
-					tok.Type = token.ILLEGAL
-					tok.Literal += lit
-					return
-				}
-				tok.Literal += lit
-			}
-			return
-		}).
-		Build([]byte(input))
+	s := scanner.NewBuilder().Build([]byte(input))
 	assertLexerTokens(t, s, expectedToks, opts...)
 }
 
@@ -201,7 +182,7 @@ func TestUnicodeChars(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			var expectedToks []token.Token
 			for _, item := range test.items {
-				expectedToks = append(expectedToks, token.Token{Type: js.STRING, Literal: fmt.Sprintf("'%s'", item)})
+				expectedToks = append(expectedToks, token.Token{Type: token.STRING, Literal: fmt.Sprintf("'%s'", item)})
 			}
 			expectedToks = append(expectedToks, token.Token{Type: token.EOF})
 			item := "'" + strings.Join(test.items, "' '") + "'"
@@ -377,8 +358,8 @@ func TestReadNumber(t *testing.T) {
 func TestReadString(t *testing.T) {
 	t.Run("legal string", func(t *testing.T) {
 		assertInputTokens(t, " 'Hello, World!' \"Hello, World!\"", []token.Token{
-			{Type: js.STRING, Literal: "'Hello, World!'"},
-			{Type: js.STRING, Literal: "\"Hello, World!\""},
+			{Type: token.STRING, Literal: "'Hello, World!'"},
+			{Type: token.STRING, Literal: "\"Hello, World!\""},
 			{Type: token.EOF},
 		})
 	})

@@ -8,35 +8,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var (
-	NUMBER = token.RegisterType("number")
-	STRING = token.RegisterType("string")
-)
-
-func ScanString(sc *scanner.Scanner, delimiter rune) (string, error) {
-	sb := strings.Builder{}
-	for {
-		if sc.CurrentChar() == '\\' {
-			sb.WriteRune(sc.CurrentChar())
-			sc.AdvanceChar()
-			if sc.CurrentChar() == delimiter {
-				sb.WriteRune(sc.CurrentChar())
-				sc.AdvanceChar()
-				continue
-			}
-		}
-		if sc.CurrentChar() == delimiter {
-			sb.WriteRune(sc.CurrentChar())
-			sc.AdvanceChar()
-			break
-		} else if sc.CurrentChar() == scanner.EOF || sc.CurrentChar() == '\n' || sc.CurrentChar() == '\r' {
-			return sb.String(), errors.New("unexpected end of line")
-		}
-		sb.WriteRune(sc.CurrentChar())
-		sc.AdvanceChar()
-	}
-	return sb.String(), nil
-}
+var NUMBER = token.RegisterType("number")
 
 func ScanHexNumber(sc *scanner.Scanner) (string, error) {
 	sb := strings.Builder{}
