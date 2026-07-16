@@ -15,11 +15,11 @@ func (b *Builder) UseScanner(scanner func(s *Scanner, next func() (token.Token, 
 	return b
 }
 
-func (b *Builder) Build(input []byte, opts ...func(*config)) *Scanner {
+func (b *Builder) Build(input []byte) *Scanner {
 	s := &Scanner{}
 	for _, scanner := range b.scanners {
 		s.useScanner(scanner)
 	}
-	s.init(input, opts...)
+	s.init(input)
 	return s
 }

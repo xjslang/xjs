@@ -2,7 +2,6 @@ package plugin
 
 import (
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
@@ -46,6 +45,6 @@ func (b *Builder) Install(plugin func(b *Builder)) *Builder {
 }
 
 func (b *Builder) Build(src []byte) *parser.Parser {
-	s := b.scanner.Build(src, scanner.WithCommentTypes(js.LINE_COMMENT, js.BLOCK_COMMENT))
+	s := b.scanner.Build(src)
 	return b.parser.Build(s)
 }
