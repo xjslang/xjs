@@ -134,6 +134,13 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 			tok.Type = token.ILLEGAL
 			return
 		}
+	case '`':
+		s.AdvanceChar()
+		tok = token.Token{Type: token.STRING}
+		if tok.Literal, err = ScanRawString(s); err != nil {
+			tok.Type = token.ILLEGAL
+			return
+		}
 	case ',':
 		c := s.currentChar
 		s.AdvanceChar()

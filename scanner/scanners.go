@@ -86,6 +86,23 @@ func ScanString(sc *Scanner, delimiter rune) (string, error) {
 	return sb.String(), nil
 }
 
+func ScanRawString(sc *Scanner) (string, error) {
+	sb := strings.Builder{}
+	sb.WriteRune('`')
+	for {
+		if sc.currentChar == '`' {
+			sb.WriteRune(sc.currentChar)
+			sc.AdvanceChar()
+			break
+		} else if sc.currentChar == EOF {
+			return sb.String(), errors.New("unexpected end of file")
+		}
+		sb.WriteRune(sc.currentChar)
+		sc.AdvanceChar()
+	}
+	return sb.String(), nil
+}
+
 func ScanHexNumber(sc *Scanner) (string, error) {
 	sb := strings.Builder{}
 	sb.WriteRune(sc.currentChar)
