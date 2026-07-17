@@ -360,9 +360,10 @@ func TestReadNumber(t *testing.T) {
 
 func TestReadString(t *testing.T) {
 	t.Run("legal string", func(t *testing.T) {
-		assertInputTokens(t, " 'Hello, World!' \"Hello, World!\"", []token.Token{
+		assertInputTokens(t, " 'Hello, World!' \"Hello, World!\" `Hello,\nWorld!`", []token.Token{
 			{Type: token.STRING, Literal: "'Hello, World!'"},
 			{Type: token.STRING, Literal: "\"Hello, World!\""},
+			{Type: token.STRING, Literal: "`Hello,\nWorld!`"},
 			{Type: token.EOF},
 		})
 	})
@@ -372,12 +373,14 @@ func TestReadString(t *testing.T) {
 			"'",              // missing '
 			"\"Hello, World", // missing "
 			"\"",             // missing "
+			"`Hello,\nWorld", // missing `
 		}
 		assertInputTokens(t, strings.Join(inputs, "\n"), []token.Token{
 			{Type: token.ILLEGAL, Literal: "'Hello, World"},
 			{Type: token.ILLEGAL, Literal: "'"},
 			{Type: token.ILLEGAL, Literal: "\"Hello, World"},
 			{Type: token.ILLEGAL, Literal: "\""},
+			{Type: token.ILLEGAL, Literal: "`Hello,\nWorld"},
 			{Type: token.EOF},
 		})
 	})
