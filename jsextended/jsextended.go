@@ -101,6 +101,12 @@ func Plugin(b *plugin.Builder) {
 		switch p.CurrentToken.Type {
 		case js.LET, CONST, VAR:
 			return ParseVarStmt(p)
+		case js.FOR:
+			return parser.Switch(p, func(p *parser.Parser) (ast.Stmt, error) {
+				return ParseForofStmt(p)
+			}, func(p *parser.Parser) (ast.Stmt, error) {
+				return js.ParseForStmt(p)
+			})
 		case TRY:
 			return ParseTryStmt(p)
 		case SWITCH:
@@ -138,6 +144,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintSpreadExpr(pr, v)
 	case *TypeofExpr:
 		return PrintTypeofExpr(pr, v)
+	case *ForofStmt:
+		return PrintForofStmt(pr, v)
 	}
 	return next(node)
 }

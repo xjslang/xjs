@@ -20,6 +20,15 @@ import (
 	"github.com/xorcare/golden"
 )
 
+func Test(t *testing.T) {
+	input := `for (let [a, b] of rows);`
+	result, err := xjs.Parse([]byte(input))
+	require.NoError(t, err)
+	code, err := xjs.Print(result)
+	require.NoError(t, err)
+	fmt.Println(code)
+}
+
 func TestExportStmt(t *testing.T) {
 	t.Run("declaration expected", func(t *testing.T) {
 		input := `export (function () { console.log('foo') })()`
