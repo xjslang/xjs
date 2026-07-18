@@ -42,9 +42,6 @@ func ParseSequenceExpr(p *parser.Parser) (node *SequenceExpr, err error) {
 }
 
 func PrintSequenceExpr(pr *printer.Printer, node *SequenceExpr) error {
-	if len(node.Values) == 0 {
-		return pr.Error("expected a value")
-	}
 	pr.Print(node.Layout.Lparen)
 	pr.IncreaseIndent()
 	for i, val := range node.Values {

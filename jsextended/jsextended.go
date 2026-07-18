@@ -21,6 +21,8 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(TYPEOF)
 	token.RegisterBinaryType(STRICT_EQ, token.EQ.Precedence())
 	token.RegisterBinaryType(STRICT_NOT_EQ, token.EQ.Precedence())
+	token.RegisterBinaryType(OPTIONAL_CHAINING, token.EQ.Precedence())
+	token.RegisterBinaryType(OPTIONAL_CHAINING, token.DOT.Precedence())
 	token.RegisterBinaryType(ARROW, -1) // lowest precedence possible
 	token.RegisterBinaryType(QUESTION_MARK, -1)
 
@@ -59,7 +61,13 @@ func Plugin(b *plugin.Builder) {
 		case token.UNKNOWN:
 			switch tok.Literal {
 			case "?":
-				tok.Type = QUESTION_MARK
+				if sc.CurrentChar() == '.' {
+					sc.AdvanceChar()
+					tok.Type = OPTIONAL_CHAINING
+					tok.Literal = "?."
+				} else {
+					tok.Type = QUESTION_MARK
+				}
 			}
 		case token.EQ:
 			if sc.CurrentChar() == '=' {
@@ -118,6 +126,8 @@ func Plugin(b *plugin.Builder) {
 			return ParseArrowFunc(p, left)
 		case QUESTION_MARK:
 			return ParseTernaryExpr(p, left)
+		case OPTIONAL_CHAINING:
+			return ParseOptionalChainingExpr(p, left)
 		}
 		return next(left)
 	})
@@ -174,6 +184,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintTernaryExpr(pr, v)
 	case *SequenceExpr:
 		return PrintSequenceExpr(pr, v)
+	case *OptionalChainingExpr:
+		return PrintOptionalChainingExpr(pr, v)
 	}
 	return next(node)
 }

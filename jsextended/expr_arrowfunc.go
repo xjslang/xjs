@@ -41,25 +41,13 @@ func PrintArrowFunc(pr *printer.Printer, node *ArrowFuncExpr) error {
 	var printParams func(ast.Expr) error
 	printParams = func(n ast.Expr) error {
 		switch v := n.(type) {
-		case *js.Variable:
+		case *js.Variable, *SequenceExpr:
 			pr.Print(v)
 		case *js.GroupExpr:
 			pr.Print(v.Layout.Lparen)
 			if err := printParams(v.Value); err != nil {
 				return err
 			}
-			pr.Print(v.Layout.Rparen)
-		case *SequenceExpr:
-			pr.Print(v.Layout.Lparen)
-			pr.IncreaseIndent()
-			for i, val := range v.Values {
-				if i > 0 {
-					pr.Print(",")
-					pr.Space()
-				}
-				pr.Print(val)
-			}
-			pr.DecreaseIndent()
 			pr.Print(v.Layout.Rparen)
 		default:
 			// TODO: `({ a }) => {}` cannot be printed, despite being a valid expression
