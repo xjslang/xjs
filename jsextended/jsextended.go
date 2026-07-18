@@ -18,6 +18,7 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(TYPEOF)
 	token.RegisterBinaryType(STRICT_EQ, token.EQ.Precedence())
 	token.RegisterBinaryType(ARROW, -1) // lowest precedence possible
+	token.RegisterBinaryType(QUESTION_MARK, -1)
 
 	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
 		if tok, err = next(); err != nil {
@@ -50,6 +51,11 @@ func Plugin(b *plugin.Builder) {
 				tok.Type = DO
 			case "typeof":
 				tok.Type = TYPEOF
+			}
+		case token.UNKNOWN:
+			switch tok.Literal {
+			case "?":
+				tok.Type = QUESTION_MARK
 			}
 		case token.EQ:
 			if sc.CurrentChar() == '=' {
@@ -94,6 +100,8 @@ func Plugin(b *plugin.Builder) {
 			return js.ParseBinaryExpr(p, left)
 		case ARROW:
 			return ParseArrowFunc(p, left)
+		case QUESTION_MARK:
+			return ParseTernaryExpr(p, left)
 		}
 		return next(left)
 	})
@@ -146,6 +154,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintTypeofExpr(pr, v)
 	case *ForofStmt:
 		return PrintForofStmt(pr, v)
+	case *TernaryExpr:
+		return PrintTernaryExpr(pr, v)
 	}
 	return next(node)
 }
