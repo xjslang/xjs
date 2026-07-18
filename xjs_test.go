@@ -250,8 +250,6 @@ func TestLanguageFeatures(t *testing.T) {
 }
 
 func TestParseCommaDangle(t *testing.T) {
-	// TODO: implement comma dangle feature
-	t.Skip()
 	tests := []struct {
 		input, expected string
 	}{
