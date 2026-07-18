@@ -30,6 +30,9 @@ func ParseArrayExpr(p *parser.Parser) (node *js.ArrayExpr, err error) {
 			}
 			prevElem = nil
 		}
+		if p.CurrentToken.Type == token.RBRACKET {
+			break
+		}
 		var val ast.Expr
 		if val, err = p.ParseExpr(); err != nil {
 			return
