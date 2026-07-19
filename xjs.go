@@ -3,7 +3,6 @@ package xjs
 import (
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/js"
-	"github.com/xjslang/xjs/jsextended"
 	"github.com/xjslang/xjs/plugin"
 	"github.com/xjslang/xjs/printer"
 )
@@ -20,13 +19,9 @@ func Print(result ast.Node, opts ...printer.Option) (string, error) {
 }
 
 func PluginBuilder() *plugin.Builder {
-	return plugin.New().
-		Install(js.Plugin).
-		Install(jsextended.Plugin)
+	return plugin.New().Install(js.Plugin)
 }
 
 func PrinterBuilder() *printer.Builder {
-	return printer.NewBuilder().
-		UsePrinter(js.Printer).
-		UsePrinter(jsextended.Printer)
+	return printer.NewBuilder().UsePrinter(js.Printer)
 }

@@ -5,8 +5,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/js"
+	"github.com/xjslang/xjs/jsextended"
+	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/token"
 )
 
@@ -120,4 +123,15 @@ func NodeString(node ast.Node) string {
 		return s.String()
 	}
 	return print(node)
+}
+
+func ParseExtended(input []byte) (*js.Program, error) {
+	p := xjs.PluginBuilder().Install(jsextended.Plugin).Build(input)
+	return js.ParseProgram(p)
+}
+
+func PrintExtended(result ast.Node, opts ...printer.Option) (string, error) {
+	pr := xjs.PrinterBuilder().UsePrinter(jsextended.Printer).Build(opts...)
+	pr.Print(result)
+	return pr.Output()
 }
