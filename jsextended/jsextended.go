@@ -10,13 +10,17 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var STRICT_EQ = token.RegisterType("===")
+var (
+	STRICT_EQ     = token.RegisterType("===")
+	STRICT_NOT_EQ = token.RegisterType("!==")
+)
 
 func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(NEW)
 	token.RegisterUnaryType(SPREAD)
 	token.RegisterUnaryType(TYPEOF)
 	token.RegisterBinaryType(STRICT_EQ, token.EQ.Precedence())
+	token.RegisterBinaryType(STRICT_NOT_EQ, token.EQ.Precedence())
 	token.RegisterBinaryType(ARROW, -1) // lowest precedence possible
 	token.RegisterBinaryType(QUESTION_MARK, -1)
 
@@ -63,6 +67,12 @@ func Plugin(b *plugin.Builder) {
 				tok.Type = STRICT_EQ
 				tok.Literal = "==="
 			}
+		case token.NOT_EQ:
+			if sc.CurrentChar() == '=' {
+				sc.AdvanceChar()
+				tok.Type = STRICT_NOT_EQ
+				tok.Literal = "!=="
+			}
 		case token.DOT:
 			if sc.CurrentChar() == '.' && sc.PeekChar() == '.' {
 				sc.AdvanceChar()
@@ -96,7 +106,7 @@ func Plugin(b *plugin.Builder) {
 	})
 	b.UseBinaryParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
-		case STRICT_EQ:
+		case STRICT_EQ, STRICT_NOT_EQ:
 			return js.ParseBinaryExpr(p, left)
 		case ARROW:
 			return ParseArrowFunc(p, left)
