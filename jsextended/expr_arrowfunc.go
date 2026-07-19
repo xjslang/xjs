@@ -49,7 +49,20 @@ func PrintArrowFunc(pr *printer.Printer, node *ArrowFuncExpr) error {
 				return err
 			}
 			pr.Print(v.Layout.Rparen)
+		case *SequenceExpr:
+			pr.Print(v.Layout.Lparen)
+			pr.IncreaseIndent()
+			for i, val := range v.Values {
+				if i > 0 {
+					pr.Print(",")
+					pr.Space()
+				}
+				pr.Print(val)
+			}
+			pr.DecreaseIndent()
+			pr.Print(v.Layout.Rparen)
 		default:
+			// TODO: `({ a }) => {}` cannot be printed, despite being a valid expression
 			return pr.Error("invalid parameter")
 		}
 		return nil
