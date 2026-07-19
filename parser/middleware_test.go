@@ -23,7 +23,7 @@ type orExpr struct {
 func TestUseExprParser(t *testing.T) {
 	orType := token.RegisterType("or")
 	input := "let x = openDb() or exit('failed opening db')"
-	b := xjs.PluginBuilder()
+	b := xjs.PluginBuilder().Install(jsextended.Plugin)
 	// the scanner can now scan "or"
 	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
 		if tok, err = next(); err != nil {

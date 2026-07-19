@@ -161,7 +161,7 @@ let; // identifier expected
 let x =; // expression expected
 
 // arr expr
-[; // expression expected
+[; // ] expected
 [1,; // expression expected
 [1; // ] expected
 
@@ -232,16 +232,16 @@ func TestLanguageFeatures(t *testing.T) {
 			dat, err := os.ReadFile(file)
 			require.NoError(t, err)
 			// parse data
-			result, err := xjs.Parse(dat)
+			result, err := testutil.ParseExtended(dat)
 			require.NoError(t, err)
 			// print result
-			out, err := xjs.Print(result)
+			out, err := testutil.PrintExtended(result)
 			require.NoError(t, err)
 			// re-parse the output
-			result, err = xjs.Parse([]byte(out))
+			result, err = testutil.ParseExtended([]byte(out))
 			require.NoError(t, err)
 			// re-print the result
-			out, err = xjs.Print(result)
+			out, err = testutil.PrintExtended(result)
 			require.NoError(t, err)
 			// the original must match the final printed result
 			require.Equal(t, string(dat), out)
