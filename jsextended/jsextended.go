@@ -19,6 +19,8 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(NEW)
 	token.RegisterUnaryType(SPREAD)
 	token.RegisterUnaryType(TYPEOF)
+	token.RegisterUnaryType(ASYNC)
+	token.RegisterUnaryType(AWAIT)
 	token.RegisterBinaryType(STRICT_EQ, token.EQ.Precedence())
 	token.RegisterBinaryType(STRICT_NOT_EQ, token.EQ.Precedence())
 	token.RegisterBinaryType(OPTIONAL_CHAINING, token.DOT.Precedence())
@@ -56,6 +58,10 @@ func Plugin(b *plugin.Builder) {
 				tok.Type = DO
 			case "typeof":
 				tok.Type = TYPEOF
+			case "async":
+				tok.Type = ASYNC
+			case "await":
+				tok.Type = AWAIT
 			}
 		case token.UNKNOWN:
 			switch tok.Literal {
@@ -114,6 +120,10 @@ func Plugin(b *plugin.Builder) {
 			return ParseSpreadExpr(p)
 		case TYPEOF:
 			return ParseTypeofExpr(p)
+		case ASYNC:
+			return ParseAsyncExpr(p)
+		case AWAIT:
+			return ParseAwaitExpr(p)
 		}
 		return next()
 	})
@@ -185,6 +195,10 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintSequenceExpr(pr, v)
 	case *OptionalChainingExpr:
 		return PrintOptionalChainingExpr(pr, v)
+	case *AsyncExpr:
+		return PrintAsyncExpr(pr, v)
+	case *AwaitExpr:
+		return PrintAwaitExpr(pr, v)
 	}
 	return next(node)
 }
