@@ -95,6 +95,12 @@ func Plugin(b *plugin.Builder) {
 			return ParseObjExpr(p)
 		case token.LBRACKET:
 			return ParseArrayExpr(p)
+		case token.LPAREN:
+			return parser.Switch(p, func(p *parser.Parser) (ast.Expr, error) {
+				return js.ParseGroupExpr(p)
+			}, func(p *parser.Parser) (ast.Expr, error) {
+				return ParseSequenceExpr(p)
+			})
 		case NEW:
 			return ParseNewExpr(p)
 		case SPREAD:
@@ -166,6 +172,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintForofStmt(pr, v)
 	case *TernaryExpr:
 		return PrintTernaryExpr(pr, v)
+	case *SequenceExpr:
+		return PrintSequenceExpr(pr, v)
 	}
 	return next(node)
 }
