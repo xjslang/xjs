@@ -11,6 +11,7 @@ import (
 
 func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(FUNCTION)
+	token.RegisterUnaryType(DELETE)
 
 	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
 		if tok, err = next(); err != nil {
@@ -40,6 +41,8 @@ func Plugin(b *plugin.Builder) {
 				tok.Type = IMPORT
 			case "export":
 				tok.Type = EXPORT
+			case "delete":
+				tok.Type = DELETE
 			}
 		}
 		return
@@ -83,6 +86,8 @@ func Plugin(b *plugin.Builder) {
 		switch p.CurrentToken.Type {
 		case FUNCTION:
 			return ParseFunctionExpr(p)
+		case DELETE:
+			return ParseDeleteExpr(p)
 		case token.LPAREN:
 			return ParseGroupExpr(p)
 		case token.LBRACE:
@@ -175,6 +180,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintImportStmt(pr, v)
 	case *ExportStmt:
 		return PrintExportStmt(pr, v)
+	case *DeleteExpr:
+		return PrintDeleteExpr(pr, v)
 	}
 	return next(node)
 }
