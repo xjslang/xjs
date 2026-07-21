@@ -28,6 +28,7 @@ function foo() {
 }
 
 let x = {
+  addRow: () => {},
   'name': John,
   ['age']: 32,
   3.14: 'PI approx.'

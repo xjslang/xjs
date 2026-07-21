@@ -24,7 +24,7 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterBinaryType(STRICT_EQ, token.EQ.Precedence())
 	token.RegisterBinaryType(STRICT_NOT_EQ, token.EQ.Precedence())
 	token.RegisterBinaryType(OPTIONAL_CHAINING, token.DOT.Precedence())
-	token.RegisterBinaryType(ARROW, -1) // lowest precedence possible
+	token.RegisterBinaryType(ARROW, token.ASSIGN.Precedence()+1)
 	token.RegisterBinaryType(QUESTION_MARK, -1)
 
 	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
