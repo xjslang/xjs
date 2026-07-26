@@ -8,6 +8,14 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
+type Param struct {
+	Layout struct {
+		Assign token.Token
+	}
+	Pattern ast.Node
+	Default ast.Expr
+}
+
 type FunctionDecl struct {
 	ast.BaseDecl
 	Layout struct {
@@ -16,7 +24,7 @@ type FunctionDecl struct {
 		Rparen   token.Token
 	}
 	Name   *js.Ident
-	Params []ast.Node
+	Params []Param
 	Body   *js.BlockStmt
 }
 
@@ -32,18 +40,25 @@ func ParseFunctionDecl(p *parser.Parser) (node *FunctionDecl, err error) {
 		return
 	}
 	for p.CurrentToken.Type != token.RPAREN {
-		var param ast.Node
+		param := Param{}
 		switch p.CurrentToken.Type {
 		case token.LBRACE:
-			if param, err = ParseObjExpr(p); err != nil {
+			if param.Pattern, err = ParseObjExpr(p); err != nil {
 				return
 			}
 		case token.LBRACKET:
-			if param, err = ParseArrayExpr(p); err != nil {
+			if param.Pattern, err = ParseArrayExpr(p); err != nil {
 				return
 			}
 		default:
-			if param, err = js.ParseIdent(p); err != nil {
+			if param.Pattern, err = js.ParseIdent(p); err != nil {
+				return
+			}
+		}
+		if p.CurrentToken.Type == token.ASSIGN {
+			param.Layout.Assign = p.CurrentToken
+			p.AdvanceToken()
+			if param.Default, err = p.ParseExpr(); err != nil {
 				return
 			}
 		}
@@ -72,7 +87,11 @@ func PrintFunctionDecl(pr *printer.Printer, node *FunctionDecl) error {
 			pr.Print(",")
 			pr.Space()
 		}
-		pr.Print(param)
+		pr.Print(param.Pattern)
+		if param.Default != nil {
+			pr.Space().Print(param.Layout.Assign)
+			pr.Space().Print(param.Default)
+		}
 	}
 	pr.DecreaseIndent()
 	pr.Print(node.Layout.Rparen)
