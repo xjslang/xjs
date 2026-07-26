@@ -151,6 +151,8 @@ func Plugin(b *plugin.Builder) {
 			return ParseVarStmt(p)
 		case js.FOR:
 			return parser.Switch(p, func(p *parser.Parser) (ast.Stmt, error) {
+				return ParseForinStmt(p)
+			}, func(p *parser.Parser) (ast.Stmt, error) {
 				return ParseForofStmt(p)
 			}, func(p *parser.Parser) (ast.Stmt, error) {
 				return js.ParseForStmt(p)
@@ -196,6 +198,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintInstanceofExpr(pr, v)
 	case *ForofStmt:
 		return PrintForofStmt(pr, v)
+	case *ForinStmt:
+		return PrintForinStmt(pr, v)
 	case *TernaryExpr:
 		return PrintTernaryExpr(pr, v)
 	case *SequenceExpr:
