@@ -28,6 +28,7 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterBinaryType(ARROW, token.ASSIGN.Precedence()+1)
 	token.RegisterBinaryType(QUESTION_MARK, -1)
 	token.RegisterBinaryType(EXPO, token.MULTIPLY.Precedence()+1)
+	token.RegisterBinaryType(COALESCING, token.OR.Precedence())
 
 	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
 		if tok, err = next(); err != nil {
@@ -70,11 +71,16 @@ func Plugin(b *plugin.Builder) {
 		case token.UNKNOWN:
 			switch tok.Literal {
 			case "?":
-				if sc.CurrentChar() == '.' {
+				switch sc.CurrentChar() {
+				case '.':
 					sc.AdvanceChar()
 					tok.Type = OPTIONAL_CHAINING
 					tok.Literal = "?."
-				} else {
+				case '?':
+					sc.AdvanceChar()
+					tok.Type = COALESCING
+					tok.Literal = "??"
+				default:
 					tok.Type = QUESTION_MARK
 				}
 			}
@@ -151,6 +157,8 @@ func Plugin(b *plugin.Builder) {
 			return ParseInstanceofExpr(p, left)
 		case EXPO:
 			return ParseExpoExpr(p, left)
+		case COALESCING:
+			return ParseCoalescingExpr(p, left)
 		}
 		return next(left)
 	})
@@ -221,6 +229,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintAwaitExpr(pr, v)
 	case *ExpoExpr:
 		return PrintExpoExpr(pr, v)
+	case *CoalescingExpr:
+		return PrintCoalescingExpr(pr, v)
 	}
 	return next(node)
 }
