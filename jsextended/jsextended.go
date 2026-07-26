@@ -27,6 +27,7 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterBinaryType(INSTANCEOF, token.LT.Precedence())
 	token.RegisterBinaryType(ARROW, token.ASSIGN.Precedence()+1)
 	token.RegisterBinaryType(QUESTION_MARK, -1)
+	token.RegisterBinaryType(EXPO, token.MULTIPLY.Precedence()+1)
 
 	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
 		if tok, err = next(); err != nil {
@@ -102,6 +103,12 @@ func Plugin(b *plugin.Builder) {
 				tok.Type = ARROW
 				tok.Literal = "=>"
 			}
+		case token.MULTIPLY:
+			if sc.CurrentChar() == '*' {
+				sc.AdvanceChar()
+				tok.Type = EXPO
+				tok.Literal = "**"
+			}
 		}
 		return
 	})
@@ -142,6 +149,8 @@ func Plugin(b *plugin.Builder) {
 			return ParseOptionalChainingExpr(p, left)
 		case INSTANCEOF:
 			return ParseInstanceofExpr(p, left)
+		case EXPO:
+			return ParseExpoExpr(p, left)
 		}
 		return next(left)
 	})
@@ -210,6 +219,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintAsyncExpr(pr, v)
 	case *AwaitExpr:
 		return PrintAwaitExpr(pr, v)
+	case *ExpoExpr:
+		return PrintExpoExpr(pr, v)
 	}
 	return next(node)
 }
