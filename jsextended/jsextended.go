@@ -24,6 +24,7 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterBinaryType(STRICT_EQ, token.EQ.Precedence())
 	token.RegisterBinaryType(STRICT_NOT_EQ, token.EQ.Precedence())
 	token.RegisterBinaryType(OPTIONAL_CHAINING, token.DOT.Precedence())
+	token.RegisterBinaryType(INSTANCEOF, token.LT.Precedence())
 	token.RegisterBinaryType(ARROW, token.ASSIGN.Precedence()+1)
 	token.RegisterBinaryType(QUESTION_MARK, -1)
 
@@ -58,6 +59,8 @@ func Plugin(b *plugin.Builder) {
 				tok.Type = DO
 			case "typeof":
 				tok.Type = TYPEOF
+			case "instanceof":
+				tok.Type = INSTANCEOF
 			case "async":
 				tok.Type = ASYNC
 			case "await":
@@ -137,6 +140,8 @@ func Plugin(b *plugin.Builder) {
 			return ParseTernaryExpr(p, left)
 		case OPTIONAL_CHAINING:
 			return ParseOptionalChainingExpr(p, left)
+		case INSTANCEOF:
+			return ParseInstanceofExpr(p, left)
 		}
 		return next(left)
 	})
@@ -187,6 +192,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintSpreadExpr(pr, v)
 	case *TypeofExpr:
 		return PrintTypeofExpr(pr, v)
+	case *InstanceofExpr:
+		return PrintInstanceofExpr(pr, v)
 	case *ForofStmt:
 		return PrintForofStmt(pr, v)
 	case *TernaryExpr:
