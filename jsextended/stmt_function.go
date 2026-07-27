@@ -9,11 +9,20 @@ import (
 )
 
 type Param struct {
+	ast.BaseNode
 	Layout struct {
 		Assign token.Token
 	}
 	Pattern ast.Node
 	Default ast.Expr
+}
+
+type RestParam struct {
+	ast.BaseNode
+	Layout struct {
+		Spread token.Token
+	}
+	Name *js.Ident
 }
 
 type FunctionDecl struct {
@@ -24,7 +33,7 @@ type FunctionDecl struct {
 		Rparen   token.Token
 	}
 	Name   *js.Ident
-	Params []Param
+	Params []ast.Node
 	Body   *js.BlockStmt
 }
 
@@ -40,27 +49,15 @@ func ParseFunctionDecl(p *parser.Parser) (node *FunctionDecl, err error) {
 		return
 	}
 	for p.CurrentToken.Type != token.RPAREN {
-		param := Param{}
-		switch p.CurrentToken.Type {
-		case token.LBRACE:
-			if param.Pattern, err = ParseObjExpr(p); err != nil {
+		var param ast.Node
+		if p.CurrentToken.Type == SPREAD {
+			if param, err = parseRestParam(p); err != nil {
 				return
 			}
-		case token.LBRACKET:
-			if param.Pattern, err = ParseArrayExpr(p); err != nil {
-				return
-			}
-		default:
-			if param.Pattern, err = js.ParseIdent(p); err != nil {
-				return
-			}
-		}
-		if p.CurrentToken.Type == token.ASSIGN {
-			param.Layout.Assign = p.CurrentToken
-			p.AdvanceToken()
-			if param.Default, err = p.ParseExpr(); err != nil {
-				return
-			}
+			node.Params = append(node.Params, param)
+			break
+		} else if param, err = parseParam(p); err != nil {
+			return
 		}
 		node.Params = append(node.Params, param)
 		if p.CurrentToken.Type != token.COMMA {
@@ -77,6 +74,42 @@ func ParseFunctionDecl(p *parser.Parser) (node *FunctionDecl, err error) {
 	return node, nil
 }
 
+func parseParam(p *parser.Parser) (param *Param, err error) {
+	param = &Param{}
+	switch p.CurrentToken.Type {
+	case token.LBRACE:
+		if param.Pattern, err = ParseObjExpr(p); err != nil {
+			return
+		}
+	case token.LBRACKET:
+		if param.Pattern, err = ParseArrayExpr(p); err != nil {
+			return
+		}
+	default:
+		if param.Pattern, err = js.ParseIdent(p); err != nil {
+			return
+		}
+	}
+	if p.CurrentToken.Type == token.ASSIGN {
+		param.Layout.Assign = p.CurrentToken
+		p.AdvanceToken()
+		if param.Default, err = p.ParseExpr(); err != nil {
+			return
+		}
+	}
+	return
+}
+
+func parseRestParam(p *parser.Parser) (param *RestParam, err error) {
+	param = &RestParam{}
+	param.Layout.Spread = p.CurrentToken
+	p.AdvanceToken()
+	if param.Name, err = js.ParseIdent(p); err != nil {
+		return
+	}
+	return
+}
+
 func PrintFunctionDecl(pr *printer.Printer, node *FunctionDecl) error {
 	pr.Line().Print(node.Layout.Function)
 	pr.Space().Print(node.Name)
@@ -87,10 +120,17 @@ func PrintFunctionDecl(pr *printer.Printer, node *FunctionDecl) error {
 			pr.Print(",")
 			pr.Space()
 		}
-		pr.Print(param.Pattern)
-		if param.Default != nil {
-			pr.Space().Print(param.Layout.Assign)
-			pr.Space().Print(param.Default)
+		switch v := param.(type) {
+		case *Param:
+			pr.Print(v.Pattern)
+			if v.Default != nil {
+				pr.Space().Print(v.Layout.Assign)
+				pr.Space().Print(v.Default)
+			}
+		case *RestParam:
+			pr.Print(v.Layout.Spread, v.Name)
+		default:
+			return pr.Error("param expected")
 		}
 	}
 	pr.DecreaseIndent()
