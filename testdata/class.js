@@ -11,8 +11,19 @@ class MyClass {
 class MyClass extends BaseClass {
 }
 
+// with properties
 class MyClass {
   prop1 = 100;
   prop2;
   method1() {}
+}
+
+// with statics
+class MyClass {
+  prop1;
+  static prop2 = 200;
+  static static = "I'm static!";
+  method1() {}
+  static method2() {}
+  static() {}
 }
