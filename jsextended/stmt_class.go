@@ -43,6 +43,11 @@ type ClassMember struct {
 	Decl   ast.Node
 }
 
+type StaticInitializer struct {
+	ast.BaseNode
+	Body *js.BlockStmt
+}
+
 type ClassStmt struct {
 	ast.BaseDecl
 	Layout struct {
