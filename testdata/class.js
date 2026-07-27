@@ -6,3 +6,7 @@ class MyClass {
   method1() {}
   method2() {}
 }
+
+// with extends
+class MyClass extends BaseClass {
+}
