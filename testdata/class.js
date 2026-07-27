@@ -10,3 +10,9 @@ class MyClass {
 // with extends
 class MyClass extends BaseClass {
 }
+
+class MyClass {
+  prop1 = 100;
+  prop2;
+  method1() {}
+}
