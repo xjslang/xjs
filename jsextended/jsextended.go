@@ -21,6 +21,11 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(TYPEOF)
 	token.RegisterUnaryType(ASYNC)
 	token.RegisterUnaryType(AWAIT)
+	token.RegisterBinaryType(PLUS_ASSIGN, token.ASSIGN.Precedence())
+	token.RegisterBinaryType(MINUS_ASSIGN, token.ASSIGN.Precedence())
+	token.RegisterBinaryType(MULTIPLY_ASSIGN, token.ASSIGN.Precedence())
+	token.RegisterBinaryType(DIVIDE_ASSIGN, token.ASSIGN.Precedence())
+	token.RegisterBinaryType(MODULO_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(STRICT_EQ, token.EQ.Precedence())
 	token.RegisterBinaryType(STRICT_NOT_EQ, token.EQ.Precedence())
 	token.RegisterBinaryType(OPTIONAL_CHAINING, token.DOT.Precedence())
@@ -109,11 +114,40 @@ func Plugin(b *plugin.Builder) {
 				tok.Type = ARROW
 				tok.Literal = "=>"
 			}
+		case token.PLUS:
+			if sc.CurrentChar() == '=' {
+				sc.AdvanceChar()
+				tok.Type = PLUS_ASSIGN
+				tok.Literal = "+="
+			}
+		case token.MINUS:
+			if sc.CurrentChar() == '=' {
+				sc.AdvanceChar()
+				tok.Type = MINUS_ASSIGN
+				tok.Literal = "-="
+			}
 		case token.MULTIPLY:
-			if sc.CurrentChar() == '*' {
+			switch sc.CurrentChar() {
+			case '*':
 				sc.AdvanceChar()
 				tok.Type = EXPO
 				tok.Literal = "**"
+			case '=':
+				sc.AdvanceChar()
+				tok.Type = MULTIPLY_ASSIGN
+				tok.Literal = "*="
+			}
+		case token.DIVIDE:
+			if sc.CurrentChar() == '=' {
+				sc.AdvanceChar()
+				tok.Type = DIVIDE_ASSIGN
+				tok.Literal = "/="
+			}
+		case token.MODULO:
+			if sc.CurrentChar() == '=' {
+				sc.AdvanceChar()
+				tok.Type = MODULO_ASSIGN
+				tok.Literal = "%="
 			}
 		}
 		return
@@ -159,6 +193,8 @@ func Plugin(b *plugin.Builder) {
 			return ParseExpoExpr(p, left)
 		case COALESCING:
 			return ParseCoalescingExpr(p, left)
+		case PLUS_ASSIGN, MINUS_ASSIGN, MULTIPLY_ASSIGN, DIVIDE_ASSIGN, MODULO_ASSIGN:
+			return ParseCompoundAssignExpr(p, left)
 		}
 		return next(left)
 	})
@@ -235,6 +271,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintExpoExpr(pr, v)
 	case *CoalescingExpr:
 		return PrintCoalescingExpr(pr, v)
+	case *CompoundAssignExpr:
+		return PrintCompoundAssignExpr(pr, v)
 	}
 	return next(node)
 }
