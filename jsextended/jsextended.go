@@ -94,6 +94,8 @@ func Plugin(b *plugin.Builder) {
 				tok.Type = AWAIT
 			case "class":
 				tok.Type = CLASS
+			case "extends":
+				tok.Type = EXTENDS
 			}
 		case token.UNKNOWN:
 			switch tok.Literal {

@@ -8,7 +8,10 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var CLASS = token.RegisterType("class")
+var (
+	CLASS   = token.RegisterType("class")
+	EXTENDS = token.RegisterType("extends")
+)
 
 type ClassMethodStmt struct {
 	ast.BaseDecl
@@ -20,12 +23,14 @@ type ClassMethodStmt struct {
 type ClassStmt struct {
 	ast.BaseDecl
 	Layout struct {
-		Class  token.Token
-		Lbrace token.Token
-		Rbrace token.Token
+		Class   token.Token
+		Extends token.Token
+		Lbrace  token.Token
+		Rbrace  token.Token
 	}
-	Name    *js.Ident
-	Methods []*ClassMethodStmt
+	Name        *js.Ident
+	ParentClass *js.Ident
+	Methods     []*ClassMethodStmt
 }
 
 func ParseClassStmt(p *parser.Parser) (node *ClassStmt, err error) {
@@ -35,6 +40,13 @@ func ParseClassStmt(p *parser.Parser) (node *ClassStmt, err error) {
 	}
 	if node.Name, err = js.ParseIdent(p); err != nil {
 		return
+	}
+	if p.CurrentToken.Type == EXTENDS {
+		node.Layout.Extends = p.CurrentToken
+		p.AdvanceToken()
+		if node.ParentClass, err = js.ParseIdent(p); err != nil {
+			return
+		}
 	}
 	if node.Layout.Lbrace, err = p.Expect(token.LBRACE); err != nil {
 		return
@@ -69,6 +81,10 @@ func parseMethod(p *parser.Parser) (node *ClassMethodStmt, err error) {
 func PrintClassStmt(pr *printer.Printer, node *ClassStmt) (err error) {
 	pr.Line().Print(node.Layout.Class)
 	pr.Space().Print(node.Name)
+	if node.ParentClass != nil {
+		pr.Space().Print(node.Layout.Extends)
+		pr.Space().Print(node.ParentClass)
+	}
 	pr.Space().Print(node.Layout.Lbrace)
 	pr.IncreaseIndent()
 	for _, m := range node.Methods {
