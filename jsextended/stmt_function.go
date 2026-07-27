@@ -25,15 +25,22 @@ type RestParam struct {
 	Name *js.Ident
 }
 
+type FunctionParams struct {
+	ast.BaseNode
+	Layout struct {
+		Lparen token.Token
+		Rparen token.Token
+	}
+	Params []ast.Node
+}
+
 type FunctionDecl struct {
 	ast.BaseDecl
 	Layout struct {
 		Function token.Token
-		Lparen   token.Token
-		Rparen   token.Token
 	}
 	Name   *js.Ident
-	Params []ast.Node
+	Params *FunctionParams
 	Body   *js.BlockStmt
 }
 
@@ -45,6 +52,17 @@ func ParseFunctionDecl(p *parser.Parser) (node *FunctionDecl, err error) {
 	if node.Name, err = js.ParseIdent(p); err != nil {
 		return
 	}
+	if node.Params, err = ParseFunctionParams(p); err != nil {
+		return
+	}
+	if node.Body, err = js.ParseBlockStmt(p); err != nil {
+		return
+	}
+	return node, nil
+}
+
+func ParseFunctionParams(p *parser.Parser) (node *FunctionParams, err error) {
+	node = &FunctionParams{}
 	if node.Layout.Lparen, err = p.Expect(token.LPAREN); err != nil {
 		return
 	}
@@ -68,10 +86,7 @@ func ParseFunctionDecl(p *parser.Parser) (node *FunctionDecl, err error) {
 	if node.Layout.Rparen, err = p.Expect(token.RPAREN); err != nil {
 		return
 	}
-	if node.Body, err = js.ParseBlockStmt(p); err != nil {
-		return
-	}
-	return node, nil
+	return
 }
 
 func parseParam(p *parser.Parser) (param *Param, err error) {
@@ -110,9 +125,17 @@ func parseRestParam(p *parser.Parser) (param *RestParam, err error) {
 	return
 }
 
-func PrintFunctionDecl(pr *printer.Printer, node *FunctionDecl) error {
+func PrintFunctionDecl(pr *printer.Printer, node *FunctionDecl) (err error) {
 	pr.Line().Print(node.Layout.Function)
 	pr.Space().Print(node.Name)
+	if err = PrintFunctionParams(pr, node.Params); err != nil {
+		return err
+	}
+	pr.Space().Print(node.Body)
+	return
+}
+
+func PrintFunctionParams(pr *printer.Printer, node *FunctionParams) error {
 	pr.Print(node.Layout.Lparen)
 	pr.IncreaseIndent()
 	for i, param := range node.Params {
@@ -135,6 +158,5 @@ func PrintFunctionDecl(pr *printer.Printer, node *FunctionDecl) error {
 	}
 	pr.DecreaseIndent()
 	pr.Print(node.Layout.Rparen)
-	pr.Space().Print(node.Body)
 	return nil
 }
