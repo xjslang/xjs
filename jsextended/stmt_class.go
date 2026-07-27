@@ -30,8 +30,12 @@ type ClassMethod struct {
 
 type ClassMember struct {
 	ast.BaseDecl
-	Name *js.Ident
-	Decl ast.Node
+	Layout struct {
+		Static token.Token
+	}
+	Static bool
+	Name   *js.Ident
+	Decl   ast.Node
 }
 
 type ClassStmt struct {
@@ -67,6 +71,13 @@ func ParseClassStmt(p *parser.Parser) (node *ClassStmt, err error) {
 	}
 	for p.CurrentToken.Type != token.RBRACE && p.CurrentToken.Type != token.EOF {
 		m := &ClassMember{}
+		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "static" {
+			m.Static = p.PeekToken.Type == token.IDENT || p.PeekToken.Type != token.LPAREN
+		}
+		if m.Static {
+			m.Layout.Static = p.CurrentToken
+			p.AdvanceToken()
+		}
 		if m.Name, err = js.ParseIdent(p); err != nil {
 			return
 		}
@@ -122,7 +133,12 @@ func PrintClassStmt(pr *printer.Printer, node *ClassStmt) (err error) {
 	pr.Space().Print(node.Layout.Lbrace)
 	pr.IncreaseIndent()
 	for _, m := range node.Members {
-		pr.Line().Print(m.Name)
+		pr.Line()
+		if m.Static {
+			pr.Print(m.Layout.Static)
+			pr.Space()
+		}
+		pr.Print(m.Name)
 		switch v := m.Decl.(type) {
 		case *ClassMethod:
 			if err = PrintFunctionParams(pr, v.Params); err != nil {
