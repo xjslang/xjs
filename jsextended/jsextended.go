@@ -11,8 +11,15 @@ import (
 )
 
 var (
+	// strict equality
 	STRICT_EQ     = token.RegisterType("===")
 	STRICT_NOT_EQ = token.RegisterType("!==")
+	// compound assignment
+	PLUS_ASSIGN     = token.RegisterType("+=")
+	MINUS_ASSIGN    = token.RegisterType("-=")
+	MULTIPLY_ASSIGN = token.RegisterType("*=")
+	DIVIDE_ASSIGN   = token.RegisterType("/=")
+	MODULO_ASSIGN   = token.RegisterType("%=")
 )
 
 func Plugin(b *plugin.Builder) {
@@ -21,6 +28,11 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(TYPEOF)
 	token.RegisterUnaryType(ASYNC)
 	token.RegisterUnaryType(AWAIT)
+	token.RegisterBinaryType(PLUS_ASSIGN, token.ASSIGN.Precedence())
+	token.RegisterBinaryType(MINUS_ASSIGN, token.ASSIGN.Precedence())
+	token.RegisterBinaryType(MULTIPLY_ASSIGN, token.ASSIGN.Precedence())
+	token.RegisterBinaryType(DIVIDE_ASSIGN, token.ASSIGN.Precedence())
+	token.RegisterBinaryType(MODULO_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(STRICT_EQ, token.EQ.Precedence())
 	token.RegisterBinaryType(STRICT_NOT_EQ, token.EQ.Precedence())
 	token.RegisterBinaryType(OPTIONAL_CHAINING, token.DOT.Precedence())
@@ -109,11 +121,40 @@ func Plugin(b *plugin.Builder) {
 				tok.Type = ARROW
 				tok.Literal = "=>"
 			}
+		case token.PLUS:
+			if sc.CurrentChar() == '=' {
+				sc.AdvanceChar()
+				tok.Type = PLUS_ASSIGN
+				tok.Literal = "+="
+			}
+		case token.MINUS:
+			if sc.CurrentChar() == '=' {
+				sc.AdvanceChar()
+				tok.Type = MINUS_ASSIGN
+				tok.Literal = "-="
+			}
 		case token.MULTIPLY:
-			if sc.CurrentChar() == '*' {
+			switch sc.CurrentChar() {
+			case '*':
 				sc.AdvanceChar()
 				tok.Type = EXPO
 				tok.Literal = "**"
+			case '=':
+				sc.AdvanceChar()
+				tok.Type = MULTIPLY_ASSIGN
+				tok.Literal = "*="
+			}
+		case token.DIVIDE:
+			if sc.CurrentChar() == '=' {
+				sc.AdvanceChar()
+				tok.Type = DIVIDE_ASSIGN
+				tok.Literal = "/="
+			}
+		case token.MODULO:
+			if sc.CurrentChar() == '=' {
+				sc.AdvanceChar()
+				tok.Type = MODULO_ASSIGN
+				tok.Literal = "%="
 			}
 		}
 		return
@@ -145,7 +186,7 @@ func Plugin(b *plugin.Builder) {
 	})
 	b.UseBinaryParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
-		case STRICT_EQ, STRICT_NOT_EQ:
+		case STRICT_EQ, STRICT_NOT_EQ, PLUS_ASSIGN, MINUS_ASSIGN, MULTIPLY_ASSIGN, DIVIDE_ASSIGN, MODULO_ASSIGN:
 			return js.ParseBinaryExpr(p, left)
 		case ARROW:
 			return ParseArrowFunc(p, left)
