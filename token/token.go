@@ -149,32 +149,32 @@ func RegisterType(lit string) Type {
 
 var binaryOps = map[Type]int{
 	// =
-	ASSIGN: 1,
+	ASSIGN: 1000,
 	// ||
-	OR: 2,
+	OR: 2000,
 	// &&
-	AND: 3,
+	AND: 3000,
 	// == !=
-	EQ:     4,
-	NOT_EQ: 4,
+	EQ:     4000,
+	NOT_EQ: 4000,
 	// < <= > >=
-	LT:  5,
-	LTE: 5,
-	GT:  5,
-	GTE: 5,
+	LT:  5000,
+	LTE: 5000,
+	GT:  5000,
+	GTE: 5000,
 	// + -
-	PLUS:  6,
-	MINUS: 6,
+	PLUS:  6000,
+	MINUS: 6000,
 	// * / %
-	MULTIPLY: 7,
-	DIVIDE:   7,
-	MODULO:   7,
+	MULTIPLY: 7000,
+	DIVIDE:   7000,
+	MODULO:   7000,
 	// ( [ . ++ --
-	LPAREN:    8,
-	LBRACKET:  8,
-	DOT:       8,
-	INCREMENT: 8,
-	DECREMENT: 8,
+	LPAREN:    8000,
+	LBRACKET:  8000,
+	DOT:       8000,
+	INCREMENT: 8000,
+	DECREMENT: 8000,
 }
 
 func (typ Type) IsBinaryOp() (ok bool) {
