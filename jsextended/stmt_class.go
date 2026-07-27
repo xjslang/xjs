@@ -13,11 +13,25 @@ var (
 	EXTENDS = token.RegisterType("extends")
 )
 
-type ClassMethodStmt struct {
+type ClassProperty struct {
 	ast.BaseDecl
-	Name   *js.Ident
+	Layout struct {
+		Assign token.Token
+		Semi   token.Token
+	}
+	Default ast.Expr
+}
+
+type ClassMethod struct {
+	ast.BaseDecl
 	Params *FunctionParams
 	Body   *js.BlockStmt
+}
+
+type ClassMember struct {
+	ast.BaseDecl
+	Name *js.Ident
+	Decl ast.Node
 }
 
 type ClassStmt struct {
@@ -30,7 +44,7 @@ type ClassStmt struct {
 	}
 	Name        *js.Ident
 	ParentClass *js.Ident
-	Methods     []*ClassMethodStmt
+	Members     []*ClassMember
 }
 
 func ParseClassStmt(p *parser.Parser) (node *ClassStmt, err error) {
@@ -52,11 +66,19 @@ func ParseClassStmt(p *parser.Parser) (node *ClassStmt, err error) {
 		return
 	}
 	for p.CurrentToken.Type != token.RBRACE && p.CurrentToken.Type != token.EOF {
-		var m *ClassMethodStmt
-		if m, err = parseMethod(p); err != nil {
+		m := &ClassMember{}
+		if m.Name, err = js.ParseIdent(p); err != nil {
 			return
 		}
-		node.Methods = append(node.Methods, m)
+		if p.CurrentToken.Type == token.LPAREN {
+			m.Decl, err = parseMethod(p)
+		} else {
+			m.Decl, err = parseProperty(p)
+		}
+		if err != nil {
+			return
+		}
+		node.Members = append(node.Members, m)
 	}
 	if node.Layout.Rbrace, err = p.Expect(token.RBRACE); err != nil {
 		return
@@ -64,11 +86,23 @@ func ParseClassStmt(p *parser.Parser) (node *ClassStmt, err error) {
 	return
 }
 
-func parseMethod(p *parser.Parser) (node *ClassMethodStmt, err error) {
-	node = &ClassMethodStmt{}
-	if node.Name, err = js.ParseIdent(p); err != nil {
+func parseProperty(p *parser.Parser) (node *ClassProperty, err error) {
+	node = &ClassProperty{}
+	if p.CurrentToken.Type == token.ASSIGN {
+		node.Layout.Assign = p.CurrentToken
+		p.AdvanceToken()
+		if node.Default, err = p.ParseExpr(); err != nil {
+			return
+		}
+	}
+	if node.Layout.Semi, err = js.ExpectSemi(p); err != nil {
 		return
 	}
+	return
+}
+
+func parseMethod(p *parser.Parser) (node *ClassMethod, err error) {
+	node = &ClassMethod{}
 	if node.Params, err = ParseFunctionParams(p); err != nil {
 		return
 	}
@@ -87,12 +121,23 @@ func PrintClassStmt(pr *printer.Printer, node *ClassStmt) (err error) {
 	}
 	pr.Space().Print(node.Layout.Lbrace)
 	pr.IncreaseIndent()
-	for _, m := range node.Methods {
+	for _, m := range node.Members {
 		pr.Line().Print(m.Name)
-		if err = PrintFunctionParams(pr, m.Params); err != nil {
-			return
+		switch v := m.Decl.(type) {
+		case *ClassMethod:
+			if err = PrintFunctionParams(pr, v.Params); err != nil {
+				return
+			}
+			pr.Space().Print(v.Body)
+		case *ClassProperty:
+			if v.Default != nil {
+				pr.Space().Print(v.Layout.Assign)
+				pr.Space().Print(v.Default)
+			}
+			pr.Print(v.Layout.Semi)
+		default:
+			return pr.Error("class member expected")
 		}
-		pr.Space().Print(m.Body)
 	}
 	pr.DecreaseIndent()
 	pr.Line().Print(node.Layout.Rbrace)
