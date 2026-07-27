@@ -92,6 +92,8 @@ func Plugin(b *plugin.Builder) {
 				tok.Type = ASYNC
 			case "await":
 				tok.Type = AWAIT
+			case "class":
+				tok.Type = CLASS
 			}
 		case token.UNKNOWN:
 			switch tok.Literal {
@@ -262,6 +264,8 @@ func Plugin(b *plugin.Builder) {
 			return ParseThrowStmt(p)
 		case DO:
 			return ParseDoWhileStmt(p)
+		case CLASS:
+			return ParseClassStmt(p)
 		}
 		return next()
 	})
@@ -313,6 +317,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintExpoExpr(pr, v)
 	case *CoalescingExpr:
 		return PrintCoalescingExpr(pr, v)
+	case *ClassStmt:
+		return PrintClassStmt(pr, v)
 	}
 	return next(node)
 }
