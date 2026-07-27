@@ -44,3 +44,18 @@ class MyClass {
     this.prop3 = "I'm static too";
   }
 }
+
+// with getters/setters
+class MyClass {
+  _msg = "";
+  get msg() {
+    return `msg: ${this._msg}`;
+  }
+  set msg(value) {
+    this._msg = value;
+  }
+  get;
+  set;
+  get() {}
+  set() {}
+}
