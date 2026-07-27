@@ -20,6 +20,13 @@ var (
 	MULTIPLY_ASSIGN = token.RegisterType("*=")
 	DIVIDE_ASSIGN   = token.RegisterType("/=")
 	MODULO_ASSIGN   = token.RegisterType("%=")
+	// bitwise
+	AND_BITWISE  = token.RegisterType("&")
+	OR_BITWISE   = token.RegisterType("|")
+	XOR_BITWISE  = token.RegisterType("^")
+	SHL_BITWISE  = token.RegisterType("<<")
+	SHR_BITWISE  = token.RegisterType(">>")
+	USHR_BITWISE = token.RegisterType(">>>") // unsigned SHR
 )
 
 func Plugin(b *plugin.Builder) {
