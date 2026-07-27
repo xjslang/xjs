@@ -39,13 +39,9 @@ type ClassMember struct {
 		Static token.Token
 	}
 	Static bool
+	Flag   token.Token // get or set
 	Name   *js.Ident
 	Decl   ast.Node
-}
-
-type StaticInitializer struct {
-	ast.BaseNode
-	Body *js.BlockStmt
 }
 
 type ClassStmt struct {
@@ -97,6 +93,12 @@ func ParseClassStmt(p *parser.Parser) (node *ClassStmt, err error) {
 		if m.Static {
 			m.Layout.Static = p.CurrentToken
 			p.AdvanceToken()
+		}
+		if p.CurrentToken.Type == token.IDENT && p.PeekToken.Type == token.IDENT {
+			if lit := p.CurrentToken.Literal; lit == "get" || lit == "set" {
+				m.Flag = p.CurrentToken
+				p.AdvanceToken()
+			}
 		}
 		if m.Name, err = js.ParseIdent(p); err != nil {
 			return
@@ -168,12 +170,19 @@ func PrintClassStmt(pr *printer.Printer, node *ClassStmt) (err error) {
 		}
 		switch v := m.Decl.(type) {
 		case *ClassMethod:
+			if len(m.Flag.Literal) > 0 {
+				pr.Print(m.Flag)
+				pr.Space()
+			}
 			pr.Print(m.Name)
 			if err = PrintFunctionParams(pr, v.Params); err != nil {
 				return
 			}
 			pr.Space().Print(v.Body)
 		case *ClassProperty:
+			if len(m.Flag.Literal) > 0 {
+				return pr.Error("get/set are reserved for methods")
+			}
 			pr.Print(m.Name)
 			if v.Default != nil {
 				pr.Space().Print(v.Layout.Assign)
