@@ -48,6 +48,12 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterBinaryType(QUESTION_MARK, -1)
 	token.RegisterBinaryType(EXPO, token.MULTIPLY.Precedence()+1)
 	token.RegisterBinaryType(COALESCING, token.OR.Precedence())
+	token.RegisterBinaryType(OR_BITWISE, token.AND.Precedence()+1)
+	token.RegisterBinaryType(XOR_BITWISE, token.AND.Precedence()+2)
+	token.RegisterBinaryType(AND_BITWISE, token.AND.Precedence()+3)
+	token.RegisterBinaryType(SHL_BITWISE, token.LT.Precedence()+5)
+	token.RegisterBinaryType(SHR_BITWISE, token.LT.Precedence()+5)
+	token.RegisterBinaryType(USHR_BITWISE, token.LT.Precedence()+5)
 
 	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
 		if tok, err = next(); err != nil {
@@ -101,6 +107,30 @@ func Plugin(b *plugin.Builder) {
 					tok.Literal = "??"
 				default:
 					tok.Type = QUESTION_MARK
+				}
+			case "&":
+				tok.Type = AND_BITWISE
+			case "|":
+				tok.Type = OR_BITWISE
+			case "^":
+				tok.Type = XOR_BITWISE
+			}
+		case token.LT:
+			if sc.CurrentChar() == '<' {
+				sc.AdvanceChar()
+				tok.Type = SHL_BITWISE
+				tok.Literal = "<<"
+			}
+		case token.GT:
+			if sc.CurrentChar() == '>' {
+				sc.AdvanceChar()
+				if sc.CurrentChar() == '>' {
+					sc.AdvanceChar()
+					tok.Type = USHR_BITWISE
+					tok.Literal = ">>>"
+				} else {
+					tok.Type = SHR_BITWISE
+					tok.Literal = ">>"
 				}
 			}
 		case token.EQ:
