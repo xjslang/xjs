@@ -27,3 +27,20 @@ class MyClass {
   static method2() {}
   static() {}
 }
+
+// with static initializers
+class MyClass {
+  prop1;
+  static prop2 = 200;
+  static prop3;
+  static static = "I'm static!";
+  static {
+    this.static = "I am static";
+  }
+  method1() {}
+  static method2() {}
+  static() {}
+  static {
+    this.prop3 = "I'm static too";
+  }
+}

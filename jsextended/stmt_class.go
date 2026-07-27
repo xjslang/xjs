@@ -28,6 +28,11 @@ type ClassMethod struct {
 	Body   *js.BlockStmt
 }
 
+type StaticInitializer struct {
+	ast.BaseNode
+	Body *js.BlockStmt
+}
+
 type ClassMember struct {
 	ast.BaseDecl
 	Layout struct {
@@ -72,7 +77,17 @@ func ParseClassStmt(p *parser.Parser) (node *ClassStmt, err error) {
 	for p.CurrentToken.Type != token.RBRACE && p.CurrentToken.Type != token.EOF {
 		m := &ClassMember{}
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "static" {
-			m.Static = p.PeekToken.Type == token.IDENT && p.PeekToken.Type != token.LPAREN
+			if p.PeekToken.Type == token.LBRACE {
+				m.Layout.Static = p.CurrentToken
+				p.AdvanceToken()
+				if m.Decl, err = parseStaticInitializer(p); err != nil {
+					return
+				}
+				node.Members = append(node.Members, m)
+				continue
+			} else {
+				m.Static = p.PeekToken.Type == token.IDENT
+			}
 		}
 		if m.Static {
 			m.Layout.Static = p.CurrentToken
@@ -123,6 +138,14 @@ func parseMethod(p *parser.Parser) (node *ClassMethod, err error) {
 	return
 }
 
+func parseStaticInitializer(p *parser.Parser) (node *StaticInitializer, err error) {
+	node = &StaticInitializer{}
+	if node.Body, err = js.ParseBlockStmt(p); err != nil {
+		return
+	}
+	return
+}
+
 func PrintClassStmt(pr *printer.Printer, node *ClassStmt) (err error) {
 	pr.Line().Print(node.Layout.Class)
 	pr.Space().Print(node.Name)
@@ -138,19 +161,23 @@ func PrintClassStmt(pr *printer.Printer, node *ClassStmt) (err error) {
 			pr.Print(m.Layout.Static)
 			pr.Space()
 		}
-		pr.Print(m.Name)
 		switch v := m.Decl.(type) {
 		case *ClassMethod:
+			pr.Print(m.Name)
 			if err = PrintFunctionParams(pr, v.Params); err != nil {
 				return
 			}
 			pr.Space().Print(v.Body)
 		case *ClassProperty:
+			pr.Print(m.Name)
 			if v.Default != nil {
 				pr.Space().Print(v.Layout.Assign)
 				pr.Space().Print(v.Default)
 			}
 			pr.Print(v.Layout.Semi)
+		case *StaticInitializer:
+			pr.Print(m.Layout.Static)
+			pr.Space().Print(v.Body)
 		default:
 			return pr.Error("class member expected")
 		}
