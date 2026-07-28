@@ -36,6 +36,7 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(ASYNC)
 	token.RegisterUnaryType(AWAIT)
 	token.RegisterUnaryType(VOID)
+	token.RegisterUnaryType(YIELD)
 	token.RegisterBinaryType(PLUS_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(MINUS_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(MULTIPLY_ASSIGN, token.ASSIGN.Precedence())
@@ -99,6 +100,8 @@ func Plugin(b *plugin.Builder) {
 				tok.Type = EXTENDS
 			case "void":
 				tok.Type = VOID
+			case "yield":
+				tok.Type = YIELD
 			}
 		case token.UNKNOWN:
 			switch tok.Literal {
@@ -227,6 +230,8 @@ func Plugin(b *plugin.Builder) {
 			return ParseAwaitExpr(p)
 		case VOID:
 			return ParseVoidExpr(p)
+		case YIELD:
+			return ParseYieldExpr(p)
 		}
 		return next()
 	})
@@ -328,6 +333,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintClassStmt(pr, v)
 	case *VoidExpr:
 		return PrintVoidExpr(pr, v)
+	case *YieldExpr:
+		return PrintYieldExpr(pr, v)
 	}
 	return next(node)
 }
