@@ -29,8 +29,13 @@ func ParseYieldExpr(p *parser.Parser) (node *YieldExpr, err error) {
 		node.Layout.Multiply = p.CurrentToken
 		p.AdvanceToken()
 	}
-	if node.Expr, err = js.ParseRightExpr(p, token.LPAREN.Precedence()-1); err != nil {
-		return
+
+	typ := p.CurrentToken.Type
+	// Like return: allow `yield` with no operand when followed by a line terminator / `;` / `}` / EOF.
+	if node.IsDelegating || (!p.CurrentToken.AfterNewline && typ != token.EOF && typ != token.SEMICOLON && typ != token.RBRACE) {
+		if node.Expr, err = p.ParseExpr(); err != nil {
+			return
+		}
 	}
 	return
 }
@@ -40,6 +45,8 @@ func PrintYieldExpr(pr *printer.Printer, node *YieldExpr) error {
 	if node.IsDelegating {
 		pr.Print(node.Layout.Multiply)
 	}
-	pr.Space().Print(node.Expr)
+	if node.Expr != nil {
+		pr.Space().Print(node.Expr)
+	}
 	return nil
 }
