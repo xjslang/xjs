@@ -99,6 +99,8 @@ func Plugin(b *plugin.Builder) {
 				tok.Type = EXTENDS
 			case "void":
 				tok.Type = VOID
+			case "yield":
+				tok.Type = YIELD
 			}
 		case token.UNKNOWN:
 			switch tok.Literal {
@@ -273,6 +275,8 @@ func Plugin(b *plugin.Builder) {
 			return ParseDoWhileStmt(p)
 		case CLASS:
 			return ParseClassStmt(p)
+		case YIELD:
+			return ParseYieldStmt(p)
 		}
 		return next()
 	})
@@ -328,6 +332,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintClassStmt(pr, v)
 	case *VoidExpr:
 		return PrintVoidExpr(pr, v)
+	case *YieldStmt:
+		return PrintYieldStmt(pr, v)
 	}
 	return next(node)
 }
