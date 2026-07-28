@@ -9,9 +9,20 @@ import (
 )
 
 type ObjEntry struct {
+	ast.BaseNode
 	Key     ast.Node
 	Value   ast.Expr
 	Default ast.Expr
+}
+
+type ObjAccessor struct {
+	ast.BaseNode
+	Layout struct {
+		Flag token.Token // get or set
+	}
+	Name   *js.Ident
+	Params *FunctionParams
+	Body   *js.BlockStmt
 }
 
 type ObjExpr struct {
@@ -20,7 +31,7 @@ type ObjExpr struct {
 		Lbrace token.Token
 		Rbrace token.Token
 	}
-	Entries []ObjEntry
+	Entries []ast.Node
 }
 
 func ParseObjExpr(p *parser.Parser) (node *ObjExpr, err error) {
@@ -29,32 +40,12 @@ func ParseObjExpr(p *parser.Parser) (node *ObjExpr, err error) {
 		return
 	}
 	for p.CurrentToken.Type != token.RBRACE {
-		entry := ObjEntry{}
-		switch p.CurrentToken.Type {
-		case token.LBRACKET:
-			if entry.Key, err = js.ParseComputedExpr(p); err != nil {
-				return
-			}
-		case token.STRING, token.NUMBER, SPREAD:
-			if entry.Key, err = js.ParseValue(p); err != nil {
-				return
-			}
-		default:
-			if entry.Key, err = js.ParseObjKey(p); err != nil {
-				return
-			}
-		}
-		if p.CurrentToken.Type == token.COLON {
-			p.AdvanceToken()
-			if entry.Value, err = js.ParseRightExpr(p, token.ASSIGN.Precedence()); err != nil {
-				return
-			}
-		}
-		if p.CurrentToken.Type == token.ASSIGN {
-			p.AdvanceToken()
-			if entry.Default, err = p.ParseExpr(); err != nil {
-				return
-			}
+		var entry ast.Node
+		if entry, err = parser.Switch(p,
+			func(p *parser.Parser) (ast.Node, error) { return parseObjAccessor(p) },
+			func(p *parser.Parser) (ast.Node, error) { return parseObjEntry(p) },
+		); err != nil {
+			return
 		}
 		node.Entries = append(node.Entries, entry)
 		if p.CurrentToken.Type != token.COMMA {
@@ -68,7 +59,58 @@ func ParseObjExpr(p *parser.Parser) (node *ObjExpr, err error) {
 	return node, nil
 }
 
-func PrintObjExpr(pr *printer.Printer, node *ObjExpr) error {
+func parseObjAccessor(p *parser.Parser) (node *ObjAccessor, err error) {
+	node = &ObjAccessor{}
+	if lit := p.CurrentToken.Literal; lit != "get" && lit != "set" {
+		err = p.Error("get/set expected")
+		return
+	}
+	node.Layout.Flag = p.CurrentToken
+	p.AdvanceToken()
+	if node.Name, err = js.ParseIdent(p); err != nil {
+		return
+	}
+	if node.Params, err = ParseFunctionParams(p); err != nil {
+		return
+	}
+	if node.Body, err = js.ParseBlockStmt(p); err != nil {
+		return
+	}
+	return
+}
+
+func parseObjEntry(p *parser.Parser) (node *ObjEntry, err error) {
+	node = &ObjEntry{}
+	switch p.CurrentToken.Type {
+	case token.LBRACKET:
+		if node.Key, err = js.ParseComputedExpr(p); err != nil {
+			return
+		}
+	case token.STRING, token.NUMBER, SPREAD:
+		if node.Key, err = js.ParseValue(p); err != nil {
+			return
+		}
+	default:
+		if node.Key, err = js.ParseObjKey(p); err != nil {
+			return
+		}
+	}
+	if p.CurrentToken.Type == token.COLON {
+		p.AdvanceToken()
+		if node.Value, err = js.ParseRightExpr(p, token.ASSIGN.Precedence()); err != nil {
+			return
+		}
+	}
+	if p.CurrentToken.Type == token.ASSIGN {
+		p.AdvanceToken()
+		if node.Default, err = p.ParseExpr(); err != nil {
+			return
+		}
+	}
+	return
+}
+
+func PrintObjExpr(pr *printer.Printer, node *ObjExpr) (err error) {
 	pr.Print(node.Layout.Lbrace)
 	if len(node.Entries) > 0 {
 		pr.IncreaseIndent()
@@ -76,24 +118,37 @@ func PrintObjExpr(pr *printer.Printer, node *ObjExpr) error {
 			if i > 0 {
 				pr.Print(",")
 			}
-			switch v := entry.Key.(type) {
-			case *js.ComputedExpr:
-				pr.Space().Print(v.Layout.Lbracket, v.Expr, v.Layout.Rbracket)
+			switch v := entry.(type) {
+			case *ObjEntry:
+				switch w := v.Key.(type) {
+				case *js.ComputedExpr:
+					pr.Space().Print(w.Layout.Lbracket, w.Expr, w.Layout.Rbracket)
+				default:
+					pr.Space().Print(w)
+				}
+				if v.Value != nil {
+					pr.Print(":")
+					pr.Space().Print(v.Value)
+				}
+				if v.Default != nil {
+					pr.Space().Print("=")
+					pr.Space().Print(v.Default)
+				}
+			case *ObjAccessor:
+				pr.Print(v.Layout.Flag)
+				pr.Space().Print(v.Name)
+				if err = PrintFunctionParams(pr, v.Params); err != nil {
+					return
+				}
+				pr.Space().Print(v.Body)
 			default:
-				pr.Space().Print(v)
-			}
-			if entry.Value != nil {
-				pr.Print(":")
-				pr.Space().Print(entry.Value)
-			}
-			if entry.Default != nil {
-				pr.Space().Print("=")
-				pr.Space().Print(entry.Default)
+				err = pr.Error("object entry expected")
+				return
 			}
 		}
 		pr.DecreaseIndent()
 		pr.Space()
 	}
 	pr.Print(node.Layout.Rbrace)
-	return nil
+	return
 }
