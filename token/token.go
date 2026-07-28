@@ -35,6 +35,7 @@ type Token struct {
 	Position
 	Type          Type
 	Literal       string
+	Raw           []byte
 	LeadingTrivia []Token
 	AfterNewline  bool
 }

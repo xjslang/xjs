@@ -12,6 +12,7 @@ const EOF = rune(-1)
 type Scanner struct {
 	input        []byte
 	offset       int
+	tokenOffset  int
 	line, column int
 	scanner      func(*Scanner) (token.Token, error)
 	currentChar  rune
@@ -29,6 +30,7 @@ func (sc *Scanner) Fork() token.Scanner {
 	s := &Scanner{
 		input:       sc.input,
 		offset:      sc.offset,
+		tokenOffset: sc.tokenOffset,
 		line:        sc.line,
 		column:      sc.column,
 		currentChar: sc.currentChar,
@@ -44,6 +46,7 @@ func (sc *Scanner) Apply(s token.Scanner) {
 	switch v := s.(type) {
 	case *Scanner:
 		sc.offset = v.offset
+		sc.tokenOffset = v.tokenOffset
 		sc.line = v.line
 		sc.column = v.column
 		sc.currentChar = v.currentChar
@@ -58,6 +61,7 @@ func (sc *Scanner) Reset() {
 	}
 	sc.offset = 0
 	sc.currentChar = EOF
+	sc.tokenOffset = -1
 	sc.line = 0
 	sc.column = -1
 	sc.AdvanceChar()
@@ -78,6 +82,7 @@ func (sc *Scanner) PeekChar() rune {
 func (sc *Scanner) AdvanceChar() {
 	r, size := utf8.DecodeRune(sc.input[sc.offset:])
 	sc.offset += size
+	sc.tokenOffset++
 	// covers "\r", "\n" and "\r\n"
 	switch r {
 	case '\r':
@@ -103,6 +108,7 @@ func (sc *Scanner) AdvanceChar() {
 }
 
 func (sc *Scanner) NextToken() token.Token {
+	offset0 := sc.tokenOffset
 	next := func() token.Token {
 		sc.skipWhitespaces()
 		line, column := sc.line, sc.column
@@ -133,6 +139,7 @@ triviaLoop:
 	}
 	tok.LeadingTrivia = trivia
 	tok.AfterNewline = afterNewline
+	tok.Raw = sc.input[offset0:sc.tokenOffset]
 	return tok
 }
 
