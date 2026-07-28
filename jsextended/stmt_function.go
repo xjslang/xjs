@@ -38,16 +38,22 @@ type FunctionDecl struct {
 	ast.BaseDecl
 	Layout struct {
 		Function token.Token
+		Multiply token.Token
 	}
-	Name   *js.Ident
-	Params *FunctionParams
-	Body   *js.BlockStmt
+	IsGenerator bool
+	Name        *js.Ident
+	Params      *FunctionParams
+	Body        *js.BlockStmt
 }
 
 func ParseFunctionDecl(p *parser.Parser) (node *FunctionDecl, err error) {
 	node = &FunctionDecl{}
 	if node.Layout.Function, err = p.Expect(js.FUNCTION); err != nil {
 		return
+	}
+	if node.IsGenerator = p.CurrentToken.Type == token.MULTIPLY; node.IsGenerator {
+		node.Layout.Multiply = p.CurrentToken
+		p.AdvanceToken()
 	}
 	if node.Name, err = js.ParseIdent(p); err != nil {
 		return
@@ -127,6 +133,9 @@ func parseRestParam(p *parser.Parser) (param *RestParam, err error) {
 
 func PrintFunctionDecl(pr *printer.Printer, node *FunctionDecl) (err error) {
 	pr.Line().Print(node.Layout.Function)
+	if node.IsGenerator {
+		pr.Print(node.Layout.Multiply)
+	}
 	pr.Space().Print(node.Name)
 	if err = PrintFunctionParams(pr, node.Params); err != nil {
 		return err
