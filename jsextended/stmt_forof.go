@@ -47,7 +47,7 @@ func ParseForofStmt(p *parser.Parser) (node *ForofStmt, err error) {
 	if err != nil {
 		return
 	}
-	if node.Layout.Of, err = p.ExpectString("of"); err != nil {
+	if node.Layout.Of, err = p.ExpectLiteral("of"); err != nil {
 		return
 	}
 	if node.Value, err = p.ParseExpr(); err != nil {

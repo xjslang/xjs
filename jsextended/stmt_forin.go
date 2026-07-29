@@ -47,7 +47,7 @@ func ParseForinStmt(p *parser.Parser) (node *ForinStmt, err error) {
 	if err != nil {
 		return
 	}
-	if node.Layout.In, err = p.ExpectString("in"); err != nil {
+	if node.Layout.In, err = p.ExpectLiteral("in"); err != nil {
 		return
 	}
 	if node.Value, err = p.ParseExpr(); err != nil {

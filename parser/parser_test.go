@@ -68,7 +68,7 @@ func TestMain(m *testing.M) {
 func TestLookahead(t *testing.T) {
 	parser1 := func(p *parser.Parser) (node *js.Variable, err error) {
 		node = &js.Variable{}
-		if node.Token, err = p.ExpectString("a"); err != nil {
+		if node.Token, err = p.ExpectLiteral("a"); err != nil {
 			return
 		}
 		return
@@ -76,7 +76,7 @@ func TestLookahead(t *testing.T) {
 
 	parser2 := func(p *parser.Parser) (node *js.Variable, err error) {
 		node = &js.Variable{}
-		if node.Token, err = p.ExpectString("b"); err != nil {
+		if node.Token, err = p.ExpectLiteral("b"); err != nil {
 			return
 		}
 		return
