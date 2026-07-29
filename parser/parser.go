@@ -137,6 +137,19 @@ func (p *Parser) ExpectLiteral(s string) (token.Token, error) {
 	return tok, nil
 }
 
+func (p *Parser) ExpectWith(scanner func(sc token.Scanner) (string, error)) (tok token.Token, err error) {
+	tok = p.CurrentToken
+	sc := p.scanner.(token.ForkableScanner)
+	f := sc.ForkFrom(p.CurrentToken.Position)
+	if tok.Literal, err = scanner(f); err != nil {
+		return
+	}
+	sc.Apply(f)
+	p.AdvanceToken()
+	p.CurrentToken = tok
+	return
+}
+
 func (p *Parser) Error(msg string) error {
 	return p.ErrorAt(p.CurrentToken, msg)
 }

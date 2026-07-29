@@ -6,11 +6,14 @@ import (
 )
 
 type ForkableScanner interface {
+	ForkFrom(Position) Scanner
 	Fork() Scanner
 	Apply(Scanner)
 }
 
 type Scanner interface {
+	CurrentChar() rune
+	AdvanceChar()
 	NextToken() Token
 }
 
@@ -29,6 +32,7 @@ func (tt Type) String() string {
 type Position struct {
 	Line   int `json:"line"`
 	Column int `json:"column"`
+	Offset int `json:"offset"`
 }
 
 type Token struct {

@@ -25,6 +25,22 @@ func (sc *Scanner) init(input []byte) {
 	sc.Reset()
 }
 
+func (sc *Scanner) ForkFrom(pos token.Position) token.Scanner {
+	s := &Scanner{
+		input:       sc.input,
+		offset:      pos.Offset,
+		line:        pos.Line,
+		column:      pos.Column - 1,
+		scanner:     sc.scanner,
+		currentChar: EOF,
+	}
+	if s.scanner == nil {
+		s.scanner = defaultScanner
+	}
+	s.AdvanceChar()
+	return s
+}
+
 func (sc *Scanner) Fork() token.Scanner {
 	s := &Scanner{
 		input:       sc.input,
@@ -105,7 +121,7 @@ func (sc *Scanner) AdvanceChar() {
 func (sc *Scanner) NextToken() token.Token {
 	next := func() token.Token {
 		sc.skipWhitespaces()
-		line, column := sc.line, sc.column
+		line, column, offset := sc.line, sc.column, sc.offset
 		tok, err := sc.scanner(sc)
 		// TODO: (medium) Scanner.NextToken converts scanner/middleware errors into token.ILLEGAL but discards the error value entirely. With the new middleware signature returning errors, callers still have no way to observe why a token is illegal other than inspecting Literal. Consider exposing the error (e.g., NextToken returning (token.Token, error) or storing the last error on Scanner) so downstream code can surface better diagnostics.
 		if err != nil {
@@ -113,6 +129,10 @@ func (sc *Scanner) NextToken() token.Token {
 		}
 		tok.Line = line
 		tok.Column = max(0, column)
+		tok.Offset = offset
+		if sc.currentChar != EOF {
+			tok.Offset = offset - utf8.RuneLen(sc.currentChar)
+		}
 		return tok
 	}
 	var trivia []token.Token

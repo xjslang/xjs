@@ -1,9 +1,11 @@
 package parser_test
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -375,4 +377,61 @@ func TestInvalidTokenAfterNewline(t *testing.T) {
 			})
 		}
 	}
+}
+
+func TestExpectWith(t *testing.T) {
+	scanRegex := func(sc token.Scanner) (string, error) {
+		sb := strings.Builder{}
+		if sc.CurrentChar() != '/' {
+			return "", errors.New("/ expected")
+		}
+		sb.WriteRune(sc.CurrentChar())
+		sc.AdvanceChar() // consume /
+		for {
+			if sc.CurrentChar() == '\\' {
+				sb.WriteRune(sc.CurrentChar())
+				sc.AdvanceChar()
+				if sc.CurrentChar() == '/' {
+					sb.WriteRune(sc.CurrentChar())
+					sc.AdvanceChar()
+					continue
+				}
+			}
+			if sc.CurrentChar() == '/' {
+				sb.WriteRune(sc.CurrentChar())
+				sc.AdvanceChar()
+				break
+			} else if sc.CurrentChar() == scanner.EOF || sc.CurrentChar() == '\n' || sc.CurrentChar() == '\r' {
+				return sb.String(), errors.New("unexpected end of line")
+			}
+			sb.WriteRune(sc.CurrentChar())
+			sc.AdvanceChar()
+		}
+		flags := []rune("dgimsuvy")
+		for slices.Contains(flags, sc.CurrentChar()) {
+			sb.WriteRune(sc.CurrentChar())
+			sc.AdvanceChar()
+		}
+		if c := sc.CurrentChar(); c != ' ' && c != '\t' && c != '\n' && c != '\r' && c != scanner.EOF {
+			return "", errors.New("unknown flag " + string(c))
+		}
+		return sb.String(), nil
+	}
+
+	input := `// comment
+	/lorem ipsum dolor/gd
+	'lorem ipsum'`
+	sc := scanner.NewBuilder().Build([]byte(input))
+	p := parser.NewBuilder().Build(sc)
+	tok, err := p.ExpectWith(scanRegex)
+	require.NoError(t, err)
+	testutil.AssertTokens(t, []token.Token{
+		tok,
+		p.CurrentToken,
+		p.PeekToken,
+	}, []token.Token{
+		{Type: token.DIVIDE, Literal: "/lorem ipsum dolor/gd"},
+		{Type: token.DIVIDE, Literal: "/lorem ipsum dolor/gd"},
+		{Type: token.STRING, Literal: "'lorem ipsum'"},
+	})
 }
