@@ -52,7 +52,7 @@ func ParseImportStmt(p *parser.Parser) (node *ImportStmt, err error) {
 			// import * as lib from 'lib.js'
 			node.Layout.Multiply = p.CurrentToken
 			p.AdvanceToken()
-			if node.Layout.As, err = p.ExpectString("as"); err != nil {
+			if node.Layout.As, err = p.ExpectLiteral("as"); err != nil {
 				return
 			}
 			if node.Namespace, err = ParseIdent(p); err != nil {
@@ -94,7 +94,7 @@ func ParseImportStmt(p *parser.Parser) (node *ImportStmt, err error) {
 			err = p.Error("syntax error")
 			return
 		}
-		if node.Layout.From, err = p.ExpectString("from"); err != nil {
+		if node.Layout.From, err = p.ExpectLiteral("from"); err != nil {
 			return
 		}
 		if node.Path, err = p.Expect(token.STRING); err != nil {
