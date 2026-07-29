@@ -90,12 +90,12 @@ func (p *Parser) Fork() *Parser {
 	}
 }
 
-func (p *Parser) Apply(p1 *Parser) {
+func (p *Parser) Apply(foked *Parser) {
 	sc := p.scanner.(token.ForkableScanner)
-	sc.Apply(p1.scanner)
-	p.CurrentToken = p1.CurrentToken
-	p.PeekToken = p1.PeekToken
-	p.scopes = maps.Clone(p1.scopes)
+	sc.Apply(foked.scanner)
+	p.CurrentToken = foked.CurrentToken
+	p.PeekToken = foked.PeekToken
+	p.scopes = maps.Clone(foked.scopes)
 }
 
 func (p *Parser) ParseStmt() (ast.Stmt, error) {
