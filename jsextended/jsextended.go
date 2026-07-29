@@ -36,6 +36,7 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(ASYNC)
 	token.RegisterUnaryType(AWAIT)
 	token.RegisterUnaryType(VOID)
+	token.RegisterUnaryType(token.DIVIDE) // regex
 	token.RegisterBinaryType(PLUS_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(MINUS_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(MULTIPLY_ASSIGN, token.ASSIGN.Precedence())
@@ -217,6 +218,8 @@ func Plugin(b *plugin.Builder) {
 			}, func(p *parser.Parser) (ast.Expr, error) {
 				return ParseSequenceExpr(p)
 			})
+		case token.DIVIDE:
+			return ParseRegExpr(p)
 		case NEW:
 			return ParseNewExpr(p)
 		case SPREAD:
@@ -334,6 +337,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintVoidExpr(pr, v)
 	case *YieldStmt:
 		return PrintYieldStmt(pr, v)
+	case *RegExpr:
+		return PrintRegExpr(pr, v)
 	}
 	return next(node)
 }
