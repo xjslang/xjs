@@ -57,10 +57,10 @@ func ExampleBuilder_Build() {
 			tok.Literal, tok.Position)
 	}
 	// Output:
-	// {Type: hash, Literal: #, Position: {0 0}}
-	// {Type: identifier, Literal: some, Position: {0 1}}
-	// {Type: caret, Literal: ^, Position: {0 6}}
-	// {Type: identifier, Literal: input, Position: {0 7}}
+	// {Type: hash, Literal: #, Position: {0 0 0}}
+	// {Type: identifier, Literal: some, Position: {0 1 1}}
+	// {Type: caret, Literal: ^, Position: {0 6 6}}
+	// {Type: identifier, Literal: input, Position: {0 7 8}}
 }
 
 func BenchmarkLexer(b *testing.B) {

@@ -90,12 +90,12 @@ func (p *Parser) Fork() *Parser {
 	}
 }
 
-func (p *Parser) Apply(p1 *Parser) {
+func (p *Parser) Apply(foked *Parser) {
 	sc := p.scanner.(token.ForkableScanner)
-	sc.Apply(p1.scanner)
-	p.CurrentToken = p1.CurrentToken
-	p.PeekToken = p1.PeekToken
-	p.scopes = maps.Clone(p1.scopes)
+	sc.Apply(foked.scanner)
+	p.CurrentToken = foked.CurrentToken
+	p.PeekToken = foked.PeekToken
+	p.scopes = maps.Clone(foked.scopes)
 }
 
 func (p *Parser) ParseStmt() (ast.Stmt, error) {
@@ -135,6 +135,19 @@ func (p *Parser) ExpectLiteral(s string) (token.Token, error) {
 	}
 	p.AdvanceToken()
 	return tok, nil
+}
+
+func (p *Parser) ExpectWith(scanner func(sc token.Scanner) (string, error)) (tok token.Token, err error) {
+	tok = p.CurrentToken
+	sc := p.scanner.(token.ForkableScanner)
+	f := sc.ForkFrom(p.CurrentToken.Position)
+	if tok.Literal, err = scanner(f); err != nil {
+		return
+	}
+	sc.Apply(f)
+	p.AdvanceToken()
+	p.CurrentToken = tok
+	return
 }
 
 func (p *Parser) Error(msg string) error {
