@@ -30,6 +30,7 @@ func Print(result ast.Node, opts ...printer.Option) (string, error) {
 func TestRoundtripFiles(t *testing.T) {
 	files, err := filepath.Glob("testdata/roundtrip/*.js")
 	require.NoError(t, err)
+	require.NotEmpty(t, files)
 	for _, file := range files {
 		t.Run(filepath.Base(file), func(t *testing.T) {
 			data, err := os.ReadFile(file)
@@ -51,6 +52,7 @@ func TestRoundtripFiles(t *testing.T) {
 func TestDebugFiles(t *testing.T) {
 	files, err := filepath.Glob("testdata/debug/*.js")
 	require.NoError(t, err)
+	require.NotEmpty(t, files)
 	for _, file := range files {
 		t.Run(filepath.Base(file), func(t *testing.T) {
 			data, err := os.ReadFile(file)
@@ -65,6 +67,30 @@ func TestDebugFiles(t *testing.T) {
 			require.NoError(t, err)
 
 			golden.Assert(t, []byte(code))
+		})
+	}
+}
+
+func TestCheckFiles(t *testing.T) {
+	files, err := filepath.Glob("testdata/check/*.js")
+	require.NoError(t, err)
+	require.NotEmpty(t, files)
+	for _, file := range files {
+		t.Run(filepath.Base(file), func(t *testing.T) {
+			data, err := os.ReadFile(file)
+			require.NoError(t, err)
+
+			// data -> AST
+			result, err := Parse(data)
+			require.NoError(t, err)
+
+			// AST -> code (only verify)
+			code, err := Print(result)
+			require.NoError(t, err)
+
+			// verify printed code parses
+			_, err = Parse([]byte(code))
+			require.NoError(t, err)
 		})
 	}
 }
