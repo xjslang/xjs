@@ -371,8 +371,8 @@ func TestWithComments(t *testing.T) {
 		pr   *printer.Printer
 	}{
 		{"show comments by default", xjs.PrinterBuilder().Build()},
-		{"hide comments", xjs.PrinterBuilder().Build(printer.WithComments(false))},
-		{"show comments", xjs.PrinterBuilder().Build(printer.WithComments(true))},
+		{"hide comments", xjs.PrinterBuilder().Build(printer.WithTrivia(false))},
+		{"show comments", xjs.PrinterBuilder().Build(printer.WithTrivia(true))},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -395,7 +395,7 @@ func TestWithNewLines(t *testing.T) {
 		{"show new lines by default", xjs.PrinterBuilder().Build()},
 		{"show new lines", xjs.PrinterBuilder().Build(printer.WithNewLines(true))},
 		{"hide new lines", xjs.PrinterBuilder().Build(printer.WithNewLines(false))},
-		{"hide new lines and comments", xjs.PrinterBuilder().Build(printer.WithNewLines(false), printer.WithComments(false))},
+		{"hide new lines and comments", xjs.PrinterBuilder().Build(printer.WithNewLines(false), printer.WithTrivia(false))},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

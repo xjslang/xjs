@@ -35,12 +35,11 @@ func TestStandaloneSemicolons(t *testing.T) {
 	ccc()`
 	result, err := xjs.Parse([]byte(input))
 	require.NoError(t, err)
-	out, err := xjs.Print(result, printer.WithComments(false))
+	out, err := xjs.Print(result, printer.WithTrivia(false))
 	require.NoError(t, err)
 	require.Equal(t, `;
 ;
-aaa()
-;
+aaa();
 bbb();
 ccc();`, out)
 }

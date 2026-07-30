@@ -31,7 +31,7 @@ func (list ErrorList) Error() string {
 
 type config struct {
 	indent       string
-	withComments bool
+	withTrivia   bool
 	withNewLines bool
 }
 
@@ -39,7 +39,7 @@ type Option func(*config)
 
 func Compact() Option {
 	return func(cfg *config) {
-		cfg.withComments = false
+		cfg.withTrivia = false
 		cfg.withNewLines = false
 	}
 }
@@ -50,9 +50,9 @@ func WithIndent(value string) Option {
 	}
 }
 
-func WithComments(value bool) Option {
+func WithTrivia(value bool) Option {
 	return func(cfg *config) {
-		cfg.withComments = value
+		cfg.withTrivia = value
 	}
 }
 
@@ -64,7 +64,7 @@ func WithNewLines(value bool) Option {
 
 type Printer struct {
 	doc          strings.Builder
-	withComments bool
+	withTrivia   bool
 	withNewLines bool
 	indent       string
 	indentLevel  int
@@ -78,7 +78,7 @@ type Printer struct {
 
 func (pr *Printer) init(opts ...Option) {
 	cfg := &config{
-		withComments: true,
+		withTrivia:   true,
 		withNewLines: true,
 		indent:       "  ",
 	}
@@ -86,7 +86,7 @@ func (pr *Printer) init(opts ...Option) {
 		opt(cfg)
 	}
 	pr.doc.Reset()
-	pr.withComments = cfg.withComments
+	pr.withTrivia = cfg.withTrivia
 	pr.withNewLines = cfg.withNewLines
 	pr.indent = cfg.indent
 	pr.indentLevel = 0
@@ -169,6 +169,9 @@ func (pr *Printer) Print(args ...any) {
 }
 
 func (pr *Printer) PrintTrivia(trivia []token.Token) {
+	if !pr.withTrivia {
+		return
+	}
 	es, e := pr.ensureChar, pr.ensure
 	for _, tok := range trivia {
 		if tok.Type == token.NEWLINE {
@@ -177,11 +180,9 @@ func (pr *Printer) PrintTrivia(trivia []token.Token) {
 			}
 			continue
 		}
-		if pr.withComments {
-			pr.printSpaceIfNeeded()
-			pr.printIndentIfNeeded()
-			pr.writeString(tok.Literal)
-		}
+		pr.printSpaceIfNeeded()
+		pr.printIndentIfNeeded()
+		pr.writeString(tok.Literal)
 	}
 	pr.ensureChar, pr.ensure = es, e
 }
