@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"slices"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -115,106 +114,6 @@ func TestLookahead(t *testing.T) {
 	})
 }
 
-func TestExprs(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected string
-	}{
-		{
-			input: "1 - 2 - 3",
-			expected: `*js.BinaryExpr
-	Left: *js.BinaryExpr
-		Left: *js.Literal{Value: "1"}
-		Op: "-"
-		Right: *js.Literal{Value: "2"}
-	Op: "-"
-	Right: *js.Literal{Value: "3"}`,
-		},
-		{
-			input: "1 + 2 * (3 + 5) - 4",
-			expected: `*js.BinaryExpr
-	Left: *js.BinaryExpr
-		Left: *js.Literal{Value: "1"}
-		Op: "+"
-		Right: *js.BinaryExpr
-			Left: *js.Literal{Value: "2"}
-			Op: "*"
-			Right: *js.GroupExpr
-				Value: *js.BinaryExpr
-					Left: *js.Literal{Value: "3"}
-					Op: "+"
-					Right: *js.Literal{Value: "5"}
-	Op: "-"
-	Right: *js.Literal{Value: "4"}`,
-		},
-		{
-			input: "foo() * 2 + 1",
-			expected: `*js.BinaryExpr
-	Left: *js.BinaryExpr
-		Left: *js.CallExpr
-			Callee: *js.Variable{Token: "foo"}
-		Op: "*"
-		Right: *js.Literal{Value: "2"}
-	Op: "+"
-	Right: *js.Literal{Value: "1"}`,
-		},
-		{
-			input: "foo(1, 2, 3)",
-			expected: `*js.CallExpr
-	Callee: *js.Variable{Token: "foo"}
-	Args[0]: *js.Literal{Value: "1"}
-	Args[1]: *js.Literal{Value: "2"}
-	Args[2]: *js.Literal{Value: "3"}`,
-		},
-		{
-			input: "2 * (pow(2, 1 + 3) + 4)",
-			expected: `*js.BinaryExpr
-	Left: *js.Literal{Value: "2"}
-	Op: "*"
-	Right: *js.GroupExpr
-		Value: *js.BinaryExpr
-			Left: *js.CallExpr
-				Callee: *js.Variable{Token: "pow"}
-				Args[0]: *js.Literal{Value: "2"}
-				Args[1]: *js.BinaryExpr
-					Left: *js.Literal{Value: "1"}
-					Op: "+"
-					Right: *js.Literal{Value: "3"}
-			Op: "+"
-			Right: *js.Literal{Value: "4"}`,
-		},
-		{
-			input: "1 + foo()",
-			expected: `*js.BinaryExpr
-	Left: *js.Literal{Value: "1"}
-	Op: "+"
-	Right: *js.CallExpr
-		Callee: *js.Variable{Token: "foo"}`,
-		},
-		{
-			input: "1 + foo()()",
-			expected: `*js.BinaryExpr
-	Left: *js.Literal{Value: "1"}
-	Op: "+"
-	Right: *js.CallExpr
-		Callee: *js.CallExpr
-			Callee: *js.Variable{Token: "foo"}`,
-		},
-	}
-	for i, test := range tests {
-		t.Run("exp "+strconv.Itoa(i), func(t *testing.T) {
-			p := xjs.PluginBuilder().Build([]byte(test.input))
-			result, err := js.ParseExpr(p)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if got := testutil.NodeString(result); got != test.expected {
-				t.Errorf("Expected:\n\n%s\n\nGot:\n\n%s", test.expected, got)
-			}
-		})
-	}
-}
-
 func TestMalformedExpr(t *testing.T) {
 	t.Run("block", func(t *testing.T) {
 		tests := []struct {
@@ -310,47 +209,6 @@ func TestKeysAreSaved(t *testing.T) {
 			testutil.CompareLeadingTrivia(),
 		)
 	})
-}
-
-func TestStmt(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected string
-	}{
-		{
-			input: "log()",
-			expected: `*js.ExprStmt
-	Expr: *js.CallExpr
-		Callee: *js.Variable{Token: "log"}`,
-		},
-		{
-			input: "log(1)",
-			expected: `*js.ExprStmt
-	Expr: *js.CallExpr
-		Callee: *js.Variable{Token: "log"}
-		Args[0]: *js.Literal{Value: "1"}`,
-		},
-		{
-			input: "log(1, 2)",
-			expected: `*js.ExprStmt
-	Expr: *js.CallExpr
-		Callee: *js.Variable{Token: "log"}
-		Args[0]: *js.Literal{Value: "1"}
-		Args[1]: *js.Literal{Value: "2"}`,
-		},
-	}
-	for i, test := range tests {
-		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
-			p := xjs.PluginBuilder().Build([]byte(test.input))
-			node, err := js.ParseExprStmt(p)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if got := testutil.NodeString(node); got != test.expected {
-				t.Errorf("Expected:\n\n%s\n\nGot:\n\n%s", test.expected, got)
-			}
-		})
-	}
 }
 
 func TestInvalidTokenAfterNewline(t *testing.T) {

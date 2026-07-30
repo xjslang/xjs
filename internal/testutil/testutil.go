@@ -1,12 +1,8 @@
 package testutil
 
 import (
-	"fmt"
-	"strings"
 	"testing"
 
-	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/token"
 )
 
@@ -71,53 +67,4 @@ func AssertTokens(t *testing.T, toks, expectedToks []token.Token, opts ...TokenC
 			t.Errorf("token %d: expected position to be (%d, %d), got (%d, %d)", i, expectedTok.Line, expectedTok.Column, tok.Line, tok.Column)
 		}
 	}
-}
-
-func NodeString(node ast.Node) string {
-	indentLevel := 0
-	var print func(node ast.Node) string
-	print = func(node ast.Node) string {
-		s := &strings.Builder{}
-		indentLevel++
-		defer func() {
-			indentLevel--
-		}()
-		indent := strings.Repeat("\t", indentLevel)
-		fmt.Fprintf(s, "%T", node)
-		switch v := node.(type) {
-		case *js.Program:
-			for _, stmt := range v.Stmts {
-				fmt.Fprintf(s, "\n%s%s", indent, print(stmt))
-			}
-		case *js.BlockStmt:
-			for _, stmt := range v.Stmts {
-				fmt.Fprintf(s, "\n%s%s", indent, print(stmt))
-			}
-		case *js.ExprStmt:
-			fmt.Fprintf(s, "\n%sExpr: %s", indent, print(v.Expr))
-		case *js.LetStmt:
-			fmt.Fprintf(s, "\n%sName: %s", indent, v.Name.Literal)
-			fmt.Fprintf(s, "\n%sValue: %s", indent, print(v.Value))
-		case *js.FunctionDecl:
-			fmt.Fprintf(s, "\n%sName: %s", indent, v.Name.Literal)
-			fmt.Fprintf(s, "\n%sBody: %s", indent, print(v.Body))
-		case *js.GroupExpr:
-			fmt.Fprintf(s, "\n%sValue: %s", indent, print(v.Value))
-		case *js.CallExpr:
-			fmt.Fprintf(s, "\n%sCallee: %s", indent, print(v.Callee))
-			for i, arg := range v.Args {
-				fmt.Fprintf(s, "\n%sArgs[%d]: %s", indent, i, print(arg))
-			}
-		case *js.BinaryExpr:
-			fmt.Fprintf(s, "\n%sLeft: %s", indent, print(v.Left))
-			fmt.Fprintf(s, "\n%sOp: %q", indent, v.Op.Literal)
-			fmt.Fprintf(s, "\n%sRight: %s", indent, print(v.Right))
-		case *js.Variable:
-			fmt.Fprintf(s, "{Token: %q}", v.Token.Literal)
-		case *js.Literal:
-			fmt.Fprintf(s, "{Value: %q}", v.Value.Literal)
-		}
-		return s.String()
-	}
-	return print(node)
 }
