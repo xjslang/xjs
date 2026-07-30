@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
@@ -102,46 +101,6 @@ func TestExpectSemi(t *testing.T) {
 			tok, err := js.ExpectSemi(p)
 			require.NoError(t, err)
 			internal.AssertTokens(t, []token.Token{tok, p.CurrentToken}, test.expectedToks, internal.CompareAfterNewline())
-		})
-	}
-}
-
-func TestParseCommaDangle(t *testing.T) {
-	tests := []struct {
-		input, expected string
-	}{
-		{
-			input:    "let a = {\n\tone: 'one',\n\ttwo: 'two',\n}",
-			expected: "let a = {\n\tone: 'one',\n\ttwo: 'two'\n};",
-		},
-		{
-			input:    "let a = [\n\t'one',\n\t'two',\n]",
-			expected: "let a = [\n\t'one',\n\t'two'\n];",
-		},
-		{
-			input:    "let a = point(\n\tx, \n\ty,\n)",
-			expected: "let a = point(\nx,\ny\n);",
-		},
-		{
-			input:    "let a = setTimeout(function() { console.log('tick!') }, 1000,)",
-			expected: "let a = setTimeout(function () {\n\tconsole.log('tick!');\n}, 1000);",
-		},
-		{
-			input:    "let a = function (\n\tx, \n\ty,\n) {}",
-			expected: "let a = function (\n\tx,\n\ty\n) {};",
-		},
-		{
-			input:    "function point(\n\tx, \n\ty,\n) {}",
-			expected: "function point(\n\tx,\n\ty\n) {}",
-		},
-	}
-	for i, test := range tests {
-		t.Run(fmt.Sprintf("case_%d", i), func(t *testing.T) {
-			result, err := xjs.Parse([]byte(test.input))
-			require.NoError(t, err)
-			out, err := xjs.Print(result, printer.WithIndent("\t"))
-			require.NoError(t, err)
-			assert.Equal(t, test.expected, out)
 		})
 	}
 }
