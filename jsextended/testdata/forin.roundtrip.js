@@ -13,16 +13,11 @@ for (const i in rows.get()) {
 }
 
 // with indentation
-for (
-  const i
-  in [1, 2, 3]
-) {
+for (const i in [1, 2, 3]) {
   console.log(i);
 }
 
 // with comments
-for /*c1*/ (
-  //c2
-  const i /*c3*/ in rows
-//c4
-);
+//c2
+for ( /*c1*/const i /*c3*/ in rows) //c4
+;
