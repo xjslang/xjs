@@ -31,7 +31,7 @@ func Bench() error {
 }
 
 func UpdateGoldenFiles() error {
-	return sh.RunV("go", "test", ".", "./printer", "-update")
+	return sh.RunV("go", "test", ".", "./printer", "./js", "./jsextended", "-update")
 }
 
 func CleanTestCache() error {
