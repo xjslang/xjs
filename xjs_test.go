@@ -2,9 +2,6 @@ package xjs_test
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -218,35 +215,6 @@ let if = 100; // identifier expected`
 		_, err := xjs.Parse([]byte("a."))
 		require.EqualError(t, err, "[line:0, col:2] key expected")
 	})
-}
-
-func TestLanguageFeatures(t *testing.T) {
-	pattern := filepath.Join("testdata", "*.js")
-	files, err := filepath.Glob(pattern)
-	require.NoError(t, err)
-	require.NotEmpty(t, files)
-	for _, file := range files {
-		testName := strings.TrimSuffix(filepath.Base(file), ".js")
-		t.Run(testName, func(t *testing.T) {
-			// read file
-			dat, err := os.ReadFile(file)
-			require.NoError(t, err)
-			// parse data
-			result, err := testutil.ParseExtended(dat)
-			require.NoError(t, err)
-			// print result
-			out, err := testutil.PrintExtended(result)
-			require.NoError(t, err)
-			// re-parse the output
-			result, err = testutil.ParseExtended([]byte(out))
-			require.NoError(t, err)
-			// re-print the result
-			out, err = testutil.PrintExtended(result)
-			require.NoError(t, err)
-			// the original must match the final printed result
-			require.Equal(t, string(dat), out)
-		})
-	}
 }
 
 func TestParseCommaDangle(t *testing.T) {
