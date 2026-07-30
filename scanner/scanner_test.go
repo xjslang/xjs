@@ -5,12 +5,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/xjslang/xjs/internal/testutil"
+	"github.com/xjslang/xjs/internal"
 	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
 )
 
-func assertLexerTokens(t *testing.T, sc *scanner.Scanner, expectedToks []token.Token, opts ...testutil.TokenCompareOption) {
+func assertLexerTokens(t *testing.T, sc *scanner.Scanner, expectedToks []token.Token, opts ...internal.TokenCompareOption) {
 	t.Helper()
 	var toks []token.Token
 	for {
@@ -20,10 +20,10 @@ func assertLexerTokens(t *testing.T, sc *scanner.Scanner, expectedToks []token.T
 			break
 		}
 	}
-	testutil.AssertTokens(t, toks, expectedToks, opts...)
+	internal.AssertTokens(t, toks, expectedToks, opts...)
 }
 
-func assertInputTokens(t *testing.T, input string, expectedToks []token.Token, opts ...testutil.TokenCompareOption) {
+func assertInputTokens(t *testing.T, input string, expectedToks []token.Token, opts ...internal.TokenCompareOption) {
 	t.Helper()
 	s := scanner.NewBuilder().Build([]byte(input))
 	assertLexerTokens(t, s, expectedToks, opts...)
@@ -81,7 +81,7 @@ func TestLookahead(t *testing.T) {
 	for range 2 {
 		toks = append(toks, sc.NextToken())
 	}
-	testutil.AssertTokens(t, toks, []token.Token{
+	internal.AssertTokens(t, toks, []token.Token{
 		{Type: token.IDENT, Literal: "a"},
 		{Type: token.IDENT, Literal: "b"},
 	})
@@ -90,13 +90,13 @@ func TestLookahead(t *testing.T) {
 	for range 2 {
 		toks = append(toks, fork.NextToken())
 	}
-	testutil.AssertTokens(t, toks, []token.Token{
+	internal.AssertTokens(t, toks, []token.Token{
 		{Type: token.IDENT, Literal: "c"},
 		{Type: token.IDENT, Literal: "d"},
 	})
 	toks = toks[:0]
 	toks = append(toks, sc.NextToken())
-	testutil.AssertTokens(t, toks, []token.Token{
+	internal.AssertTokens(t, toks, []token.Token{
 		{Type: token.IDENT, Literal: "c"},
 	})
 	sc.Apply(fork)
@@ -104,7 +104,7 @@ func TestLookahead(t *testing.T) {
 	for range 2 {
 		toks = append(toks, sc.NextToken())
 	}
-	testutil.AssertTokens(t, toks, []token.Token{
+	internal.AssertTokens(t, toks, []token.Token{
 		{Type: token.IDENT, Literal: "e"},
 		{Type: token.IDENT, Literal: "f"},
 	})
@@ -134,7 +134,7 @@ func TestTokenPosition(t *testing.T) {
 		{Type: token.IDENT, Literal: "e", Position: token.Position{Line: 3, Column: 0}},
 		{Type: token.NOT, Literal: "!", Position: token.Position{Line: 3, Column: 1}},
 		{Type: token.EOF, Position: token.Position{Line: 4, Column: 0}},
-	}, testutil.CompareTokenPosition())
+	}, internal.CompareTokenPosition())
 }
 
 func TestReset(t *testing.T) {
@@ -211,7 +211,7 @@ func TestAfterNewline(t *testing.T) {
 				{Type: token.IDENT, Literal: "hello"},
 				{Type: token.IDENT, Literal: "world", AfterNewline: true},
 				{Type: token.EOF},
-			}, testutil.CompareAfterNewline())
+			}, internal.CompareAfterNewline())
 		})
 	}
 }
@@ -228,7 +228,7 @@ func TestBlockComments(t *testing.T) {
 			{Type: token.NEWLINE, Literal: "\r\n"},
 		}},
 		{Type: token.EOF},
-	}, testutil.CompareLeadingTrivia())
+	}, internal.CompareLeadingTrivia())
 }
 
 func TestLineComments(t *testing.T) {
@@ -255,7 +255,7 @@ func TestLineComments(t *testing.T) {
 			{Type: token.NEWLINE, Literal: "\n"},
 			{Type: token.LINE_COMMENT, Literal: "// Final comment"},
 		}},
-	}, testutil.CompareLeadingTrivia())
+	}, internal.CompareLeadingTrivia())
 }
 
 func TestEmptySinglelineComment(t *testing.T) {
@@ -276,7 +276,7 @@ func TestEmptySinglelineComment(t *testing.T) {
 		{Type: token.EOF, Literal: "", LeadingTrivia: []token.Token{
 			{Type: token.LINE_COMMENT, Literal: "//"},
 		}},
-	}, testutil.CompareLeadingTrivia())
+	}, internal.CompareLeadingTrivia())
 }
 
 func TestLastLineComment(t *testing.T) {
@@ -284,7 +284,7 @@ func TestLastLineComment(t *testing.T) {
 		{Type: token.EOF, Literal: "", AfterNewline: false, LeadingTrivia: []token.Token{
 			{Type: token.LINE_COMMENT, Literal: "// last comment"},
 		}},
-	}, testutil.CompareLeadingTrivia(), testutil.CompareAfterNewline())
+	}, internal.CompareLeadingTrivia(), internal.CompareAfterNewline())
 }
 
 func TestScanContinuesAfterNullCharacter(t *testing.T) {

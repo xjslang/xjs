@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/internal/testutil"
+	"github.com/xjslang/xjs/internal"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
@@ -102,7 +102,7 @@ func TestExpectSemi(t *testing.T) {
 			p := parser.NewBuilder().Build(s)
 			tok, err := js.ExpectSemi(p)
 			require.NoError(t, err)
-			testutil.AssertTokens(t, []token.Token{tok, p.CurrentToken}, test.expectedToks, testutil.CompareAfterNewline())
+			internal.AssertTokens(t, []token.Token{tok, p.CurrentToken}, test.expectedToks, internal.CompareAfterNewline())
 		})
 	}
 }

@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/internal/testutil"
+	"github.com/xjslang/xjs/internal"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/scanner"
@@ -93,7 +93,7 @@ func TestLookahead(t *testing.T) {
 			return parser2(p)
 		})
 		require.NoError(t, err)
-		testutil.AssertTokens(t, []token.Token{result.Token}, []token.Token{
+		internal.AssertTokens(t, []token.Token{result.Token}, []token.Token{
 			{Type: token.IDENT, Literal: "b"},
 		})
 		require.Equal(t, token.EOF, p.CurrentToken.Type)
@@ -169,7 +169,7 @@ func TestKeysAreSaved(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		testutil.AssertTokens(
+		internal.AssertTokens(
 			t,
 			[]token.Token{result.Layout.Lbrace, result.Layout.Rbrace},
 			[]token.Token{
@@ -183,7 +183,7 @@ func TestKeysAreSaved(t *testing.T) {
 					{Type: token.BLOCK_COMMENT, Literal: "/* block comment */"},
 				}},
 			},
-			testutil.CompareLeadingTrivia(),
+			internal.CompareLeadingTrivia(),
 		)
 	})
 	t.Run("grouped expression", func(t *testing.T) {
@@ -195,7 +195,7 @@ func TestKeysAreSaved(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		testutil.AssertTokens(
+		internal.AssertTokens(
 			t,
 			[]token.Token{result.Layout.Lparen, result.Layout.Rparen},
 			[]token.Token{
@@ -206,7 +206,7 @@ func TestKeysAreSaved(t *testing.T) {
 					{Type: token.LINE_COMMENT, Literal: "// comment after\n"},
 				}},
 			},
-			testutil.CompareLeadingTrivia(),
+			internal.CompareLeadingTrivia(),
 		)
 	})
 }
@@ -283,7 +283,7 @@ func TestExpectWith(t *testing.T) {
 	p := parser.NewBuilder().Build(sc)
 	tok, err := p.ExpectWith(scanRegex)
 	require.NoError(t, err)
-	testutil.AssertTokens(t, []token.Token{
+	internal.AssertTokens(t, []token.Token{
 		tok,
 		p.CurrentToken,
 		p.PeekToken,
