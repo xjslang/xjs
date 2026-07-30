@@ -12,8 +12,8 @@ import (
 	"github.com/xorcare/golden"
 )
 
-func TestRoundtrip(t *testing.T) {
-	files, err := filepath.Glob("testdata/*.roundtrip.js")
+func TestRoundtripFiles(t *testing.T) {
+	files, err := filepath.Glob("testdata/roundtrip/*.js")
 	require.NoError(t, err)
 	for _, file := range files {
 		t.Run(filepath.Base(file), func(t *testing.T) {
@@ -34,7 +34,7 @@ func TestRoundtrip(t *testing.T) {
 }
 
 func TestDebugFiles(t *testing.T) {
-	files, err := filepath.Glob("testdata/*.debug.js")
+	files, err := filepath.Glob("testdata/debug/*.js")
 	require.NoError(t, err)
 	for _, file := range files {
 		t.Run(filepath.Base(file), func(t *testing.T) {
