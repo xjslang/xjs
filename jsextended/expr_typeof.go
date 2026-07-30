@@ -30,8 +30,6 @@ func ParseTypeofExpr(p *parser.Parser) (node *TypeofExpr, err error) {
 }
 
 func PrintTypeofExpr(pr *printer.Printer, node *TypeofExpr) error {
-	pr.Log("(")
-	defer pr.Log(")")
 	pr.Print(node.Layout.Typeof)
 	pr.Space().Print(node.Value)
 	return nil

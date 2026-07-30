@@ -28,8 +28,6 @@ func ParseAssignExpr(p *parser.Parser, left ast.Expr) (node *AssignExpr, err err
 }
 
 func PrintAssignExpr(pr *printer.Printer, node *AssignExpr) error {
-	pr.Log("(")
-	defer pr.Log(")")
 	pr.Print(node.Left)
 	pr.Space().Print(node.Layout.Assign)
 	pr.Space().Print(node.Right)
