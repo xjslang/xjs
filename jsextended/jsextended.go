@@ -235,6 +235,8 @@ func Plugin(b *plugin.Builder) {
 	})
 	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
+		case js.FUNCTION:
+			return ParseFunctionExpr(p)
 		case token.LBRACE:
 			return ParseObjExpr(p)
 		case token.LBRACKET:
@@ -344,6 +346,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintForinStmt(pr, v)
 	case *FunctionDecl:
 		return PrintFunctionDecl(pr, v)
+	case *FunctionExpr:
+		return PrintFunctionExpr(pr, v)
 	case *TernaryExpr:
 		return PrintTernaryExpr(pr, v)
 	case *SequenceExpr:

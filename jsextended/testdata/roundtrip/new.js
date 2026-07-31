@@ -1,7 +1,7 @@
 new Foo;
 new Foo();
 new Foo(1, 2);
-new function () {};
+new function() {};
 
 // these errors are syntactically valid
 // although they are not semantically valid
