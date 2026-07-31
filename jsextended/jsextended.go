@@ -27,6 +27,8 @@ var (
 	SHL_BITWISE  = token.RegisterType("<<")
 	SHR_BITWISE  = token.RegisterType(">>")
 	USHR_BITWISE = token.RegisterType(">>>") // unsigned SHR
+	// others
+	IN = token.RegisterType("in")
 )
 
 func Plugin(b *plugin.Builder) {
@@ -56,6 +58,7 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterBinaryType(SHL_BITWISE, token.LT.Precedence()+5)
 	token.RegisterBinaryType(SHR_BITWISE, token.LT.Precedence()+5)
 	token.RegisterBinaryType(USHR_BITWISE, token.LT.Precedence()+5)
+	token.RegisterBinaryType(IN, token.LT.Precedence())
 
 	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
 		if tok, err = next(); err != nil {
@@ -102,6 +105,9 @@ func Plugin(b *plugin.Builder) {
 				tok.Type = VOID
 			case "yield":
 				tok.Type = YIELD
+			// TODO: Mapping the identifier literal `"in"` to the new token type `IN` will cause parsing errors anywhere the grammar expects an identifier token type (`token.IDENT`). For example, `ParseForinStmt` parses the loop variable with `js.ParseIdent`, which requires `token.IDENT` (see `js/ident.go`), and there are existing pass fixtures like `testdata/pass/9fe1d41db318afba.js` and `testdata/pass/9aa93e1e417ce8e3.js` that use `in` as the binding identifier (`for(let in 1);`, `for (let in a) {}`). Decide whether `in` should become a reserved word in this grammar; if so, those fixtures should move to `testdata/errors`, otherwise identifier parsing needs to accept keyword token types based on their literal.
+			case "in":
+				tok.Type = IN
 			}
 		case token.UNKNOWN:
 			switch tok.Literal {
@@ -237,7 +243,7 @@ func Plugin(b *plugin.Builder) {
 	})
 	b.UseBinaryParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
-		case STRICT_EQ, STRICT_NOT_EQ, PLUS_ASSIGN, MINUS_ASSIGN, MULTIPLY_ASSIGN, DIVIDE_ASSIGN, MODULO_ASSIGN:
+		case STRICT_EQ, STRICT_NOT_EQ, PLUS_ASSIGN, MINUS_ASSIGN, MULTIPLY_ASSIGN, DIVIDE_ASSIGN, MODULO_ASSIGN, IN:
 			return js.ParseBinaryExpr(p, left)
 		case ARROW:
 			return ParseArrowFunc(p, left)
