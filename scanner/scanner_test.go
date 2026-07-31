@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
 )
@@ -544,4 +545,15 @@ func TestScanNumber(t *testing.T) {
 			assert.Error(t, err)
 		}
 	})
+}
+
+func TestSpecialRunes(t *testing.T) {
+	inputs := []string{"T\u200c", "A\u200d"}
+	for _, input := range inputs {
+		sc := scanner.NewBuilder().Build([]byte(input))
+		tok := sc.NextToken()
+		require.Equal(t, token.IDENT, tok.Type)
+		require.Equal(t, input, tok.Literal)
+		require.Equal(t, token.EOF, sc.NextToken().Type)
+	}
 }
