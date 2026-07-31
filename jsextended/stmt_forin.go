@@ -17,6 +17,7 @@ type ForinStmt struct {
 		In     token.Token
 		Rparen token.Token
 	}
+	VarDecl bool
 	Pattern ast.Node
 	Value   ast.Expr
 	Then    ast.Stmt
@@ -30,21 +31,12 @@ func ParseForinStmt(p *parser.Parser) (node *ForinStmt, err error) {
 	if node.Layout.Lparen, err = p.Expect(token.LPAREN); err != nil {
 		return
 	}
-	if typ := p.CurrentToken.Type; typ != js.LET && typ != CONST && typ != VAR {
-		err = p.Error("syntax error")
-		return
+	if typ := p.CurrentToken.Type; typ == js.LET || typ == CONST || typ == VAR {
+		node.VarDecl = true
+		node.Layout.Var = p.CurrentToken
+		p.AdvanceToken()
 	}
-	node.Layout.Var = p.CurrentToken
-	p.AdvanceToken()
-	switch p.CurrentToken.Type {
-	case token.LBRACE:
-		node.Pattern, err = ParseObjExpr(p)
-	case token.LBRACKET:
-		node.Pattern, err = ParseArrayExpr(p)
-	default:
-		node.Pattern, err = js.ParseIdent(p)
-	}
-	if err != nil {
+	if node.Pattern, err = js.ParseRightExpr(p, IN.Precedence()); err != nil {
 		return
 	}
 	if node.Layout.In, err = p.ExpectLiteral("in"); err != nil {
@@ -66,8 +58,11 @@ func PrintForinStmt(pr *printer.Printer, node *ForinStmt) error {
 	pr.Line().Print(node.Layout.For)
 	pr.Space().Print(node.Layout.Lparen)
 	pr.IncreaseIndent()
-	pr.Print(node.Layout.Var)
-	pr.Space().Print(node.Pattern)
+	if node.VarDecl {
+		pr.Print(node.Layout.Var)
+		pr.Space()
+	}
+	pr.Print(node.Pattern)
 	pr.Space().Print(node.Layout.In)
 	pr.Space().Print(node.Value)
 	pr.DecreaseIndent()
