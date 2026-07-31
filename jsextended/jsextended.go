@@ -20,6 +20,9 @@ var (
 	MULTIPLY_ASSIGN = token.RegisterType("*=")
 	DIVIDE_ASSIGN   = token.RegisterType("/=")
 	MODULO_ASSIGN   = token.RegisterType("%=")
+	SHL_ASSIGN      = token.RegisterType("<<=")
+	SHR_ASSIGN      = token.RegisterType(">>=")
+	USHR_ASSIGN     = token.RegisterType(">>>=")
 	// bitwise
 	AND_BITWISE  = token.RegisterType("&")
 	OR_BITWISE   = token.RegisterType("|")
@@ -44,6 +47,10 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterBinaryType(MULTIPLY_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(DIVIDE_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(MODULO_ASSIGN, token.ASSIGN.Precedence())
+	// TODO: These new shift-assignment operators are registered as generic binary operators (and will be parsed via js.ParseBinaryExpr), which makes them left-associative due to js.ParseRightExpr stopping on equal precedence. In JavaScript, all assignment operators (including <<=, >>=, >>>=) are right-associative, so expressions like `a <<= b <<= c` or `a <<= (b = c)` will build an incorrect AST shape. Consider parsing all assignment-like operators with a dedicated parser that treats them as right-associative (e.g., parse RHS with `opPrec-1` / allow same-precedence operators on the RHS), similar to how `=` is handled via AssignExpr.
+	token.RegisterBinaryType(SHL_ASSIGN, token.ASSIGN.Precedence())
+	token.RegisterBinaryType(SHR_ASSIGN, token.ASSIGN.Precedence())
+	token.RegisterBinaryType(USHR_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(STRICT_EQ, token.EQ.Precedence())
 	token.RegisterBinaryType(STRICT_NOT_EQ, token.EQ.Precedence())
 	token.RegisterBinaryType(OPTIONAL_CHAINING, token.DOT.Precedence())
@@ -132,16 +139,32 @@ func Plugin(b *plugin.Builder) {
 		case token.LT:
 			if sc.CurrentChar() == '<' {
 				sc.AdvanceChar()
-				tok.Type = SHL_BITWISE
-				tok.Literal = "<<"
+				if sc.CurrentChar() == '=' {
+					sc.AdvanceChar()
+					tok.Type = SHL_ASSIGN
+					tok.Literal = "<<="
+				} else {
+					tok.Type = SHL_BITWISE
+					tok.Literal = "<<"
+				}
 			}
 		case token.GT:
 			if sc.CurrentChar() == '>' {
 				sc.AdvanceChar()
 				if sc.CurrentChar() == '>' {
 					sc.AdvanceChar()
-					tok.Type = USHR_BITWISE
-					tok.Literal = ">>>"
+					if sc.CurrentChar() == '=' {
+						sc.AdvanceChar()
+						tok.Type = USHR_ASSIGN
+						tok.Literal = ">>>="
+					} else {
+						tok.Type = USHR_BITWISE
+						tok.Literal = ">>>"
+					}
+				} else if sc.CurrentChar() == '=' {
+					sc.AdvanceChar()
+					tok.Type = SHR_ASSIGN
+					tok.Literal = ">>="
 				} else {
 					tok.Type = SHR_BITWISE
 					tok.Literal = ">>"
