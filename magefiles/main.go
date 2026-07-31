@@ -26,6 +26,10 @@ func TestRace() error {
 	return sh.RunV("go", "test", "./...", "-race", "-timeout", "30s")
 }
 
+func TestPassFiles() error {
+	return sh.RunV("go", "test", "./jsextended", "-tags=integration", "-run=TestPassFiles", "-timeout", "5s")
+}
+
 func Bench() error {
 	return sh.RunV("go", "test", "./...", "-bench=.", "-benchtime=3s", "-run=^$")
 }
