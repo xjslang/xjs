@@ -81,8 +81,6 @@ func Plugin(b *plugin.Builder) {
 				tok.Type = SWITCH
 			case "case":
 				tok.Type = CASE
-			case "default":
-				tok.Type = DEFAULT
 			case "throw":
 				tok.Type = THROW
 			case "new":

@@ -9,6 +9,8 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
+var DEFAULT = token.RegisterType("default")
+
 func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(FUNCTION)
 	token.RegisterUnaryType(DELETE)
@@ -43,6 +45,8 @@ func Plugin(b *plugin.Builder) {
 				tok.Type = EXPORT
 			case "delete":
 				tok.Type = DELETE
+			case "default":
+				tok.Type = DEFAULT
 			}
 		}
 		return

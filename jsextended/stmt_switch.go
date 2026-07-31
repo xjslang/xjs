@@ -2,15 +2,15 @@ package jsextended
 
 import (
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/token"
 )
 
 var (
-	SWITCH  = token.RegisterType("switch")
-	CASE    = token.RegisterType("case")
-	DEFAULT = token.RegisterType("default")
+	SWITCH = token.RegisterType("switch")
+	CASE   = token.RegisterType("case")
 )
 
 type SwitchStmt struct {
@@ -71,7 +71,7 @@ clausesLoop:
 			if stmt, err = parseCaseStmt(p); err != nil {
 				return
 			}
-		case DEFAULT:
+		case js.DEFAULT:
 			defClauses++
 			if stmt, err = parseDefaultStmt(p); err != nil {
 				return
@@ -102,7 +102,7 @@ func parseCaseStmt(p *parser.Parser) (node *SwitchCaseStmt, err error) {
 		return
 	}
 	for {
-		if t := p.CurrentToken.Type; t == CASE || t == DEFAULT || t == token.RBRACE || t == token.EOF {
+		if t := p.CurrentToken.Type; t == CASE || t == js.DEFAULT || t == token.RBRACE || t == token.EOF {
 			break
 		}
 		var stmt ast.Stmt
@@ -122,7 +122,7 @@ func parseDefaultStmt(p *parser.Parser) (node *SwitchDefaultStmt, err error) {
 		return
 	}
 	for {
-		if t := p.CurrentToken.Type; t == CASE || t == DEFAULT || t == token.RBRACE || t == token.EOF {
+		if t := p.CurrentToken.Type; t == CASE || t == js.DEFAULT || t == token.RBRACE || t == token.EOF {
 			break
 		}
 		var stmt ast.Stmt
