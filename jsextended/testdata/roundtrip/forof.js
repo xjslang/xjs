@@ -11,6 +11,7 @@ for (const row of rows.get()) {
 // destructuring
 for (let { a, b } of rows);
 for (let [a, b] of rows);
+for (let {} in rows);
 
 // with indentation
 for (
@@ -26,3 +27,8 @@ for /*c1*/ (
   const row /*c3*/ of rows
 //c4
 );
+
+// without declaring var
+for (a[b in c] in d);
+for (a(b in c)[1] in d);
+for ({ a = 1 } in b);
