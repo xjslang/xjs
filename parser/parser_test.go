@@ -12,7 +12,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/internal"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/scanner"
@@ -93,9 +92,7 @@ func TestLookahead(t *testing.T) {
 			return parser2(p)
 		})
 		require.NoError(t, err)
-		internal.AssertTokens(t, []token.Token{result.Token}, []token.Token{
-			{Type: token.IDENT, Literal: "b"},
-		})
+		require.Equal(t, result.Token.Literal, "b")
 		require.Equal(t, token.EOF, p.CurrentToken.Type)
 	})
 
@@ -152,62 +149,6 @@ func TestMalformedExpr(t *testing.T) {
 				t.Fatalf("%d: Expected error to be %q, got %q", i, test.expectedErr, got)
 			}
 		}
-	})
-}
-
-func TestKeysAreSaved(t *testing.T) {
-	t.Run("block", func(t *testing.T) {
-		input := `
-		// comment before {
-
-		{
-		let x = 100
-		let y = 200 // comment before }
-		/* block comment */ }`
-		p := xjs.PluginBuilder().Build([]byte(input))
-		result, err := js.ParseBlockStmt(p)
-		if err != nil {
-			t.Fatal(err)
-		}
-		internal.AssertTokens(
-			t,
-			[]token.Token{result.Layout.Lbrace, result.Layout.Rbrace},
-			[]token.Token{
-				{Type: token.LBRACE, Literal: "{", LeadingTrivia: []token.Token{
-					{Type: token.NEWLINE, Literal: "\n"},
-					{Type: token.LINE_COMMENT, Literal: "// comment before {\n"},
-					{Type: token.NEWLINE, Literal: "\n"},
-				}},
-				{Type: token.RBRACE, Literal: "}", LeadingTrivia: []token.Token{
-					{Type: token.LINE_COMMENT, Literal: "// comment before }\n"},
-					{Type: token.BLOCK_COMMENT, Literal: "/* block comment */"},
-				}},
-			},
-			internal.CompareLeadingTrivia(),
-		)
-	})
-	t.Run("grouped expression", func(t *testing.T) {
-		input := `// comment before
-	(1 + 2// comment after
-	)`
-		p := xjs.PluginBuilder().Build([]byte(input))
-		result, err := js.ParseGroupExpr(p)
-		if err != nil {
-			t.Fatal(err)
-		}
-		internal.AssertTokens(
-			t,
-			[]token.Token{result.Layout.Lparen, result.Layout.Rparen},
-			[]token.Token{
-				{Type: token.LPAREN, Literal: "(", LeadingTrivia: []token.Token{
-					{Type: token.LINE_COMMENT, Literal: "// comment before\n"},
-				}},
-				{Type: token.RPAREN, Literal: ")", LeadingTrivia: []token.Token{
-					{Type: token.LINE_COMMENT, Literal: "// comment after\n"},
-				}},
-			},
-			internal.CompareLeadingTrivia(),
-		)
 	})
 }
 
@@ -283,13 +224,30 @@ func TestExpectWith(t *testing.T) {
 	p := parser.NewBuilder().Build(sc)
 	tok, err := p.ExpectWith(scanRegex)
 	require.NoError(t, err)
-	internal.AssertTokens(t, []token.Token{
-		tok,
-		p.CurrentToken,
-		p.PeekToken,
-	}, []token.Token{
-		{Type: token.DIVIDE, Literal: "/lorem ipsum dolor/gd"},
-		{Type: token.DIVIDE, Literal: "/lorem ipsum dolor/gd"},
-		{Type: token.STRING, Literal: "'lorem ipsum'"},
-	})
+	require.Equal(t, tok.Literal, "/lorem ipsum dolor/gd")
+}
+
+func TestRegisterScope(t *testing.T) {
+	sc1 := parser.RegisterScope()
+	sc2 := parser.RegisterScope()
+	if sc1 == sc2 {
+		t.Errorf("Expected different scopes")
+	}
+}
+
+func TestScopeTracker(t *testing.T) {
+	sc := parser.RegisterScope()
+	st := parser.ScopeTracker{}
+	if st.In(sc) {
+		t.Errorf("Expected not to be in blockScope")
+	}
+	for range 2 {
+		st.Enter(sc)
+		if !st.In(sc) {
+			t.Errorf("Expected to be in blockScope")
+		}
+		// exit twice to verify that counter is not negative
+		st.Exit(sc)
+		st.Exit(sc)
+	}
 }

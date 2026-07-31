@@ -5,12 +5,75 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/xjslang/xjs/internal"
+	"github.com/stretchr/testify/assert"
 	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
 )
 
-func assertLexerTokens(t *testing.T, sc *scanner.Scanner, expectedToks []token.Token, opts ...internal.TokenCompareOption) {
+type tokenCompareConfig struct {
+	afterNewline  bool
+	leadingTrivia bool
+	tokenPosition bool
+}
+
+type TokenCompareOption func(cfg *tokenCompareConfig)
+
+func CompareAfterNewline() TokenCompareOption {
+	return func(cfg *tokenCompareConfig) {
+		cfg.afterNewline = true
+	}
+}
+
+func CompareLeadingTrivia() TokenCompareOption {
+	return func(cfg *tokenCompareConfig) {
+		cfg.leadingTrivia = true
+	}
+}
+
+func CompareTokenPosition() TokenCompareOption {
+	return func(cfg *tokenCompareConfig) {
+		cfg.tokenPosition = true
+	}
+}
+
+func AssertTokens(t *testing.T, toks, expectedToks []token.Token, opts ...TokenCompareOption) {
+	t.Helper()
+	cfg := &tokenCompareConfig{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+	if len(toks) != len(expectedToks) {
+		t.Fatalf("Expect len(toks) = %d, got %d", len(toks), len(expectedToks))
+	}
+	for i, expectedTok := range expectedToks {
+		tok := toks[i]
+		switch {
+		case tok.Type != expectedTok.Type:
+			t.Errorf("token %d: expected type %v, got %v", i, expectedTok.Type, tok.Type)
+		case tok.Literal != expectedTok.Literal:
+			t.Errorf("token %d: expected %q, got %q", i, expectedTok.Literal, tok.Literal)
+		case cfg.afterNewline && tok.AfterNewline != expectedTok.AfterNewline:
+			t.Errorf("token %d: expected AfterNewline to be %t, got %t", i, expectedTok.AfterNewline, tok.AfterNewline)
+		case cfg.leadingTrivia:
+			if len(tok.LeadingTrivia) != len(expectedTok.LeadingTrivia) {
+				t.Errorf("token %d: expected %d leading trivia lines, got %d", i, len(expectedTok.LeadingTrivia), len(tok.LeadingTrivia))
+			} else {
+				for j, expectedTrivia := range expectedTok.LeadingTrivia {
+					trivia := tok.LeadingTrivia[j]
+					if trivia.Type != expectedTrivia.Type {
+						t.Errorf("token %d: expected trivia type to be %v, got %v", i, expectedTrivia.Type, trivia.Type)
+					} else if trivia.Literal != expectedTrivia.Literal {
+						t.Errorf("token %d: expected trivia to be %q, got %q", i, expectedTrivia.Literal, trivia.Literal)
+					}
+				}
+			}
+		case cfg.tokenPosition && (tok.Line != expectedTok.Line || tok.Column != expectedTok.Column):
+			t.Errorf("token %d: expected position to be (%d, %d), got (%d, %d)", i, expectedTok.Line, expectedTok.Column, tok.Line, tok.Column)
+		}
+	}
+}
+
+func assertLexerTokens(t *testing.T, sc *scanner.Scanner, expectedToks []token.Token, opts ...TokenCompareOption) {
 	t.Helper()
 	var toks []token.Token
 	for {
@@ -20,10 +83,10 @@ func assertLexerTokens(t *testing.T, sc *scanner.Scanner, expectedToks []token.T
 			break
 		}
 	}
-	internal.AssertTokens(t, toks, expectedToks, opts...)
+	AssertTokens(t, toks, expectedToks, opts...)
 }
 
-func assertInputTokens(t *testing.T, input string, expectedToks []token.Token, opts ...internal.TokenCompareOption) {
+func assertInputTokens(t *testing.T, input string, expectedToks []token.Token, opts ...TokenCompareOption) {
 	t.Helper()
 	s := scanner.NewBuilder().Build([]byte(input))
 	assertLexerTokens(t, s, expectedToks, opts...)
@@ -81,7 +144,7 @@ func TestLookahead(t *testing.T) {
 	for range 2 {
 		toks = append(toks, sc.NextToken())
 	}
-	internal.AssertTokens(t, toks, []token.Token{
+	AssertTokens(t, toks, []token.Token{
 		{Type: token.IDENT, Literal: "a"},
 		{Type: token.IDENT, Literal: "b"},
 	})
@@ -90,13 +153,13 @@ func TestLookahead(t *testing.T) {
 	for range 2 {
 		toks = append(toks, fork.NextToken())
 	}
-	internal.AssertTokens(t, toks, []token.Token{
+	AssertTokens(t, toks, []token.Token{
 		{Type: token.IDENT, Literal: "c"},
 		{Type: token.IDENT, Literal: "d"},
 	})
 	toks = toks[:0]
 	toks = append(toks, sc.NextToken())
-	internal.AssertTokens(t, toks, []token.Token{
+	AssertTokens(t, toks, []token.Token{
 		{Type: token.IDENT, Literal: "c"},
 	})
 	sc.Apply(fork)
@@ -104,7 +167,7 @@ func TestLookahead(t *testing.T) {
 	for range 2 {
 		toks = append(toks, sc.NextToken())
 	}
-	internal.AssertTokens(t, toks, []token.Token{
+	AssertTokens(t, toks, []token.Token{
 		{Type: token.IDENT, Literal: "e"},
 		{Type: token.IDENT, Literal: "f"},
 	})
@@ -134,7 +197,7 @@ func TestTokenPosition(t *testing.T) {
 		{Type: token.IDENT, Literal: "e", Position: token.Position{Line: 3, Column: 0}},
 		{Type: token.NOT, Literal: "!", Position: token.Position{Line: 3, Column: 1}},
 		{Type: token.EOF, Position: token.Position{Line: 4, Column: 0}},
-	}, internal.CompareTokenPosition())
+	}, CompareTokenPosition())
 }
 
 func TestReset(t *testing.T) {
@@ -211,7 +274,7 @@ func TestAfterNewline(t *testing.T) {
 				{Type: token.IDENT, Literal: "hello"},
 				{Type: token.IDENT, Literal: "world", AfterNewline: true},
 				{Type: token.EOF},
-			}, internal.CompareAfterNewline())
+			}, CompareAfterNewline())
 		})
 	}
 }
@@ -228,7 +291,7 @@ func TestBlockComments(t *testing.T) {
 			{Type: token.NEWLINE, Literal: "\r\n"},
 		}},
 		{Type: token.EOF},
-	}, internal.CompareLeadingTrivia())
+	}, CompareLeadingTrivia())
 }
 
 func TestLineComments(t *testing.T) {
@@ -255,7 +318,7 @@ func TestLineComments(t *testing.T) {
 			{Type: token.NEWLINE, Literal: "\n"},
 			{Type: token.LINE_COMMENT, Literal: "// Final comment"},
 		}},
-	}, internal.CompareLeadingTrivia())
+	}, CompareLeadingTrivia())
 }
 
 func TestEmptySinglelineComment(t *testing.T) {
@@ -276,7 +339,7 @@ func TestEmptySinglelineComment(t *testing.T) {
 		{Type: token.EOF, Literal: "", LeadingTrivia: []token.Token{
 			{Type: token.LINE_COMMENT, Literal: "//"},
 		}},
-	}, internal.CompareLeadingTrivia())
+	}, CompareLeadingTrivia())
 }
 
 func TestLastLineComment(t *testing.T) {
@@ -284,7 +347,7 @@ func TestLastLineComment(t *testing.T) {
 		{Type: token.EOF, Literal: "", AfterNewline: false, LeadingTrivia: []token.Token{
 			{Type: token.LINE_COMMENT, Literal: "// last comment"},
 		}},
-	}, internal.CompareLeadingTrivia(), internal.CompareAfterNewline())
+	}, CompareLeadingTrivia(), CompareAfterNewline())
 }
 
 func TestScanContinuesAfterNullCharacter(t *testing.T) {
@@ -397,6 +460,88 @@ func TestReadString(t *testing.T) {
 					{Type: token.EOF},
 				})
 			}
+		}
+	})
+}
+
+func TestUseScanner(t *testing.T) {
+	powType := token.RegisterType("**")
+	sc := scanner.NewBuilder().
+		UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
+			if sc.CurrentChar() == '*' && sc.PeekChar() == '*' {
+				// consume **
+				sc.AdvanceChar()
+				sc.AdvanceChar()
+				return token.Token{Type: powType, Literal: powType.String()}, nil
+			}
+			return next()
+		}).
+		Build([]byte("5 ** 2"))
+	assertLexerTokens(t, sc, []token.Token{
+		{Type: token.NUMBER, Literal: "5"},
+		{Type: powType, Literal: "**"},
+		{Type: token.NUMBER, Literal: "2"},
+		{Type: token.EOF},
+	})
+}
+
+func TestScanNumber(t *testing.T) {
+	tests := []struct {
+		name   string
+		inputs []string
+	}{
+		{"integer", []string{"0", "123"}},
+		{
+			name:   "float",
+			inputs: []string{"123.456", ".456", "123.", "123e32", "123.456e+34", ".456e-34", "1e2"},
+		},
+		{
+			name:   "hexadecimal",
+			inputs: []string{"x10", "X20", "xABCDEF", "xabcdef", "x123ABC", "xFFFFFF", "x0", "xF"},
+		},
+		{
+			name:   "octal",
+			inputs: []string{"o10", "O20", "o1234567", "o0", "o7", "o777", "o0012", "O01234567"},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			for _, input := range test.inputs {
+				sc := scanner.NewBuilder().Build([]byte(input))
+				var result string
+				var err error
+				switch sc.CurrentChar() {
+				case 'x', 'X':
+					result, err = scanner.ScanHexNumber(sc)
+				case 'o', 'O':
+					result, err = scanner.ScanOctalNumber(sc)
+				default:
+					result, err = scanner.ScanNumber(sc)
+				}
+				assert.NoError(t, err)
+				assert.Equal(t, input, result)
+			}
+		})
+	}
+
+	t.Run("invalid formats", func(t *testing.T) {
+		inputs := []string{
+			"123e", "123e+", "123e-", "1e", // invalid float numbers
+			"x", // invalid hex number
+			"o", // invalid octal number
+		}
+		for _, input := range inputs {
+			sc := scanner.NewBuilder().Build([]byte(input))
+			var err error
+			switch sc.CurrentChar() {
+			case 'x', 'X':
+				_, err = scanner.ScanHexNumber(sc)
+			case 'o', 'O':
+				_, err = scanner.ScanOctalNumber(sc)
+			default:
+				_, err = scanner.ScanNumber(sc)
+			}
+			assert.Error(t, err)
 		}
 	})
 }
