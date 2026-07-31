@@ -12,3 +12,9 @@ export //c
   b, c
 // c
 } /*c*/;
+
+
+// with default
+export default 3.1419;
+export default { a: 1 };
+export default function a() {};

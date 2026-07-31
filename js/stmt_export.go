@@ -12,12 +12,14 @@ var EXPORT = token.RegisterType("export")
 type ExportStmt struct {
 	ast.BaseStmt
 	Layout struct {
-		Export token.Token
-		Lbrace token.Token
-		Rbrace token.Token
-		Semi   token.Token
+		Export  token.Token
+		Default token.Token
+		Lbrace  token.Token
+		Rbrace  token.Token
+		Semi    token.Token
 	}
-	Decl    ast.Decl
+	Default bool
+	Stmt    ast.Stmt
 	Exports []*ExportNode
 }
 
@@ -62,6 +64,13 @@ func ParseExportStmt(p *parser.Parser) (node *ExportStmt, err error) {
 		if node.Layout.Semi, err = ExpectSemi(p); err != nil {
 			return
 		}
+	} else if p.CurrentToken.Type == DEFAULT {
+		node.Layout.Default = p.CurrentToken
+		node.Default = true
+		p.AdvanceToken()
+		if node.Stmt, err = ParseExprStmt(p); err != nil {
+			return
+		}
 	} else {
 		tok := p.CurrentToken
 		var stmt ast.Stmt
@@ -69,7 +78,7 @@ func ParseExportStmt(p *parser.Parser) (node *ExportStmt, err error) {
 			return
 		}
 		if v, ok := stmt.(ast.Decl); ok {
-			node.Decl = v
+			node.Stmt = v
 		} else {
 			err = p.ErrorAt(tok, "declaration expected")
 		}
@@ -79,8 +88,11 @@ func ParseExportStmt(p *parser.Parser) (node *ExportStmt, err error) {
 
 func PrintExportStmt(pr *printer.Printer, node *ExportStmt) error {
 	pr.Line().Print(node.Layout.Export)
-	if node.Decl != nil {
-		pr.Space().Print(node.Decl)
+	if node.Stmt != nil {
+		if node.Default {
+			pr.Space().Print(node.Layout.Default)
+		}
+		pr.Space().Print(node.Stmt)
 	} else {
 		pr.Space().Print(node.Layout.Lbrace)
 		pr.IncreaseIndent()
