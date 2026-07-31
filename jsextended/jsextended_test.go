@@ -3,6 +3,7 @@ package jsextended_test
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,6 +13,7 @@ import (
 	"github.com/xjslang/xjs/internal"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/jsextended"
+	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
 	"github.com/xorcare/golden"
 )
@@ -91,6 +93,33 @@ func TestCheckFiles(t *testing.T) {
 			// verify printed code parses
 			_, err = Parse([]byte(code))
 			require.NoError(t, err)
+		})
+	}
+}
+
+func TestErrorFiles(t *testing.T) {
+	files, err := filepath.Glob("testdata/errors/*.js")
+	require.NoError(t, err)
+	require.NotEmpty(t, files)
+	for _, file := range files {
+		t.Run(filepath.Base(file), func(t *testing.T) {
+			data, err := os.ReadFile(file)
+			require.NoError(t, err)
+
+			// data -> AST
+			_, errs := Parse(data)
+			require.Error(t, errs)
+			require.IsType(t, parser.ErrorList{}, errs)
+
+			var msgs []string
+			errList := errs.(parser.ErrorList)
+			for _, err := range errList {
+				require.IsType(t, parser.Error{}, err)
+				e := err.(parser.Error)
+				msgs = append(msgs, e.Message)
+			}
+
+			golden.Assert(t, []byte(strings.Join(msgs, "\n")))
 		})
 	}
 }
