@@ -75,7 +75,13 @@ func ParseClassStmt(p *parser.Parser) (node *ClassStmt, err error) {
 	if node.Layout.Lbrace, err = p.Expect(token.LBRACE); err != nil {
 		return
 	}
-	for p.CurrentToken.Type != token.RBRACE && p.CurrentToken.Type != token.EOF {
+	for {
+		for p.CurrentToken.Type == token.SEMICOLON {
+			p.AdvanceToken()
+		}
+		if p.CurrentToken.Type == token.RBRACE || p.CurrentToken.Type == token.EOF {
+			break
+		}
 		m := &ClassMember{}
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "static" {
 			if p.PeekToken.Type == token.LBRACE {
