@@ -50,12 +50,7 @@ func ParseImportStmt(p *parser.Parser) (node *ImportStmt, err error) {
 		case token.MULTIPLY:
 			// namespace import:
 			// import * as lib from 'lib.js'
-			node.Layout.Multiply = p.CurrentToken
-			p.AdvanceToken()
-			if node.Layout.As, err = p.ExpectLiteral("as"); err != nil {
-				return
-			}
-			if node.Namespace, err = ParseIdent(p); err != nil {
+			if err = parseNamespaceImport(p, node); err != nil {
 				return
 			}
 		case token.IDENT:
@@ -64,30 +59,24 @@ func ParseImportStmt(p *parser.Parser) (node *ImportStmt, err error) {
 			if node.Default, err = ParseIdent(p); err != nil {
 				return
 			}
+			if p.CurrentToken.Type == token.COMMA {
+				p.AdvanceToken()
+				switch p.CurrentToken.Type {
+				case token.MULTIPLY:
+					err = parseNamespaceImport(p, node)
+				case token.LBRACE:
+					err = parseNamedImports(p, node)
+				default:
+					err = p.Error("expected '*' or '{' after ','")
+				}
+				if err != nil {
+					return
+				}
+			}
 		case token.LBRACE:
 			// named imports:
 			// import { c1, c2 as c3, c4 } from 'library'
-			node.Layout.Lbrace = p.CurrentToken
-			p.AdvanceToken()
-			for p.CurrentToken.Type != token.RBRACE {
-				e := &ImportNode{}
-				if e.Name, err = ParseIdent(p); err != nil {
-					return
-				}
-				if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "as" {
-					e.Layout.As = p.CurrentToken
-					p.AdvanceToken()
-					if e.Alias, err = ParseIdent(p); err != nil {
-						return
-					}
-				}
-				node.Imports = append(node.Imports, e)
-				if p.CurrentToken.Type != token.COMMA {
-					break
-				}
-				p.AdvanceToken()
-			}
-			if node.Layout.Rbrace, err = p.Expect(token.RBRACE); err != nil {
+			if err = parseNamedImports(p, node); err != nil {
 				return
 			}
 		default:
@@ -107,17 +96,59 @@ func ParseImportStmt(p *parser.Parser) (node *ImportStmt, err error) {
 	return
 }
 
+func parseNamespaceImport(p *parser.Parser, node *ImportStmt) (err error) {
+	node.Layout.Multiply = p.CurrentToken
+	p.AdvanceToken()
+	if node.Layout.As, err = p.ExpectLiteral("as"); err != nil {
+		return
+	}
+	if node.Namespace, err = ParseIdent(p); err != nil {
+		return
+	}
+	return
+}
+
+func parseNamedImports(p *parser.Parser, node *ImportStmt) (err error) {
+	node.Layout.Lbrace = p.CurrentToken
+	p.AdvanceToken()
+	for p.CurrentToken.Type != token.RBRACE {
+		e := &ImportNode{}
+		if e.Name, err = ParseIdent(p); err != nil {
+			return
+		}
+		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "as" {
+			e.Layout.As = p.CurrentToken
+			p.AdvanceToken()
+			if e.Alias, err = ParseIdent(p); err != nil {
+				return
+			}
+		}
+		node.Imports = append(node.Imports, e)
+		if p.CurrentToken.Type != token.COMMA {
+			break
+		}
+		p.AdvanceToken()
+	}
+	if node.Layout.Rbrace, err = p.Expect(token.RBRACE); err != nil {
+		return
+	}
+	return
+}
+
 func PrintImportStmt(pr *printer.Printer, node *ImportStmt) error {
 	pr.Line().Print(node.Layout.Import)
+	if node.Default != nil {
+		pr.Space().Print(node.Default)
+		if node.Namespace != nil || len(node.Imports) > 0 {
+			pr.Print(',')
+			pr.Space()
+		}
+	}
 	if node.Namespace != nil {
 		// namespace import
 		pr.Space().Print(node.Layout.Multiply)
 		pr.Space().Print(node.Layout.As)
 		pr.Space().Print(node.Namespace)
-		pr.Space().Print(node.Layout.From)
-	} else if node.Default != nil {
-		// default import
-		pr.Space().Print(node.Default)
 		pr.Space().Print(node.Layout.From)
 	} else {
 		// named exports

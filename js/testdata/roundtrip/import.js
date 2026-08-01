@@ -3,6 +3,8 @@ import * as lib from 'library';
 import lib from 'library';
 import { c1, c2 as c3, c4 } from 'library';
 import {} from 'library';
+import foo, * as ns from 'lib';
+import foo, { bar } from 'lib';
 
 // with comments
 import /*c1*/ * //c2
