@@ -34,7 +34,7 @@ func ParseArrayExpr(p *parser.Parser) (node *js.ArrayExpr, err error) {
 			break
 		}
 		var val ast.Expr
-		if val, err = p.ParseExpr(); err != nil {
+		if val, err = js.ParseRightExpr(p, token.COMMA.Precedence()); err != nil {
 			return
 		}
 		node.Values = append(node.Values, val)

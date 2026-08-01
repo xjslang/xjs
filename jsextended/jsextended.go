@@ -45,6 +45,7 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(token.DIVIDE) // regex
 	token.RegisterUnaryType(token.INCREMENT)
 	token.RegisterUnaryType(token.DECREMENT)
+	token.RegisterBinaryType(token.COMMA, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(PLUS_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(MINUS_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(MULTIPLY_ASSIGN, token.ASSIGN.Precedence())
@@ -238,6 +239,8 @@ func Plugin(b *plugin.Builder) {
 	})
 	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
+		case token.LPAREN:
+			return ParseGroupExpr(p)
 		case token.INCREMENT, token.DECREMENT:
 			return js.ParseUnaryExpr(p)
 		case js.FUNCTION:
@@ -246,12 +249,6 @@ func Plugin(b *plugin.Builder) {
 			return ParseObjExpr(p)
 		case token.LBRACKET:
 			return ParseArrayExpr(p)
-		case token.LPAREN:
-			return parser.Switch(p, func(p *parser.Parser) (ast.Expr, error) {
-				return js.ParseGroupExpr(p)
-			}, func(p *parser.Parser) (ast.Expr, error) {
-				return ParseSequenceExpr(p)
-			})
 		case token.DIVIDE:
 			return ParseRegExpr(p)
 		case NEW:
@@ -273,6 +270,8 @@ func Plugin(b *plugin.Builder) {
 	})
 	b.UseBinaryParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
+		case token.COMMA:
+			return ParseSequenceExpr(p, left)
 		case STRICT_EQ, STRICT_NOT_EQ, PLUS_ASSIGN, MINUS_ASSIGN, MULTIPLY_ASSIGN, DIVIDE_ASSIGN, MODULO_ASSIGN, IN:
 			return js.ParseBinaryExpr(p, left)
 		case ARROW:
@@ -379,6 +378,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintYieldStmt(pr, v)
 	case *RegExpr:
 		return PrintRegExpr(pr, v)
+	case *GroupExpr:
+		return PrintGroupExpr(pr, v)
 	}
 	return next(node)
 }
