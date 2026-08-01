@@ -5,6 +5,7 @@ import { c1, c2 as c3, c4 } from 'library';
 import {} from 'library';
 import foo, * as ns from 'lib';
 import foo, { bar } from 'lib';
+import { default as a } from 'lib';
 
 // with comments
 import /*c1*/ * //c2

@@ -113,7 +113,15 @@ func parseNamedImports(p *parser.Parser, node *ImportStmt) (err error) {
 	p.AdvanceToken()
 	for p.CurrentToken.Type != token.RBRACE {
 		e := &ImportNode{}
-		if e.Name, err = ParseIdent(p); err != nil {
+		if p.CurrentToken.Type == DEFAULT {
+			tok := p.CurrentToken
+			e.Name = &Ident{Token: tok}
+			p.AdvanceToken()
+			if p.CurrentToken.Type != token.IDENT || p.CurrentToken.Literal != "as" {
+				err = p.ErrorAt(tok, "expected 'as' after 'default' in named import")
+				return
+			}
+		} else if e.Name, err = ParseIdent(p); err != nil {
 			return
 		}
 		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "as" {
