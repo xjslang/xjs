@@ -111,6 +111,9 @@ func Plugin(b *plugin.Builder) {
 			return ParseIndexExpr(p, left)
 		case token.DOT:
 			return ParseMemberExpr(p, left)
+		// TODO: Adding the comma operator here makes precedence interactions with assignment important: js.ParseAssignExpr currently parses its RHS with p.ParseExpr(), which will now eagerly consume commas. That yields an AST equivalent to a = (b, c) for a = b, c, but JavaScript semantics require (a = b), c because comma has lower precedence than assignment.
+		case token.COMMA:
+			return ParseSequenceExpr(p, left)
 		case token.INCREMENT:
 			return ParseIncExpr(p, left)
 		case token.DECREMENT:
@@ -178,6 +181,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintLabelStmt(pr, v)
 	case *MemberExpr:
 		return PrintMemberExpr(pr, v)
+	case *SequenceExpr:
+		return PrintSequenceExpr(pr, v)
 	case *SemiStmt:
 		return PrintSemiStmt(pr, v)
 	case *ImportStmt:

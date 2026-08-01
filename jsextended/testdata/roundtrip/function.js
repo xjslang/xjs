@@ -10,3 +10,5 @@ function foo(a, b, ...rest) {}
 // expressions
 (function*() {});
 let x = function() {};
+
+f(a ? b : c);

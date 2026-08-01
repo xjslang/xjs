@@ -103,7 +103,7 @@ func parseObjEntry(p *parser.Parser) (node *ObjEntry, err error) {
 	}
 	if p.CurrentToken.Type == token.ASSIGN {
 		p.AdvanceToken()
-		if node.Default, err = p.ParseExpr(); err != nil {
+		if node.Default, err = js.ParseRightExpr(p, token.COMMA.Precedence()); err != nil {
 			return
 		}
 	}
