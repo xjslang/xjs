@@ -24,7 +24,7 @@ func ParseCallExpr(p *parser.Parser, left ast.Expr) (node *CallExpr, err error) 
 	}
 	for p.CurrentToken.Type != token.RPAREN {
 		var val ast.Expr
-		if val, err = p.ParseExpr(); err != nil {
+		if val, err = ParseRightExpr(p, token.COMMA.Precedence()); err != nil {
 			return
 		}
 		node.Args = append(node.Args, val)

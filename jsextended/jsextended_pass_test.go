@@ -39,5 +39,5 @@ func TestPassFiles(t *testing.T) {
 			}
 		})
 	}
-	t.Logf("Total: %d, Passed: %d, Percent: %.2f", total, passed, 100*float64(passed)/float64(total))
+	t.Logf("Total: %d, Passed: %d, Percent: %.2f%%", total, passed, 100*float64(passed)/float64(total))
 }

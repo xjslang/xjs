@@ -152,6 +152,7 @@ func RegisterType(lit string) Type {
 }
 
 var binaryOps = map[Type]int{
+	COMMA: 0,
 	// =
 	ASSIGN: 1000,
 	// ||

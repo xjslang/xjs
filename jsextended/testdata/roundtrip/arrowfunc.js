@@ -6,9 +6,9 @@ let w = (msg) => {
 };
 
 // with multiple parameters
-let m = (a, b, c) => console.log({ a, b, c });
+// TODO: (printer) fix parenthesis indentations
 let n = (
-  a, b, c
+a, b, c
 ) => console.log({
   a, b, c
 });

@@ -23,7 +23,7 @@ func ParseArrayExpr(p *parser.Parser) (node *ArrayExpr, err error) {
 	}
 	for p.CurrentToken.Type != token.RBRACKET {
 		var val ast.Expr
-		if val, err = p.ParseExpr(); err != nil {
+		if val, err = ParseRightExpr(p, token.COMMA.Precedence()); err != nil {
 			return
 		}
 		node.Values = append(node.Values, val)

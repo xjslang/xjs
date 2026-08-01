@@ -57,7 +57,7 @@ func ParseObjExpr(p *parser.Parser) (node *ObjExpr, err error) {
 		if _, err = p.Expect(token.COLON); err != nil {
 			return
 		}
-		if entry.Value, err = p.ParseExpr(); err != nil {
+		if entry.Value, err = ParseRightExpr(p, token.COMMA.Precedence()); err != nil {
 			return
 		}
 		node.Entries = append(node.Entries, entry)
