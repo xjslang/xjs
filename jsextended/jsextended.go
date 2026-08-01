@@ -42,7 +42,8 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(AWAIT)
 	token.RegisterUnaryType(VOID)
 	token.RegisterUnaryType(CLASS)
-	token.RegisterUnaryType(token.DIVIDE) // regex
+	token.RegisterUnaryType(token.DIVIDE)  // regex
+	token.RegisterUnaryType(DIVIDE_ASSIGN) // regex
 	token.RegisterUnaryType(token.INCREMENT)
 	token.RegisterUnaryType(token.DECREMENT)
 	token.RegisterBinaryType(PLUS_ASSIGN, token.ASSIGN.Precedence())
@@ -248,7 +249,7 @@ func Plugin(b *plugin.Builder) {
 			return ParseObjExpr(p)
 		case token.LBRACKET:
 			return ParseArrayExpr(p)
-		case token.DIVIDE:
+		case token.DIVIDE, DIVIDE_ASSIGN:
 			return ParseRegExpr(p)
 		case NEW:
 			return ParseNewExpr(p)
