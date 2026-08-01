@@ -10,6 +10,10 @@ class MyClass {
 // with extends
 class MyClass extends BaseClass {
 }
+class foo extends (a, b) {
+}
+(class extends (a, b) {
+});
 
 // with properties
 class MyClass {
