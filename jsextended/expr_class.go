@@ -16,9 +16,9 @@ type ClassExpr struct {
 		Lbrace  token.Token
 		Rbrace  token.Token
 	}
-	Name        *js.Ident
-	ParentClass *js.Ident
-	Members     []*ClassMember
+	Name    *js.Ident
+	Extends ast.Expr
+	Members []*ClassMember
 }
 
 func ParseClassExpr(p *parser.Parser) (node *ClassExpr, err error) {
@@ -33,7 +33,7 @@ func ParseClassExpr(p *parser.Parser) (node *ClassExpr, err error) {
 	if p.CurrentToken.Type == EXTENDS {
 		node.Layout.Extends = p.CurrentToken
 		p.AdvanceToken()
-		if node.ParentClass, err = js.ParseIdent(p); err != nil {
+		if node.Extends, err = p.ParseExpr(); err != nil {
 			return
 		}
 	}
@@ -89,9 +89,9 @@ func PrintClassExpr(pr *printer.Printer, node *ClassExpr) (err error) {
 	if node.Name != nil {
 		pr.Space().Print(node.Name)
 	}
-	if node.ParentClass != nil {
+	if node.Extends != nil {
 		pr.Space().Print(node.Layout.Extends)
-		pr.Space().Print(node.ParentClass)
+		pr.Space().Print(node.Extends)
 	}
 	pr.Space().Print(node.Layout.Lbrace)
 	pr.IncreaseIndent()

@@ -52,9 +52,9 @@ type ClassStmt struct {
 		Lbrace  token.Token
 		Rbrace  token.Token
 	}
-	Name        *js.Ident
-	ParentClass *js.Ident
-	Members     []*ClassMember
+	Name    *js.Ident
+	Extends ast.Expr
+	Members []*ClassMember
 }
 
 func ParseClassStmt(p *parser.Parser) (node *ClassStmt, err error) {
@@ -68,7 +68,7 @@ func ParseClassStmt(p *parser.Parser) (node *ClassStmt, err error) {
 	if p.CurrentToken.Type == EXTENDS {
 		node.Layout.Extends = p.CurrentToken
 		p.AdvanceToken()
-		if node.ParentClass, err = js.ParseIdent(p); err != nil {
+		if node.Extends, err = p.ParseExpr(); err != nil {
 			return
 		}
 	}
@@ -156,9 +156,9 @@ func parseStaticInitializer(p *parser.Parser) (node *StaticInitializer, err erro
 func PrintClassStmt(pr *printer.Printer, node *ClassStmt) (err error) {
 	pr.Line().Print(node.Layout.Class)
 	pr.Space().Print(node.Name)
-	if node.ParentClass != nil {
+	if node.Extends != nil {
 		pr.Space().Print(node.Layout.Extends)
-		pr.Space().Print(node.ParentClass)
+		pr.Space().Print(node.Extends)
 	}
 	pr.Space().Print(node.Layout.Lbrace)
 	pr.IncreaseIndent()
