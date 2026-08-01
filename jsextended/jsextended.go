@@ -42,6 +42,8 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(AWAIT)
 	token.RegisterUnaryType(VOID)
 	token.RegisterUnaryType(token.DIVIDE) // regex
+	token.RegisterUnaryType(token.INCREMENT)
+	token.RegisterUnaryType(token.DECREMENT)
 	token.RegisterBinaryType(PLUS_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(MINUS_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(MULTIPLY_ASSIGN, token.ASSIGN.Precedence())
@@ -235,6 +237,8 @@ func Plugin(b *plugin.Builder) {
 	})
 	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
+		case token.INCREMENT, token.DECREMENT:
+			return js.ParseUnaryExpr(p)
 		case js.FUNCTION:
 			return ParseFunctionExpr(p)
 		case token.LBRACE:
