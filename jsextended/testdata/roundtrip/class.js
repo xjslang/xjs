@@ -59,3 +59,11 @@ class MyClass {
   get() {}
   set() {}
 }
+
+let c = (class {
+  prototype() {}
+});
+
+(class foo {
+  prototype() {}
+});

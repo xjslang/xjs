@@ -41,6 +41,7 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(ASYNC)
 	token.RegisterUnaryType(AWAIT)
 	token.RegisterUnaryType(VOID)
+	token.RegisterUnaryType(CLASS)
 	token.RegisterUnaryType(token.DIVIDE) // regex
 	token.RegisterUnaryType(token.INCREMENT)
 	token.RegisterUnaryType(token.DECREMENT)
@@ -265,6 +266,8 @@ func Plugin(b *plugin.Builder) {
 			return ParseAwaitExpr(p)
 		case VOID:
 			return ParseVoidExpr(p)
+		case CLASS:
+			return ParseClassExpr(p)
 		}
 		return next()
 	})
@@ -368,6 +371,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintCoalescingExpr(pr, v)
 	case *ClassStmt:
 		return PrintClassStmt(pr, v)
+	case *ClassExpr:
+		return PrintClassExpr(pr, v)
 	case *VoidExpr:
 		return PrintVoidExpr(pr, v)
 	case *YieldStmt:
