@@ -23,6 +23,9 @@ type ClassExpr struct {
 
 func ParseClassExpr(p *parser.Parser) (node *ClassExpr, err error) {
 	node = &ClassExpr{}
+	isMethodName := func(typ token.Type) bool {
+		return typ == token.IDENT || typ == token.NUMBER || typ == token.STRING || typ == token.LBRACKET
+	}
 	if node.Layout.Class, err = p.Expect(CLASS); err != nil {
 		return
 	}
@@ -58,20 +61,20 @@ func ParseClassExpr(p *parser.Parser) (node *ClassExpr, err error) {
 				node.Members = append(node.Members, m)
 				continue
 			} else {
-				m.Static = p.PeekToken.Type == token.IDENT
+				m.Static = isMethodName(p.PeekToken.Type)
 			}
 		}
 		if m.Static {
 			m.Layout.Static = p.CurrentToken
 			p.AdvanceToken()
 		}
-		if p.CurrentToken.Type == token.IDENT && p.PeekToken.Type == token.IDENT {
+		if p.CurrentToken.Type == token.IDENT && isMethodName(p.PeekToken.Type) {
 			if lit := p.CurrentToken.Literal; lit == "get" || lit == "set" {
 				m.Flag = p.CurrentToken
 				p.AdvanceToken()
 			}
 		}
-		if m.Name, err = js.ParseIdent(p); err != nil {
+		if m.Name, err = parseMethodName(p); err != nil {
 			return
 		}
 		if p.CurrentToken.Type == token.LPAREN {
@@ -113,7 +116,14 @@ func PrintClassExpr(pr *printer.Printer, node *ClassExpr) (err error) {
 				pr.Print(m.Flag)
 				pr.Space()
 			}
-			pr.Print(m.Name)
+			switch n := m.Name.(type) {
+			case *js.Ident, *js.Literal:
+				pr.Print(m.Name)
+			case *js.ComputedExpr:
+				pr.Print(n.Layout.Lbracket, n.Expr, n.Layout.Rbracket)
+			default:
+				pr.Print('[', m.Name, ']')
+			}
 			if err = PrintFunctionParams(pr, v.Params); err != nil {
 				return
 			}
@@ -122,7 +132,12 @@ func PrintClassExpr(pr *printer.Printer, node *ClassExpr) (err error) {
 			if len(m.Flag.Literal) > 0 {
 				return pr.Error("get/set are reserved for methods")
 			}
-			pr.Print(m.Name)
+			switch n := m.Name.(type) {
+			case *js.ComputedExpr:
+				pr.Print(n.Layout.Lbracket, n.Expr, n.Layout.Rbracket)
+			default:
+				pr.Print(m.Name)
+			}
 			if v.Default != nil {
 				pr.Space().Print(v.Layout.Assign)
 				pr.Space().Print(v.Default)
