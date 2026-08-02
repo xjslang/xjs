@@ -15,14 +15,15 @@ type ObjEntry struct {
 	Default ast.Expr
 }
 
-type ObjAccessor struct {
+type ObjMethod struct {
 	ast.BaseNode
 	Layout struct {
 		Flag token.Token // get or set
 	}
-	Name   *js.Ident
-	Params *FunctionParams
-	Body   *js.BlockStmt
+	isAccessor bool
+	Name       *js.Ident
+	Params     *FunctionParams
+	Body       *js.BlockStmt
 }
 
 type ObjExpr struct {
@@ -42,7 +43,7 @@ func ParseObjExpr(p *parser.Parser) (node *ObjExpr, err error) {
 	for p.CurrentToken.Type != token.RBRACE {
 		var entry ast.Node
 		if entry, err = parser.Switch(p,
-			func(p *parser.Parser) (ast.Node, error) { return parseObjAccessor(p) },
+			func(p *parser.Parser) (ast.Node, error) { return parseObjMethod(p) },
 			func(p *parser.Parser) (ast.Node, error) { return parseObjEntry(p) },
 		); err != nil {
 			return
@@ -59,14 +60,13 @@ func ParseObjExpr(p *parser.Parser) (node *ObjExpr, err error) {
 	return node, nil
 }
 
-func parseObjAccessor(p *parser.Parser) (node *ObjAccessor, err error) {
-	node = &ObjAccessor{}
-	if lit := p.CurrentToken.Literal; lit != "get" && lit != "set" {
-		err = p.Error("get/set expected")
-		return
+func parseObjMethod(p *parser.Parser) (node *ObjMethod, err error) {
+	node = &ObjMethod{}
+	if lit := p.CurrentToken.Literal; (lit == "get" || lit == "set") && p.PeekToken.Type != token.LPAREN {
+		node.isAccessor = true
+		node.Layout.Flag = p.CurrentToken
+		p.AdvanceToken()
 	}
-	node.Layout.Flag = p.CurrentToken
-	p.AdvanceToken()
 	if node.Name, err = js.ParseIdent(p); err != nil {
 		return
 	}
@@ -134,8 +134,10 @@ func PrintObjExpr(pr *printer.Printer, node *ObjExpr) (err error) {
 					pr.Space().Print("=")
 					pr.Space().Print(v.Default)
 				}
-			case *ObjAccessor:
-				pr.Print(v.Layout.Flag)
+			case *ObjMethod:
+				if v.isAccessor {
+					pr.Print(v.Layout.Flag)
+				}
 				pr.Space().Print(v.Name)
 				if err = PrintFunctionParams(pr, v.Params); err != nil {
 					return

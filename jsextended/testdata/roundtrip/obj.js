@@ -25,6 +25,11 @@ let y = {
   set msg(val) {
     this._msg = val;
   },
+  log(...msgs) {
+    console.log(msgs);
+  },
+  get(...args) {},
+  set(...args) {},
   get: 'get',
   set: 'set',
   default: 'default',
