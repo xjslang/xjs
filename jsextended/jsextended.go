@@ -70,6 +70,7 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterBinaryType(SHR_BITWISE, token.LT.Precedence()+5)
 	token.RegisterBinaryType(USHR_BITWISE, token.LT.Precedence()+5)
 	token.RegisterBinaryType(IN, token.LT.Precedence())
+	token.RegisterBinaryType(token.STRING, token.LPAREN.Precedence())
 
 	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
 		if tok, err = next(); err != nil {
@@ -284,6 +285,8 @@ func Plugin(b *plugin.Builder) {
 			return ParseExpoExpr(p, left)
 		case COALESCING:
 			return ParseCoalescingExpr(p, left)
+		case token.STRING:
+			return ParseTagExpr(p, left)
 		}
 		return next(left)
 	})
@@ -376,6 +379,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintRegExpr(pr, v)
 	case *GroupExpr:
 		return PrintGroupExpr(pr, v)
+	case *TaggedTemplateExpr:
+		return PrintTagExpr(pr, v)
 	}
 	return next(node)
 }
