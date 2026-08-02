@@ -88,12 +88,52 @@ func ScanString(sc *Scanner, delimiter rune) (string, error) {
 
 func ScanRawString(sc *Scanner) (string, error) {
 	sb := strings.Builder{}
+	scanHole := func() error {
+		depth := 1
+		for {
+			if sc.currentChar == EOF {
+				return errors.New("unexpected end of file")
+			} else if sc.currentChar == '`' {
+				sc.AdvanceChar()
+				s, err := ScanRawString(sc)
+				sb.WriteString(s)
+				if err != nil {
+					return err
+				}
+				continue
+			} else if sc.currentChar == '{' {
+				depth++
+			} else if sc.currentChar == '}' {
+				depth--
+				sb.WriteRune(sc.currentChar)
+				sc.AdvanceChar()
+				if depth == 0 {
+					return nil
+				}
+				continue
+			}
+			sb.WriteRune(sc.currentChar)
+			sc.AdvanceChar()
+		}
+	}
+
 	sb.WriteRune('`')
 	for {
 		if sc.currentChar == '`' {
 			sb.WriteRune(sc.currentChar)
 			sc.AdvanceChar()
 			break
+		} else if sc.currentChar == '$' {
+			sb.WriteRune(sc.currentChar)
+			sc.AdvanceChar()
+			if sc.currentChar == '{' {
+				sb.WriteRune(sc.currentChar)
+				sc.AdvanceChar()
+				if err := scanHole(); err != nil {
+					return sb.String(), err
+				}
+				continue
+			}
 		} else if sc.currentChar == EOF {
 			return sb.String(), errors.New("unexpected end of file")
 		}
