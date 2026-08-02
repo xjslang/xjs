@@ -18,12 +18,14 @@ type ObjEntry struct {
 type ObjMethod struct {
 	ast.BaseNode
 	Layout struct {
-		Flag token.Token // get or set
+		Flag     token.Token // get or set
+		Multiply token.Token
 	}
-	isAccessor bool
-	Name       *js.Ident
-	Params     *FunctionParams
-	Body       *js.BlockStmt
+	isAccessor  bool
+	IsGenerator bool
+	Name        *js.Ident
+	Params      *FunctionParams
+	Body        *js.BlockStmt
 }
 
 type ObjExpr struct {
@@ -65,6 +67,10 @@ func parseObjMethod(p *parser.Parser) (node *ObjMethod, err error) {
 	if lit := p.CurrentToken.Literal; (lit == "get" || lit == "set") && p.PeekToken.Type != token.LPAREN {
 		node.isAccessor = true
 		node.Layout.Flag = p.CurrentToken
+		p.AdvanceToken()
+	}
+	if node.IsGenerator = p.CurrentToken.Type == token.MULTIPLY; node.IsGenerator {
+		node.Layout.Multiply = p.CurrentToken
 		p.AdvanceToken()
 	}
 	if node.Name, err = js.ParseIdent(p); err != nil {
@@ -138,7 +144,11 @@ func PrintObjExpr(pr *printer.Printer, node *ObjExpr) (err error) {
 				if v.isAccessor {
 					pr.Print(v.Layout.Flag)
 				}
-				pr.Space().Print(v.Name)
+				if v.IsGenerator {
+					pr.Space().Print(v.Layout.Multiply, v.Name)
+				} else {
+					pr.Space().Print(v.Name)
+				}
 				if err = PrintFunctionParams(pr, v.Params); err != nil {
 					return
 				}
