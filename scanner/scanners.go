@@ -141,8 +141,8 @@ func ScanRawString(sc *Scanner) (string, error) {
 				if err := scanHole(); err != nil {
 					return sb.String(), err
 				}
-				continue
 			}
+			continue
 		} else if sc.currentChar == EOF {
 			return sb.String(), errors.New("unexpected end of file")
 		}
