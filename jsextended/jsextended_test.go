@@ -1,6 +1,7 @@
 package jsextended_test
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,6 +28,15 @@ func Print(result ast.Node, opts ...printer.Option) (string, error) {
 	pr := xjs.PrinterBuilder().UsePrinter(jsextended.Printer).Build(opts...)
 	pr.Print(result)
 	return pr.Output()
+}
+
+func Test(t *testing.T) {
+	input := `do {} while (false) a();`
+	result, err := Parse([]byte(input))
+	require.NoError(t, err)
+	code, err := Print(result)
+	require.NoError(t, err)
+	fmt.Println(code)
 }
 
 func TestRoundtripFiles(t *testing.T) {
