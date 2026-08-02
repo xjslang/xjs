@@ -42,6 +42,7 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(AWAIT)
 	token.RegisterUnaryType(VOID)
 	token.RegisterUnaryType(CLASS)
+	token.RegisterUnaryType(YIELD)
 	token.RegisterUnaryType(token.DIVIDE)  // regex
 	token.RegisterUnaryType(DIVIDE_ASSIGN) // regex
 	token.RegisterUnaryType(token.INCREMENT)
@@ -266,6 +267,8 @@ func Plugin(b *plugin.Builder) {
 			return ParseVoidExpr(p)
 		case CLASS:
 			return ParseClassExpr(p)
+		case YIELD:
+			return ParseYieldStmt(p)
 		}
 		return next()
 	})
@@ -314,8 +317,6 @@ func Plugin(b *plugin.Builder) {
 			return ParseDoWhileStmt(p)
 		case CLASS:
 			return ParseClassStmt(p)
-		case YIELD:
-			return ParseYieldStmt(p)
 		}
 		return next()
 	})

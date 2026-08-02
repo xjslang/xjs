@@ -12,3 +12,7 @@ function* func1() {
 function* func2() {
   yield* func1();
 }
+
+function* a() {
+  yield b = c, yield* d = e, f;
+}
