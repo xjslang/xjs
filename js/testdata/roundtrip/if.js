@@ -17,3 +17,5 @@ if (one) {
 } else if (two) {
   console.log("bbb");
 } else console.log("ccc");
+
+if (1) function a() {} else function b() {}
