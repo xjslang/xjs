@@ -55,7 +55,7 @@ func ParseFunctionDecl(p *parser.Parser) (node *FunctionDecl, err error) {
 		node.Layout.Multiply = p.CurrentToken
 		p.AdvanceToken()
 	}
-	if node.Name, err = js.ParseIdent(p); err != nil {
+	if node.Name, err = ParseIdent(p); err != nil {
 		return
 	}
 	if node.Params, err = ParseFunctionParams(p); err != nil {
@@ -107,7 +107,7 @@ func parseParam(p *parser.Parser) (param *Param, err error) {
 			return
 		}
 	default:
-		if param.Pattern, err = js.ParseIdent(p); err != nil {
+		if param.Pattern, err = ParseIdent(p); err != nil {
 			return
 		}
 	}
@@ -125,7 +125,7 @@ func parseRestParam(p *parser.Parser) (param *RestParam, err error) {
 	param = &RestParam{}
 	param.Layout.Spread = p.CurrentToken
 	p.AdvanceToken()
-	if param.Name, err = js.ParseIdent(p); err != nil {
+	if param.Name, err = ParseIdent(p); err != nil {
 		return
 	}
 	return

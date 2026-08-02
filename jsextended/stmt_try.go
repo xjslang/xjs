@@ -43,7 +43,7 @@ func ParseTryStmt(p *parser.Parser) (node *TryStmt, err error) {
 		if p.CurrentToken.Type == token.LPAREN {
 			node.Layout.Lparen = p.CurrentToken
 			p.AdvanceToken()
-			if node.CatchParam, err = js.ParseIdent(p); err != nil {
+			if node.CatchParam, err = ParseIdent(p); err != nil {
 				return
 			}
 			if node.Layout.Rparen, err = p.Expect(token.RPAREN); err != nil {

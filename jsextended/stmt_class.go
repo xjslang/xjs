@@ -65,7 +65,7 @@ func ParseClassStmt(p *parser.Parser) (node *ClassStmt, err error) {
 	if node.Layout.Class, err = p.Expect(CLASS); err != nil {
 		return
 	}
-	if node.Name, err = js.ParseIdent(p); err != nil {
+	if node.Name, err = ParseIdent(p); err != nil {
 		return
 	}
 	if p.CurrentToken.Type == EXTENDS {
@@ -137,7 +137,7 @@ func parseMethodName(p *parser.Parser) (_ ast.Node, err error) {
 	case token.LBRACKET:
 		return js.ParseComputedExpr(p)
 	default:
-		return js.ParseIdent(p)
+		return ParseIdent(p)
 	}
 }
 

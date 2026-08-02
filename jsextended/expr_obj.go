@@ -67,7 +67,7 @@ func parseObjAccessor(p *parser.Parser) (node *ObjAccessor, err error) {
 	}
 	node.Layout.Flag = p.CurrentToken
 	p.AdvanceToken()
-	if node.Name, err = js.ParseIdent(p); err != nil {
+	if node.Name, err = ParseIdent(p); err != nil {
 		return
 	}
 	if node.Params, err = ParseFunctionParams(p); err != nil {

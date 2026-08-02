@@ -42,7 +42,7 @@ func ParseVarStmt(p *parser.Parser) (node *VarStmt, err error) {
 			return
 		}
 	default:
-		if node.Pattern, err = js.ParseIdent(p); err != nil {
+		if node.Pattern, err = ParseIdent(p); err != nil {
 			return
 		}
 	}
