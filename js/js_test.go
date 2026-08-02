@@ -108,3 +108,12 @@ func TestErrorFiles(t *testing.T) {
 		})
 	}
 }
+
+func TestParseExpr_BinaryOpOnNextLine(t *testing.T) {
+	input := "100\n+ 200"
+	result, err := xjs.Parse([]byte(input))
+	require.NoError(t, err)
+	code, err := internal.Debug(result)
+	require.NoError(t, err)
+	require.Equal(t, "(100 + 200);", code)
+}
