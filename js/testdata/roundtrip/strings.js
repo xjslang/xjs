@@ -4,3 +4,4 @@
 ${"quoted"}
 ${'string'}`;
 ` foo ${ b + `baz ${ c }` }`;
+a`tagged template`;

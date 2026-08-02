@@ -14,6 +14,7 @@ var DEFAULT = token.RegisterType("default")
 func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(FUNCTION)
 	token.RegisterUnaryType(DELETE)
+token.RegisterBinaryType(token.STRING, token.LPAREN.Precedence())
 
 	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
 		if tok, err = next(); err != nil {
@@ -118,6 +119,8 @@ func Plugin(b *plugin.Builder) {
 			return ParseIncExpr(p, left)
 		case token.DECREMENT:
 			return ParseDecExpr(p, left)
+		case token.STRING:
+			return ParseTagExpr(p, left)
 		}
 		return ParseBinaryExpr(p, left)
 	})
@@ -191,6 +194,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintExportStmt(pr, v)
 	case *DeleteExpr:
 		return PrintDeleteExpr(pr, v)
+	case *TaggedTemplateExpr:
+		return PrintTagExpr(pr, v)
 	}
 	return next(node)
 }
