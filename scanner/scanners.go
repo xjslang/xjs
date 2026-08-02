@@ -123,6 +123,15 @@ func ScanRawString(sc *Scanner) (string, error) {
 			sb.WriteRune(sc.currentChar)
 			sc.AdvanceChar()
 			break
+		} else if sc.currentChar == '\\' {
+			sb.WriteRune(sc.currentChar)
+			sc.AdvanceChar()
+			switch sc.currentChar {
+			case '`', '$':
+				sb.WriteRune(sc.currentChar)
+				sc.AdvanceChar()
+				continue
+			}
 		} else if sc.currentChar == '$' {
 			sb.WriteRune(sc.currentChar)
 			sc.AdvanceChar()
