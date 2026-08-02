@@ -30,6 +30,7 @@ let y = {
   },
   get(...args) {},
   set(...args) {},
+  *gen() {},
   get: 'get',
   set: 'set',
   default: 'default',
