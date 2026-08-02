@@ -22,7 +22,7 @@ type RestParam struct {
 	Layout struct {
 		Spread token.Token
 	}
-	Name *js.Ident
+	Pattern ast.Node
 }
 
 type FunctionParams struct {
@@ -125,7 +125,7 @@ func parseRestParam(p *parser.Parser) (param *RestParam, err error) {
 	param = &RestParam{}
 	param.Layout.Spread = p.CurrentToken
 	p.AdvanceToken()
-	if param.Name, err = js.ParseIdent(p); err != nil {
+	if param.Pattern, err = p.ParseExpr(); err != nil {
 		return
 	}
 	return
@@ -160,7 +160,7 @@ func PrintFunctionParams(pr *printer.Printer, node *FunctionParams) error {
 				pr.Space().Print(v.Default)
 			}
 		case *RestParam:
-			pr.Print(v.Layout.Spread, v.Name)
+			pr.Print(v.Layout.Spread, v.Pattern)
 		default:
 			return pr.Error("param expected")
 		}
