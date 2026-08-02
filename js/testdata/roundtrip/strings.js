@@ -3,3 +3,4 @@
 `back
 ${"quoted"}
 ${'string'}`;
+` foo ${ b + `baz ${ c }` }`;
