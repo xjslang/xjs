@@ -43,8 +43,15 @@ func ParseDoWhileStmt(p *parser.Parser) (node *DoWhileStmt, err error) {
 	if node.Layout.Rparen, err = p.Expect(token.RPAREN); err != nil {
 		return
 	}
-	if node.Layout.Semi, err = js.ExpectSemi(p); err != nil {
-		return
+	if p.CurrentToken.Type == token.SEMICOLON {
+		node.Layout.Semi = p.CurrentToken
+		p.AdvanceToken()
+	} else {
+		node.Layout.Semi = token.Token{
+			Type:     token.SEMICOLON,
+			Literal:  token.SEMICOLON.String(),
+			Position: p.CurrentToken.Position,
+		}
 	}
 	return
 }
