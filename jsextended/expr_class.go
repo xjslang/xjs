@@ -18,14 +18,11 @@ type ClassExpr struct {
 	}
 	Name    *js.Ident
 	Extends ast.Expr
-	Members []*ClassMember
+	Members []ast.Stmt
 }
 
 func ParseClassExpr(p *parser.Parser) (node *ClassExpr, err error) {
 	node = &ClassExpr{}
-	isMethodName := func(typ token.Type) bool {
-		return typ == token.IDENT || typ == token.NUMBER || typ == token.STRING || typ == token.LBRACKET
-	}
 	if node.Layout.Class, err = p.Expect(CLASS); err != nil {
 		return
 	}
@@ -50,42 +47,15 @@ func ParseClassExpr(p *parser.Parser) (node *ClassExpr, err error) {
 		if p.CurrentToken.Type == token.RBRACE || p.CurrentToken.Type == token.EOF {
 			break
 		}
-		m := &ClassMember{}
-		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "static" {
-			if p.PeekToken.Type == token.LBRACE {
-				m.Layout.Static = p.CurrentToken
-				p.AdvanceToken()
-				if m.Decl, err = parseStaticInitializer(p); err != nil {
-					return
-				}
-				node.Members = append(node.Members, m)
-				continue
-			} else {
-				m.Static = isMethodName(p.PeekToken.Type)
-			}
-		}
-		if m.Static {
-			m.Layout.Static = p.CurrentToken
-			p.AdvanceToken()
-		}
-		if p.CurrentToken.Type == token.IDENT && isMethodName(p.PeekToken.Type) {
-			if lit := p.CurrentToken.Literal; lit == "get" || lit == "set" {
-				m.Flag = p.CurrentToken
-				p.AdvanceToken()
-			}
-		}
-		if m.Name, err = parseMethodName(p); err != nil {
+		var member ast.Stmt
+		if member, err = parser.Switch(p,
+			func(p *parser.Parser) (ast.Stmt, error) { return parseClassInitializer(p) },
+			func(p *parser.Parser) (ast.Stmt, error) { return parseClassField(p) },
+			func(p *parser.Parser) (ast.Stmt, error) { return parseClassMethod(p) },
+		); err != nil {
 			return
 		}
-		if p.CurrentToken.Type == token.LPAREN {
-			m.Decl, err = parseMethod(p)
-		} else {
-			m.Decl, err = parseProperty(p)
-		}
-		if err != nil {
-			return
-		}
-		node.Members = append(node.Members, m)
+		node.Members = append(node.Members, member)
 	}
 	if node.Layout.Rbrace, err = p.Expect(token.RBRACE); err != nil {
 		return
@@ -103,54 +73,25 @@ func PrintClassExpr(pr *printer.Printer, node *ClassExpr) (err error) {
 		pr.Space().Print(node.Extends)
 	}
 	pr.Space().Print(node.Layout.Lbrace)
-	pr.IncreaseIndent()
-	for _, m := range node.Members {
-		pr.Line()
-		if m.Static {
-			pr.Print(m.Layout.Static)
-			pr.Space()
-		}
-		switch v := m.Decl.(type) {
-		case *ClassMethod:
-			if len(m.Flag.Literal) > 0 {
-				pr.Print(m.Flag)
-				pr.Space()
-			}
-			switch n := m.Name.(type) {
-			case *js.Ident, *js.Literal:
-				pr.Print(m.Name)
-			case *js.ComputedExpr:
-				pr.Print(n.Layout.Lbracket, n.Expr, n.Layout.Rbracket)
+	if len(node.Members) > 0 {
+		pr.IncreaseIndent()
+		for _, entry := range node.Members {
+			switch v := entry.(type) {
+			case *ClassField:
+				err = printClassField(pr, v)
+			case *ClassMethod:
+				err = printClassMethod(pr, v)
+			case *ClassInitializer:
+				err = printClassInitializer(pr, v)
 			default:
-				pr.Print('[', m.Name, ']')
+				err = pr.Error("class member expected")
 			}
-			if err = PrintFunctionParams(pr, v.Params); err != nil {
+			if err != nil {
 				return
 			}
-			pr.Space().Print(v.Body)
-		case *ClassProperty:
-			if len(m.Flag.Literal) > 0 {
-				return pr.Error("get/set are reserved for methods")
-			}
-			switch n := m.Name.(type) {
-			case *js.ComputedExpr:
-				pr.Print(n.Layout.Lbracket, n.Expr, n.Layout.Rbracket)
-			default:
-				pr.Print(m.Name)
-			}
-			if v.Default != nil {
-				pr.Space().Print(v.Layout.Assign)
-				pr.Space().Print(v.Default)
-			}
-			pr.Print(v.Layout.Semi)
-		case *StaticInitializer:
-			pr.Print(m.Layout.Static)
-			pr.Space().Print(v.Body)
-		default:
-			return pr.Error("class member expected")
 		}
+		pr.DecreaseIndent()
 	}
-	pr.DecreaseIndent()
 	pr.Line().Print(node.Layout.Rbrace)
 	return
 }
