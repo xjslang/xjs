@@ -31,12 +31,10 @@ key expected
 expression expected
 key expected
 } expected
-expression expected
 ; expected
 ; expected
 expression expected
 expression expected
-key expected
-key expected
-key expected
+; expected
 identifier expected
+expression expected
