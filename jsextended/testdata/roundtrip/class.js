@@ -31,6 +31,14 @@ class MyClass {
   200 = () => {};
   [{ a }] = 200;
   static [expr] = () => {};
+  100() {}
+  "200"() {}
+  [100 + 1]() {}
+  ["Foo".toLowerCase()]() {
+    console.log('foo!');
+  }
+  static 100() {}
+  *[100 + 2]() {}
 }
 
 // with statics

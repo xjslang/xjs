@@ -34,7 +34,7 @@ type ClassMethod struct {
 	isStatic    bool
 	isAccessor  bool
 	IsGenerator bool
-	Name        *js.Ident
+	Key         ast.Node
 	Params      *FunctionParams
 	Body        *js.BlockStmt
 }
@@ -104,7 +104,7 @@ func ParseClassStmt(p *parser.Parser) (node *ClassStmt, err error) {
 func parseClassMethod(p *parser.Parser) (node *ClassMethod, err error) {
 	node = &ClassMethod{}
 	if p.CurrentToken.Literal == "static" {
-		if typ := p.PeekToken.Type; typ == token.IDENT || typ == token.LBRACKET || typ == token.STRING || typ == token.MULTIPLY {
+		if typ := p.PeekToken.Type; typ == token.IDENT || typ == token.LBRACKET || typ == token.NUMBER || typ == token.STRING || typ == token.MULTIPLY {
 			node.isStatic = true
 			node.Layout.Static = p.CurrentToken
 			p.AdvanceToken()
@@ -119,8 +119,19 @@ func parseClassMethod(p *parser.Parser) (node *ClassMethod, err error) {
 		node.Layout.Multiply = p.CurrentToken
 		p.AdvanceToken()
 	}
-	if node.Name, err = js.ParseIdent(p); err != nil {
-		return
+	switch p.CurrentToken.Type {
+	case token.LBRACKET:
+		if node.Key, err = js.ParseComputedExpr(p); err != nil {
+			return
+		}
+	case token.STRING, token.NUMBER:
+		if node.Key, err = js.ParseValue(p); err != nil {
+			return
+		}
+	default:
+		if node.Key, err = js.ParseObjKey(p); err != nil {
+			return
+		}
 	}
 	if node.Params, err = ParseFunctionParams(p); err != nil {
 		return
@@ -220,11 +231,9 @@ func printClassField(pr *printer.Printer, node *ClassField) (err error) {
 	if node.isStatic {
 		pr.Print(node.Layout.Static)
 	}
-	switch w := node.Key.(type) {
-	case *js.ComputedExpr:
-		pr.Space().Print(w.Layout.Lbracket, w.Expr, w.Layout.Rbracket)
-	default:
-		pr.Space().Print(w)
+	pr.Space()
+	if err = printMemberKey(pr, node.Key); err != nil {
+		return
 	}
 	if node.Value != nil {
 		pr.Print(":")
@@ -248,9 +257,15 @@ func printClassMethod(pr *printer.Printer, node *ClassMethod) (err error) {
 		pr.Print(node.Layout.Flag)
 	}
 	if node.IsGenerator {
-		pr.Space().Print(node.Layout.Multiply, node.Name)
+		pr.Space().Print(node.Layout.Multiply)
+		if err = printMemberKey(pr, node.Key); err != nil {
+			return
+		}
 	} else {
-		pr.Space().Print(node.Name)
+		pr.Space()
+		if err = printMemberKey(pr, node.Key); err != nil {
+			return
+		}
 	}
 	if err = PrintFunctionParams(pr, node.Params); err != nil {
 		return
@@ -262,5 +277,15 @@ func printClassMethod(pr *printer.Printer, node *ClassMethod) (err error) {
 func printClassInitializer(pr *printer.Printer, node *ClassInitializer) (err error) {
 	pr.Line().Print(node.Layout.Static)
 	pr.Space().Print(node.Body)
+	return
+}
+
+func printMemberKey(pr *printer.Printer, node ast.Node) (err error) {
+	switch v := node.(type) {
+	case *js.ComputedExpr:
+		pr.Print(v.Layout.Lbracket, v.Expr, v.Layout.Rbracket)
+	default:
+		pr.Print(v)
+	}
 	return
 }
