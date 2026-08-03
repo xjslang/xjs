@@ -16,12 +16,10 @@ var (
 type VarStmt struct {
 	ast.BaseDecl
 	Layout struct {
-		Var    token.Token
-		Assign token.Token
-		Semi   token.Token
+		Var  token.Token
+		Semi token.Token
 	}
-	Pattern ast.Node
-	Value   ast.Expr
+	Expr ast.Expr
 }
 
 func ParseVarStmt(p *parser.Parser) (node *VarStmt, err error) {
@@ -32,26 +30,8 @@ func ParseVarStmt(p *parser.Parser) (node *VarStmt, err error) {
 	}
 	node.Layout.Var = p.CurrentToken
 	p.AdvanceToken()
-	switch p.CurrentToken.Type {
-	case token.LBRACE:
-		if node.Pattern, err = ParseObjExpr(p); err != nil {
-			return
-		}
-	case token.LBRACKET:
-		if node.Pattern, err = ParseArrayExpr(p); err != nil {
-			return
-		}
-	default:
-		if node.Pattern, err = js.ParseIdent(p); err != nil {
-			return
-		}
-	}
-	if p.CurrentToken.Type == token.ASSIGN {
-		node.Layout.Assign = p.CurrentToken
-		p.AdvanceToken()
-		if node.Value, err = p.ParseExpr(); err != nil {
-			return
-		}
+	if node.Expr, err = p.ParseExpr(); err != nil {
+		return
 	}
 	if node.Layout.Semi, err = js.ExpectSemi(p); err != nil {
 		return
@@ -61,11 +41,7 @@ func ParseVarStmt(p *parser.Parser) (node *VarStmt, err error) {
 
 func PrintVarStmt(pr *printer.Printer, node *VarStmt) error {
 	pr.Line().Print(node.Layout.Var)
-	pr.Space().Print(node.Pattern)
-	if node.Value != nil {
-		pr.Space().Print(node.Layout.Assign)
-		pr.Space().Print(node.Value)
-	}
+	pr.Space().Print(node.Expr)
 	pr.Print(node.Layout.Semi)
 	return nil
 }
