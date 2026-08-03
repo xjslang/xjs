@@ -18,3 +18,7 @@ export //c
 export default 3.1419;
 export default { a: 1 };
 export default function a() {};
+
+// re-export
+export { a as b, c } from "foo";
+export {} from "a";

@@ -16,11 +16,14 @@ type ExportStmt struct {
 		Default token.Token
 		Lbrace  token.Token
 		Rbrace  token.Token
+		From    token.Token
 		Semi    token.Token
 	}
-	Default bool
-	Stmt    ast.Stmt
-	Exports []*ExportNode
+	ReExport bool
+	Default  bool
+	Stmt     ast.Stmt
+	Exports  []*ExportNode
+	Path     token.Token
 }
 
 type ExportNode struct {
@@ -60,6 +63,14 @@ func ParseExportStmt(p *parser.Parser) (node *ExportStmt, err error) {
 		}
 		if node.Layout.Rbrace, err = p.Expect(token.RBRACE); err != nil {
 			return
+		}
+		if p.CurrentToken.Literal == "from" {
+			node.Layout.From = p.CurrentToken
+			node.ReExport = true
+			p.AdvanceToken()
+			if node.Path, err = p.Expect(token.STRING); err != nil {
+				return
+			}
 		}
 		if node.Layout.Semi, err = ExpectSemi(p); err != nil {
 			return
@@ -110,7 +121,12 @@ func PrintExportStmt(pr *printer.Printer, node *ExportStmt) error {
 		if len(node.Exports) > 0 {
 			pr.Space()
 		}
-		pr.Print(node.Layout.Rbrace, node.Layout.Semi)
+		pr.Print(node.Layout.Rbrace)
+		if node.ReExport {
+			pr.Space().Print(node.Layout.From)
+			pr.Space().Print(node.Path)
+		}
+		pr.Print(node.Layout.Semi)
 	}
 	return nil
 }
