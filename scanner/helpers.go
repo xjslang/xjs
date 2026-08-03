@@ -19,3 +19,7 @@ func IsHexDigit(r rune) bool {
 func IsOctalDigit(r rune) bool {
 	return r >= '0' && r <= '7'
 }
+
+func IsBinaryDigit(r rune) bool {
+	return r == '0' || r == '1'
+}
