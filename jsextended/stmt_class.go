@@ -13,35 +13,38 @@ var (
 	EXTENDS = token.RegisterType("extends")
 )
 
-type ClassProperty struct {
-	ast.BaseDecl
+type ClassField struct {
+	ast.BaseStmt
 	Layout struct {
-		Assign token.Token
+		Static token.Token
 		Semi   token.Token
 	}
-	Default ast.Expr
+	isStatic bool
+	Key      ast.Node
+	Value    ast.Expr
+	Default  ast.Expr
 }
-
 type ClassMethod struct {
-	ast.BaseDecl
-	Params *FunctionParams
-	Body   *js.BlockStmt
+	ast.BaseStmt
+	Layout struct {
+		Static   token.Token
+		Flag     token.Token // get or set
+		Multiply token.Token
+	}
+	isStatic    bool
+	isAccessor  bool
+	IsGenerator bool
+	Name        *js.Ident
+	Params      *FunctionParams
+	Body        *js.BlockStmt
 }
 
-type StaticInitializer struct {
-	ast.BaseNode
-	Body *js.BlockStmt
-}
-
-type ClassMember struct {
-	ast.BaseDecl
+type ClassInitializer struct {
+	ast.BaseStmt
 	Layout struct {
 		Static token.Token
 	}
-	Static bool
-	Flag   token.Token // get or set
-	Name   ast.Node
-	Decl   ast.Node
+	Body *js.BlockStmt
 }
 
 type ClassStmt struct {
@@ -54,14 +57,11 @@ type ClassStmt struct {
 	}
 	Name    *js.Ident
 	Extends ast.Expr
-	Members []*ClassMember
+	Members []ast.Stmt
 }
 
 func ParseClassStmt(p *parser.Parser) (node *ClassStmt, err error) {
 	node = &ClassStmt{}
-	isMethodName := func(typ token.Type) bool {
-		return typ == token.IDENT || typ == token.NUMBER || typ == token.STRING || typ == token.LBRACKET
-	}
 	if node.Layout.Class, err = p.Expect(CLASS); err != nil {
 		return
 	}
@@ -85,42 +85,15 @@ func ParseClassStmt(p *parser.Parser) (node *ClassStmt, err error) {
 		if p.CurrentToken.Type == token.RBRACE || p.CurrentToken.Type == token.EOF {
 			break
 		}
-		m := &ClassMember{}
-		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "static" {
-			if p.PeekToken.Type == token.LBRACE {
-				m.Layout.Static = p.CurrentToken
-				p.AdvanceToken()
-				if m.Decl, err = parseStaticInitializer(p); err != nil {
-					return
-				}
-				node.Members = append(node.Members, m)
-				continue
-			} else {
-				m.Static = isMethodName(p.PeekToken.Type)
-			}
-		}
-		if m.Static {
-			m.Layout.Static = p.CurrentToken
-			p.AdvanceToken()
-		}
-		if p.CurrentToken.Type == token.IDENT && isMethodName(p.PeekToken.Type) {
-			if lit := p.CurrentToken.Literal; lit == "get" || lit == "set" {
-				m.Flag = p.CurrentToken
-				p.AdvanceToken()
-			}
-		}
-		if m.Name, err = parseMethodName(p); err != nil {
+		var member ast.Stmt
+		if member, err = parser.Switch(p,
+			func(p *parser.Parser) (ast.Stmt, error) { return parseClassInitializer(p) },
+			func(p *parser.Parser) (ast.Stmt, error) { return parseClassField(p) },
+			func(p *parser.Parser) (ast.Stmt, error) { return parseClassMethod(p) },
+		); err != nil {
 			return
 		}
-		if p.CurrentToken.Type == token.LPAREN {
-			m.Decl, err = parseMethod(p)
-		} else {
-			m.Decl, err = parseProperty(p)
-		}
-		if err != nil {
-			return
-		}
-		node.Members = append(node.Members, m)
+		node.Members = append(node.Members, member)
 	}
 	if node.Layout.Rbrace, err = p.Expect(token.RBRACE); err != nil {
 		return
@@ -128,36 +101,27 @@ func ParseClassStmt(p *parser.Parser) (node *ClassStmt, err error) {
 	return
 }
 
-func parseMethodName(p *parser.Parser) (_ ast.Node, err error) {
-	switch p.CurrentToken.Type {
-	case token.STRING, token.NUMBER:
-		tok := p.CurrentToken
-		p.AdvanceToken()
-		return &js.Literal{Value: tok}, nil
-	case token.LBRACKET:
-		return js.ParseComputedExpr(p)
-	default:
-		return js.ParseIdent(p)
-	}
-}
-
-func parseProperty(p *parser.Parser) (node *ClassProperty, err error) {
-	node = &ClassProperty{}
-	if p.CurrentToken.Type == token.ASSIGN {
-		node.Layout.Assign = p.CurrentToken
-		p.AdvanceToken()
-		if node.Default, err = p.ParseExpr(); err != nil {
-			return
+func parseClassMethod(p *parser.Parser) (node *ClassMethod, err error) {
+	node = &ClassMethod{}
+	if p.CurrentToken.Literal == "static" {
+		if typ := p.PeekToken.Type; typ == token.IDENT || typ == token.LBRACKET || typ == token.STRING || typ == token.MULTIPLY {
+			node.isStatic = true
+			node.Layout.Static = p.CurrentToken
+			p.AdvanceToken()
 		}
 	}
-	if node.Layout.Semi, err = js.ExpectSemi(p); err != nil {
+	if lit := p.CurrentToken.Literal; (lit == "get" || lit == "set") && p.PeekToken.Type != token.LPAREN {
+		node.isAccessor = true
+		node.Layout.Flag = p.CurrentToken
+		p.AdvanceToken()
+	}
+	if node.IsGenerator = p.CurrentToken.Type == token.MULTIPLY; node.IsGenerator {
+		node.Layout.Multiply = p.CurrentToken
+		p.AdvanceToken()
+	}
+	if node.Name, err = js.ParseIdent(p); err != nil {
 		return
 	}
-	return
-}
-
-func parseMethod(p *parser.Parser) (node *ClassMethod, err error) {
-	node = &ClassMethod{}
 	if node.Params, err = ParseFunctionParams(p); err != nil {
 		return
 	}
@@ -167,8 +131,53 @@ func parseMethod(p *parser.Parser) (node *ClassMethod, err error) {
 	return
 }
 
-func parseStaticInitializer(p *parser.Parser) (node *StaticInitializer, err error) {
-	node = &StaticInitializer{}
+func parseClassField(p *parser.Parser) (node *ClassField, err error) {
+	node = &ClassField{}
+	if p.CurrentToken.Literal == "static" {
+		switch p.PeekToken.Type {
+		case token.IDENT, token.NUMBER, token.STRING, token.LBRACKET, token.MULTIPLY:
+			node.isStatic = true
+			node.Layout.Static = p.CurrentToken
+			p.AdvanceToken()
+		}
+	}
+	switch p.CurrentToken.Type {
+	case token.LBRACKET:
+		if node.Key, err = js.ParseComputedExpr(p); err != nil {
+			return
+		}
+	case token.STRING, token.NUMBER:
+		if node.Key, err = js.ParseValue(p); err != nil {
+			return
+		}
+	default:
+		if node.Key, err = js.ParseObjKey(p); err != nil {
+			return
+		}
+	}
+	if p.CurrentToken.Type == token.COLON {
+		p.AdvanceToken()
+		if node.Value, err = js.ParseRightExpr(p, token.ASSIGN.Precedence()); err != nil {
+			return
+		}
+	}
+	if p.CurrentToken.Type == token.ASSIGN {
+		p.AdvanceToken()
+		if node.Default, err = js.ParseRightExpr(p, token.COMMA.Precedence()); err != nil {
+			return
+		}
+	}
+	if node.Layout.Semi, err = js.ExpectSemi(p); err != nil {
+		return
+	}
+	return
+}
+
+func parseClassInitializer(p *parser.Parser) (node *ClassInitializer, err error) {
+	node = &ClassInitializer{}
+	if node.Layout.Static, err = p.ExpectLiteral("static"); err != nil {
+		return
+	}
 	if node.Body, err = js.ParseBlockStmt(p); err != nil {
 		return
 	}
@@ -183,54 +192,75 @@ func PrintClassStmt(pr *printer.Printer, node *ClassStmt) (err error) {
 		pr.Space().Print(node.Extends)
 	}
 	pr.Space().Print(node.Layout.Lbrace)
-	pr.IncreaseIndent()
-	for _, m := range node.Members {
-		pr.Line()
-		if m.Static {
-			pr.Print(m.Layout.Static)
-			pr.Space()
-		}
-		switch v := m.Decl.(type) {
-		case *ClassMethod:
-			if len(m.Flag.Literal) > 0 {
-				pr.Print(m.Flag)
-				pr.Space()
-			}
-			switch n := m.Name.(type) {
-			case *js.Ident, *js.Literal:
-				pr.Print(m.Name)
-			case *js.ComputedExpr:
-				pr.Print(n.Layout.Lbracket, n.Expr, n.Layout.Rbracket)
+	if len(node.Members) > 0 {
+		pr.IncreaseIndent()
+		for _, entry := range node.Members {
+			switch v := entry.(type) {
+			case *ClassField:
+				err = printClassField(pr, v)
+			case *ClassMethod:
+				err = printClassMethod(pr, v)
+			case *ClassInitializer:
+				err = printClassInitializer(pr, v)
 			default:
-				pr.Print('[', m.Name, ']')
+				err = pr.Error("class member expected")
 			}
-			if err = PrintFunctionParams(pr, v.Params); err != nil {
+			if err != nil {
 				return
 			}
-			pr.Space().Print(v.Body)
-		case *ClassProperty:
-			if len(m.Flag.Literal) > 0 {
-				return pr.Error("get/set are reserved for methods")
-			}
-			switch n := m.Name.(type) {
-			case *js.ComputedExpr:
-				pr.Print(n.Layout.Lbracket, n.Expr, n.Layout.Rbracket)
-			default:
-				pr.Print(m.Name)
-			}
-			if v.Default != nil {
-				pr.Space().Print(v.Layout.Assign)
-				pr.Space().Print(v.Default)
-			}
-			pr.Print(v.Layout.Semi)
-		case *StaticInitializer:
-			pr.Print(m.Layout.Static)
-			pr.Space().Print(v.Body)
-		default:
-			return pr.Error("class member expected")
 		}
+		pr.DecreaseIndent()
 	}
-	pr.DecreaseIndent()
 	pr.Line().Print(node.Layout.Rbrace)
+	return
+}
+
+func printClassField(pr *printer.Printer, node *ClassField) (err error) {
+	pr.Line()
+	if node.isStatic {
+		pr.Print(node.Layout.Static)
+	}
+	switch w := node.Key.(type) {
+	case *js.ComputedExpr:
+		pr.Space().Print(w.Layout.Lbracket, w.Expr, w.Layout.Rbracket)
+	default:
+		pr.Space().Print(w)
+	}
+	if node.Value != nil {
+		pr.Print(":")
+		pr.Space().Print(node.Value)
+	}
+	if node.Default != nil {
+		pr.Space().Print("=")
+		pr.Space().Print(node.Default)
+	}
+	pr.Print(node.Layout.Semi)
+	return
+}
+
+func printClassMethod(pr *printer.Printer, node *ClassMethod) (err error) {
+	pr.Line()
+	if node.isStatic {
+		pr.Print(node.Layout.Static)
+		pr.Space()
+	}
+	if node.isAccessor {
+		pr.Print(node.Layout.Flag)
+	}
+	if node.IsGenerator {
+		pr.Space().Print(node.Layout.Multiply, node.Name)
+	} else {
+		pr.Space().Print(node.Name)
+	}
+	if err = PrintFunctionParams(pr, node.Params); err != nil {
+		return
+	}
+	pr.Space().Print(node.Body)
+	return
+}
+
+func printClassInitializer(pr *printer.Printer, node *ClassInitializer) (err error) {
+	pr.Line().Print(node.Layout.Static)
+	pr.Space().Print(node.Body)
 	return
 }

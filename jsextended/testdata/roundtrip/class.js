@@ -22,6 +22,19 @@ class MyClass {
   method1() {}
 }
 
+// computed members
+class MyClass {
+  'foo' = 100;
+  100 = 200;
+  ['boo'] = function() {
+  };
+  200 = () => {};
+  [{ a }] = 200;
+  static [expr] = () => {};
+  static "name" = () => {};
+  static *gen() {}
+}
+
 // with statics
 class MyClass {
   prop1;
@@ -35,6 +48,8 @@ class MyClass {
 // with static initializers
 class MyClass {
   prop1;
+  static;
+  static = 1;
   static prop2 = 200;
   static prop3;
   static static = "I'm static!";
@@ -43,6 +58,7 @@ class MyClass {
   }
   method1() {}
   static method2() {}
+  static get foo() {}
   static() {}
   static {
     this.prop3 = "I'm static too";
