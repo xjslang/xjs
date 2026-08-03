@@ -1,6 +1,8 @@
 package scanner
 
 import (
+	"errors"
+	"strings"
 	"unicode/utf8"
 
 	"github.com/xjslang/xjs/token"
@@ -148,7 +150,20 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 	case '.':
 		c := s.currentChar
 		s.AdvanceChar()
-		tok = token.Token{Type: token.DOT, Literal: string(c)}
+		if IsDigit(s.currentChar) {
+			var lit string
+			if lit, err = ScanNumber(s); err != nil {
+				tok = token.Token{Type: token.ILLEGAL, Literal: string(c) + lit}
+				return
+			}
+			if strings.ContainsRune(lit, '.') {
+				err = errors.New("digit expected")
+				return
+			}
+			tok = token.Token{Type: token.NUMBER, Literal: string(c) + lit}
+		} else {
+			tok = token.Token{Type: token.DOT, Literal: string(c)}
+		}
 	case ';':
 		c := s.currentChar
 		s.AdvanceChar()
