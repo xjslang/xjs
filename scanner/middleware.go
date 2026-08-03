@@ -217,6 +217,13 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 						return
 					}
 					tok.Literal += lit
+				case 'b', 'B':
+					var lit string
+					if lit, err = ScanBinaryNumber(s); err != nil {
+						tok.Type = token.ILLEGAL
+						return
+					}
+					tok.Literal += lit
 				default:
 					if s.currentChar == '.' || s.currentChar == 'e' || IsDigit(s.currentChar) {
 						var lit string

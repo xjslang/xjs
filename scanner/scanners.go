@@ -180,6 +180,20 @@ func ScanOctalNumber(sc *Scanner) (string, error) {
 	return sb.String(), nil
 }
 
+func ScanBinaryNumber(sc *Scanner) (string, error) {
+	sb := strings.Builder{}
+	sb.WriteRune(sc.currentChar)
+	sc.AdvanceChar() // consume b | B
+	if !IsBinaryDigit(sc.currentChar) {
+		return sb.String(), errors.New("binary digit expected")
+	}
+	sb.WriteRune(sc.currentChar)
+	for sc.AdvanceChar(); IsBinaryDigit(sc.currentChar); sc.AdvanceChar() {
+		sb.WriteRune(sc.currentChar)
+	}
+	return sb.String(), nil
+}
+
 func ScanNumber(sc *Scanner) (string, error) {
 	sb := strings.Builder{}
 	readDigits := func() {
