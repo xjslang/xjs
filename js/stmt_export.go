@@ -45,13 +45,13 @@ func ParseExportStmt(p *parser.Parser) (node *ExportStmt, err error) {
 		p.AdvanceToken()
 		for p.CurrentToken.Type != token.RBRACE {
 			n := &ExportNode{}
-			if n.Name, err = ParseIdent(p); err != nil {
+			if n.Name, err = parseNamedExport(p); err != nil {
 				return
 			}
 			if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "as" {
 				n.Layout.As = p.CurrentToken
 				p.AdvanceToken()
-				if n.Alias, err = ParseIdent(p); err != nil {
+				if n.Alias, err = parseNamedExport(p); err != nil {
 					return
 				}
 			}
@@ -93,6 +93,16 @@ func ParseExportStmt(p *parser.Parser) (node *ExportStmt, err error) {
 		} else {
 			err = p.ErrorAt(tok, "declaration expected")
 		}
+	}
+	return
+}
+
+func parseNamedExport(p *parser.Parser) (node *Ident, err error) {
+	if p.CurrentToken.Type == DEFAULT {
+		node = &Ident{Token: p.CurrentToken}
+		p.AdvanceToken()
+	} else if node, err = ParseIdent(p); err != nil {
+		return
 	}
 	return
 }
