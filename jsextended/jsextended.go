@@ -20,6 +20,10 @@ var (
 	MULTIPLY_ASSIGN = token.RegisterType("*=")
 	DIVIDE_ASSIGN   = token.RegisterType("/=")
 	MODULO_ASSIGN   = token.RegisterType("%=")
+	OR_ASSIGN       = token.RegisterType("|=")
+	XOR_ASSIGN      = token.RegisterType("^=")
+	AND_ASSIGN      = token.RegisterType("&=")
+	EXPO_ASSIGN     = token.RegisterType("**=")
 	SHL_ASSIGN      = token.RegisterType("<<=")
 	SHR_ASSIGN      = token.RegisterType(">>=")
 	USHR_ASSIGN     = token.RegisterType(">>>=")
@@ -52,6 +56,10 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterBinaryType(MULTIPLY_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(DIVIDE_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(MODULO_ASSIGN, token.ASSIGN.Precedence())
+	token.RegisterBinaryType(OR_ASSIGN, token.ASSIGN.Precedence())
+	token.RegisterBinaryType(XOR_ASSIGN, token.ASSIGN.Precedence())
+	token.RegisterBinaryType(AND_ASSIGN, token.ASSIGN.Precedence())
+	token.RegisterBinaryType(EXPO_ASSIGN, token.ASSIGN.Precedence())
 	// TODO: These new shift-assignment operators are registered as generic binary operators (and will be parsed via js.ParseBinaryExpr), which makes them left-associative due to js.ParseRightExpr stopping on equal precedence. In JavaScript, all assignment operators (including <<=, >>=, >>>=) are right-associative, so expressions like `a <<= b <<= c` or `a <<= (b = c)` will build an incorrect AST shape. Consider parsing all assignment-like operators with a dedicated parser that treats them as right-associative (e.g., parse RHS with `opPrec-1` / allow same-precedence operators on the RHS), similar to how `=` is handled via AssignExpr.
 	token.RegisterBinaryType(SHL_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(SHR_ASSIGN, token.ASSIGN.Precedence())
@@ -136,11 +144,29 @@ func Plugin(b *plugin.Builder) {
 					tok.Type = QUESTION_MARK
 				}
 			case "&":
-				tok.Type = AND_BITWISE
+				if sc.CurrentChar() == '=' {
+					sc.AdvanceChar()
+					tok.Type = AND_ASSIGN
+					tok.Literal = "&="
+				} else {
+					tok.Type = AND_BITWISE
+				}
 			case "|":
-				tok.Type = OR_BITWISE
+				if sc.CurrentChar() == '=' {
+					sc.AdvanceChar()
+					tok.Type = OR_ASSIGN
+					tok.Literal = "|="
+				} else {
+					tok.Type = OR_BITWISE
+				}
 			case "^":
-				tok.Type = XOR_BITWISE
+				if sc.CurrentChar() == '=' {
+					sc.AdvanceChar()
+					tok.Type = XOR_ASSIGN
+					tok.Literal = "^="
+				} else {
+					tok.Type = XOR_BITWISE
+				}
 			}
 		case token.LT:
 			if sc.CurrentChar() == '<' {
@@ -217,8 +243,14 @@ func Plugin(b *plugin.Builder) {
 			switch sc.CurrentChar() {
 			case '*':
 				sc.AdvanceChar()
-				tok.Type = EXPO
-				tok.Literal = "**"
+				if sc.CurrentChar() == '=' {
+					sc.AdvanceChar()
+					tok.Type = EXPO_ASSIGN
+					tok.Literal = "**="
+				} else {
+					tok.Type = EXPO
+					tok.Literal = "**"
+				}
 			case '=':
 				sc.AdvanceChar()
 				tok.Type = MULTIPLY_ASSIGN
@@ -274,7 +306,7 @@ func Plugin(b *plugin.Builder) {
 	})
 	b.UseBinaryParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
-		case STRICT_EQ, STRICT_NOT_EQ, PLUS_ASSIGN, MINUS_ASSIGN, MULTIPLY_ASSIGN, DIVIDE_ASSIGN, MODULO_ASSIGN, IN:
+		case STRICT_EQ, STRICT_NOT_EQ, PLUS_ASSIGN, MINUS_ASSIGN, MULTIPLY_ASSIGN, DIVIDE_ASSIGN, MODULO_ASSIGN, OR_ASSIGN, XOR_ASSIGN, AND_ASSIGN, EXPO_ASSIGN, IN:
 			return js.ParseBinaryExpr(p, left)
 		case ARROW:
 			return ParseArrowFunc(p, left)
