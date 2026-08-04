@@ -23,7 +23,7 @@ type ObjMethod struct {
 	}
 	isAccessor  bool
 	IsGenerator bool
-	Name        *js.Ident
+	Name        ast.Node
 	Params      *FunctionParams
 	Body        *js.BlockStmt
 }
@@ -73,8 +73,19 @@ func parseObjMethod(p *parser.Parser) (node *ObjMethod, err error) {
 		node.Layout.Multiply = p.CurrentToken
 		p.AdvanceToken()
 	}
-	if node.Name, err = js.ParseIdent(p); err != nil {
-		return
+	switch p.CurrentToken.Type {
+	case token.LBRACKET:
+		if node.Name, err = js.ParseComputedExpr(p); err != nil {
+			return
+		}
+	case token.STRING, token.NUMBER, SPREAD:
+		if node.Name, err = js.ParseValue(p); err != nil {
+			return
+		}
+	default:
+		if node.Name, err = js.ParseObjKey(p); err != nil {
+			return
+		}
 	}
 	if node.Params, err = ParseFunctionParams(p); err != nil {
 		return
