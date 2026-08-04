@@ -34,3 +34,10 @@ func ExpectSemi(p *parser.Parser) (tok token.Token, err error) {
 	err = p.Error(token.SEMICOLON.String() + " expected")
 	return
 }
+
+func IsSemi(tok token.Token) bool {
+	if typ := tok.Type; typ == token.SEMICOLON || typ == token.RBRACE || typ == token.RPAREN || typ == token.EOF {
+		return true
+	}
+	return tok.AfterNewline
+}
