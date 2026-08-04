@@ -305,7 +305,7 @@ func Plugin(b *plugin.Builder) {
 		case CLASS:
 			return ParseClassExpr(p)
 		case YIELD:
-			return ParseYieldStmt(p)
+			return ParseYieldExpr(p)
 		}
 		return next()
 	})
@@ -411,8 +411,8 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintClassExpr(pr, v)
 	case *VoidExpr:
 		return PrintVoidExpr(pr, v)
-	case *YieldStmt:
-		return PrintYieldStmt(pr, v)
+	case *YieldExpr:
+		return PrintYieldExpr(pr, v)
 	case *RegExpr:
 		return PrintRegExpr(pr, v)
 	case *GroupExpr:
