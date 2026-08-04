@@ -1,3 +1,6 @@
+// prefix ops
+~a;
+// infix ops
 a & b;
 a | b;
 a ^ b;
