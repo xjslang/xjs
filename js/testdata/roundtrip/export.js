@@ -21,4 +21,5 @@ export default function a() {};
 
 // re-export
 export { a as b, c } from "foo";
+export { a as default, b } from "foo";
 export {} from "a";
