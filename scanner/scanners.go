@@ -67,9 +67,17 @@ func ScanString(sc *Scanner, delimiter rune) (string, error) {
 		if sc.currentChar == '\\' {
 			sb.WriteRune(sc.currentChar)
 			sc.AdvanceChar()
-			if sc.currentChar == delimiter || sc.currentChar == '\n' || sc.currentChar == '\r' {
+			if sc.currentChar == delimiter || sc.currentChar == '\n' {
 				sb.WriteRune(sc.currentChar)
 				sc.AdvanceChar()
+				continue
+			} else if sc.currentChar == '\r' {
+				sb.WriteRune(sc.currentChar)
+				sc.AdvanceChar()
+				if sc.currentChar == '\n' {
+					sb.WriteRune(sc.currentChar)
+					sc.AdvanceChar()
+				}
 				continue
 			}
 		}
