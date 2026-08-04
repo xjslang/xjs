@@ -20,7 +20,7 @@ type YieldStmt struct {
 	Expr         ast.Expr
 }
 
-func ParseYieldStmt(p *parser.Parser) (node *YieldStmt, err error) {
+func ParseYieldExpr(p *parser.Parser) (node *YieldStmt, err error) {
 	node = &YieldStmt{}
 	if node.Layout.Yield, err = p.Expect(YIELD); err != nil {
 		return
@@ -29,7 +29,7 @@ func ParseYieldStmt(p *parser.Parser) (node *YieldStmt, err error) {
 		node.Layout.Multiply = p.CurrentToken
 		p.AdvanceToken()
 	}
-	if p.CurrentToken.Type != token.COMMA {
+	if p.CurrentToken.Type != token.SEMICOLON {
 		if node.Expr, err = js.ParseRightExpr(p, token.COMMA.Precedence()); err != nil {
 			return
 		}
@@ -37,7 +37,7 @@ func ParseYieldStmt(p *parser.Parser) (node *YieldStmt, err error) {
 	return
 }
 
-func PrintYieldStmt(pr *printer.Printer, node *YieldStmt) error {
+func PrintYieldExpr(pr *printer.Printer, node *YieldStmt) error {
 	pr.Line().Print(node.Layout.Yield)
 	if node.IsDelegating {
 		pr.Print(node.Layout.Multiply)
