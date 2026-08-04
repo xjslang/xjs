@@ -28,6 +28,7 @@ var (
 	SHR_ASSIGN      = token.RegisterType(">>=")
 	USHR_ASSIGN     = token.RegisterType(">>>=")
 	// bitwise
+	NOT_BITWISE  = token.RegisterType("~")
 	AND_BITWISE  = token.RegisterType("&")
 	OR_BITWISE   = token.RegisterType("|")
 	XOR_BITWISE  = token.RegisterType("^")
@@ -51,6 +52,7 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(DIVIDE_ASSIGN) // regex
 	token.RegisterUnaryType(token.INCREMENT)
 	token.RegisterUnaryType(token.DECREMENT)
+	token.RegisterUnaryType(NOT_BITWISE)
 	token.RegisterBinaryType(PLUS_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(MINUS_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(MULTIPLY_ASSIGN, token.ASSIGN.Precedence())
@@ -167,6 +169,9 @@ func Plugin(b *plugin.Builder) {
 				} else {
 					tok.Type = XOR_BITWISE
 				}
+			case "~":
+				tok.Type = NOT_BITWISE
+				tok.Literal = "~"
 			}
 		case token.LT:
 			if sc.CurrentChar() == '<' {
@@ -275,7 +280,7 @@ func Plugin(b *plugin.Builder) {
 		switch p.CurrentToken.Type {
 		case token.LPAREN:
 			return ParseGroupExpr(p)
-		case token.INCREMENT, token.DECREMENT:
+		case token.INCREMENT, token.DECREMENT, NOT_BITWISE:
 			return js.ParseUnaryExpr(p)
 		case js.FUNCTION:
 			return ParseFunctionExpr(p)
