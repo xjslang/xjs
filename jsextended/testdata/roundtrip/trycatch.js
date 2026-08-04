@@ -34,3 +34,13 @@ try {
 } finally /*c4*/ {
   console.log("cleanup");
 }
+
+// with destructuring catch param
+try {} catch ([a, ...b]) {}
+try {} catch ([a]) {}
+try {} catch ({ a }) {}
+try {} catch ({ a = 1 }) {}
+try {} catch ([a = 1]) {}
+try {} catch ({}) {}
+try {} catch ([]) {}
+try {} catch ([a, b, { c, d: e = 1, [f]: g = 2, h = i }]) {}
