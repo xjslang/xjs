@@ -10,7 +10,7 @@ import (
 
 var YIELD = token.RegisterType("yield")
 
-type YieldStmt struct {
+type YieldExpr struct {
 	ast.BaseExpr
 	Layout struct {
 		Yield    token.Token
@@ -20,8 +20,8 @@ type YieldStmt struct {
 	Expr         ast.Expr
 }
 
-func ParseYieldExpr(p *parser.Parser) (node *YieldStmt, err error) {
-	node = &YieldStmt{}
+func ParseYieldExpr(p *parser.Parser) (node *YieldExpr, err error) {
+	node = &YieldExpr{}
 	if node.Layout.Yield, err = p.Expect(YIELD); err != nil {
 		return
 	}
@@ -29,7 +29,7 @@ func ParseYieldExpr(p *parser.Parser) (node *YieldStmt, err error) {
 		node.Layout.Multiply = p.CurrentToken
 		p.AdvanceToken()
 	}
-	if p.CurrentToken.Type != token.SEMICOLON {
+	if node.IsDelegating || p.CurrentToken.Type != token.COMMA && !js.IsSemi(p.CurrentToken) {
 		if node.Expr, err = js.ParseRightExpr(p, token.COMMA.Precedence()); err != nil {
 			return
 		}
@@ -37,8 +37,8 @@ func ParseYieldExpr(p *parser.Parser) (node *YieldStmt, err error) {
 	return
 }
 
-func PrintYieldExpr(pr *printer.Printer, node *YieldStmt) error {
-	pr.Line().Print(node.Layout.Yield)
+func PrintYieldExpr(pr *printer.Printer, node *YieldExpr) error {
+	pr.Print(node.Layout.Yield)
 	if node.IsDelegating {
 		pr.Print(node.Layout.Multiply)
 	}

@@ -411,7 +411,7 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintClassExpr(pr, v)
 	case *VoidExpr:
 		return PrintVoidExpr(pr, v)
-	case *YieldStmt:
+	case *YieldExpr:
 		return PrintYieldExpr(pr, v)
 	case *RegExpr:
 		return PrintRegExpr(pr, v)
