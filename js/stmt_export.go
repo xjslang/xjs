@@ -199,12 +199,11 @@ func PrintExportStmt(pr *printer.Printer, node *ExportStmt) error {
 	return nil
 }
 
-func printNamedExportStmt(pr *printer.Printer, node *NamedExportStmt) error {
+func printNamedExportStmt(pr *printer.Printer, node *NamedExportStmt) {
 	pr.Space().Print(node.Stmt)
-	return nil
 }
 
-func printNamedListExportStmt(pr *printer.Printer, node *NamedListExportStmt) error {
+func printNamedListExportStmt(pr *printer.Printer, node *NamedListExportStmt) {
 	pr.Space().Print(node.Layout.Lbrace)
 	if len(node.Items) > 0 {
 		pr.IncreaseIndent()
@@ -228,16 +227,14 @@ func printNamedListExportStmt(pr *printer.Printer, node *NamedListExportStmt) er
 		pr.Space().Print(node.From)
 	}
 	pr.Print(node.Layout.Semi)
-	return nil
 }
 
-func printDefaultExportStmt(pr *printer.Printer, node *DefaultExportStmt) error {
+func printDefaultExportStmt(pr *printer.Printer, node *DefaultExportStmt) {
 	pr.Space().Print(node.Layout.Default)
 	pr.Space().Print(node.Stmt)
-	return nil
 }
 
-func printWildcharExportStmt(pr *printer.Printer, node *WildcharExportStmt) error {
+func printWildcharExportStmt(pr *printer.Printer, node *WildcharExportStmt) {
 	pr.Space().Print(node.Layout.Multiply)
 	if node.Alias != nil {
 		pr.Space().Print(node.Layout.As)
@@ -246,5 +243,4 @@ func printWildcharExportStmt(pr *printer.Printer, node *WildcharExportStmt) erro
 	pr.Space().Print(node.Layout.From)
 	pr.Space().Print(node.From)
 	pr.Print(node.Layout.Semi)
-	return nil
 }
