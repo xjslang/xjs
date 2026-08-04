@@ -5,3 +5,5 @@ ${"quoted"}
 ${'string'}`;
 ` foo ${ b + `baz ${ c }` }`;
 `$$$`;
+"lorem\
+ipsum";
