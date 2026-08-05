@@ -12,27 +12,62 @@ var IMPORT = token.RegisterType("import")
 type ImportStmt struct {
 	ast.BaseStmt
 	Layout struct {
-		Import   token.Token
-		Lbrace   token.Token
-		Rbrace   token.Token
+		Import token.Token
+	}
+	Variant ast.Stmt
+}
+
+type SideEffectImportStmt struct {
+	ast.BaseStmt
+	Layout struct {
+		Semi token.Token
+	}
+	From token.Token
+}
+
+type DefaultImportStmt struct {
+	ast.BaseStmt
+	Layout struct {
+		Comma token.Token
+		From  token.Token
+		Semi  token.Token
+	}
+	Name    *Ident
+	Variant ast.Stmt
+	From    token.Token
+}
+
+type WildcardImportStmt struct {
+	ast.BaseStmt
+	Layout struct {
 		Multiply token.Token
 		As       token.Token
 		From     token.Token
 		Semi     token.Token
 	}
-	Imports   []*ImportNode
-	Namespace *Ident
-	Default   *Ident
-	Path      token.Token
+	Name *Ident
+	From token.Token
 }
 
-type ImportNode struct {
+type NamedListImportStmt struct {
+	ast.BaseStmt
+	Layout struct {
+		Lbrace token.Token
+		Rbrace token.Token
+		From   token.Token
+		Semi   token.Token
+	}
+	Items []*NamedImport
+	From  token.Token
+}
+
+type NamedImport struct {
 	ast.BaseNode
 	Layout struct {
 		As token.Token
 	}
-	Name  *Ident
-	Alias *Ident
+	Pattern ast.Node
+	Alias   *Ident
 }
 
 func ParseImportStmt(p *parser.Parser) (node *ImportStmt, err error) {
@@ -40,53 +75,125 @@ func ParseImportStmt(p *parser.Parser) (node *ImportStmt, err error) {
 	if node.Layout.Import, err = p.Expect(IMPORT); err != nil {
 		return
 	}
-	if p.CurrentToken.Type == token.STRING {
-		// side-effects import:
-		// import 'lib.js'
-		node.Path = p.CurrentToken
-		p.AdvanceToken()
-	} else {
-		switch p.CurrentToken.Type {
-		case token.MULTIPLY:
-			// namespace import:
-			// import * as lib from 'lib.js'
-			if err = parseNamespaceImport(p, node); err != nil {
-				return
-			}
-		case token.IDENT:
-			// default import:
-			// import lib from 'lib.js'
-			if node.Default, err = ParseIdent(p); err != nil {
-				return
-			}
-			if p.CurrentToken.Type == token.COMMA {
-				p.AdvanceToken()
-				switch p.CurrentToken.Type {
-				case token.MULTIPLY:
-					err = parseNamespaceImport(p, node)
-				case token.LBRACE:
-					err = parseNamedImports(p, node)
-				default:
-					err = p.Error("expected '*' or '{' after ','")
-				}
-				if err != nil {
-					return
-				}
-			}
-		case token.LBRACE:
-			// named imports:
-			// import { c1, c2 as c3, c4 } from 'library'
-			if err = parseNamedImports(p, node); err != nil {
-				return
-			}
-		default:
-			err = p.Error("syntax error")
+	if node.Variant, err = parser.Switch(p, func(p *parser.Parser) (ast.Stmt, error) {
+		return parseSideEffectImport(p)
+	}, func(p *parser.Parser) (ast.Stmt, error) {
+		return parseDefaultImport(p)
+	}, func(p *parser.Parser) (ast.Stmt, error) {
+		return parseWildcardImport(p)
+	}, func(p *parser.Parser) (ast.Stmt, error) {
+		return parseNamedListImport(p)
+	}); err != nil {
+		return
+	}
+	return
+}
+
+func parseSideEffectImport(p *parser.Parser) (node *SideEffectImportStmt, err error) {
+	node = &SideEffectImportStmt{}
+	if node.From, err = p.Expect(token.STRING); err != nil {
+		return
+	}
+	if node.Layout.Semi, err = ExpectSemi(p); err != nil {
+		return
+	}
+	return
+}
+
+func parseWildcardImport(p *parser.Parser) (node *WildcardImportStmt, err error) {
+	node = &WildcardImportStmt{}
+	if node.Layout.Multiply, err = p.Expect(token.MULTIPLY); err != nil {
+		return
+	}
+	if node.Layout.As, err = p.ExpectLiteral("as"); err != nil {
+		return
+	}
+	if node.Name, err = ParseIdent(p); err != nil {
+		return
+	}
+	if node.Layout.From, err = p.ExpectLiteral("from"); err != nil {
+		return
+	}
+	if node.From, err = p.Expect(token.STRING); err != nil {
+		return
+	}
+	if node.Layout.Semi, err = ExpectSemi(p); err != nil {
+		return
+	}
+	return
+}
+
+func parseNamedListImport(p *parser.Parser) (node *NamedListImportStmt, err error) {
+	node = &NamedListImportStmt{}
+	if node.Layout.Lbrace, err = p.Expect(token.LBRACE); err != nil {
+		return
+	}
+	for {
+		if p.CurrentToken.Type == token.RBRACE || p.CurrentToken.Type == token.EOF {
+			break
+		}
+		item := &NamedImport{}
+		if p.CurrentToken.Type == DEFAULT {
+			item.Pattern = &Ident{Token: p.CurrentToken}
+			p.AdvanceToken()
+		} else if item.Pattern, err = ParseRightExpr(p, token.COMMA.Precedence()); err != nil {
 			return
 		}
+		if p.CurrentToken.Literal == "as" {
+			item.Layout.As = p.CurrentToken
+			p.AdvanceToken()
+			if p.CurrentToken.Type == DEFAULT {
+				item.Alias = &Ident{Token: p.CurrentToken}
+				p.AdvanceToken()
+			} else if item.Alias, err = ParseIdent(p); err != nil {
+				return
+			}
+		}
+		node.Items = append(node.Items, item)
+		if p.CurrentToken.Type != token.COMMA {
+			break
+		}
+		p.AdvanceToken()
+	}
+	if node.Layout.Rbrace, err = p.Expect(token.RBRACE); err != nil {
+		return
+	}
+	if node.Layout.From, err = p.ExpectLiteral("from"); err != nil {
+		return
+	}
+	if node.From, err = p.Expect(token.STRING); err != nil {
+		return
+	}
+	if node.Layout.Semi, err = ExpectSemi(p); err != nil {
+		return
+	}
+	return
+}
+
+func parseDefaultImport(p *parser.Parser) (node *DefaultImportStmt, err error) {
+	node = &DefaultImportStmt{}
+	if node.Name, err = ParseIdent(p); err != nil {
+		return
+	}
+	if p.CurrentToken.Type == token.COMMA {
+		node.Layout.Comma = p.CurrentToken
+		p.AdvanceToken()
+		switch p.CurrentToken.Type {
+		case token.MULTIPLY:
+			node.Variant, err = parseWildcardImport(p)
+		case token.LBRACE:
+			node.Variant, err = parseNamedListImport(p)
+		default:
+			err = p.Error("syntax error")
+		}
+		if err != nil {
+			return
+		}
+	} else {
 		if node.Layout.From, err = p.ExpectLiteral("from"); err != nil {
 			return
 		}
-		if node.Path, err = p.Expect(token.STRING); err != nil {
+		if node.From, err = p.Expect(token.STRING); err != nil {
 			return
 		}
 	}
@@ -96,89 +203,68 @@ func ParseImportStmt(p *parser.Parser) (node *ImportStmt, err error) {
 	return
 }
 
-func parseNamespaceImport(p *parser.Parser, node *ImportStmt) (err error) {
-	node.Layout.Multiply = p.CurrentToken
-	p.AdvanceToken()
-	if node.Layout.As, err = p.ExpectLiteral("as"); err != nil {
-		return
-	}
-	if node.Namespace, err = ParseIdent(p); err != nil {
-		return
-	}
-	return
-}
-
-func parseNamedImports(p *parser.Parser, node *ImportStmt) (err error) {
-	node.Layout.Lbrace = p.CurrentToken
-	p.AdvanceToken()
-	for p.CurrentToken.Type != token.RBRACE {
-		e := &ImportNode{}
-		if p.CurrentToken.Type == DEFAULT {
-			tok := p.CurrentToken
-			e.Name = &Ident{Token: tok}
-			p.AdvanceToken()
-			if p.CurrentToken.Type != token.IDENT || p.CurrentToken.Literal != "as" {
-				err = p.ErrorAt(tok, "expected 'as' after 'default' in named import")
-				return
-			}
-		} else if e.Name, err = ParseIdent(p); err != nil {
-			return
-		}
-		if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "as" {
-			e.Layout.As = p.CurrentToken
-			p.AdvanceToken()
-			if e.Alias, err = ParseIdent(p); err != nil {
-				return
-			}
-		}
-		node.Imports = append(node.Imports, e)
-		if p.CurrentToken.Type != token.COMMA {
-			break
-		}
-		p.AdvanceToken()
-	}
-	if node.Layout.Rbrace, err = p.Expect(token.RBRACE); err != nil {
-		return
-	}
-	return
-}
-
 func PrintImportStmt(pr *printer.Printer, node *ImportStmt) error {
 	pr.Line().Print(node.Layout.Import)
-	if node.Default != nil {
-		pr.Space().Print(node.Default)
-		if node.Namespace != nil || len(node.Imports) > 0 {
-			pr.Print(',')
-			pr.Space()
-		}
+	switch v := node.Variant.(type) {
+	case *SideEffectImportStmt:
+		printSideEffectImportStmt(pr, v)
+	case *WildcardImportStmt:
+		printWildcardImportStmt(pr, v)
+	case *NamedListImportStmt:
+		printNamedListImportStmt(pr, v)
+	case *DefaultImportStmt:
+		printDefaultImportStmt(pr, v)
 	}
-	if node.Namespace != nil {
-		// namespace import
-		pr.Space().Print(node.Layout.Multiply)
-		pr.Space().Print(node.Layout.As)
-		pr.Space().Print(node.Namespace)
-		pr.Space().Print(node.Layout.From)
-	} else {
-		// named exports
-		pr.Space().Print(node.Layout.Lbrace)
+	return nil
+}
+
+func printSideEffectImportStmt(pr *printer.Printer, node *SideEffectImportStmt) {
+	pr.Space().Print(node.From, node.Layout.Semi)
+}
+
+func printWildcardImportStmt(pr *printer.Printer, node *WildcardImportStmt) {
+	pr.Space().Print(node.Layout.Multiply)
+	pr.Space().Print(node.Layout.As)
+	pr.Space().Print(node.Name)
+	pr.Space().Print(node.Layout.From)
+	pr.Space().Print(node.From, node.Layout.Semi)
+}
+
+func printNamedListImportStmt(pr *printer.Printer, node *NamedListImportStmt) {
+	pr.Space().Print(node.Layout.Lbrace)
+	if len(node.Items) > 0 {
 		pr.IncreaseIndent()
-		for i, export := range node.Imports {
+		for i, item := range node.Items {
 			if i > 0 {
 				pr.Print(',')
+				pr.Space()
 			}
-			pr.Space().Print(export.Name)
-			if export.Alias != nil {
-				pr.Space().Print(export.Layout.As)
-				pr.Space().Print(export.Alias)
+			pr.Space().Print(item.Pattern)
+			if item.Alias != nil {
+				pr.Space().Print(item.Layout.As)
+				pr.Space().Print(item.Alias)
 			}
 		}
 		pr.DecreaseIndent()
-		if len(node.Imports) > 0 {
-			pr.Space()
-		}
-		pr.Print(node.Layout.Rbrace)
-		pr.Space().Print(node.Layout.From)
+		pr.Space()
 	}
-	pr.Space().Print(node.Path, node.Layout.Semi)
-	return nil
+	pr.Print(node.Layout.Rbrace)
+	pr.Space().Print(node.Layout.From)
+	pr.Space().Print(node.From, node.Layout.Semi)
+}
+
+func printDefaultImportStmt(pr *printer.Printer, node *DefaultImportStmt) {
+	pr.Space().Print(node.Name)
+	if node.Variant != nil {
+		pr.Print(node.Layout.Comma)
+		switch v := node.Variant.(type) {
+		case *WildcardImportStmt:
+			printWildcardImportStmt(pr, v)
+		case *NamedListImportStmt:
+			printNamedListImportStmt(pr, v)
+		}
+	} else {
+		pr.Space().Print(node.Layout.From)
+		pr.Space().Print(node.From, node.Layout.Semi)
+	}
 }
