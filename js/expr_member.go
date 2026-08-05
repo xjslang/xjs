@@ -28,6 +28,11 @@ func ParseMemberExpr(p *parser.Parser, left ast.Expr) (node *MemberExpr, err err
 }
 
 func PrintMemberExpr(pr *printer.Printer, node *MemberExpr) error {
-	pr.Print(node.Left, node.Layout.Dot, node.Right)
+	if v, ok := node.Left.(*Literal); ok && v.Value.Type == token.NUMBER {
+		pr.Print("(", v, ")")
+	} else {
+		pr.Print(node.Left)
+	}
+	pr.Print(node.Layout.Dot, node.Right)
 	return nil
 }
