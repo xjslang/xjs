@@ -156,7 +156,13 @@ func PrintObjExpr(pr *printer.Printer, node *ObjExpr) (err error) {
 					pr.Print(v.Layout.Flag)
 				}
 				if v.IsGenerator {
-					pr.Space().Print(v.Layout.Multiply, v.Name)
+					pr.Space().Print(v.Layout.Multiply)
+					switch w := v.Name.(type) {
+					case *js.ComputedExpr:
+						pr.Print(w.Layout.Lbracket, w.Expr, w.Layout.Rbracket)
+					default:
+						pr.Print(w)
+					}
 				} else {
 					pr.Space()
 					switch w := v.Name.(type) {
