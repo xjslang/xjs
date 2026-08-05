@@ -1,8 +1,6 @@
 package scanner
 
 import (
-	"errors"
-	"strings"
 	"unicode/utf8"
 
 	"github.com/xjslang/xjs/token"
@@ -149,19 +147,14 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 		tok = token.Token{Type: token.COMMA, Literal: string(c)}
 	case '.':
 		c := s.currentChar
-		s.AdvanceChar()
-		if IsDigit(s.currentChar) {
-			var lit string
-			if lit, err = ScanNumber(s); err != nil {
-				tok = token.Token{Type: token.ILLEGAL, Literal: string(c) + lit}
+		if IsDigit(s.PeekChar()) {
+			tok.Type = token.NUMBER
+			if tok.Literal, err = ScanNumber(s); err != nil {
+				tok.Type = token.ILLEGAL
 				return
 			}
-			if strings.ContainsRune(lit, '.') {
-				err = errors.New("digit expected")
-				return
-			}
-			tok = token.Token{Type: token.NUMBER, Literal: string(c) + lit}
 		} else {
+			s.AdvanceChar()
 			tok = token.Token{Type: token.DOT, Literal: string(c)}
 		}
 	case ';':
@@ -213,47 +206,10 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 			lit := ScanIdentifier(s)
 			tok = token.Token{Type: token.IDENT, Literal: lit}
 		} else if IsDigit(s.currentChar) {
-			tok = token.Token{Type: token.NUMBER, Literal: string(s.currentChar)}
-			if s.currentChar == '0' {
-				tok.Literal = string(s.currentChar)
-				s.AdvanceChar()
-				switch s.currentChar {
-				case 'x', 'X':
-					var lit string
-					if lit, err = ScanHexNumber(s); err != nil {
-						tok.Type = token.ILLEGAL
-						return
-					}
-					tok.Literal += lit
-				case 'o', 'O':
-					var lit string
-					if lit, err = ScanOctalNumber(s); err != nil {
-						tok.Type = token.ILLEGAL
-						return
-					}
-					tok.Literal += lit
-				case 'b', 'B':
-					var lit string
-					if lit, err = ScanBinaryNumber(s); err != nil {
-						tok.Type = token.ILLEGAL
-						return
-					}
-					tok.Literal += lit
-				default:
-					if s.currentChar == '.' || s.currentChar == 'e' || IsDigit(s.currentChar) {
-						var lit string
-						if lit, err = ScanNumber(s); err != nil {
-							tok.Type = token.ILLEGAL
-							return
-						}
-						tok.Literal += lit
-					}
-				}
-			} else {
-				if tok.Literal, err = ScanNumber(s); err != nil {
-					tok.Type = token.ILLEGAL
-					return
-				}
+			tok.Type = token.NUMBER
+			if tok.Literal, err = ScanNumber(s); err != nil {
+				tok.Type = token.ILLEGAL
+				return
 			}
 		} else if s.currentChar == utf8.RuneError {
 			c := s.currentChar

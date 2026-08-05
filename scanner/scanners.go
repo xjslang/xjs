@@ -160,73 +160,85 @@ func ScanRawString(sc *Scanner) (string, error) {
 	return sb.String(), nil
 }
 
-func ScanHexNumber(sc *Scanner) (string, error) {
-	sb := strings.Builder{}
-	sb.WriteRune(sc.currentChar)
-	sc.AdvanceChar() // consume x | X
-	if !IsHexDigit(sc.currentChar) {
-		return sb.String(), errors.New("hex digit expected")
-	}
-	sb.WriteRune(sc.currentChar)
-	for sc.AdvanceChar(); IsHexDigit(sc.currentChar); sc.AdvanceChar() {
+func ScanNumber(sc *Scanner) (_ string, err error) {
+	var sb strings.Builder
+	next := func() {
 		sb.WriteRune(sc.currentChar)
-	}
-	return sb.String(), nil
-}
-
-func ScanOctalNumber(sc *Scanner) (string, error) {
-	sb := strings.Builder{}
-	sb.WriteRune(sc.currentChar)
-	sc.AdvanceChar() // consume o | O
-	if !IsOctalDigit(sc.currentChar) {
-		return sb.String(), errors.New("octal digit expected")
-	}
-	sb.WriteRune(sc.currentChar)
-	for sc.AdvanceChar(); IsOctalDigit(sc.currentChar); sc.AdvanceChar() {
-		sb.WriteRune(sc.currentChar)
-	}
-	return sb.String(), nil
-}
-
-func ScanBinaryNumber(sc *Scanner) (string, error) {
-	sb := strings.Builder{}
-	sb.WriteRune(sc.currentChar)
-	sc.AdvanceChar() // consume b | B
-	if !IsBinaryDigit(sc.currentChar) {
-		return sb.String(), errors.New("binary digit expected")
-	}
-	sb.WriteRune(sc.currentChar)
-	for sc.AdvanceChar(); IsBinaryDigit(sc.currentChar); sc.AdvanceChar() {
-		sb.WriteRune(sc.currentChar)
-	}
-	return sb.String(), nil
-}
-
-func ScanNumber(sc *Scanner) (string, error) {
-	sb := strings.Builder{}
-	readDigits := func() {
-		for sc.AdvanceChar(); IsDigit(sc.currentChar); sc.AdvanceChar() {
-			sb.WriteRune(sc.currentChar)
-		}
-	}
-	sb.WriteRune(sc.currentChar)
-	readDigits()
-	if sc.currentChar == '.' {
-		sb.WriteRune(sc.currentChar)
-		readDigits()
-	}
-	if c := sc.currentChar; c == 'e' || c == 'E' {
-		sb.WriteRune(c)
 		sc.AdvanceChar()
-		if c := sc.currentChar; c == '+' || c == '-' {
-			sb.WriteRune(c)
-			sc.AdvanceChar()
+	}
+	scanDigits := func(check func(rune) bool) error {
+		next()
+		if !check(sc.currentChar) {
+			return errors.New("digit expected")
 		}
-		if !IsDigit(sc.currentChar) {
-			return sb.String(), errors.New("decimal digit expected")
+		for check(sc.currentChar) {
+			next()
 		}
-		sb.WriteRune(sc.currentChar)
-		readDigits()
+		if IsLetter(sc.currentChar) || IsDigit(sc.currentChar) {
+			return errors.New("digit expected")
+		}
+		return nil
+	}
+	scanDecimal := func() error {
+		for IsDigit(sc.currentChar) {
+			next()
+		}
+		if sc.currentChar == '.' {
+			next()
+		}
+		for IsDigit(sc.currentChar) {
+			next()
+		}
+		if c := sc.currentChar; c == 'e' || c == 'E' {
+			next()
+			if c := sc.currentChar; c == '+' || c == '-' {
+				next()
+			}
+			if !IsDigit(sc.currentChar) {
+				return errors.New("digit expected")
+			}
+			for {
+				next()
+				if !IsDigit(sc.currentChar) {
+					break
+				}
+			}
+		}
+		if IsLetter(sc.currentChar) {
+			return errors.New("digit expected")
+		}
+		return nil
+	}
+	switch sc.currentChar {
+	case '0':
+		next()
+		switch sc.currentChar {
+		case 'x', 'X':
+			err = scanDigits(IsHexDigit)
+		case 'o', 'O':
+			err = scanDigits(IsOctalDigit)
+		case 'b', 'B':
+			err = scanDigits(IsBinaryDigit)
+		default:
+			if IsDigit(sc.currentChar) {
+				for IsDigit(sc.currentChar) {
+					next()
+				}
+				if c := sc.currentChar; (c == '.' && IsDigit(sc.PeekChar())) || c == 'e' || c == 'E' {
+					err = scanDecimal()
+				}
+			} else {
+				err = scanDecimal()
+			}
+		}
+	default:
+		err = scanDecimal()
+	}
+	if err != nil {
+		for IsLetter(sc.currentChar) || IsDigit(sc.currentChar) {
+			next()
+		}
+		return sb.String(), err
 	}
 	return sb.String(), nil
 }
