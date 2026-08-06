@@ -1,6 +1,6 @@
 {
   "go.testTimeout": "5s",
-  "go.buildTags": "mage,integration",
+  "go.buildTags": "mage",
   "go.testFlags": ["-benchtime=1s"],
   "editor.hover.enabled": "onKeyboardModifier"
 }
