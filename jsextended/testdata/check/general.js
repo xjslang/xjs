@@ -1057,7 +1057,7 @@ function a() { var b; if (b = 'b') { return b; } else { return b; } }; a();
 ; // File: 26974bc54e93b191.js
 a[b]
 ; // File: 26998ded3750f7d8.js
-// To avoid JSC bug, we don't distinguish FunctionExpression name scope and it's function scope
+// To avoid JSC bug, we don't distinguish PrefixFunctionOpession name scope and it's function scope
 (function a() {
     var b = 1;  // Don't rename this variable to a name that is the same to function's name
     c(b);

@@ -23,10 +23,10 @@ func debugger(pr *printer.Printer, node ast.Node, next func(node ast.Node) error
 	switch node.(type) {
 	case
 		// core expressions to parenthesize in debug output
-		*js.AssignExpr, *js.BinaryExpr, *js.CallExpr, *js.DecExpr, *js.IncExpr, *js.IndexExpr, *js.MemberExpr,
-		*js.ArrayExpr, *js.FunctionExpr, *js.GroupExpr, *js.ObjExpr,
+		*js.InfixAssignOp, *js.InfixOp, *js.InfixParenOp, *js.PostfixDecOp, *js.PostfixIncOp, *js.InfixBracketOp, *js.InfixDotOp,
+		*js.PrefixBracketOp, *js.PrefixFunctionOp, *js.PrefixParenOp, *js.PrefixBraceOp,
 		// extended expressions to parenthesize in debug output
-		*jsextended.TypeofExpr:
+		*jsextended.PrefixTypeofOp:
 		pr.Print('(')
 		defer pr.Print(')')
 	}

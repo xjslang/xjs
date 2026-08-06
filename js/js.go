@@ -89,37 +89,37 @@ func Plugin(b *plugin.Builder) {
 	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
 		case FUNCTION:
-			return ParseFunctionExpr(p)
+			return ParsePrefixFunctionOp(p)
 		case DELETE:
-			return ParseDeleteExpr(p)
+			return ParsePrefixDeleteOp(p)
 		case token.LPAREN:
-			return ParseGroupExpr(p)
+			return ParsePrefixParenOp(p)
 		case token.LBRACE:
-			return ParseObjExpr(p)
+			return ParsePrefixBraceOp(p)
 		case token.LBRACKET:
-			return ParseArrayExpr(p)
+			return ParsePrefixBracketOp(p)
 		}
-		return ParseUnaryExpr(p)
+		return ParsePrefixOp(p)
 	})
 	b.UseBinaryParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
 		case token.ASSIGN:
-			return ParseAssignExpr(p, left)
+			return ParseInfixAssignOp(p, left)
 		case token.LPAREN:
-			return ParseCallExpr(p, left)
+			return ParseInfixParenOp(p, left)
 		case token.LBRACKET:
-			return ParseIndexExpr(p, left)
+			return ParseInfixBracketOp(p, left)
 		case token.DOT:
-			return ParseMemberExpr(p, left)
-		// TODO: Adding the comma operator here makes precedence interactions with assignment important: js.ParseAssignExpr currently parses its RHS with p.ParseExpr(), which will now eagerly consume commas. That yields an AST equivalent to a = (b, c) for a = b, c, but JavaScript semantics require (a = b), c because comma has lower precedence than assignment.
+			return ParseInfixDotOp(p, left)
+		// TODO: Adding the comma operator here makes precedence interactions with assignment important: js.ParseInfixAssignOp currently parses its RHS with p.ParseExpr(), which will now eagerly consume commas. That yields an AST equivalent to a = (b, c) for a = b, c, but JavaScript semantics require (a = b), c because comma has lower precedence than assignment.
 		case token.COMMA:
-			return ParseSequenceExpr(p, left)
+			return ParseInfixCommaOp(p, left)
 		case token.INCREMENT:
-			return ParseIncExpr(p, left)
+			return ParsePostfixIncOp(p, left)
 		case token.DECREMENT:
-			return ParseDecExpr(p, left)
+			return ParsePostfixDecOp(p, left)
 		}
-		return ParseBinaryExpr(p, left)
+		return ParseInfixOp(p, left)
 	})
 }
 
@@ -139,28 +139,28 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintLetStmt(pr, v)
 	case *ForStmt:
 		return PrintForStmt(pr, v)
-	case *FunctionExpr:
-		return PrintFunctionExpr(pr, v)
-	case *CallExpr:
-		return PrintCallExpr(pr, v)
-	case *IndexExpr:
-		return PrintIndexExpr(pr, v)
-	case *GroupExpr:
-		return PrintGroupExpr(pr, v)
-	case *ObjExpr:
-		return PrintObjExpr(pr, v)
-	case *ArrayExpr:
-		return PrintArrayExpr(pr, v)
-	case *IncExpr:
-		return PrintIncExpr(pr, v)
-	case *DecExpr:
-		return PrintDecExpr(pr, v)
-	case *AssignExpr:
-		return PrintAssignExpr(pr, v)
-	case *UnaryExpr:
-		return PrintUnaryExpr(pr, v)
-	case *BinaryExpr:
-		return PrintBinaryExpr(pr, v)
+	case *PrefixFunctionOp:
+		return PrintPrefixFunctionOp(pr, v)
+	case *InfixParenOp:
+		return PrintInfixParenOp(pr, v)
+	case *InfixBracketOp:
+		return PrintInfixBracketOp(pr, v)
+	case *PrefixParenOp:
+		return PrintPrefixParenOp(pr, v)
+	case *PrefixBraceOp:
+		return PrintPrefixBraceOp(pr, v)
+	case *PrefixBracketOp:
+		return PrintPrefixBracketOp(pr, v)
+	case *PostfixIncOp:
+		return PrintPostfixIncOp(pr, v)
+	case *PostfixDecOp:
+		return PrintPostfixDecOp(pr, v)
+	case *InfixAssignOp:
+		return PrintInfixAssignOp(pr, v)
+	case *PrefixOp:
+		return PrintPrefixOp(pr, v)
+	case *InfixOp:
+		return PrintInfixOp(pr, v)
 	case *Ident:
 		return PrintIdent(pr, v)
 	case *Variable:
@@ -179,18 +179,18 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintContinueStmt(pr, v)
 	case *LabelStmt:
 		return PrintLabelStmt(pr, v)
-	case *MemberExpr:
-		return PrintMemberExpr(pr, v)
-	case *SequenceExpr:
-		return PrintSequenceExpr(pr, v)
+	case *InfixDotOp:
+		return PrintInfixDotOp(pr, v)
+	case *InfixCommaOp:
+		return PrintInfixCommaOp(pr, v)
 	case *SemiStmt:
 		return PrintSemiStmt(pr, v)
 	case *ImportStmt:
 		return PrintImportStmt(pr, v)
 	case *ExportStmt:
 		return PrintExportStmt(pr, v)
-	case *DeleteExpr:
-		return PrintDeleteExpr(pr, v)
+	case *PrefixDeleteOp:
+		return PrintPrefixDeleteOp(pr, v)
 	}
 	return next(node)
 }
