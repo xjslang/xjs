@@ -102,7 +102,7 @@ func TestIndent(t *testing.T) {
 	}
 }
 
-func TestPrintCallExpr(t *testing.T) {
+func TestPrintInfixParenOp(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected string
@@ -452,7 +452,7 @@ func TestErrorAt(t *testing.T) {
 
 	pr := xjs.PrinterBuilder().UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
 		switch v := node.(type) {
-		case *js.UnaryExpr:
+		case *js.PrefixOp:
 			if v.Op.Type == spreadOp {
 				return printer.ErrorAt(v.Op.Position, "spread operator is not printable")
 			}

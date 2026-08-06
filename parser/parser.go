@@ -106,11 +106,11 @@ func (p *Parser) ParseExpr() (ast.Expr, error) {
 	return p.exprParser(p)
 }
 
-func (p *Parser) ParseBinaryExpr(left ast.Expr) (ast.Expr, error) {
+func (p *Parser) ParseInfixOp(left ast.Expr) (ast.Expr, error) {
 	return p.binaryExprParser(p, left)
 }
 
-func (p *Parser) ParseUnaryExpr() (ast.Expr, error) {
+func (p *Parser) ParsePrefixOp() (ast.Expr, error) {
 	return p.unaryExprParser(p)
 }
 

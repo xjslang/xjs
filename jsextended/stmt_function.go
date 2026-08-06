@@ -99,11 +99,11 @@ func parseParam(p *parser.Parser) (param *Param, err error) {
 	param = &Param{}
 	switch p.CurrentToken.Type {
 	case token.LBRACE:
-		if param.Pattern, err = ParseObjExpr(p); err != nil {
+		if param.Pattern, err = ParsePrefixBraceOp(p); err != nil {
 			return
 		}
 	case token.LBRACKET:
-		if param.Pattern, err = ParseArrayExpr(p); err != nil {
+		if param.Pattern, err = ParsePrefixBracketOp(p); err != nil {
 			return
 		}
 	default:

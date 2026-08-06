@@ -62,7 +62,7 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterBinaryType(XOR_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(AND_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(EXPO_ASSIGN, token.ASSIGN.Precedence())
-	// TODO: These new shift-assignment operators are registered as generic binary operators (and will be parsed via js.ParseBinaryExpr), which makes them left-associative due to js.ParseRightExpr stopping on equal precedence. In JavaScript, all assignment operators (including <<=, >>=, >>>=) are right-associative, so expressions like `a <<= b <<= c` or `a <<= (b = c)` will build an incorrect AST shape. Consider parsing all assignment-like operators with a dedicated parser that treats them as right-associative (e.g., parse RHS with `opPrec-1` / allow same-precedence operators on the RHS), similar to how `=` is handled via AssignExpr.
+	// TODO: These new shift-assignment operators are registered as generic binary operators (and will be parsed via js.ParseInfixOp), which makes them left-associative due to js.ParseRightExpr stopping on equal precedence. In JavaScript, all assignment operators (including <<=, >>=, >>>=) are right-associative, so expressions like `a <<= b <<= c` or `a <<= (b = c)` will build an incorrect AST shape. Consider parsing all assignment-like operators with a dedicated parser that treats them as right-associative (e.g., parse RHS with `opPrec-1` / allow same-precedence operators on the RHS), similar to how `=` is handled via InfixAssignOp.
 	token.RegisterBinaryType(SHL_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(SHR_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(USHR_ASSIGN, token.ASSIGN.Precedence())
@@ -71,7 +71,7 @@ func Plugin(b *plugin.Builder) {
 	token.RegisterBinaryType(OPTIONAL_CHAINING, token.DOT.Precedence())
 	token.RegisterBinaryType(INSTANCEOF, token.LT.Precedence())
 	token.RegisterBinaryType(ARROW, token.ASSIGN.Precedence()+1)
-	token.RegisterBinaryType(QUESTION_MARK, token.ASSIGN.Precedence()+1)
+	token.RegisterBinaryType(TERNARY, token.ASSIGN.Precedence()+1)
 	token.RegisterBinaryType(EXPO, token.MULTIPLY.Precedence()+1)
 	token.RegisterBinaryType(COALESCING, token.OR.Precedence())
 	token.RegisterBinaryType(OR_BITWISE, token.AND.Precedence()+1)
@@ -143,7 +143,7 @@ func Plugin(b *plugin.Builder) {
 					tok.Type = COALESCING
 					tok.Literal = "??"
 				default:
-					tok.Type = QUESTION_MARK
+					tok.Type = TERNARY
 				}
 			case "&":
 				if sc.CurrentChar() == '=' {
@@ -279,54 +279,54 @@ func Plugin(b *plugin.Builder) {
 	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
 		case token.LPAREN:
-			return ParseGroupExpr(p)
+			return ParsePrefixParenOp(p)
 		case token.INCREMENT, token.DECREMENT, NOT_BITWISE:
-			return js.ParseUnaryExpr(p)
+			return js.ParsePrefixOp(p)
 		case js.FUNCTION:
-			return ParseFunctionExpr(p)
+			return ParsePrefixFunctionOp(p)
 		case token.LBRACE:
-			return ParseObjExpr(p)
+			return ParsePrefixBraceOp(p)
 		case token.LBRACKET:
-			return ParseArrayExpr(p)
+			return ParsePrefixBracketOp(p)
 		case token.DIVIDE, DIVIDE_ASSIGN:
-			return ParseRegExpr(p)
+			return ParsePrefixRegOp(p)
 		case NEW:
-			return ParseNewExpr(p)
+			return ParsePrefixNewOp(p)
 		case SPREAD:
-			return ParseSpreadExpr(p)
+			return ParsePrefixSpreadOp(p)
 		case TYPEOF:
-			return ParseTypeofExpr(p)
+			return ParsePrefixTypeofOp(p)
 		case ASYNC:
-			return ParseAsyncExpr(p)
+			return ParsePrefixAsyncOp(p)
 		case AWAIT:
-			return ParseAwaitExpr(p)
+			return ParsePrefixAwaitOp(p)
 		case VOID:
-			return ParseVoidExpr(p)
+			return ParsePrefixVoidOp(p)
 		case CLASS:
-			return ParseClassExpr(p)
+			return ParsePrefixClassOp(p)
 		case YIELD:
-			return ParseYieldExpr(p)
+			return ParsePrefixYieldOp(p)
 		}
 		return next()
 	})
 	b.UseBinaryParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
 		case STRICT_EQ, STRICT_NOT_EQ, PLUS_ASSIGN, MINUS_ASSIGN, MULTIPLY_ASSIGN, DIVIDE_ASSIGN, MODULO_ASSIGN, OR_ASSIGN, XOR_ASSIGN, AND_ASSIGN, EXPO_ASSIGN, IN:
-			return js.ParseBinaryExpr(p, left)
+			return js.ParseInfixOp(p, left)
 		case ARROW:
-			return ParseArrowFunc(p, left)
-		case QUESTION_MARK:
-			return ParseTernaryExpr(p, left)
+			return ParseInfixArrowOp(p, left)
+		case TERNARY:
+			return ParseInfixTernaryOp(p, left)
 		case OPTIONAL_CHAINING:
-			return ParseOptionalChainingExpr(p, left)
+			return ParseInfixOptionalChainingOp(p, left)
 		case INSTANCEOF:
-			return ParseInstanceofExpr(p, left)
+			return ParseInfixInstanceofOp(p, left)
 		case EXPO:
-			return ParseExpoExpr(p, left)
+			return ParseInfixExpoOp(p, left)
 		case COALESCING:
-			return ParseCoalescingExpr(p, left)
+			return ParseInfixCoalescingOp(p, left)
 		case token.STRING:
-			return ParseTagExpr(p, left)
+			return ParseInfixTemplateOp(p, left)
 		}
 		return next(left)
 	})
@@ -361,10 +361,10 @@ func Plugin(b *plugin.Builder) {
 
 func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
 	switch v := node.(type) {
-	case *js.ArrayExpr:
-		return PrintArrayExpr(pr, v)
-	case *ObjExpr:
-		return PrintObjExpr(pr, v)
+	case *js.PrefixBracketOp:
+		return PrintPrefixBracketOp(pr, v)
+	case *PrefixBraceOp:
+		return PrintPrefixBraceOp(pr, v)
 	case *VarStmt:
 		return PrintVarStmt(pr, v)
 	case *TryStmt:
@@ -373,52 +373,52 @@ func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error)
 		return PrintSwitchStmt(pr, v)
 	case *ThrowStmt:
 		return PrintThrowStmt(pr, v)
-	case *NewExpr:
-		return PrintNewExpr(pr, v)
+	case *PrefixNewOp:
+		return PrintPrefixNewOp(pr, v)
 	case *DoWhileStmt:
 		return PrintDoWhileStmt(pr, v)
-	case *ArrowFuncExpr:
-		return PrintArrowFunc(pr, v)
-	case *SpreadExpr:
-		return PrintSpreadExpr(pr, v)
-	case *TypeofExpr:
-		return PrintTypeofExpr(pr, v)
-	case *InstanceofExpr:
-		return PrintInstanceofExpr(pr, v)
+	case *InfixArrowOp:
+		return PrintInfixArrowOp(pr, v)
+	case *PrefixSpreadOp:
+		return PrintPrefixSpreadOp(pr, v)
+	case *PrefixTypeofOp:
+		return PrintPrefixTypeofOp(pr, v)
+	case *InfixInstanceofOp:
+		return PrintInfixInstanceofOp(pr, v)
 	case *ForofStmt:
 		return PrintForofStmt(pr, v)
 	case *ForinStmt:
 		return PrintForinStmt(pr, v)
 	case *FunctionDecl:
 		return PrintFunctionDecl(pr, v)
-	case *FunctionExpr:
-		return PrintFunctionExpr(pr, v)
-	case *TernaryExpr:
-		return PrintTernaryExpr(pr, v)
-	case *OptionalChainingExpr:
-		return PrintOptionalChainingExpr(pr, v)
-	case *AsyncExpr:
-		return PrintAsyncExpr(pr, v)
-	case *AwaitExpr:
-		return PrintAwaitExpr(pr, v)
-	case *ExpoExpr:
-		return PrintExpoExpr(pr, v)
-	case *CoalescingExpr:
-		return PrintCoalescingExpr(pr, v)
+	case *PrefixFunctionOp:
+		return PrintPrefixFunctionOp(pr, v)
+	case *InfixTernaryOp:
+		return PrintInfixTernaryOp(pr, v)
+	case *InfixOptionalChainingOp:
+		return PrintInfixOptionalChainingOp(pr, v)
+	case *PrefixAsyncOp:
+		return PrintPrefixAsyncOp(pr, v)
+	case *PrefixAwaitOp:
+		return PrintPrefixAwaitOp(pr, v)
+	case *InfixExpoOp:
+		return PrintInfixExpoOp(pr, v)
+	case *InfixCoalescingOp:
+		return PrintInfixCoalescingOp(pr, v)
 	case *ClassStmt:
 		return PrintClassStmt(pr, v)
-	case *ClassExpr:
-		return PrintClassExpr(pr, v)
-	case *VoidExpr:
-		return PrintVoidExpr(pr, v)
-	case *YieldExpr:
-		return PrintYieldExpr(pr, v)
-	case *RegExpr:
-		return PrintRegExpr(pr, v)
-	case *GroupExpr:
-		return PrintGroupExpr(pr, v)
-	case *TaggedTemplateExpr:
-		return PrintTagExpr(pr, v)
+	case *PrefixClassOp:
+		return PrintPrefixClassOp(pr, v)
+	case *PrefixVoidOp:
+		return PrintPrefixVoidOp(pr, v)
+	case *PrefixYieldOp:
+		return PrintPrefixYieldOp(pr, v)
+	case *PrefixRegOp:
+		return PrintPrefixRegOp(pr, v)
+	case *PrefixParenOp:
+		return PrintPrefixParenOp(pr, v)
+	case *InfixTemplateOp:
+		return PrintInfixTemplateOp(pr, v)
 	}
 	return next(node)
 }

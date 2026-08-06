@@ -141,7 +141,7 @@ func TestMalformedExpr(t *testing.T) {
 		}
 		for i, test := range tests {
 			p := xjs.PluginBuilder().Build([]byte(test.input))
-			_, err := js.ParseGroupExpr(p)
+			_, err := js.ParsePrefixParenOp(p)
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
 			}
