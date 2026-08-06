@@ -104,7 +104,7 @@ import a, * as b from "foo";
 ; // File: 0466764f0fb9af62.js
 function* a(){yield}
 ; // File: 046a0bb70d03d0cc.js
-T‌
+T
 ; // File: 046b1012ef9b0e26.js
 /[a-c]/i
 ; // File: 04b26d042948d474.js
@@ -250,7 +250,7 @@ var [{a},b] = c;
 ; // File: 0889a34434e586e9.js
 1;
 ; // File: 08a39e4289b0c3f3.js
-T‍
+T
 ; // File: 08ba81b9af0132ea.js
 (function () {
     for (var a; a < 1; ++a);
@@ -1313,7 +1313,7 @@ function a() {
 }());
 
 ; // File: 300a638d978d0f2c.js
-T‍ = []
+T = []
 ; // File: 30142c5b79e4eea9.js
 // line comment
 1
@@ -1823,7 +1823,7 @@ a = { set b(c) { d = c } }
 a = b => false;
 a = () => false;
 ; // File: 44f31660bd715f05.js
-T‌ = []
+T = []
 ; // File: 45ab34717c038020.js
 for(;a;b);
 ; // File: 45d1662a41c9a1e9.js
@@ -2755,7 +2755,9 @@ import * as a from "a"
 ; // File: 6a220df693ce521c.js
 for (a(b in c)[1] in d);
 ; // File: 6a240463b40550d2.js
-// This test is ported from uglify-js1e20,1e21
+// This test is ported from uglify-js
+
+1e20,1e21
 ; // File: 6a323491fe75918a.js
 (function*() { yield 1; })
 
@@ -3760,7 +3762,8 @@ void void void /test/
 ; // File: 94be09b126b946b8.js
 `
 
-`
+
+`
 ; // File: 94c72b68d8726b07.js
 (1, a)
 ; // File: 94cb828d5dcfd136.js
@@ -4151,7 +4154,8 @@ var a = /[a-z]/i
 ; // File: a7964b1dcfd2dc21.js
 () => 1, 2
 ; // File: a7b8ce1d4c0f0bc2.js
-b: while (1) { continue  a; }
+b: while (1) { continue 
+ a; }
 ; // File: a7c8ad2a73ed00d0.js
 for (let [a, b] of c);
 
@@ -4707,7 +4711,8 @@ function arguments() { }
 ; // File: bdfc6c05edd19925.js
 /{}/;
 ; // File: be2c3fff6426873e.js
-/*ab*/ 1
+/*a
+b*/ 1
 ; // File: be2fd5888f434cbd.js
 (function () { 'use\nstrict'; with (a); })
 ; // File: be6eb70d9330c165.js
@@ -5360,7 +5365,8 @@ for(var a = 1;b;c);
 ; // File: d96153b59454dddd.js
 [1].a = 2
 ; // File: d97144839fbdca91.js
-('\')
+('\
+')
 ; // File: d99414900a405295.js
 a=(function(){ return 1;})()
 ; // File: d99714b3c4e81b56.js
@@ -5403,7 +5409,8 @@ a **= 1
 ; // File: db456532eea62941.js
 if (a) b(); else c()
 ; // File: db66e1e8f3f1faef.js
-b: while (1) { continue /**/ a; }
+b: while (1) { continue /*
+*/ a; }
 ; // File: db8fe6c7579e6ead.js
 { throw a
 a; }
@@ -6085,7 +6092,8 @@ delete (1, a)
 var a = 1;
 ; // File: fa58aa963031f8df.js
  /**
-
+
+
 **/
 ; // File: fa59ac4c41d26c14.js
 ({let})
