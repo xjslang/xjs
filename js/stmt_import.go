@@ -196,9 +196,9 @@ func parseDefaultImport(p *parser.Parser) (node *DefaultImportStmt, err error) {
 		if node.From, err = p.Expect(token.STRING); err != nil {
 			return
 		}
-	}
-	if node.Layout.Semi, err = ExpectSemi(p); err != nil {
-		return
+		if node.Layout.Semi, err = ExpectSemi(p); err != nil {
+			return
+		}
 	}
 	return
 }
