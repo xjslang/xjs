@@ -82,17 +82,18 @@ func TestCheckFiles(t *testing.T) {
 			data, err := os.ReadFile(file)
 			require.NoError(t, err)
 
-			// data -> AST
-			result, err := Parse(data)
+			result1, err := Parse(data)
 			require.NoError(t, err)
 
-			// AST -> code (only verify)
-			code, err := Print(result)
+			code1, err := Print(result1, printer.Compact())
 			require.NoError(t, err)
 
-			// verify printed code parses
-			_, err = Parse([]byte(code))
+			result2, err := Parse([]byte(code1))
 			require.NoError(t, err)
+
+			code2, err := Print(result2, printer.Compact())
+			require.NoError(t, err)
+			require.Equal(t, code1, code2)
 		})
 	}
 }
