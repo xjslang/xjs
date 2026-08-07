@@ -8,8 +8,8 @@ hero:
   tagline: In progress...
   actions:
     - theme: brand
-      text: Markdown Examples
-      link: /markdown-examples
+      text: Tutorial
+      link: /tutorial
     - theme: alt
       text: API Examples
       link: /api-examples
