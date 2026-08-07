@@ -12,10 +12,6 @@ type Builder struct {
 	binaryParsers []func(*Parser, ast.Expr, func(ast.Expr) (ast.Expr, error)) (ast.Expr, error)
 }
 
-func NewBuilder() *Builder {
-	return &Builder{}
-}
-
 func (b *Builder) UseStmtParser(parser func(p *Parser, next func() (ast.Stmt, error)) (ast.Stmt, error)) *Builder {
 	b.stmtParsers = append(b.stmtParsers, parser)
 	return b

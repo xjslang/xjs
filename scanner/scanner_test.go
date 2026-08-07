@@ -89,14 +89,16 @@ func assertLexerTokens(t *testing.T, sc *scanner.Scanner, expectedToks []token.T
 
 func assertInputTokens(t *testing.T, input string, expectedToks []token.Token, opts ...TokenCompareOption) {
 	t.Helper()
-	s := scanner.NewBuilder().Build([]byte(input))
+	sb := scanner.Builder{}
+	s := sb.Build([]byte(input))
 	assertLexerTokens(t, s, expectedToks, opts...)
 }
 
 func ExampleBuilder_Build() {
 	hashTyp := token.RegisterType("HASH", "#")
 	caretType := token.RegisterType("CARET", "^")
-	s := scanner.NewBuilder().
+	sb := scanner.Builder{}
+	s := sb.
 		UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
 			if sc.CurrentChar() == '#' {
 				sc.AdvanceChar()
@@ -127,7 +129,8 @@ func ExampleBuilder_Build() {
 }
 
 func BenchmarkLexer(b *testing.B) {
-	sc := scanner.NewBuilder().Build([]byte("lorem ipsum dolor"))
+	sb := scanner.Builder{}
+	sc := sb.Build([]byte("lorem ipsum dolor"))
 	var tok token.Token // prevent dead code elimination
 	for b.Loop() {
 		for tok = sc.NextToken(); tok.Type != token.EOF; tok = sc.NextToken() {
@@ -139,7 +142,8 @@ func BenchmarkLexer(b *testing.B) {
 
 func TestLookahead(t *testing.T) {
 	input := "a b c d e f"
-	sc := scanner.NewBuilder().Build([]byte(input))
+	sb := scanner.Builder{}
+	sc := sb.Build([]byte(input))
 	var toks []token.Token
 	for range 2 {
 		toks = append(toks, sc.NextToken())
@@ -201,7 +205,8 @@ func TestTokenPosition(t *testing.T) {
 
 func TestReset(t *testing.T) {
 	items := []string{"lorem", "ipsum", "dolor"}
-	sc := scanner.NewBuilder().Build([]byte(strings.Join(items, " ")))
+	sb := scanner.Builder{}
+	sc := sb.Build([]byte(strings.Join(items, " ")))
 	for range 2 {
 		var toks []token.Token
 		for tok := sc.NextToken(); tok.Type != token.EOF; tok = sc.NextToken() {
@@ -465,7 +470,8 @@ func TestReadString(t *testing.T) {
 
 func TestUseScanner(t *testing.T) {
 	powType := token.RegisterType("POW", "**")
-	sc := scanner.NewBuilder().
+	sb := scanner.Builder{}
+	sc := sb.
 		UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
 			if sc.CurrentChar() == '*' && sc.PeekChar() == '*' {
 				// consume **
@@ -492,7 +498,8 @@ func TestScanNumber(t *testing.T) {
 			"0o", // invalid octal number
 		}
 		for _, input := range inputs {
-			sc := scanner.NewBuilder().Build([]byte(input))
+			sb := scanner.Builder{}
+			sc := sb.Build([]byte(input))
 			_, err := scanner.ScanNumber(sc)
 			assert.Error(t, err)
 		}
@@ -502,7 +509,8 @@ func TestScanNumber(t *testing.T) {
 func TestSpecialRunes(t *testing.T) {
 	inputs := []string{"T\u200c", "A\u200d"}
 	for _, input := range inputs {
-		sc := scanner.NewBuilder().Build([]byte(input))
+		sb := scanner.Builder{}
+		sc := sb.Build([]byte(input))
 		tok := sc.NextToken()
 		require.Equal(t, token.IDENT, tok.Type)
 		require.Equal(t, input, tok.Literal)

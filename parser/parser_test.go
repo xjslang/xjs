@@ -28,8 +28,10 @@ type MyCustomStmt struct {
 }
 
 func ExampleBuilder_Build() {
-	s := scanner.NewBuilder().Build([]byte("print('Hello, World!')"))
-	p := parser.NewBuilder().
+	sb := scanner.Builder{}
+	s := sb.Build([]byte("print('Hello, World!')"))
+	pb := parser.Builder{}
+	p := pb.
 		UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (_ ast.Stmt, err error) {
 			if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "print" {
 				p.AdvanceToken()
@@ -84,8 +86,10 @@ func TestLookahead(t *testing.T) {
 
 	t.Run("resolved", func(t *testing.T) {
 		input := "b"
-		sc := scanner.NewBuilder().Build([]byte(input))
-		p := parser.NewBuilder().Build(sc)
+		sb := scanner.Builder{}
+		sc := sb.Build([]byte(input))
+		pb := parser.Builder{}
+		p := pb.Build(sc)
 		result, err := parser.Switch(p, func(p *parser.Parser) (*js.Variable, error) {
 			return parser1(p)
 		}, func(p *parser.Parser) (*js.Variable, error) {
@@ -98,8 +102,10 @@ func TestLookahead(t *testing.T) {
 
 	t.Run("not resolved", func(t *testing.T) {
 		input := "c"
-		sc := scanner.NewBuilder().Build([]byte(input))
-		p := parser.NewBuilder().Build(sc)
+		sb := scanner.Builder{}
+		sc := sb.Build([]byte(input))
+		pb := parser.Builder{}
+		p := pb.Build(sc)
 		_, err := parser.Switch(p, func(p *parser.Parser) (*js.Variable, error) {
 			return parser1(p)
 		}, func(p *parser.Parser) (*js.Variable, error) {
@@ -223,8 +229,10 @@ func TestExpectWith(t *testing.T) {
 	input := `// comment
 	/lorem ipsum dolor/gd
 	'lorem ipsum'`
-	sc := scanner.NewBuilder().Build([]byte(input))
-	p := parser.NewBuilder().Build(sc)
+	sb := scanner.Builder{}
+	sc := sb.Build([]byte(input))
+	pb := parser.Builder{}
+	p := pb.Build(sc)
 	tok, err := p.ExpectWith(scanRegex)
 	require.NoError(t, err)
 	require.Equal(t, tok.Literal, "/lorem ipsum dolor/gd")

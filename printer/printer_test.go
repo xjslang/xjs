@@ -21,7 +21,8 @@ type FactorialNode struct {
 }
 
 func ExampleBuilder_Build() {
-	pr := printer.NewBuilder().
+	pb := printer.Builder{}
+	pr := pb.
 		UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
 			if node, ok := node.(*FactorialNode); ok {
 				pr.Print(node.Value, "!")
@@ -41,7 +42,8 @@ func ExampleBuilder_Build() {
 
 func TestInit(t *testing.T) {
 	t.Run("with custom indent", func(t *testing.T) {
-		pr := printer.NewBuilder().Build(printer.WithIndent("\t"))
+		pb := printer.Builder{}
+		pr := pb.Build(printer.WithIndent("\t"))
 		pr.Print("begin:")
 		pr.IncreaseIndent()
 		pr.Line().Print("aaa")
@@ -66,7 +68,8 @@ func TestIndent(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			pr := printer.NewBuilder().Build(printer.WithIndent(test.indent))
+			pb := printer.Builder{}
+			pr := pb.Build(printer.WithIndent(test.indent))
 			pr.Print("block {\n")
 			pr.IncreaseIndent()
 			for i := range 3 {
@@ -180,7 +183,8 @@ func TestLastComment(t *testing.T) {
 }
 
 func TestLine(t *testing.T) {
-	pr := printer.NewBuilder().Build()
+	pb := printer.Builder{}
+	pr := pb.Build()
 	// calling Line at the beginning of a document does not print a new line
 	pr.Line()
 	pr.Print("aaa")
@@ -210,7 +214,8 @@ func TestLine(t *testing.T) {
 	}
 
 	t.Run("printing empty string does not consume ensureLine", func(t *testing.T) {
-		pr := printer.NewBuilder().Build()
+		pb := printer.Builder{}
+		pr := pb.Build()
 		pr.Print("aaa")
 		pr.Line()
 		pr.Print("")
@@ -220,7 +225,8 @@ func TestLine(t *testing.T) {
 	})
 
 	t.Run("printing empty string does not consume ensureSpace", func(t *testing.T) {
-		pr := printer.NewBuilder().Build()
+		pb := printer.Builder{}
+		pr := pb.Build()
 		pr.Print("aaa")
 		pr.Space()
 		pr.Print("")
@@ -231,7 +237,8 @@ func TestLine(t *testing.T) {
 }
 
 func TestSpace(t *testing.T) {
-	pr := printer.NewBuilder().Build()
+	pb := printer.Builder{}
+	pr := pb.Build()
 	// calling Space at the beginning of a document does not print a new space
 	pr.Space()
 	pr.Print("aaa")
@@ -267,7 +274,8 @@ type MyCustomStmt struct {
 }
 
 func TestBeside(t *testing.T) {
-	pr := printer.NewBuilder().
+	pb := printer.Builder{}
+	pr := pb.
 		UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
 			if v, ok := node.(*MyCustomStmt); ok {
 				pr.Line().Print(v.name)
@@ -291,7 +299,8 @@ func TestBeside(t *testing.T) {
 
 func TestPrint(t *testing.T) {
 	t.Run("append newlines and spaces before printing runes", func(t *testing.T) {
-		pr := printer.NewBuilder().Build()
+		pb := printer.Builder{}
+		pr := pb.Build()
 		pr.Print("aaa")
 		pr.Line().Print('b')
 		pr.Space().Print('c')
@@ -300,14 +309,16 @@ func TestPrint(t *testing.T) {
 		require.Equal(t, "aaa\nb c", out)
 	})
 	t.Run("panic on unsupported types", func(t *testing.T) {
-		pr := printer.NewBuilder().Build()
+		pb := printer.Builder{}
+		pr := pb.Build()
 		require.Panics(t, func() { pr.Print(true) })
 	})
 }
 
 func TestLineAndPrint(t *testing.T) {
 	t.Run("new line is added before printing", func(t *testing.T) {
-		pr := printer.NewBuilder().Build()
+		pb := printer.Builder{}
+		pr := pb.Build()
 		pr.Line().Print("aaa")
 		pr.Line().Print("bbb")
 		pr.Line().Print("ccc")
@@ -328,7 +339,8 @@ func TestSpacesTakePriorityOverLines(t *testing.T) {
 }
 
 func TestSpaceAndPrint(t *testing.T) {
-	pr := printer.NewBuilder().Build()
+	pb := printer.Builder{}
+	pr := pb.Build()
 	pr.Space().Print("aaa")
 	pr.Space().Print("bbb")
 	out, err := pr.Output()
@@ -338,7 +350,8 @@ func TestSpaceAndPrint(t *testing.T) {
 
 func TestPrintPriority(t *testing.T) {
 	t.Run("Beside takes priority over Space and Line", func(t *testing.T) {
-		pr := printer.NewBuilder().Build()
+		pb := printer.Builder{}
+		pr := pb.Build()
 		pr.Print("a")
 		pr.Beside().Space().Print("b")
 		pr.Beside().Line().Print("c")
@@ -347,7 +360,8 @@ func TestPrintPriority(t *testing.T) {
 		require.Equal(t, "abc", out)
 	})
 	t.Run("Space takes priority over Line", func(t *testing.T) {
-		pr := printer.NewBuilder().Build()
+		pb := printer.Builder{}
+		pr := pb.Build()
 		pr.Print("a")
 		pr.Space().Line().Print("b")
 		out, err := pr.Output()
@@ -355,7 +369,8 @@ func TestPrintPriority(t *testing.T) {
 		require.Equal(t, "a b", out)
 	})
 	t.Run("Line has the lowest priority", func(t *testing.T) {
-		pr := printer.NewBuilder().Build()
+		pb := printer.Builder{}
+		pr := pb.Build()
 		pr.Print("a")
 		pr.Line().Print("b")
 		out, err := pr.Output()
@@ -469,7 +484,8 @@ func TestErrorAt(t *testing.T) {
 }
 
 func TestError(t *testing.T) {
-	pr := printer.NewBuilder().Build()
+	pb := printer.Builder{}
+	pr := pb.Build()
 	pr.Print("aaa\nbbb")
 	err := pr.Error("something went wrong")
 	var errPos printer.Error

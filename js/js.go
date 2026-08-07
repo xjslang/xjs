@@ -11,7 +11,7 @@ import (
 var DEFAULT = token.RegisterType("DEFAULT", "default")
 
 func ScannerBuilder() *scanner.Builder {
-	sb := scanner.NewBuilder()
+	sb := &scanner.Builder{}
 	sb.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
 		if tok, err = next(); err != nil {
 			return
@@ -55,7 +55,7 @@ func ParserBuilder() *parser.Builder {
 	token.RegisterUnaryType(FUNCTION)
 	token.RegisterUnaryType(DELETE)
 
-	pb := parser.NewBuilder()
+	pb := &parser.Builder{}
 	pb.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (ast.Stmt, error) {
 		switch p.CurrentToken.Type {
 		case FUNCTION:
@@ -130,7 +130,8 @@ func ParserBuilder() *parser.Builder {
 }
 
 func PrinterBuilder() *printer.Builder {
-	return printer.NewBuilder().UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+	pb := &printer.Builder{}
+	pb.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
 		switch v := node.(type) {
 		case *Program:
 			return PrintProgram(pr, v)
@@ -201,4 +202,5 @@ func PrinterBuilder() *printer.Builder {
 		}
 		return next(node)
 	})
+	return pb
 }
