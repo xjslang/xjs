@@ -121,7 +121,8 @@ func TestMalformedExpr(t *testing.T) {
 			{"{ let x = 100", "} expected"},
 		}
 		for i, test := range tests {
-			p := xjs.PluginBuilder().Build([]byte(test.input))
+			sc := xjs.ScannerBuilder().Build([]byte(test.input))
+			p := xjs.ParserBuilder().Build(sc)
 			_, err := js.ParseBlockStmt(p)
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
@@ -140,7 +141,8 @@ func TestMalformedExpr(t *testing.T) {
 			{"(1 + 2", ") expected"},
 		}
 		for i, test := range tests {
-			p := xjs.PluginBuilder().Build([]byte(test.input))
+			sc := xjs.ScannerBuilder().Build([]byte(test.input))
+			p := xjs.ParserBuilder().Build(sc)
 			_, err := js.ParsePrefixParenOp(p)
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
@@ -163,7 +165,8 @@ func TestInvalidTokenAfterNewline(t *testing.T) {
 				} else {
 					input = test
 				}
-				p := xjs.PluginBuilder().Build([]byte(input))
+				sc := xjs.ScannerBuilder().Build([]byte(input))
+				p := xjs.ParserBuilder().Build(sc)
 				var err error
 				if i > 0 {
 					_, err = js.ParseBlockStmt(p)

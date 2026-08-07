@@ -9,7 +9,6 @@ import (
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
-	"github.com/xjslang/xjs/plugin"
 	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
@@ -432,22 +431,21 @@ func TestErrorAt(t *testing.T) {
 	spreadOp := token.RegisterType("SPREAD", "..")
 	token.RegisterUnaryType(spreadOp)
 
-	b := xjs.PluginBuilder().Install(func(b *plugin.Builder) {
-		b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
-			if tok, err = next(); err != nil {
-				return
-			}
-			// instruct the scanner to recognize the spread operator
-			if tok.Type == token.DOT {
-				if sc.CurrentChar() == '.' {
-					sc.AdvanceChar()
-					sc.AdvanceChar()
-					tok.Type = spreadOp
-					tok.Literal = ".."
-				}
-			}
+	sb := xjs.ScannerBuilder()
+	sb.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
+		if tok, err = next(); err != nil {
 			return
-		})
+		}
+		// instruct the scanner to recognize the spread operator
+		if tok.Type == token.DOT {
+			if sc.CurrentChar() == '.' {
+				sc.AdvanceChar()
+				sc.AdvanceChar()
+				tok.Type = spreadOp
+				tok.Literal = ".."
+			}
+		}
+		return
 	})
 
 	pr := xjs.PrinterBuilder().UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
@@ -461,7 +459,8 @@ func TestErrorAt(t *testing.T) {
 	}).Build()
 
 	input := `let x = ..rest`
-	p := b.Build([]byte(input))
+	sc := sb.Build([]byte(input))
+	p := xjs.ParserBuilder().Build(sc)
 	result, err := js.ParseProgram(p)
 	require.NoError(t, err)
 	pr.Print(result)
@@ -498,8 +497,8 @@ func TestPrinterContext(t *testing.T) {
 	asyncTyp := token.RegisterType("ASYNC", "async")
 	awaitTyp := token.RegisterType("AWAIT", "await")
 
-	b := xjs.PluginBuilder()
-	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
+	sb := xjs.ScannerBuilder()
+	sb.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
 		if tok, err = next(); err != nil {
 			return
 		}
@@ -513,7 +512,9 @@ func TestPrinterContext(t *testing.T) {
 		}
 		return
 	})
-	b.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (_ ast.Stmt, err error) {
+
+	pb := xjs.ParserBuilder()
+	pb.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (_ ast.Stmt, err error) {
 		switch p.CurrentToken.Type {
 		case asyncTyp:
 			node := &AsyncFunctionDecl{}
@@ -538,7 +539,8 @@ func TestPrinterContext(t *testing.T) {
 	input := `function fetchUserData() {
 		await http.fetch('/user/data')
 	}`
-	p := b.Build([]byte(input))
+	sc := sb.Build([]byte(input))
+	p := pb.Build(sc)
 	result, err := js.ParseProgram(p)
 	require.NoError(t, err)
 
