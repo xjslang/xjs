@@ -8,7 +8,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var AWAIT = token.RegisterType("await")
+var AWAIT = token.RegisterType("AWAIT", "await")
 
 type PrefixAwaitOp struct {
 	ast.BaseExpr

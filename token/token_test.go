@@ -4,6 +4,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs/token"
 )
 
@@ -15,7 +16,7 @@ func TestConcurrentTypeAccess(t *testing.T) {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			types[i] = token.RegisterType("aaa")
+			types[i] = token.RegisterType("aaa", "")
 		}(i)
 	}
 	wg.Wait()
@@ -28,4 +29,10 @@ func TestConcurrentTypeAccess(t *testing.T) {
 		}
 		seen[typ] = true
 	}
+}
+
+func TestRegisterType(t *testing.T) {
+	hashTyp := token.RegisterType("HASH", "#")
+	require.Equal(t, "HASH", hashTyp.Name())
+	require.Equal(t, "#", hashTyp.Literal())
 }

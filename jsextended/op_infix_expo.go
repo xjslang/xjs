@@ -8,7 +8,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var EXPO = token.RegisterType("**")
+var EXPO = token.RegisterType("EXPO", "**")
 
 type InfixExpoOp struct {
 	ast.BaseExpr

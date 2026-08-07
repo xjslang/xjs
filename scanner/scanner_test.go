@@ -94,8 +94,8 @@ func assertInputTokens(t *testing.T, input string, expectedToks []token.Token, o
 }
 
 func ExampleBuilder_Build() {
-	hashTyp := token.RegisterType("hash")
-	caretType := token.RegisterType("caret")
+	hashTyp := token.RegisterType("HASH", "#")
+	caretType := token.RegisterType("CARET", "^")
 	s := scanner.NewBuilder().
 		UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
 			if sc.CurrentChar() == '#' {
@@ -117,14 +117,13 @@ func ExampleBuilder_Build() {
 	for tok := s.NextToken(); tok.Type != token.EOF; tok = s.NextToken() {
 		fmt.Printf(
 			"{Type: %s, Literal: %s, Position: %v}\n",
-			tok.Type.Literal(),
-			tok.Literal, tok.Position)
+			tok.Type.Name(), tok.Literal, tok.Position)
 	}
 	// Output:
-	// {Type: hash, Literal: #, Position: {0 0 0}}
-	// {Type: identifier, Literal: some, Position: {0 1 1}}
-	// {Type: caret, Literal: ^, Position: {0 6 6}}
-	// {Type: identifier, Literal: input, Position: {0 7 8}}
+	// {Type: HASH, Literal: #, Position: {0 0 0}}
+	// {Type: IDENT, Literal: some, Position: {0 1 1}}
+	// {Type: CARET, Literal: ^, Position: {0 6 6}}
+	// {Type: IDENT, Literal: input, Position: {0 7 8}}
 }
 
 func BenchmarkLexer(b *testing.B) {
@@ -465,7 +464,7 @@ func TestReadString(t *testing.T) {
 }
 
 func TestUseScanner(t *testing.T) {
-	powType := token.RegisterType("**")
+	powType := token.RegisterType("POW", "**")
 	sc := scanner.NewBuilder().
 		UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
 			if sc.CurrentChar() == '*' && sc.PeekChar() == '*' {

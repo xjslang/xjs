@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	IF   = token.RegisterType("if")
-	ELSE = token.RegisterType("else")
+	IF   = token.RegisterType("IF", "if")
+	ELSE = token.RegisterType("ELSE", "else")
 )
 
 type IfStmt struct {

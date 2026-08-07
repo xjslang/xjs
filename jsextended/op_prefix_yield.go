@@ -8,7 +8,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var YIELD = token.RegisterType("yield")
+var YIELD = token.RegisterType("YIELD", "yield")
 
 type PrefixYieldOp struct {
 	ast.BaseExpr

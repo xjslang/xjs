@@ -8,7 +8,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var INSTANCEOF = token.RegisterType("instanceof")
+var INSTANCEOF = token.RegisterType("INSTANCEOF", "instanceof")
 
 type InfixInstanceofOp struct {
 	ast.BaseExpr

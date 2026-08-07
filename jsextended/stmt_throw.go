@@ -8,7 +8,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var THROW = token.RegisterType("throw")
+var THROW = token.RegisterType("THROW", "throw")
 
 type ThrowStmt struct {
 	ast.BaseStmt

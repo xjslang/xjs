@@ -13,7 +13,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var deferTyp = token.RegisterType("defer")
+var deferTyp = token.RegisterType("DEFER", "defer")
 
 type DeferStmt struct {
 	ast.BaseStmt

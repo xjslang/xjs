@@ -7,7 +7,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var EXPORT = token.RegisterType("export")
+var EXPORT = token.RegisterType("EXPORT", "export")
 
 type ExportStmt struct {
 	ast.BaseStmt

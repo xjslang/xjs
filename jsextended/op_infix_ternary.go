@@ -7,7 +7,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var TERNARY = token.RegisterType("?")
+var TERNARY = token.RegisterType("TERNARY", "?")
 
 type InfixTernaryOp struct {
 	ast.BaseExpr

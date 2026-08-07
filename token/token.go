@@ -19,14 +19,24 @@ type Scanner interface {
 
 type Type int
 
-func (tt Type) Literal() string {
+func (tt Type) Name() string {
 	registerMu.RLock()
 	defer registerMu.RUnlock()
-	lit, ok := tokenLiterals[tt]
+	info, ok := tokenInfo[tt]
 	if !ok {
 		return "unknown(" + strconv.Itoa(int(tt)) + ")"
 	}
-	return lit
+	return info.name
+}
+
+func (tt Type) Literal() string {
+	registerMu.RLock()
+	defer registerMu.RUnlock()
+	info, ok := tokenInfo[tt]
+	if !ok {
+		return "unknown(" + strconv.Itoa(int(tt)) + ")"
+	}
+	return info.literal
 }
 
 type Position struct {
@@ -89,50 +99,52 @@ const (
 	STRING        // '..' or ".."
 )
 
-var tokenLiterals = map[Type]string{
+var tokenInfo = map[Type]struct {
+	name, literal string
+}{
 	// special keywords
-	EOF:     "end of file",
-	IDENT:   "identifier",
-	ILLEGAL: "illegal",
-	UNKNOWN: "unknown",
+	EOF:     {"EOF", ""},
+	IDENT:   {"IDENT", "identifier"},
+	ILLEGAL: {"ILLEGAL", ""},
+	UNKNOWN: {"UNKNOWN", ""},
 	// operators
-	ASSIGN:   "=",
-	PLUS:     "+",
-	MINUS:    "-",
-	MULTIPLY: "*",
-	DIVIDE:   "/",
-	MODULO:   "%",
+	ASSIGN:   {"ASSIGN", "="},
+	PLUS:     {"PLUS", "+"},
+	MINUS:    {"MINUS", "-"},
+	MULTIPLY: {"MULTIPLY", "*"},
+	DIVIDE:   {"DIVIDE", "/"},
+	MODULO:   {"MODULO", "%"},
 	// incremental operators
-	INCREMENT: "++",
-	DECREMENT: "--",
+	INCREMENT: {"INCREMENT", "++"},
+	DECREMENT: {"DECREMENT", "--"},
 	// comparison operators
-	EQ:     "==",
-	NOT_EQ: "!=",
-	LT:     "<",
-	LTE:    "<=",
-	GT:     ">",
-	GTE:    ">=",
+	EQ:     {"EQ", "=="},
+	NOT_EQ: {"NOT_EQ", "!="},
+	LT:     {"LT", "<"},
+	LTE:    {"LTE", "<="},
+	GT:     {"GT", ">"},
+	GTE:    {"GTE", ">="},
 	// logical operators
-	AND: "&&",
-	OR:  "||",
-	NOT: "!",
+	AND: {"AND", "&&"},
+	OR:  {"OR", "||"},
+	NOT: {"NOT", "!"},
 	// delimiters
-	COMMA:     ",",
-	SEMICOLON: ";",
-	COLON:     ":",
-	DOT:       ".",
-	LPAREN:    "(",
-	RPAREN:    ")",
-	LBRACE:    "{",
-	RBRACE:    "}",
-	LBRACKET:  "[",
-	RBRACKET:  "]",
-	NEWLINE:   "new line",
+	COMMA:     {"COMMA", ","},
+	SEMICOLON: {"SEMICOLON", ";"},
+	COLON:     {"COLON", ":"},
+	DOT:       {"DOT", "."},
+	LPAREN:    {"LPAREN", "("},
+	RPAREN:    {"RPAREN", ")"},
+	LBRACE:    {"LBRACE", "{"},
+	RBRACE:    {"RBRACE", "}"},
+	LBRACKET:  {"LBRACKET", "["},
+	RBRACKET:  {"RBRACKET", "]"},
+	NEWLINE:   {"NEWLINE", "new line"},
 	// others
-	LINE_COMMENT:  "line comment",
-	BLOCK_COMMENT: "block comment",
-	STRING:        "string",
-	NUMBER:        "number",
+	LINE_COMMENT:  {"LINE_COMMENT", ""},
+	BLOCK_COMMENT: {"BLOCK_COMMENT", ""},
+	STRING:        {"STRING", ""},
+	NUMBER:        {"NUMBER", ""},
 }
 
 const initCustomType Type = 1000
@@ -142,11 +154,11 @@ var (
 	registerMu sync.RWMutex
 )
 
-func RegisterType(lit string) Type {
+func RegisterType(name, lit string) Type {
 	registerMu.Lock()
 	defer registerMu.Unlock()
 	typ := nextType
-	tokenLiterals[typ] = lit
+	tokenInfo[typ] = struct{ name, literal string }{name, lit}
 	nextType++
 	return typ
 }

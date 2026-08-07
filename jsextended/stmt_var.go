@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	CONST = token.RegisterType("const")
-	VAR   = token.RegisterType("var")
+	CONST = token.RegisterType("CONST", "const")
+	VAR   = token.RegisterType("VAR", "var")
 )
 
 type VarStmt struct {

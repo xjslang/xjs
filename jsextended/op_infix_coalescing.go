@@ -8,7 +8,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var COALESCING = token.RegisterType("??")
+var COALESCING = token.RegisterType("COALESCING", "??")
 
 type InfixCoalescingOp struct {
 	ast.BaseExpr

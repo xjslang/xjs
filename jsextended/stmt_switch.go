@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	SWITCH = token.RegisterType("switch")
-	CASE   = token.RegisterType("case")
+	SWITCH = token.RegisterType("SWITCH", "switch")
+	CASE   = token.RegisterType("CASE", "case")
 )
 
 type SwitchStmt struct {

@@ -8,7 +8,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var ARROW = token.RegisterType("=>")
+var ARROW = token.RegisterType("ARROW", "=>")
 
 type InfixArrowOp struct {
 	ast.BaseExpr

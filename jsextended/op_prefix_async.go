@@ -7,7 +7,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var ASYNC = token.RegisterType("async")
+var ASYNC = token.RegisterType("ASYNC", "async")
 
 type PrefixAsyncOp struct {
 	ast.BaseExpr
