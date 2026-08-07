@@ -19,7 +19,7 @@ type Scanner interface {
 
 type Type int
 
-func (tt Type) String() string {
+func (tt Type) Literal() string {
 	registerMu.RLock()
 	defer registerMu.RUnlock()
 	lit, ok := tokenLiterals[tt]

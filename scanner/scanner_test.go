@@ -117,7 +117,7 @@ func ExampleBuilder_Build() {
 	for tok := s.NextToken(); tok.Type != token.EOF; tok = s.NextToken() {
 		fmt.Printf(
 			"{Type: %s, Literal: %s, Position: %v}\n",
-			tok.Type.String(),
+			tok.Type.Literal(),
 			tok.Literal, tok.Position)
 	}
 	// Output:
@@ -472,7 +472,7 @@ func TestUseScanner(t *testing.T) {
 				// consume **
 				sc.AdvanceChar()
 				sc.AdvanceChar()
-				return token.Token{Type: powType, Literal: powType.String()}, nil
+				return token.Token{Type: powType, Literal: powType.Literal()}, nil
 			}
 			return next()
 		}).

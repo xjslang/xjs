@@ -122,7 +122,7 @@ func (p *Parser) AdvanceToken() {
 func (p *Parser) Expect(typ token.Type) (token.Token, error) {
 	tok := p.CurrentToken
 	if p.CurrentToken.Type != typ {
-		return tok, p.Error(typ.String() + " expected")
+		return tok, p.Error(typ.Literal() + " expected")
 	}
 	p.AdvanceToken()
 	return tok, nil
