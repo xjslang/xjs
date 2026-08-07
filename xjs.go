@@ -3,12 +3,14 @@ package xjs
 import (
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/js"
-	"github.com/xjslang/xjs/plugin"
+	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
+	"github.com/xjslang/xjs/scanner"
 )
 
 func Parse(input []byte) (*js.Program, error) {
-	p := PluginBuilder().Build(input)
+	sc := ScannerBuilder().Build(input)
+	p := ParserBuilder().Build(sc)
 	return js.ParseProgram(p)
 }
 
@@ -18,10 +20,14 @@ func Print(result ast.Node, opts ...printer.Option) (string, error) {
 	return pr.Output()
 }
 
-func PluginBuilder() *plugin.Builder {
-	return plugin.New().Install(js.Plugin)
+func ScannerBuilder() *scanner.Builder {
+	return js.ScannerBuilder()
+}
+
+func ParserBuilder() *parser.Builder {
+	return js.ParserBuilder()
 }
 
 func PrinterBuilder() *printer.Builder {
-	return printer.NewBuilder().UsePrinter(js.Printer)
+	return js.PrinterBuilder()
 }

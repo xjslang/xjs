@@ -8,7 +8,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/internal"
 	"github.com/xjslang/xjs/js"
@@ -19,12 +18,15 @@ import (
 )
 
 func Parse(input []byte) (*js.Program, error) {
-	p := xjs.PluginBuilder().Install(jsextended.Plugin).Build(input)
+	sb := jsextended.ScannerBuilder()
+	sc := sb.Build(input)
+	pb := jsextended.ParserBuilder()
+	p := pb.Build(sc)
 	return js.ParseProgram(p)
 }
 
 func Print(result ast.Node, opts ...printer.Option) (string, error) {
-	pr := xjs.PrinterBuilder().UsePrinter(jsextended.Printer).Build(opts...)
+	pr := jsextended.PrinterBuilder().Build(opts...)
 	pr.Print(result)
 	return pr.Output()
 }

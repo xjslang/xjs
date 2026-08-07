@@ -3,7 +3,6 @@ package js
 import (
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/parser"
-	"github.com/xjslang/xjs/plugin"
 	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
@@ -11,11 +10,9 @@ import (
 
 var DEFAULT = token.RegisterType("DEFAULT", "default")
 
-func Plugin(b *plugin.Builder) {
-	token.RegisterUnaryType(FUNCTION)
-	token.RegisterUnaryType(DELETE)
-
-	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
+func ScannerBuilder() *scanner.Builder {
+	sb := scanner.NewBuilder()
+	sb.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
 		if tok, err = next(); err != nil {
 			return
 		}
@@ -51,7 +48,15 @@ func Plugin(b *plugin.Builder) {
 		}
 		return
 	})
-	b.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (ast.Stmt, error) {
+	return sb
+}
+
+func ParserBuilder() *parser.Builder {
+	token.RegisterUnaryType(FUNCTION)
+	token.RegisterUnaryType(DELETE)
+
+	pb := parser.NewBuilder()
+	pb.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (ast.Stmt, error) {
 		switch p.CurrentToken.Type {
 		case FUNCTION:
 			return ParseFunctionDecl(p)
@@ -83,10 +88,10 @@ func Plugin(b *plugin.Builder) {
 		}
 		return ParseStmt(p)
 	})
-	b.UseExprParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
+	pb.UseExprParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
 		return ParseExpr(p)
 	})
-	b.UseUnaryParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
+	pb.UseUnaryParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
 		case FUNCTION:
 			return ParsePrefixFunctionOp(p)
@@ -101,7 +106,7 @@ func Plugin(b *plugin.Builder) {
 		}
 		return ParsePrefixOp(p)
 	})
-	b.UseBinaryParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
+	pb.UseBinaryParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
 		case token.ASSIGN:
 			return ParseInfixAssignOp(p, left)
@@ -121,76 +126,79 @@ func Plugin(b *plugin.Builder) {
 		}
 		return ParseInfixOp(p, left)
 	})
+	return pb
 }
 
-func Printer(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
-	switch v := node.(type) {
-	case *Program:
-		return PrintProgram(pr, v)
-	case *BlockStmt:
-		return PrintBlockStmt(pr, v)
-	case *IfStmt:
-		return PrintIfStmt(pr, v)
-	case *WhileStmt:
-		return PrintWhileStmt(pr, v)
-	case *FunctionDecl:
-		return PrintFunctionDecl(pr, v)
-	case *LetStmt:
-		return PrintLetStmt(pr, v)
-	case *ForStmt:
-		return PrintForStmt(pr, v)
-	case *PrefixFunctionOp:
-		return PrintPrefixFunctionOp(pr, v)
-	case *InfixParenOp:
-		return PrintInfixParenOp(pr, v)
-	case *InfixBracketOp:
-		return PrintInfixBracketOp(pr, v)
-	case *PrefixParenOp:
-		return PrintPrefixParenOp(pr, v)
-	case *PrefixBraceOp:
-		return PrintPrefixBraceOp(pr, v)
-	case *PrefixBracketOp:
-		return PrintPrefixBracketOp(pr, v)
-	case *PostfixIncOp:
-		return PrintPostfixIncOp(pr, v)
-	case *PostfixDecOp:
-		return PrintPostfixDecOp(pr, v)
-	case *InfixAssignOp:
-		return PrintInfixAssignOp(pr, v)
-	case *PrefixOp:
-		return PrintPrefixOp(pr, v)
-	case *InfixOp:
-		return PrintInfixOp(pr, v)
-	case *Ident:
-		return PrintIdent(pr, v)
-	case *Variable:
-		pr.Print(v.Token)
-		return nil
-	case *Literal:
-		pr.Print(v.Value)
-		return nil
-	case *ExprStmt:
-		return PrintExprStmt(pr, v)
-	case *ReturnStmt:
-		return PrintReturnStmt(pr, v)
-	case *BreakStmt:
-		return PrintBreakStmt(pr, v)
-	case *ContinueStmt:
-		return PrintContinueStmt(pr, v)
-	case *LabelStmt:
-		return PrintLabelStmt(pr, v)
-	case *InfixDotOp:
-		return PrintInfixDotOp(pr, v)
-	case *InfixCommaOp:
-		return PrintInfixCommaOp(pr, v)
-	case *SemiStmt:
-		return PrintSemiStmt(pr, v)
-	case *ImportStmt:
-		return PrintImportStmt(pr, v)
-	case *ExportStmt:
-		return PrintExportStmt(pr, v)
-	case *PrefixDeleteOp:
-		return PrintPrefixDeleteOp(pr, v)
-	}
-	return next(node)
+func PrinterBuilder() *printer.Builder {
+	return printer.NewBuilder().UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+		switch v := node.(type) {
+		case *Program:
+			return PrintProgram(pr, v)
+		case *BlockStmt:
+			return PrintBlockStmt(pr, v)
+		case *IfStmt:
+			return PrintIfStmt(pr, v)
+		case *WhileStmt:
+			return PrintWhileStmt(pr, v)
+		case *FunctionDecl:
+			return PrintFunctionDecl(pr, v)
+		case *LetStmt:
+			return PrintLetStmt(pr, v)
+		case *ForStmt:
+			return PrintForStmt(pr, v)
+		case *PrefixFunctionOp:
+			return PrintPrefixFunctionOp(pr, v)
+		case *InfixParenOp:
+			return PrintInfixParenOp(pr, v)
+		case *InfixBracketOp:
+			return PrintInfixBracketOp(pr, v)
+		case *PrefixParenOp:
+			return PrintPrefixParenOp(pr, v)
+		case *PrefixBraceOp:
+			return PrintPrefixBraceOp(pr, v)
+		case *PrefixBracketOp:
+			return PrintPrefixBracketOp(pr, v)
+		case *PostfixIncOp:
+			return PrintPostfixIncOp(pr, v)
+		case *PostfixDecOp:
+			return PrintPostfixDecOp(pr, v)
+		case *InfixAssignOp:
+			return PrintInfixAssignOp(pr, v)
+		case *PrefixOp:
+			return PrintPrefixOp(pr, v)
+		case *InfixOp:
+			return PrintInfixOp(pr, v)
+		case *Ident:
+			return PrintIdent(pr, v)
+		case *Variable:
+			pr.Print(v.Token)
+			return nil
+		case *Literal:
+			pr.Print(v.Value)
+			return nil
+		case *ExprStmt:
+			return PrintExprStmt(pr, v)
+		case *ReturnStmt:
+			return PrintReturnStmt(pr, v)
+		case *BreakStmt:
+			return PrintBreakStmt(pr, v)
+		case *ContinueStmt:
+			return PrintContinueStmt(pr, v)
+		case *LabelStmt:
+			return PrintLabelStmt(pr, v)
+		case *InfixDotOp:
+			return PrintInfixDotOp(pr, v)
+		case *InfixCommaOp:
+			return PrintInfixCommaOp(pr, v)
+		case *SemiStmt:
+			return PrintSemiStmt(pr, v)
+		case *ImportStmt:
+			return PrintImportStmt(pr, v)
+		case *ExportStmt:
+			return PrintExportStmt(pr, v)
+		case *PrefixDeleteOp:
+			return PrintPrefixDeleteOp(pr, v)
+		}
+		return next(node)
+	})
 }

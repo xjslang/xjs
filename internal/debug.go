@@ -8,11 +8,9 @@ import (
 )
 
 func Debug(node ast.Node) (string, error) {
-	pr := printer.NewBuilder().
-		UsePrinter(js.Printer).
-		UsePrinter(jsextended.Printer).
-		UsePrinter(debugger).
-		Build(printer.WithTrivia(false))
+	prb := jsextended.PrinterBuilder()
+	prb.UsePrinter(debugger)
+	pr := prb.Build(printer.WithTrivia(false))
 	pr.Print(node)
 	return pr.Output()
 }

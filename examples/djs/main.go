@@ -7,7 +7,6 @@ import (
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
-	"github.com/xjslang/xjs/plugin"
 	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
@@ -19,32 +18,6 @@ type DeferStmt struct {
 	ast.BaseStmt
 	DeferToken token.Token
 	Stmt       ast.Stmt
-}
-
-func djsPlugin(b *plugin.Builder) {
-	// the scanner that can read "defer"
-	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
-		if tok, err = next(); err != nil {
-			return
-		}
-		if tok.Type == token.IDENT && tok.Literal == "defer" {
-			tok.Type = deferTyp
-		}
-		return
-	})
-	// the parser can now parse "defer"
-	b.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (node ast.Stmt, err error) {
-		if p.CurrentToken.Type == deferTyp {
-			deferStmt := &DeferStmt{DeferToken: p.CurrentToken}
-			p.AdvanceToken() // consume "defer"
-			if deferStmt.Stmt, err = js.ParseStmt(p); err != nil {
-				return
-			}
-			node = deferStmt
-			return
-		}
-		return next()
-	})
 }
 
 func main() {
@@ -62,9 +35,33 @@ func main() {
 		}
 	}`
 
-	djsParser := xjs.PluginBuilder().
-		Install(djsPlugin).
-		Build([]byte(input))
+	sb := xjs.ScannerBuilder()
+	sb.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
+		if tok, err = next(); err != nil {
+			return
+		}
+		if tok.Type == token.IDENT && tok.Literal == "defer" {
+			tok.Type = deferTyp
+		}
+		return
+	})
+
+	pb := xjs.ParserBuilder()
+	pb.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (node ast.Stmt, err error) {
+		if p.CurrentToken.Type == deferTyp {
+			deferStmt := &DeferStmt{DeferToken: p.CurrentToken}
+			p.AdvanceToken() // consume "defer"
+			if deferStmt.Stmt, err = js.ParseStmt(p); err != nil {
+				return
+			}
+			node = deferStmt
+			return
+		}
+		return next()
+	})
+
+	sc := sb.Build([]byte(input))
+	djsParser := pb.Build(sc)
 	node, err := js.ParseProgram(djsParser)
 	if err != nil {
 		panic(err)
