@@ -9,9 +9,9 @@ import (
 )
 
 var (
-	TRY     = token.RegisterType("try")
-	CATCH   = token.RegisterType("catch")
-	FINALLY = token.RegisterType("finally")
+	TRY     = token.RegisterType("TRY", "try")
+	CATCH   = token.RegisterType("CATCH", "catch")
+	FINALLY = token.RegisterType("FINALLY", "finally")
 )
 
 type TryStmt struct {

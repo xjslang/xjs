@@ -8,7 +8,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var TYPEOF = token.RegisterType("typeof")
+var TYPEOF = token.RegisterType("TYPEOF", "typeof")
 
 type PrefixTypeofOp struct {
 	ast.BaseExpr

@@ -429,7 +429,7 @@ func TestCompact(t *testing.T) {
 }
 
 func TestErrorAt(t *testing.T) {
-	spreadOp := token.RegisterType("..")
+	spreadOp := token.RegisterType("SPREAD", "..")
 	token.RegisterUnaryType(spreadOp)
 
 	b := xjs.PluginBuilder().Install(func(b *plugin.Builder) {
@@ -495,8 +495,8 @@ type AwaitStmt struct {
 }
 
 func TestPrinterContext(t *testing.T) {
-	asyncTyp := token.RegisterType("async")
-	awaitTyp := token.RegisterType("await")
+	asyncTyp := token.RegisterType("ASYNC", "async")
+	awaitTyp := token.RegisterType("AWAIT", "await")
 
 	b := xjs.PluginBuilder()
 	b.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {

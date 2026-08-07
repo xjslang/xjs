@@ -8,7 +8,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var SPREAD = token.RegisterType("...")
+var SPREAD = token.RegisterType("SPREAD", "...")
 
 type PrefixSpreadOp struct {
 	ast.BaseExpr

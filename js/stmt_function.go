@@ -7,7 +7,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var FUNCTION = token.RegisterType("function")
+var FUNCTION = token.RegisterType("FUNCTION", "function")
 
 type FunctionDecl struct {
 	ast.BaseDecl

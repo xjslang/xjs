@@ -8,7 +8,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var VOID = token.RegisterType("void")
+var VOID = token.RegisterType("VOID", "void")
 
 type PrefixVoidOp struct {
 	ast.BaseExpr

@@ -9,7 +9,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var DEFAULT = token.RegisterType("default")
+var DEFAULT = token.RegisterType("DEFAULT", "default")
 
 func Plugin(b *plugin.Builder) {
 	token.RegisterUnaryType(FUNCTION)

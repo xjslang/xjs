@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	startTag  = token.RegisterType("start-tag")
-	endTag    = token.RegisterType("end-tag")
-	concatTag = token.RegisterType("concat")
+	startTag  = token.RegisterType("START_TAG", "<")
+	endTag    = token.RegisterType("END_TAG", "</")
+	concatTag = token.RegisterType("CONCAT", "|")
 )
 
 type Tag struct {

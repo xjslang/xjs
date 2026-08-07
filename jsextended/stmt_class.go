@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	CLASS   = token.RegisterType("class")
-	EXTENDS = token.RegisterType("extends")
+	CLASS   = token.RegisterType("CLASS", "class")
+	EXTENDS = token.RegisterType("EXTENDS", "extends")
 )
 
 type ClassField struct {

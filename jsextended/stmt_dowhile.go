@@ -8,7 +8,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var DO = token.RegisterType("do")
+var DO = token.RegisterType("DO", "do")
 
 type DoWhileStmt struct {
 	ast.BaseStmt

@@ -7,7 +7,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var CONTINUE = token.RegisterType("continue")
+var CONTINUE = token.RegisterType("CONTINUE", "continue")
 
 type ContinueStmt struct {
 	ast.BaseStmt

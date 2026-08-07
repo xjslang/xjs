@@ -7,7 +7,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var BREAK = token.RegisterType("break")
+var BREAK = token.RegisterType("BREAK", "break")
 
 type BreakStmt struct {
 	ast.BaseStmt

@@ -7,7 +7,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var WHILE = token.RegisterType("while")
+var WHILE = token.RegisterType("WHILE", "while")
 
 type WhileStmt struct {
 	ast.BaseStmt

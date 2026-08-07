@@ -7,7 +7,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var DELETE = token.RegisterType("delete")
+var DELETE = token.RegisterType("DELETE", "delete")
 
 type PrefixDeleteOp struct {
 	ast.BaseExpr

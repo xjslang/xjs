@@ -7,7 +7,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var LET = token.RegisterType("let")
+var LET = token.RegisterType("LET", "let")
 
 type LetStmt struct {
 	ast.BaseDecl

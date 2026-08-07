@@ -7,7 +7,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var RETURN = token.RegisterType("return")
+var RETURN = token.RegisterType("RETURN", "return")
 
 type ReturnStmt struct {
 	ast.BaseStmt

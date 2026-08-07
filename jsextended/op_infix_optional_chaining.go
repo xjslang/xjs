@@ -8,7 +8,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var OPTIONAL_CHAINING = token.RegisterType("?.")
+var OPTIONAL_CHAINING = token.RegisterType("OPTIONAL_CHAINING", "?.")
 
 type InfixOptionalChainingOp struct {
 	ast.BaseExpr

@@ -7,7 +7,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var IMPORT = token.RegisterType("import")
+var IMPORT = token.RegisterType("IMPORT", "import")
 
 type ImportStmt struct {
 	ast.BaseStmt

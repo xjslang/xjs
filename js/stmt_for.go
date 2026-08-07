@@ -7,7 +7,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var FOR = token.RegisterType("for")
+var FOR = token.RegisterType("FOR", "for")
 
 type ForStmt struct {
 	ast.BaseStmt

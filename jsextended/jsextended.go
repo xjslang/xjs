@@ -12,31 +12,31 @@ import (
 
 var (
 	// strict equality
-	STRICT_EQ     = token.RegisterType("===")
-	STRICT_NOT_EQ = token.RegisterType("!==")
+	STRICT_EQ     = token.RegisterType("STRICT_EQ", "===")
+	STRICT_NOT_EQ = token.RegisterType("STRICT_NOT_EQ", "!==")
 	// compound assignment
-	PLUS_ASSIGN     = token.RegisterType("+=")
-	MINUS_ASSIGN    = token.RegisterType("-=")
-	MULTIPLY_ASSIGN = token.RegisterType("*=")
-	DIVIDE_ASSIGN   = token.RegisterType("/=")
-	MODULO_ASSIGN   = token.RegisterType("%=")
-	OR_ASSIGN       = token.RegisterType("|=")
-	XOR_ASSIGN      = token.RegisterType("^=")
-	AND_ASSIGN      = token.RegisterType("&=")
-	EXPO_ASSIGN     = token.RegisterType("**=")
-	SHL_ASSIGN      = token.RegisterType("<<=")
-	SHR_ASSIGN      = token.RegisterType(">>=")
-	USHR_ASSIGN     = token.RegisterType(">>>=")
+	PLUS_ASSIGN     = token.RegisterType("PLUS_ASSIGN", "+=")
+	MINUS_ASSIGN    = token.RegisterType("MINUS_ASSIGN", "-=")
+	MULTIPLY_ASSIGN = token.RegisterType("MULTIPLY_ASSIGN", "*=")
+	DIVIDE_ASSIGN   = token.RegisterType("DIVIDE_ASSIGN", "/=")
+	MODULO_ASSIGN   = token.RegisterType("MODULO_ASSIGN", "%=")
+	OR_ASSIGN       = token.RegisterType("OR_ASSIGN", "|=")
+	XOR_ASSIGN      = token.RegisterType("XOR_ASSIGN", "^=")
+	AND_ASSIGN      = token.RegisterType("AND_ASSIGN", "&=")
+	EXPO_ASSIGN     = token.RegisterType("EXPO_ASSIGN", "**=")
+	SHL_ASSIGN      = token.RegisterType("SHL_ASSIGN", "<<=")
+	SHR_ASSIGN      = token.RegisterType("SHR_ASSIGN", ">>=")
+	USHR_ASSIGN     = token.RegisterType("USHR_ASSIGN", ">>>=")
 	// bitwise
-	NOT_BITWISE  = token.RegisterType("~")
-	AND_BITWISE  = token.RegisterType("&")
-	OR_BITWISE   = token.RegisterType("|")
-	XOR_BITWISE  = token.RegisterType("^")
-	SHL_BITWISE  = token.RegisterType("<<")
-	SHR_BITWISE  = token.RegisterType(">>")
-	USHR_BITWISE = token.RegisterType(">>>") // unsigned SHR
+	NOT_BITWISE  = token.RegisterType("NOT_BITWISE", "~")
+	AND_BITWISE  = token.RegisterType("AND_BITWISE", "&")
+	OR_BITWISE   = token.RegisterType("OR_BITWISE", "|")
+	XOR_BITWISE  = token.RegisterType("XOR_BITWISE", "^")
+	SHL_BITWISE  = token.RegisterType("SHL_BITWISE", "<<")
+	SHR_BITWISE  = token.RegisterType("SHR_BITWISE", ">>")
+	USHR_BITWISE = token.RegisterType("USHR_BITWISE", ">>>") // unsigned SHR
 	// others
-	IN = token.RegisterType("in")
+	IN = token.RegisterType("IN", "in")
 )
 
 func Plugin(b *plugin.Builder) {

@@ -8,7 +8,7 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-var NEW = token.RegisterType("new")
+var NEW = token.RegisterType("NEW", "new")
 
 type PrefixNewOp struct {
 	ast.BaseExpr
