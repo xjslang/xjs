@@ -6,10 +6,6 @@ type Builder struct {
 	scanners []func(*Scanner, func() (token.Token, error)) (token.Token, error)
 }
 
-func NewBuilder() *Builder {
-	return &Builder{}
-}
-
 func (b *Builder) UseScanner(scanner func(sc *Scanner, next func() (token.Token, error)) (token.Token, error)) *Builder {
 	b.scanners = append(b.scanners, scanner)
 	return b

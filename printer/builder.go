@@ -6,10 +6,6 @@ type Builder struct {
 	printers []func(*Printer, ast.Node, func(ast.Node) error) error
 }
 
-func NewBuilder() *Builder {
-	return &Builder{}
-}
-
 func (b *Builder) UsePrinter(printer func(pr *Printer, node ast.Node, next func(node ast.Node) error) error) *Builder {
 	b.printers = append(b.printers, printer)
 	return b
