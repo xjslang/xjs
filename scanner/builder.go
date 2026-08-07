@@ -10,16 +10,16 @@ func NewBuilder() *Builder {
 	return &Builder{}
 }
 
-func (b *Builder) UseScanner(scanner func(s *Scanner, next func() (token.Token, error)) (token.Token, error)) *Builder {
+func (b *Builder) UseScanner(scanner func(sc *Scanner, next func() (token.Token, error)) (token.Token, error)) *Builder {
 	b.scanners = append(b.scanners, scanner)
 	return b
 }
 
 func (b *Builder) Build(input []byte) *Scanner {
-	s := &Scanner{}
+	sc := &Scanner{}
 	for _, scanner := range b.scanners {
-		s.useScanner(scanner)
+		sc.useScanner(scanner)
 	}
-	s.init(input)
-	return s
+	sc.init(input)
+	return sc
 }
