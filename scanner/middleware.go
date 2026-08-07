@@ -104,10 +104,10 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 		}
 	case '*':
 		s.AdvanceChar()
-		tok = token.Token{Type: token.MULTIPLY, Literal: token.MULTIPLY.String()}
+		tok = token.Token{Type: token.MULTIPLY, Literal: token.MULTIPLY.Literal()}
 	case '%':
 		s.AdvanceChar()
-		tok = token.Token{Type: token.MODULO, Literal: token.MODULO.String()}
+		tok = token.Token{Type: token.MODULO, Literal: token.MODULO.Literal()}
 	// divide operator and comments
 	case '/':
 		c := s.currentChar
