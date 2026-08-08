@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/xjslang/xjs"
+	"github.com/xjslang/xjs/internal"
 )
 
 func usage() {
@@ -66,7 +67,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	program, err := xjs.Parse(data)
+	program, err := internal.Parse(data)
 
 	// prints errors
 	if checkFlag {

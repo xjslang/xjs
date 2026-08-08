@@ -8,7 +8,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/internal"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xorcare/golden"
@@ -24,11 +23,11 @@ func TestRoundtripFiles(t *testing.T) {
 			require.NoError(t, err)
 
 			// data -> AST
-			result, err := xjs.Parse(data)
+			result, err := internal.Parse(data)
 			require.NoError(t, err)
 
 			// AST -> code
-			code, err := xjs.Print(result)
+			code, err := internal.Print(result)
 			require.NoError(t, err)
 
 			assert.Equal(t, string(data), code)
@@ -46,7 +45,7 @@ func TestDebugFiles(t *testing.T) {
 			require.NoError(t, err)
 
 			// data -> AST
-			result, err := xjs.Parse(data)
+			result, err := internal.Parse(data)
 			require.NoError(t, err)
 
 			// AST -> code
@@ -68,15 +67,15 @@ func TestCheckFiles(t *testing.T) {
 			require.NoError(t, err)
 
 			// data -> AST
-			result, err := xjs.Parse(data)
+			result, err := internal.Parse(data)
 			require.NoError(t, err)
 
 			// AST -> code
-			code, err := xjs.Print(result)
+			code, err := internal.Print(result)
 			require.NoError(t, err)
 
 			// verify printed code parses
-			_, err = xjs.Parse([]byte(code))
+			_, err = internal.Parse([]byte(code))
 			require.NoError(t, err)
 		})
 	}
@@ -92,7 +91,7 @@ func TestErrorFiles(t *testing.T) {
 			require.NoError(t, err)
 
 			// data -> AST
-			_, errs := xjs.Parse(data)
+			_, errs := internal.Parse(data)
 			require.Error(t, errs)
 			require.IsType(t, parser.ErrorList{}, errs)
 
