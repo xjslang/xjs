@@ -16,12 +16,12 @@ func (p *Parser) usePrefixOpParser(parser func(p *Parser, next func() (ast.Expr,
 	}
 }
 
-func (p *Parser) useBinaryParser(parser func(p *Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error)) {
-	next := p.binaryExprParser
+func (p *Parser) useInfixOpParser(parser func(p *Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error)) {
+	next := p.infixOpParser
 	if next == nil {
-		next = defaultBinaryParser
+		next = infixOpParser
 	}
-	p.binaryExprParser = func(p *Parser, left ast.Expr) (ast.Expr, error) {
+	p.infixOpParser = func(p *Parser, left ast.Expr) (ast.Expr, error) {
 		return parser(p, left, func(left ast.Expr) (ast.Expr, error) {
 			return next(p, left)
 		})
@@ -56,8 +56,8 @@ func defaultPrefixOpParser(p *Parser) (ast.Expr, error) {
 	return nil, p.Error("unknown prefix operator")
 }
 
-func defaultBinaryParser(p *Parser, _ ast.Expr) (ast.Expr, error) {
-	return nil, p.Error("unknown binary operator")
+func infixOpParser(p *Parser, _ ast.Expr) (ast.Expr, error) {
+	return nil, p.Error("unknown infix operator")
 }
 
 func defaultStmtParser(p *Parser) (ast.Stmt, error) {

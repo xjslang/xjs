@@ -90,7 +90,7 @@ func jsxPrefixOpParser(p *parser.Parser, next func() (ast.Expr, error)) (_ ast.E
 	return next()
 }
 
-func jsxBinaryParser(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (_ ast.Expr, err error) {
+func jsxInfixOpParser(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (_ ast.Expr, err error) {
 	if p.CurrentToken.Type == concatTag {
 		node := &ConcatExpr{Left: left}
 		p.AdvanceToken()
@@ -104,14 +104,14 @@ func jsxBinaryParser(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (
 
 func Parse(input []byte) (*js.Program, error) {
 	token.RegisterPrefixOp(startTag)
-	token.RegisterInfixOpType(concatTag, token.OR.Precedence())
+	token.RegisterInfixOp(concatTag, token.OR.Precedence())
 
 	sb := xjs.ScannerBuilder()
 	sb.UseScanner(jsxScanner)
 
 	pb := xjs.ParserBuilder()
 	pb.UsePrefixOpParser(jsxPrefixOpParser)
-	pb.UseBinaryParser(jsxBinaryParser)
+	pb.UseInfixOpParser(jsxInfixOpParser)
 
 	sc := sb.Build(input)
 	p := pb.Build(sc)

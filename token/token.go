@@ -163,7 +163,7 @@ func RegisterType(name, lit string) Type {
 	return typ
 }
 
-var binaryOps = map[Type]int{
+var infixOps = map[Type]int{
 	COMMA: 0,
 	// =
 	ASSIGN: 1000,
@@ -194,24 +194,24 @@ var binaryOps = map[Type]int{
 	DECREMENT: 8000,
 }
 
-func (typ Type) IsBinaryOp() (ok bool) {
+func (typ Type) IsInfixOp() (ok bool) {
 	registerMu.RLock()
 	defer registerMu.RUnlock()
-	_, ok = binaryOps[typ]
+	_, ok = infixOps[typ]
 	return
 }
 
 func (typ Type) Precedence() int {
 	registerMu.RLock()
 	defer registerMu.RUnlock()
-	return binaryOps[typ]
+	return infixOps[typ]
 }
 
-// RegisterBinaryType registers a token type as a "binary operator".
-func RegisterBinaryType(typ Type, precedence int) {
+// RegisterInfixOp registers a token type as a "infix operator".
+func RegisterInfixOp(typ Type, precedence int) {
 	registerMu.Lock()
 	defer registerMu.Unlock()
-	binaryOps[typ] = precedence
+	infixOps[typ] = precedence
 }
 
 var prefixOpTypes = map[Type]bool{

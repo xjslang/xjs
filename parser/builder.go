@@ -9,7 +9,7 @@ type Builder struct {
 	stmtParsers     []func(*Parser, func() (ast.Stmt, error)) (ast.Stmt, error)
 	exprParsers     []func(*Parser, func() (ast.Expr, error)) (ast.Expr, error)
 	prefixOpParsers []func(*Parser, func() (ast.Expr, error)) (ast.Expr, error)
-	binaryParsers   []func(*Parser, ast.Expr, func(ast.Expr) (ast.Expr, error)) (ast.Expr, error)
+	infixOpParsers  []func(*Parser, ast.Expr, func(ast.Expr) (ast.Expr, error)) (ast.Expr, error)
 }
 
 func (b *Builder) UseStmtParser(parser func(p *Parser, next func() (ast.Stmt, error)) (ast.Stmt, error)) *Builder {
@@ -27,8 +27,8 @@ func (b *Builder) UsePrefixOpParser(parser func(p *Parser, next func() (ast.Expr
 	return b
 }
 
-func (b *Builder) UseBinaryParser(parser func(p *Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error)) *Builder {
-	b.binaryParsers = append(b.binaryParsers, parser)
+func (b *Builder) UseInfixOpParser(parser func(p *Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error)) *Builder {
+	b.infixOpParsers = append(b.infixOpParsers, parser)
 	return b
 }
 
@@ -43,8 +43,8 @@ func (b *Builder) Build(sc token.Scanner) *Parser {
 	for _, prefixOpParser := range b.prefixOpParsers {
 		p.usePrefixOpParser(prefixOpParser)
 	}
-	for _, binaryExpr := range b.binaryParsers {
-		p.useBinaryParser(binaryExpr)
+	for _, infirOpParser := range b.infixOpParsers {
+		p.useInfixOpParser(infirOpParser)
 	}
 	p.init(sc)
 	return p

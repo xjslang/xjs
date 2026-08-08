@@ -24,7 +24,7 @@ func ParseInfixOptionalChainingOp(p *parser.Parser, left ast.Expr) (node *InfixO
 	if node.Layout.OptionalChaining, err = p.Expect(OPTIONAL_CHAINING); err != nil {
 		return
 	}
-	// TODO: ParseInfixOptionalChainingOp delegates to js.ParseRightExpr. When the token after `?.` is `(`, ParseRightExpr parses it as a PrefixParenOp (see js.ParsePrefixParenOp), so `fn?.(a, b)` will fail at the comma (PrefixParenOp only parses a single expression and then expects `)`), and `?.[` will be treated as starting an array literal instead of optional element access. Optional chaining needs to parse the specific postfix forms (`?.ident`, `?.(args...)`, `?.[expr]`) similarly to how the core parser handles `.`, `(`, and `[` as binary postfix operators.
+	// TODO: ParseInfixOptionalChainingOp delegates to js.ParseRightExpr. When the token after `?.` is `(`, ParseRightExpr parses it as a PrefixParenOp (see js.ParsePrefixParenOp), so `fn?.(a, b)` will fail at the comma (PrefixParenOp only parses a single expression and then expects `)`), and `?.[` will be treated as starting an array literal instead of optional element access. Optional chaining needs to parse the specific postfix forms (`?.ident`, `?.(args...)`, `?.[expr]`) similarly to how the core parser handles `.`, `(`, and `[` as infix postfix operators.
 	if node.Right, err = js.ParseRightExpr(p, node.Layout.OptionalChaining.Type.Precedence()); err != nil {
 		return
 	}
