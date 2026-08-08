@@ -52,8 +52,8 @@ func ScannerBuilder() *scanner.Builder {
 }
 
 func ParserBuilder() *parser.Builder {
-	token.RegisterUnaryType(FUNCTION)
-	token.RegisterUnaryType(DELETE)
+	token.RegisterPrefixOp(FUNCTION)
+	token.RegisterPrefixOp(DELETE)
 
 	pb := &parser.Builder{}
 	pb.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (ast.Stmt, error) {
@@ -91,7 +91,7 @@ func ParserBuilder() *parser.Builder {
 	pb.UseExprParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
 		return ParseExpr(p)
 	})
-	pb.UseUnaryParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
+	pb.UsePrefixOpParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
 		case FUNCTION:
 			return ParsePrefixFunctionOp(p)

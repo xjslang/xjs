@@ -54,7 +54,7 @@ func ParseRightExpr(p *parser.Parser, precedence int) (val ast.Expr, err error) 
 
 func ParseValue(p *parser.Parser) (ast.Expr, error) {
 	typ := p.CurrentToken.Type
-	if typ.IsUnaryOp() {
+	if typ.IsPrefixOp() {
 		return p.ParsePrefixOp()
 	}
 	switch typ {

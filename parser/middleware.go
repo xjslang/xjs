@@ -4,12 +4,12 @@ import (
 	"github.com/xjslang/xjs/ast"
 )
 
-func (p *Parser) useUnaryParser(parser func(p *Parser, next func() (ast.Expr, error)) (ast.Expr, error)) {
-	next := p.unaryExprParser
+func (p *Parser) usePrefixOpParser(parser func(p *Parser, next func() (ast.Expr, error)) (ast.Expr, error)) {
+	next := p.prefixOpParser
 	if next == nil {
-		next = defaultUnaryParser
+		next = defaultPrefixOpParser
 	}
-	p.unaryExprParser = func(p *Parser) (ast.Expr, error) {
+	p.prefixOpParser = func(p *Parser) (ast.Expr, error) {
 		return parser(p, func() (ast.Expr, error) {
 			return next(p)
 		})
@@ -52,8 +52,8 @@ func (p *Parser) useExprParser(parser func(p *Parser, next func() (ast.Expr, err
 	}
 }
 
-func defaultUnaryParser(p *Parser) (ast.Expr, error) {
-	return nil, p.Error("unknown unary operator")
+func defaultPrefixOpParser(p *Parser) (ast.Expr, error) {
+	return nil, p.Error("unknown prefix operator")
 }
 
 func defaultBinaryParser(p *Parser, _ ast.Expr) (ast.Expr, error) {

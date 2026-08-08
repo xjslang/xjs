@@ -83,7 +83,7 @@ func jsxScanner(sc *scanner.Scanner, next func() (token.Token, error)) (tok toke
 	return
 }
 
-func jsxUnaryParser(p *parser.Parser, next func() (ast.Expr, error)) (_ ast.Expr, err error) {
+func jsxPrefixOpParser(p *parser.Parser, next func() (ast.Expr, error)) (_ ast.Expr, err error) {
 	if p.CurrentToken.Type == startTag {
 		return parseTag(p)
 	}
@@ -103,14 +103,14 @@ func jsxBinaryParser(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (
 }
 
 func Parse(input []byte) (*js.Program, error) {
-	token.RegisterUnaryType(startTag)
-	token.RegisterBinaryType(concatTag, token.OR.Precedence())
+	token.RegisterPrefixOp(startTag)
+	token.RegisterInfixOpType(concatTag, token.OR.Precedence())
 
 	sb := xjs.ScannerBuilder()
 	sb.UseScanner(jsxScanner)
 
 	pb := xjs.ParserBuilder()
-	pb.UseUnaryParser(jsxUnaryParser)
+	pb.UsePrefixOpParser(jsxPrefixOpParser)
 	pb.UseBinaryParser(jsxBinaryParser)
 
 	sc := sb.Build(input)
