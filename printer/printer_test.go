@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs"
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/internal"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
@@ -129,7 +130,7 @@ func TestPrintInfixParenOp(t *testing.T) {
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("exp %d", i), func(t *testing.T) {
-			node, err := xjs.Parse([]byte(test.input))
+			node, err := internal.Parse([]byte(test.input))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -165,7 +166,7 @@ func TestLastComment(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			node, err := xjs.Parse([]byte(test.input))
+			node, err := internal.Parse([]byte(test.input))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -391,7 +392,7 @@ func TestWithComments(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			result, err := xjs.Parse([]byte(input))
+			result, err := internal.Parse([]byte(input))
 			require.NoError(t, err)
 			test.pr.Print(result)
 			out, err := test.pr.Output()
@@ -414,7 +415,7 @@ func TestWithNewLines(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			result, err := xjs.Parse([]byte(input))
+			result, err := internal.Parse([]byte(input))
 			require.NoError(t, err)
 			test.pr.Print(result)
 			out, err := test.pr.Output()
@@ -435,9 +436,9 @@ func TestCompact(t *testing.T) {
 	let x = 100
 	/* b */
 	let y = 200`
-	result, err := xjs.Parse([]byte(input))
+	result, err := internal.Parse([]byte(input))
 	require.NoError(t, err)
-	out, err := xjs.Print(result, printer.Compact())
+	out, err := internal.Print(result, printer.Compact())
 	require.NoError(t, err)
 	golden.Assert(t, []byte(out))
 }
