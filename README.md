@@ -1,69 +1,43 @@
 # XJS (eXtensible JavaScript parser)
 
-That is, we can design our own constructs so that the parser knows how to "interpret" them, even when they are not part of the ECMAScript standard.
+XJS is a tool for creating JavaScript dialects. It comes with two packages:
 
-> [!NOTE]  
-> **XJS is not a complete JavaScript parser**, as that is outside the scope of the project. For example, XJS does not support `arrow functions` or `try / catch`. However, we can create plugins that support those and other constructs.
+- `js`: a simplified version of JavaScript, without arrow functions, try/catch, etc.
+- `jsextended`: an "extended" version of JavaScript with additional syntax and features.
+Use one or the other depending on the kind of dialect you want to build.
+
+## What is a Scanner, a Parser and a Printer?
+
+The parsing process is divided into three responsibilities:
+
+- `scanner.Scanner`: splits or "tokenizes" the input into tokens, which are later processed by the parser.
+- `parser.Parser`: interprets the tokens and produces the AST (Abstract Syntax Tree).
+- `printer.Printer`: turns AST nodes back into code, whether compiled, formatted, or otherwise. Each printer has a different purpose.
 
 ## How does it work?
 
-The `xjs` package exposes the `PluginBuilder` and `PrinterBuilder` functions to create our own custom parsers and printers.
+It works by intercepting the parsing flow at strategic points and adding custom scanners, parsers, and printers. This is done through the following methods:
 
-The first step is to create a custom parser that transforms the input code into an AST (Abstract Syntax Tree). That input code may contain our custom constructs:
+- `scanner.Builder.UseScanner`: add your own custom tokens.
+- `parser.Builder.UseStmtParser`: add your own statement parsers.
+- `parser.Builder.UsePrefixOpParser`: add your own prefix operators.
+- `parser.Builder.UseInfixOpParser`: add your own infix operators.
+- `parser.Builder.UseExprParser`: add your own expression parsers (*).
+- `printer.Builder.UsePrinter`: add your own node printers.
 
-```go
-import (
-  "github.com/xjslang/xjs"
-  "github.com/xjslang/xjs/builder"
-  "github.com/xjslang/xjs/js"
-  "github.com/xjslang/xjs/printer"
-)
+(*): You usually do not need `UseExprParser`, since `UsePrefixOpParser` and `UseInfixOpParser` are enough.
 
-// create a builder and install the plugins
-// that will "enrich" our parser
-b := xjs.PluginBuilder().
-  // install our custom plugins
-  Install(arrowFuncPlugin).
-  Install(tryCatchPlugin).
-  Install(strictEqPlugin).
-  Install(anotherPlugin)
+## Examples
 
-// now the parser knows how to interpret
-// our custom constructs
-data, _ := os.ReadFile(file)
-p := b.Build(data) // returns an "enriched" parser
-result, err := js.ParseProgram(p) // returns the AST
-```
+Real-world dialects built with XJS:
 
-The second step is to create a custom printer. The printer is responsible for transforming the AST back into code. Among other things, we can create compilers and formatters:
+- [djs](https://github.com/xjslang/djs): JavaScript with `defer`.
+- [hjs](https://github.com/hjslang/hjs): JavaScript with native HTML tags.
 
-```go
-// here we are creating a compiler
-c := xjs.PrinterBuilder().
-  UsePrinter(compiler).    // tells it how to compile custom nodes
-  Build(printer.Compact()) // returns an "enriched" printer
-c.Print(result)
-jsCode, err := c.Output() // returns the compiled code
+See also the [`examples/`](examples/) directory for basic samples.
 
-// here we are creating a formatter
-fmt := xjs.PrinterBuilder().
-  UsePrinter(formatter). // tells it how to format custom nodes
-  Build()                // returns an "enriched" printer
-fmt.Print(result)
-formattedCode, err := fmt.Output() // returns the formatted code
-```
+## Contributing
 
-## Show me an example!
+Help is welcome. The project is still under development, and maintaining a JavaScript parser is a lot of work.
 
-Here you have a couple of examples:
-
-- [DJS - Defer for JavaScript](https://github.com/xjslang/djs): Adds `defer` statements.
-- [HJS - HTML for JavaScript](https://github.com/xjslang/hjs): Adds native support for HTML tags.
-
-Also, take a look at the [./examples](./examples) directory.
-
-## I like the it! Can I use it in production?
-
-The project is still in alpha and is not ready for production. Building a JavaScript parser requires significant effort and I do what I can in my spare time. However, you can help me by finding bugs or sharing your ideas.
-
-**If you are also an experienced Go programmer, your suggestions are very welcome.**
+See the open issues at https://github.com/xjslang/xjs/issues.

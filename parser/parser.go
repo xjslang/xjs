@@ -76,6 +76,9 @@ func (p *Parser) init(sc token.Scanner) {
 	p.AdvanceToken()
 }
 
+// Fork returns a copy of the parser that can advance without modifying the original state.
+//
+// See also: [Parser.Apply]
 func (p *Parser) Fork() *Parser {
 	sc := p.scanner.(token.ForkableScanner)
 	return &Parser{
@@ -90,12 +93,15 @@ func (p *Parser) Fork() *Parser {
 	}
 }
 
-func (p *Parser) Apply(foked *Parser) {
+// Apply copies the state from a forked parser back into the original parser.
+//
+// See also: [Parser.Fork]
+func (p *Parser) Apply(forked *Parser) {
 	sc := p.scanner.(token.ForkableScanner)
-	sc.Apply(foked.scanner)
-	p.CurrentToken = foked.CurrentToken
-	p.PeekToken = foked.PeekToken
-	p.scopes = maps.Clone(foked.scopes)
+	sc.Apply(forked.scanner)
+	p.CurrentToken = forked.CurrentToken
+	p.PeekToken = forked.PeekToken
+	p.scopes = maps.Clone(forked.scopes)
 }
 
 func (p *Parser) ParseStmt() (ast.Stmt, error) {
@@ -119,6 +125,7 @@ func (p *Parser) AdvanceToken() {
 	p.PeekToken = p.scanner.NextToken()
 }
 
+// Expect consumes the current token if it matches the expected type, or returns an error.
 func (p *Parser) Expect(typ token.Type) (token.Token, error) {
 	tok := p.CurrentToken
 	if p.CurrentToken.Type != typ {
@@ -132,6 +139,7 @@ func (p *Parser) Expect(typ token.Type) (token.Token, error) {
 	return tok, nil
 }
 
+// ExpectLiteral consumes the current token if it matches the expected literal, or returns an error.
 func (p *Parser) ExpectLiteral(s string) (token.Token, error) {
 	tok := p.CurrentToken
 	if tok.Literal != s {
@@ -141,6 +149,7 @@ func (p *Parser) ExpectLiteral(s string) (token.Token, error) {
 	return tok, nil
 }
 
+// ExpectWith consumes the current token if it is accepted by the given scanner function, or returns an error.
 func (p *Parser) ExpectWith(scanner func(sc token.Scanner) (string, error)) (tok token.Token, err error) {
 	tok = p.CurrentToken
 	sc := p.scanner.(token.ForkableScanner)
@@ -154,10 +163,12 @@ func (p *Parser) ExpectWith(scanner func(sc token.Scanner) (string, error)) (tok
 	return
 }
 
+// Error returns an error at the current token position.
 func (p *Parser) Error(msg string) error {
 	return p.ErrorAt(p.CurrentToken, msg)
 }
 
+// ErrorAt returns an error at the given token position.
 func (p *Parser) ErrorAt(tok token.Token, msg string) error {
 	line := tok.Line
 	column := tok.Column
