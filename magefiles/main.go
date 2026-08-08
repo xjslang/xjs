@@ -37,3 +37,7 @@ func UpdateGoldenFiles() error {
 func CleanTestCache() error {
 	return sh.RunV("go", "clean", "-testcache")
 }
+
+func Docs() error {
+	return sh.RunV("pkgsite", "-http", "localhost:8081")
+}
