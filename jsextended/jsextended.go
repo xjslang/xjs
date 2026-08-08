@@ -237,19 +237,19 @@ func ScannerBuilder() *scanner.Builder {
 }
 
 func ParserBuilder() *parser.Builder {
-	token.RegisterUnaryType(NEW)
-	token.RegisterUnaryType(SPREAD)
-	token.RegisterUnaryType(TYPEOF)
-	token.RegisterUnaryType(ASYNC)
-	token.RegisterUnaryType(AWAIT)
-	token.RegisterUnaryType(VOID)
-	token.RegisterUnaryType(CLASS)
-	token.RegisterUnaryType(YIELD)
-	token.RegisterUnaryType(token.DIVIDE)  // regex
-	token.RegisterUnaryType(DIVIDE_ASSIGN) // regex
-	token.RegisterUnaryType(token.INCREMENT)
-	token.RegisterUnaryType(token.DECREMENT)
-	token.RegisterUnaryType(NOT_BITWISE)
+	token.RegisterPrefixOpType(NEW)
+	token.RegisterPrefixOpType(SPREAD)
+	token.RegisterPrefixOpType(TYPEOF)
+	token.RegisterPrefixOpType(ASYNC)
+	token.RegisterPrefixOpType(AWAIT)
+	token.RegisterPrefixOpType(VOID)
+	token.RegisterPrefixOpType(CLASS)
+	token.RegisterPrefixOpType(YIELD)
+	token.RegisterPrefixOpType(token.DIVIDE)  // regex
+	token.RegisterPrefixOpType(DIVIDE_ASSIGN) // regex
+	token.RegisterPrefixOpType(token.INCREMENT)
+	token.RegisterPrefixOpType(token.DECREMENT)
+	token.RegisterPrefixOpType(NOT_BITWISE)
 	token.RegisterBinaryType(PLUS_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(MINUS_ASSIGN, token.ASSIGN.Precedence())
 	token.RegisterBinaryType(MULTIPLY_ASSIGN, token.ASSIGN.Precedence())
@@ -281,7 +281,7 @@ func ParserBuilder() *parser.Builder {
 	token.RegisterBinaryType(token.STRING, token.LPAREN.Precedence())
 
 	pb := js.ParserBuilder()
-	pb.UseUnaryParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
+	pb.UsePrefixOpParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
 		case token.LPAREN:
 			return ParsePrefixParenOp(p)

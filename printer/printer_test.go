@@ -445,7 +445,7 @@ func TestCompact(t *testing.T) {
 
 func TestErrorAt(t *testing.T) {
 	spreadOp := token.RegisterType("SPREAD", "..")
-	token.RegisterUnaryType(spreadOp)
+	token.RegisterPrefixOpType(spreadOp)
 
 	sb := xjs.ScannerBuilder()
 	sb.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {

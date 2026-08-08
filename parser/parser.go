@@ -51,7 +51,7 @@ type Parser struct {
 	stmtParser       func(p *Parser) (ast.Stmt, error)
 	exprParser       func(p *Parser) (ast.Expr, error)
 	binaryExprParser func(p *Parser, left ast.Expr) (ast.Expr, error)
-	unaryExprParser  func(p *Parser) (ast.Expr, error)
+	prefixOpParser   func(p *Parser) (ast.Expr, error)
 }
 
 func (p *Parser) init(sc token.Scanner) {
@@ -66,8 +66,8 @@ func (p *Parser) init(sc token.Scanner) {
 	if p.binaryExprParser == nil {
 		p.binaryExprParser = defaultBinaryParser
 	}
-	if p.unaryExprParser == nil {
-		p.unaryExprParser = defaultUnaryParser
+	if p.prefixOpParser == nil {
+		p.prefixOpParser = defaultPrefixOpParser
 	}
 	p.CurrentToken = token.Token{}
 	p.PeekToken = token.Token{}
@@ -86,7 +86,7 @@ func (p *Parser) Fork() *Parser {
 		stmtParser:       p.stmtParser,
 		exprParser:       p.exprParser,
 		binaryExprParser: p.binaryExprParser,
-		unaryExprParser:  p.unaryExprParser,
+		prefixOpParser:   p.prefixOpParser,
 	}
 }
 
@@ -111,7 +111,7 @@ func (p *Parser) ParseInfixOp(left ast.Expr) (ast.Expr, error) {
 }
 
 func (p *Parser) ParsePrefixOp() (ast.Expr, error) {
-	return p.unaryExprParser(p)
+	return p.prefixOpParser(p)
 }
 
 func (p *Parser) AdvanceToken() {
