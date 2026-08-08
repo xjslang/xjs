@@ -207,8 +207,8 @@ func (typ Type) Precedence() int {
 	return infixOps[typ]
 }
 
-// RegisterInfixOpType registers a token type as a "infix operator".
-func RegisterInfixOpType(typ Type, precedence int) {
+// RegisterInfixOp registers a token type as a "infix operator".
+func RegisterInfixOp(typ Type, precedence int) {
 	registerMu.Lock()
 	defer registerMu.Unlock()
 	infixOps[typ] = precedence
@@ -230,8 +230,8 @@ func (typ Type) IsPrefixOp() (ok bool) {
 	return
 }
 
-// RegisterPrefixOpType registers a token type as a "prefix operator".
-func RegisterPrefixOpType(typ Type) {
+// RegisterPrefixOp registers a token type as a "prefix operator".
+func RegisterPrefixOp(typ Type) {
 	registerMu.Lock()
 	defer registerMu.Unlock()
 	prefixOpTypes[typ] = true

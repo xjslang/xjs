@@ -103,8 +103,8 @@ func jsxInfixOpParser(p *parser.Parser, left ast.Expr, next func(left ast.Expr) 
 }
 
 func Parse(input []byte) (*js.Program, error) {
-	token.RegisterPrefixOpType(startTag)
-	token.RegisterInfixOpType(concatTag, token.OR.Precedence())
+	token.RegisterPrefixOp(startTag)
+	token.RegisterInfixOp(concatTag, token.OR.Precedence())
 
 	sb := xjs.ScannerBuilder()
 	sb.UseScanner(jsxScanner)

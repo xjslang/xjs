@@ -52,8 +52,8 @@ func ScannerBuilder() *scanner.Builder {
 }
 
 func ParserBuilder() *parser.Builder {
-	token.RegisterPrefixOpType(FUNCTION)
-	token.RegisterPrefixOpType(DELETE)
+	token.RegisterPrefixOp(FUNCTION)
+	token.RegisterPrefixOp(DELETE)
 
 	pb := &parser.Builder{}
 	pb.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (ast.Stmt, error) {
