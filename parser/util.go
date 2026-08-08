@@ -2,6 +2,7 @@ package parser
 
 import "github.com/xjslang/xjs/ast"
 
+// Switch tries each parser in order, using Fork/Apply to avoid side effects.
 func Switch[T ast.Node](p *Parser, parsers ...func(p *Parser) (T, error)) (node T, err error) {
 	for _, parser := range parsers {
 		f := p.Fork()
