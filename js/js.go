@@ -106,7 +106,7 @@ func ParserBuilder() *parser.Builder {
 		}
 		return ParsePrefixOp(p)
 	})
-	pb.UseBinaryParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
+	pb.UseInfixOpParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
 		case token.ASSIGN:
 			return ParseInfixAssignOp(p, left)

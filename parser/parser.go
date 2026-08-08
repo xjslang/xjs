@@ -44,14 +44,14 @@ func (list ErrorList) Error() string {
 }
 
 type Parser struct {
-	CurrentToken     token.Token
-	PeekToken        token.Token
-	scanner          token.Scanner
-	scopes           ScopeTracker
-	stmtParser       func(p *Parser) (ast.Stmt, error)
-	exprParser       func(p *Parser) (ast.Expr, error)
-	binaryExprParser func(p *Parser, left ast.Expr) (ast.Expr, error)
-	prefixOpParser   func(p *Parser) (ast.Expr, error)
+	CurrentToken   token.Token
+	PeekToken      token.Token
+	scanner        token.Scanner
+	scopes         ScopeTracker
+	stmtParser     func(p *Parser) (ast.Stmt, error)
+	exprParser     func(p *Parser) (ast.Expr, error)
+	infixOpParser  func(p *Parser, left ast.Expr) (ast.Expr, error)
+	prefixOpParser func(p *Parser) (ast.Expr, error)
 }
 
 func (p *Parser) init(sc token.Scanner) {
@@ -63,8 +63,8 @@ func (p *Parser) init(sc token.Scanner) {
 	if p.exprParser == nil {
 		p.exprParser = defaultExprParser
 	}
-	if p.binaryExprParser == nil {
-		p.binaryExprParser = defaultBinaryParser
+	if p.infixOpParser == nil {
+		p.infixOpParser = infixOpParser
 	}
 	if p.prefixOpParser == nil {
 		p.prefixOpParser = defaultPrefixOpParser
@@ -79,14 +79,14 @@ func (p *Parser) init(sc token.Scanner) {
 func (p *Parser) Fork() *Parser {
 	sc := p.scanner.(token.ForkableScanner)
 	return &Parser{
-		CurrentToken:     p.CurrentToken,
-		PeekToken:        p.PeekToken,
-		scanner:          sc.Fork(),
-		scopes:           maps.Clone(p.scopes),
-		stmtParser:       p.stmtParser,
-		exprParser:       p.exprParser,
-		binaryExprParser: p.binaryExprParser,
-		prefixOpParser:   p.prefixOpParser,
+		CurrentToken:   p.CurrentToken,
+		PeekToken:      p.PeekToken,
+		scanner:        sc.Fork(),
+		scopes:         maps.Clone(p.scopes),
+		stmtParser:     p.stmtParser,
+		exprParser:     p.exprParser,
+		infixOpParser:  p.infixOpParser,
+		prefixOpParser: p.prefixOpParser,
 	}
 }
 
@@ -107,7 +107,7 @@ func (p *Parser) ParseExpr() (ast.Expr, error) {
 }
 
 func (p *Parser) ParseInfixOp(left ast.Expr) (ast.Expr, error) {
-	return p.binaryExprParser(p, left)
+	return p.infixOpParser(p, left)
 }
 
 func (p *Parser) ParsePrefixOp() (ast.Expr, error) {
