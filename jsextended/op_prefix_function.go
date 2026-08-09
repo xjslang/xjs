@@ -47,8 +47,9 @@ func PrintPrefixFunctionOp(pr *printer.Printer, node *PrefixFunctionOp) (err err
 	if node.IsGenerator {
 		pr.Print(node.Layout.Multiply)
 	}
+	pr.Space()
 	if node.Name != nil {
-		pr.Space().Print(node.Name)
+		pr.Print(node.Name)
 	}
 	if err = PrintFunctionParams(pr, node.Params); err != nil {
 		return err

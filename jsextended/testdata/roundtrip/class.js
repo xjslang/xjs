@@ -26,7 +26,7 @@ class MyClass {
 class MyClass {
   'foo' = 100;
   100 = 200;
-  ['boo'] = function() {
+  ['boo'] = function () {
   };
   200 = () => {};
   [{ a }] = 200;
