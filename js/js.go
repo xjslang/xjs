@@ -1,3 +1,21 @@
+// Package js implements a simplified version of JavaScript, without arrow functions, try/catch, etc.
+//
+// # Key functions
+//
+//   - [ParseProgram]: parse a JS program
+//   - [ScannerBuilder]: extend the default JS scanner
+//   - [ParserBuilder]: extend the default JS parser
+//   - [PrinterBuilder]: extend the default JS printer
+//
+// # Utilities
+//
+//   - [ExpectSemi]: expect next token to be a semicolon
+//   - [IsSemi]: check if a given token is a semicolon
+//
+// # Other functions
+//
+//   - Parse*: parsing functions
+//   - Print*: printing functions
 package js
 
 import (
@@ -10,6 +28,7 @@ import (
 
 var DEFAULT = token.RegisterType("DEFAULT", "default")
 
+// ScannerBuilder extends the simplified JavaScript scanner, allowing the input text to be split into custom tokens.
 func ScannerBuilder() *scanner.Builder {
 	sb := &scanner.Builder{}
 	sb.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
@@ -51,6 +70,7 @@ func ScannerBuilder() *scanner.Builder {
 	return sb
 }
 
+// ParserBuilder extends the simplified JavaScript parser, allowing custom language features to be parsed.
 func ParserBuilder() *parser.Builder {
 	token.RegisterPrefixOp(FUNCTION)
 	token.RegisterPrefixOp(DELETE)
@@ -129,6 +149,7 @@ func ParserBuilder() *parser.Builder {
 	return pb
 }
 
+// PrinterBuilder extends the simplified JavaScript printer, allowing custom language features to be printed.
 func PrinterBuilder() *printer.Builder {
 	pb := &printer.Builder{}
 	pb.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {

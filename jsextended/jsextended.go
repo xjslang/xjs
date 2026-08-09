@@ -1,3 +1,14 @@
+// Package jsextended implements an extended version of JavaScript with additional syntax and features.
+//
+// # Key functions
+//
+//   - [ScannerBuilder]: extend the default JS scanner
+//   - [ParserBuilder]: extend the default JS parser
+//   - [PrinterBuilder]: extend the default JS printer
+//
+// # Other functions:
+//   - Parse[*]: parsing functions
+//   - Print[*]: printing functions
 package jsextended
 
 import (
