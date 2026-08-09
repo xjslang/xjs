@@ -31,6 +31,31 @@ func Print(result ast.Node, opts ...printer.Option) (string, error) {
 	return pr.Output()
 }
 
+func BenchmarkParseAndPrint(b *testing.B) {
+	dat, err := os.ReadFile("testdata/check/general.js")
+	require.NoError(b, err)
+	require.NotEmpty(b, dat)
+
+	// verify that it can be parsed and printed
+	result, err := Parse(dat)
+	require.NoError(b, err)
+	_, err = Print(result)
+	require.NoError(b, err)
+
+	b.ResetTimer()
+	for b.Loop() {
+		var err error
+		result, err = Parse(dat)
+		if err != nil {
+			b.Fatal(err)
+		}
+		_, err = Print(result)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
 func TestRoundtripFiles(t *testing.T) {
 	files, err := filepath.Glob("testdata/roundtrip/*.js")
 	require.NoError(t, err)
