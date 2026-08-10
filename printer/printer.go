@@ -72,7 +72,7 @@ type Printer struct {
 	ensureChar   rune
 	ensure       bool
 	printer      func(*Printer, ast.Node) error
-	context      []map[string]string
+	context      []map[string]any
 	errors       ErrorList
 }
 
