@@ -19,7 +19,9 @@ type InfixPipeOp struct {
 	Left, Right  ast.Expr
 }
 
-func Example_infixOp() {
+// Example_infixOp_pipeline demonstrates how to implement a custom infix
+// operator that introduces a pipeline syntax (|>) to JavaScript expressions.
+func Example_infixOp_pipeline() {
 	// Don't forget to register PIPE as an infix operator!
 	token.RegisterInfixOp(PIPE, token.COMMA.Precedence())
 
