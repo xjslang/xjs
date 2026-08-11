@@ -6,12 +6,10 @@ import (
 )
 
 func ScanIdentifier(sc *Scanner) string {
-	sb := strings.Builder{}
-	sb.WriteRune(sc.currentChar)
+	ofs := sc.prevOffset()
 	for sc.AdvanceChar(); IsLetter(sc.currentChar) || IsDigit(sc.currentChar); sc.AdvanceChar() {
-		sb.WriteRune(sc.currentChar)
 	}
-	return sb.String()
+	return string(sc.input[ofs:sc.prevOffset()])
 }
 
 func ScanLineComment(sc *Scanner) string {

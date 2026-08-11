@@ -14,6 +14,7 @@ type Scanner struct {
 	offset       int
 	line, column int
 	scanner      func(*Scanner) (token.Token, error)
+	currentSize  int
 	currentChar  rune
 }
 
@@ -32,6 +33,7 @@ func (sc *Scanner) ForkFrom(pos token.Position) token.Scanner {
 		line:        pos.Line,
 		column:      pos.Column - 1,
 		scanner:     sc.scanner,
+		currentSize: 0,
 		currentChar: EOF,
 	}
 	if s.scanner == nil {
@@ -47,6 +49,7 @@ func (sc *Scanner) Fork() token.Scanner {
 		offset:      sc.offset,
 		line:        sc.line,
 		column:      sc.column,
+		currentSize: sc.currentSize,
 		currentChar: sc.currentChar,
 	}
 	s.scanner = sc.scanner
@@ -62,6 +65,7 @@ func (sc *Scanner) Apply(s token.Scanner) {
 		sc.offset = v.offset
 		sc.line = v.line
 		sc.column = v.column
+		sc.currentSize = v.currentSize
 		sc.currentChar = v.currentChar
 	default:
 		panic("*Scanner expected")
@@ -73,6 +77,7 @@ func (sc *Scanner) Reset() {
 		sc.scanner = defaultScanner
 	}
 	sc.offset = 0
+	sc.currentSize = 0
 	sc.currentChar = EOF
 	sc.line = 0
 	sc.column = -1
@@ -115,7 +120,7 @@ func (sc *Scanner) AdvanceChar() {
 	default:
 		sc.column++
 	}
-	sc.currentChar = r
+	sc.currentChar, sc.currentSize = r, size
 }
 
 func (sc *Scanner) NextToken() token.Token {
@@ -160,4 +165,8 @@ func (sc *Scanner) skipWhitespaces() {
 	for sc.currentChar == ' ' || sc.currentChar == '\t' {
 		sc.AdvanceChar()
 	}
+}
+
+func (sc *Scanner) prevOffset() int {
+	return sc.offset - sc.currentSize
 }
