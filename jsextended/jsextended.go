@@ -378,7 +378,7 @@ func ParserBuilder() *parser.Builder {
 
 func PrinterBuilder() *printer.Builder {
 	prb := js.PrinterBuilder()
-	prb.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+	prb.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(*printer.Printer, ast.Node) error) error {
 		switch v := node.(type) {
 		case *js.PrefixBracketOp:
 			return PrintPrefixBracketOp(pr, v)
@@ -439,7 +439,7 @@ func PrinterBuilder() *printer.Builder {
 		case *InfixTemplateOp:
 			return PrintInfixTemplateOp(pr, v)
 		}
-		return next(node)
+		return next(pr, node)
 	})
 	return prb
 }

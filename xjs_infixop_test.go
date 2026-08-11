@@ -57,7 +57,7 @@ func Example_infixOp_pipeline() {
 
 	// Create a printer able to print the pipeline node.
 	prb := jsextended.PrinterBuilder()
-	prb.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+	prb.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(*printer.Printer, ast.Node) error) error {
 		switch v := node.(type) {
 		case *InfixPipeOp:
 			ctx := pr.PushContext()
@@ -80,7 +80,7 @@ func Example_infixOp_pipeline() {
 			pr.Print(v.Token)
 			return nil
 		}
-		return next(node)
+		return next(pr, node)
 	})
 
 	// parsing

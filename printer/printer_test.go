@@ -24,12 +24,12 @@ type FactorialNode struct {
 func ExampleBuilder_Build() {
 	pb := printer.Builder{}
 	pr := pb.
-		UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+		UsePrinter(func(pr *printer.Printer, node ast.Node, next func(*printer.Printer, ast.Node) error) error {
 			if node, ok := node.(*FactorialNode); ok {
 				pr.Print(node.Value, "!")
 				return nil
 			}
-			return next(node) // delegate to the "next" middleware
+			return next(pr, node) // delegate to the "next" middleware
 		}).
 		Build()
 	pr.Print(&FactorialNode{Value: "125"})
@@ -277,12 +277,12 @@ type MyCustomStmt struct {
 func TestBeside(t *testing.T) {
 	pb := printer.Builder{}
 	pr := pb.
-		UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+		UsePrinter(func(pr *printer.Printer, node ast.Node, next func(*printer.Printer, ast.Node) error) error {
 			if v, ok := node.(*MyCustomStmt); ok {
 				pr.Line().Print(v.name)
 				return nil
 			}
-			return next(node)
+			return next(pr, node)
 		}).
 		Build()
 	pr.Print("aaa")
@@ -464,14 +464,14 @@ func TestErrorAt(t *testing.T) {
 		return
 	})
 
-	pr := xjs.PrinterBuilder().UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+	pr := xjs.PrinterBuilder().UsePrinter(func(pr *printer.Printer, node ast.Node, next func(*printer.Printer, ast.Node) error) error {
 		switch v := node.(type) {
 		case *js.PrefixOp:
 			if v.Op.Type == spreadOp {
 				return printer.ErrorAt(v.Op.Position, "spread operator is not printable")
 			}
 		}
-		return next(node)
+		return next(pr, node)
 	}).Build()
 
 	input := `let x = ..rest`
@@ -562,7 +562,7 @@ func TestPrinterContext(t *testing.T) {
 	require.NoError(t, err)
 
 	pr := xjs.PrinterBuilder().
-		UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+		UsePrinter(func(pr *printer.Printer, node ast.Node, next func(*printer.Printer, ast.Node) error) error {
 			switch v := node.(type) {
 			case *AsyncFunctionDecl:
 				ctx := pr.PushContext()
@@ -581,7 +581,7 @@ func TestPrinterContext(t *testing.T) {
 				pr.Space().Print(v.Expr)
 				return nil
 			}
-			return next(node)
+			return next(pr, node)
 		}).
 		Build()
 	pr.Print(result)

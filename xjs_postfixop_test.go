@@ -38,13 +38,13 @@ func Example_postfixOp_factorial() {
 
 	// Create a printer able to print the factorial node.
 	cb := xjs.PrinterBuilder()
-	cb.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+	cb.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(*printer.Printer, ast.Node) error) error {
 		switch v := node.(type) {
 		case *PostfixFactorialOp:
 			pr.Print("(function fact(n) { return n <= 1 ? 1 : n * fact(n - 1); })(", v.Value, ")")
 			return nil
 		}
-		return next(node)
+		return next(pr, node)
 	})
 
 	// parsing

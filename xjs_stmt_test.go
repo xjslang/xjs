@@ -52,7 +52,7 @@ func Example_stmt_defer() {
 
 	// Create a compiler able to compile the defer node.
 	cb := xjs.PrinterBuilder()
-	cb.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node) error) error {
+	cb.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(*printer.Printer, ast.Node) error) error {
 		switch v := node.(type) {
 		case *DeferStmt:
 			pr.PrintTrivia(v.Defer.LeadingTrivia) // print previous comments and new lines
@@ -61,12 +61,12 @@ func Example_stmt_defer() {
 			pr.Print("}}}")
 			return nil
 		}
-		return next(node)
+		return next(pr, node)
 	})
 
 	// create a formatter that can format `DeferStmt`
 	fb := xjs.PrinterBuilder()
-	fb.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(ast.Node) error) error {
+	fb.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(*printer.Printer, ast.Node) error) error {
 		if node, ok := node.(*DeferStmt); ok {
 			pr.Line().Print(node.Defer)
 			pr.Space() // ensure a new space is added
@@ -77,7 +77,7 @@ func Example_stmt_defer() {
 			}
 			return nil
 		}
-		return next(node)
+		return next(pr, node)
 	})
 
 	input := `
