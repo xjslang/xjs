@@ -86,6 +86,7 @@ func runBenchmarkToFile(benchmark, filename string) error {
 
 	cmd := exec.Command(
 		"go", "test",
+		"-run=^"+benchmark+"$",
 		"-bench=^"+benchmark+"$",
 		"-benchmem",
 		"-count=10",
