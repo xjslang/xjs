@@ -48,6 +48,23 @@ func BenchmarkParse(b *testing.B) {
 	}
 }
 
+func BenchmarkPrint(b *testing.B) {
+	dat, err := os.ReadFile("testdata/check/general.js")
+	require.NoError(b, err)
+	require.NotEmpty(b, dat)
+
+	// verify that it can be parsed and printed
+	result, err := Parse(dat)
+	require.NoError(b, err)
+	_, err = Print(result)
+	require.NoError(b, err)
+
+	b.ResetTimer()
+	for b.Loop() {
+		_, _ = Print(result)
+	}
+}
+
 func BenchmarkParseAndPrint(b *testing.B) {
 	dat, err := os.ReadFile("testdata/check/general.js")
 	require.NoError(b, err)
