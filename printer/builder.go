@@ -3,10 +3,10 @@ package printer
 import "github.com/xjslang/xjs/ast"
 
 type Builder struct {
-	printers []func(*Printer, ast.Node, func(ast.Node) error) error
+	printers []func(*Printer, ast.Node, func(*Printer, ast.Node) error) error
 }
 
-func (b *Builder) UsePrinter(printer func(pr *Printer, node ast.Node, next func(node ast.Node) error) error) *Builder {
+func (b *Builder) UsePrinter(printer func(pr *Printer, node ast.Node, next func(*Printer, ast.Node) error) error) *Builder {
 	b.printers = append(b.printers, printer)
 	return b
 }

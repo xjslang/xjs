@@ -152,7 +152,7 @@ func ParserBuilder() *parser.Builder {
 // PrinterBuilder extends the simplified JavaScript printer, allowing custom language features to be printed.
 func PrinterBuilder() *printer.Builder {
 	pb := &printer.Builder{}
-	pb.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+	pb.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(*printer.Printer, ast.Node) error) error {
 		switch v := node.(type) {
 		case *Program:
 			return PrintProgram(pr, v)
@@ -221,7 +221,7 @@ func PrinterBuilder() *printer.Builder {
 		case *PrefixDeleteOp:
 			return PrintPrefixDeleteOp(pr, v)
 		}
-		return next(node)
+		return next(pr, node)
 	})
 	return pb
 }

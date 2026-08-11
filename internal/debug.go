@@ -17,7 +17,7 @@ func Debug(node ast.Node) (string, error) {
 
 // adds parentheses around expressions to make operator precedence explicit
 // for debugging purposes
-func debugger(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+func debugger(pr *printer.Printer, node ast.Node, next func(*printer.Printer, ast.Node) error) error {
 	switch node.(type) {
 	case
 		// core expressions to parenthesize in debug output
@@ -28,5 +28,5 @@ func debugger(pr *printer.Printer, node ast.Node, next func(node ast.Node) error
 		pr.Print('(')
 		defer pr.Print(')')
 	}
-	return next(node)
+	return next(pr, node)
 }

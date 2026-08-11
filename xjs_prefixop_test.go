@@ -87,7 +87,7 @@ func htmlPrefixParser(p *parser.Parser, next func(*parser.Parser) (ast.Expr, err
 }
 
 // "Teach" the printer how to compile our custom nodes.
-func htmlCompiler(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+func htmlCompiler(pr *printer.Printer, node ast.Node, next func(*printer.Printer, ast.Node) error) error {
 	switch v := node.(type) {
 	case *PrefixTagOp:
 		pr.Print("(function(){")
@@ -97,7 +97,7 @@ func htmlCompiler(pr *printer.Printer, node ast.Node, next func(node ast.Node) e
 		}
 		pr.Print("return elem;})()")
 	default:
-		return next(node)
+		return next(pr, node)
 	}
 	return nil
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/xjslang/xjs/printer"
 )
 
-func Formatter(pr *printer.Printer, node ast.Node, next func(node ast.Node) error) error {
+func Formatter(pr *printer.Printer, node ast.Node, next func(*printer.Printer, ast.Node) error) error {
 	switch v := node.(type) {
 	case *ConcatExpr:
 		pr.Print(v.Left, " | ", v.Right)
@@ -18,7 +18,7 @@ func Formatter(pr *printer.Printer, node ast.Node, next func(node ast.Node) erro
 		pr.DecreaseIndent()
 		pr.Line().Print("</", v.Name, ">")
 	default:
-		return next(node)
+		return next(pr, node)
 	}
 	return nil
 }
