@@ -32,7 +32,7 @@ func ExampleBuilder_Build() {
 	s := sb.Build([]byte("print('Hello, World!')"))
 	pb := parser.Builder{}
 	p := pb.
-		UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (_ ast.Stmt, err error) {
+		UseStmtParser(func(p *parser.Parser, next func(*parser.Parser) (ast.Stmt, error)) (_ ast.Stmt, err error) {
 			if p.CurrentToken.Type == token.IDENT && p.CurrentToken.Literal == "print" {
 				p.AdvanceToken()
 				node := &MyCustomStmt{}
@@ -47,7 +47,7 @@ func ExampleBuilder_Build() {
 				}
 				return node, nil
 			}
-			return next() // Delegate to the "next" middleware
+			return next(p) // Delegate to the "next" middleware
 		}).
 		Build(s)
 

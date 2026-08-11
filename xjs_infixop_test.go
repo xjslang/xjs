@@ -41,9 +41,9 @@ func Example_infixOp_pipeline() {
 
 	// Create a parser that "understand" the pipeline syntax.
 	pb := jsextended.ParserBuilder()
-	pb.UseInfixOpParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (_ ast.Expr, err error) {
+	pb.UseInfixOpParser(func(p *parser.Parser, left ast.Expr, next func(*parser.Parser, ast.Expr) (ast.Expr, error)) (_ ast.Expr, err error) {
 		if p.CurrentToken.Type != PIPE {
-			return next(left) // delegate to the "next" middleware
+			return next(p, left) // delegate to the "next" middleware
 		}
 		p.AdvanceToken()
 		node := &InfixPipeOp{Left: left}
