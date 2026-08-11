@@ -26,8 +26,8 @@ type PrefixTagOp struct {
 }
 
 // "Teach" the scanner how to recognize our custom tokens.
-func htmlScanner(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
-	if tok, err = next(); err != nil {
+func htmlScanner(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (tok token.Token, err error) {
+	if tok, err = next(sc); err != nil {
 		return
 	}
 	switch tok.Type {

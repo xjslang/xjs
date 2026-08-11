@@ -448,8 +448,8 @@ func TestErrorAt(t *testing.T) {
 	token.RegisterPrefixOp(spreadOp)
 
 	sb := xjs.ScannerBuilder()
-	sb.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
-		if tok, err = next(); err != nil {
+	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (tok token.Token, err error) {
+		if tok, err = next(sc); err != nil {
 			return
 		}
 		// instruct the scanner to recognize the spread operator
@@ -515,8 +515,8 @@ func TestPrinterContext(t *testing.T) {
 	awaitTyp := token.RegisterType("AWAIT", "await")
 
 	sb := xjs.ScannerBuilder()
-	sb.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
-		if tok, err = next(); err != nil {
+	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (tok token.Token, err error) {
+		if tok, err = next(sc); err != nil {
 			return
 		}
 		if tok.Type == token.IDENT {
