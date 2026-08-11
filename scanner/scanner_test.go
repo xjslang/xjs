@@ -2,6 +2,7 @@ package scanner_test
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"testing"
 
@@ -126,6 +127,31 @@ func ExampleBuilder_Build() {
 	// {Type: IDENT, Literal: some, Position: {0 1 1}}
 	// {Type: CARET, Literal: ^, Position: {0 6 6}}
 	// {Type: IDENT, Literal: input, Position: {0 7 8}}
+}
+
+func BenchmarkUseScanner(b *testing.B) {
+	dat, err := os.ReadFile("testdata/sample.js")
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	sb := scanner.Builder{}
+	for range 10 {
+		sb.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
+			if tok, err = next(); err != nil {
+				return
+			}
+			return
+		})
+	}
+
+	s := sb.Build(dat)
+	b.ResetTimer()
+	for b.Loop() {
+		s.Reset()
+		for tok := s.NextToken(); tok.Type != token.EOF; tok = s.NextToken() {
+		}
+	}
 }
 
 func BenchmarkLexer(b *testing.B) {
