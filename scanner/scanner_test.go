@@ -100,19 +100,19 @@ func ExampleBuilder_Build() {
 	caretType := token.RegisterType("CARET", "^")
 	sb := scanner.Builder{}
 	s := sb.
-		UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
+		UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (token.Token, error) {
 			if sc.CurrentChar() == '#' {
 				sc.AdvanceChar()
 				return token.Token{Type: hashTyp, Literal: "#"}, nil
 			}
-			return next() // Delegate to the "next" middleware
+			return next(sc) // Delegate to the "next" middleware
 		}).
-		UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
+		UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (token.Token, error) {
 			if sc.CurrentChar() == '^' {
 				sc.AdvanceChar()
 				return token.Token{Type: caretType, Literal: "^"}, nil
 			}
-			return next() // Delegate to the "next" middleware
+			return next(sc) // Delegate to the "next" middleware
 		}).
 		Build([]byte("#some ^input"))
 
@@ -137,8 +137,8 @@ func BenchmarkUseScanner(b *testing.B) {
 
 	sb := scanner.Builder{}
 	for range 10 {
-		sb.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
-			if tok, err = next(); err != nil {
+		sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (tok token.Token, err error) {
+			if tok, err = next(sc); err != nil {
 				return
 			}
 			return
@@ -498,14 +498,14 @@ func TestUseScanner(t *testing.T) {
 	powType := token.RegisterType("POW", "**")
 	sb := scanner.Builder{}
 	sc := sb.
-		UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (token.Token, error) {
+		UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (token.Token, error) {
 			if sc.CurrentChar() == '*' && sc.PeekChar() == '*' {
 				// consume **
 				sc.AdvanceChar()
 				sc.AdvanceChar()
 				return token.Token{Type: powType, Literal: powType.Literal()}, nil
 			}
-			return next()
+			return next(sc)
 		}).
 		Build([]byte("5 ** 2"))
 	assertLexerTokens(t, sc, []token.Token{

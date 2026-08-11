@@ -14,8 +14,8 @@ func ExampleScannerBuilder() {
 	notLikeTyp := token.RegisterType("NOT_LIKE", "~!")
 
 	sb := xjs.ScannerBuilder()
-	sb.UseScanner(func(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
-		if tok, err = next(); err != nil {
+	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (tok token.Token, err error) {
+		if tok, err = next(sc); err != nil {
 			return
 		}
 		if tok.Literal == "~" {

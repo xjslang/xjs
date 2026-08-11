@@ -63,8 +63,8 @@ func parseTag(p *parser.Parser) (_ *Tag, err error) {
 	return node, nil
 }
 
-func jsxScanner(sc *scanner.Scanner, next func() (token.Token, error)) (tok token.Token, err error) {
-	if tok, err = next(); err != nil {
+func jsxScanner(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (tok token.Token, err error) {
+	if tok, err = next(sc); err != nil {
 		return
 	}
 	if tok.Type == token.LT {

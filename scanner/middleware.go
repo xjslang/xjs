@@ -6,15 +6,14 @@ import (
 	"github.com/xjslang/xjs/token"
 )
 
-func (s *Scanner) useScanner(scanner func(s *Scanner, next func() (token.Token, error)) (token.Token, error)) {
+// TODO: In the parameter type for `scanner`, the argument is named `s *Scanner`, which is easy to confuse with the method receiver `s *Scanner`. Renaming it to `sc` (or omitting parameter names in the func type) improves readability without changing the type.
+func (s *Scanner) useScanner(scanner func(s *Scanner, next func(*Scanner) (token.Token, error)) (token.Token, error)) {
 	next := s.scanner
 	if next == nil {
 		next = defaultScanner
 	}
 	s.scanner = func(s *Scanner) (token.Token, error) {
-		return scanner(s, func() (token.Token, error) {
-			return next(s)
-		})
+		return scanner(s, next)
 	}
 }
 
