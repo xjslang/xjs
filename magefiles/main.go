@@ -3,6 +3,10 @@
 package main
 
 import (
+	"os"
+	"os/exec"
+	"strings"
+
 	"github.com/magefile/mage/sh"
 )
 
@@ -40,4 +44,54 @@ func CleanTestCache() error {
 
 func Docs() error {
 	return sh.RunV("pkgsite", "-http", "localhost:8081")
+}
+
+func BenchCompare(benchmark string) error {
+	currentBranch, err := sh.Output("git", "branch", "--show-current")
+	if err != nil {
+		return err
+	}
+	currentBranch = strings.TrimSpace(currentBranch)
+
+	// Ensure we return to the original branch even if something fails.
+	defer func() {
+		_ = sh.Run("git", "checkout", currentBranch)
+	}()
+
+	if err := sh.Run("git", "checkout", "main"); err != nil {
+		return err
+	}
+
+	if err := runBenchmarkToFile(benchmark, "before.out"); err != nil {
+		return err
+	}
+
+	if err := sh.Run("git", "checkout", currentBranch); err != nil {
+		return err
+	}
+
+	if err := runBenchmarkToFile(benchmark, "after.out"); err != nil {
+		return err
+	}
+
+	return sh.RunV("benchstat", "before.out", "after.out")
+}
+
+func runBenchmarkToFile(benchmark, filename string) error {
+	f, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	cmd := exec.Command(
+		"go", "test",
+		"-bench=^"+benchmark+"$",
+		"-benchmem",
+		"-count=10",
+		"./...",
+	)
+	cmd.Stdout = f
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
 }
