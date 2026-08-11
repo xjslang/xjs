@@ -37,9 +37,9 @@ func Example_stmt_defer() {
 
 	// Create a parser that "understand" the defer syntax.
 	pb := xjs.ParserBuilder()
-	pb.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (node ast.Stmt, err error) {
+	pb.UseStmtParser(func(p *parser.Parser, next func(*parser.Parser) (ast.Stmt, error)) (node ast.Stmt, err error) {
 		if p.CurrentToken.Type != DEFER {
-			return next() // delegate to the "next" middleware
+			return next(p) // delegate to the "next" middleware
 		}
 		deferStmt := &DeferStmt{Defer: p.CurrentToken}
 		p.AdvanceToken() // consume "defer"

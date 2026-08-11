@@ -26,9 +26,9 @@ func Example_postfixOp_factorial() {
 
 	// Create a parser that recognizes the factorial syntax.
 	pb := xjs.ParserBuilder()
-	pb.UseInfixOpParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (_ ast.Expr, err error) {
+	pb.UseInfixOpParser(func(p *parser.Parser, left ast.Expr, next func(*parser.Parser, ast.Expr) (ast.Expr, error)) (_ ast.Expr, err error) {
 		if p.CurrentToken.Type != token.NOT {
-			return next(left)
+			return next(p, left)
 		}
 		p.AdvanceToken()
 		node := &PostfixFactorialOp{Value: left}

@@ -531,7 +531,7 @@ func TestPrinterContext(t *testing.T) {
 	})
 
 	pb := xjs.ParserBuilder()
-	pb.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (_ ast.Stmt, err error) {
+	pb.UseStmtParser(func(p *parser.Parser, next func(*parser.Parser) (ast.Stmt, error)) (_ ast.Stmt, err error) {
 		switch p.CurrentToken.Type {
 		case asyncTyp:
 			node := &AsyncFunctionDecl{}
@@ -550,7 +550,7 @@ func TestPrinterContext(t *testing.T) {
 			}
 			return node, nil
 		}
-		return next()
+		return next(p)
 	})
 
 	input := `function fetchUserData() {

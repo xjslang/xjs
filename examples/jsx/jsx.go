@@ -83,14 +83,14 @@ func jsxScanner(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, e
 	return
 }
 
-func jsxPrefixOpParser(p *parser.Parser, next func() (ast.Expr, error)) (_ ast.Expr, err error) {
+func jsxPrefixOpParser(p *parser.Parser, next func(*parser.Parser) (ast.Expr, error)) (_ ast.Expr, err error) {
 	if p.CurrentToken.Type == startTag {
 		return parseTag(p)
 	}
-	return next()
+	return next(p)
 }
 
-func jsxInfixOpParser(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (_ ast.Expr, err error) {
+func jsxInfixOpParser(p *parser.Parser, left ast.Expr, next func(*parser.Parser, ast.Expr) (ast.Expr, error)) (_ ast.Expr, err error) {
 	if p.CurrentToken.Type == concatTag {
 		node := &ConcatExpr{Left: left}
 		p.AdvanceToken()
@@ -99,7 +99,7 @@ func jsxInfixOpParser(p *parser.Parser, left ast.Expr, next func(left ast.Expr) 
 		}
 		return node, nil
 	}
-	return next(left)
+	return next(p, left)
 }
 
 func Parse(input []byte) (*js.Program, error) {

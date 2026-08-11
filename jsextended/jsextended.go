@@ -292,7 +292,7 @@ func ParserBuilder() *parser.Builder {
 	token.RegisterInfixOp(token.STRING, token.LPAREN.Precedence())
 
 	pb := js.ParserBuilder()
-	pb.UsePrefixOpParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
+	pb.UsePrefixOpParser(func(p *parser.Parser, next func(*parser.Parser) (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
 		case token.LPAREN:
 			return ParsePrefixParenOp(p)
@@ -323,9 +323,9 @@ func ParserBuilder() *parser.Builder {
 		case YIELD:
 			return ParsePrefixYieldOp(p)
 		}
-		return next()
+		return next(p)
 	})
-	pb.UseInfixOpParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
+	pb.UseInfixOpParser(func(p *parser.Parser, left ast.Expr, next func(*parser.Parser, ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
 		case STRICT_EQ, STRICT_NOT_EQ, PLUS_ASSIGN, MINUS_ASSIGN, MULTIPLY_ASSIGN, DIVIDE_ASSIGN, MODULO_ASSIGN, OR_ASSIGN, XOR_ASSIGN, AND_ASSIGN, EXPO_ASSIGN, IN:
 			return js.ParseInfixOp(p, left)
@@ -344,9 +344,9 @@ func ParserBuilder() *parser.Builder {
 		case token.STRING:
 			return ParseInfixTemplateOp(p, left)
 		}
-		return next(left)
+		return next(p, left)
 	})
-	pb.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (ast.Stmt, error) {
+	pb.UseStmtParser(func(p *parser.Parser, next func(*parser.Parser) (ast.Stmt, error)) (ast.Stmt, error) {
 		switch p.CurrentToken.Type {
 		case js.LET, CONST, VAR:
 			return ParseVarStmt(p)
@@ -371,7 +371,7 @@ func ParserBuilder() *parser.Builder {
 		case CLASS:
 			return ParseClassStmt(p)
 		}
-		return next()
+		return next(p)
 	})
 	return pb
 }

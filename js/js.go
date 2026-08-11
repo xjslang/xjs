@@ -76,7 +76,7 @@ func ParserBuilder() *parser.Builder {
 	token.RegisterPrefixOp(DELETE)
 
 	pb := &parser.Builder{}
-	pb.UseStmtParser(func(p *parser.Parser, next func() (ast.Stmt, error)) (ast.Stmt, error) {
+	pb.UseStmtParser(func(p *parser.Parser, next func(*parser.Parser) (ast.Stmt, error)) (ast.Stmt, error) {
 		switch p.CurrentToken.Type {
 		case FUNCTION:
 			return ParseFunctionDecl(p)
@@ -108,10 +108,10 @@ func ParserBuilder() *parser.Builder {
 		}
 		return ParseStmt(p)
 	})
-	pb.UseExprParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
+	pb.UseExprParser(func(p *parser.Parser, next func(*parser.Parser) (ast.Expr, error)) (ast.Expr, error) {
 		return ParseExpr(p)
 	})
-	pb.UsePrefixOpParser(func(p *parser.Parser, next func() (ast.Expr, error)) (ast.Expr, error) {
+	pb.UsePrefixOpParser(func(p *parser.Parser, next func(*parser.Parser) (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
 		case FUNCTION:
 			return ParsePrefixFunctionOp(p)
@@ -126,7 +126,7 @@ func ParserBuilder() *parser.Builder {
 		}
 		return ParsePrefixOp(p)
 	})
-	pb.UseInfixOpParser(func(p *parser.Parser, left ast.Expr, next func(left ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
+	pb.UseInfixOpParser(func(p *parser.Parser, left ast.Expr, next func(*parser.Parser, ast.Expr) (ast.Expr, error)) (ast.Expr, error) {
 		switch p.CurrentToken.Type {
 		case token.ASSIGN:
 			return ParseInfixAssignOp(p, left)

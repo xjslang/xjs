@@ -46,9 +46,9 @@ func htmlScanner(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, 
 }
 
 // "Teach" the parser how to traverse our custom syntax.
-func htmlPrefixParser(p *parser.Parser, next func() (ast.Expr, error)) (_ ast.Expr, err error) {
+func htmlPrefixParser(p *parser.Parser, next func(*parser.Parser) (ast.Expr, error)) (_ ast.Expr, err error) {
 	if p.CurrentToken.Type != START_TAG {
-		return next() // delegate to the "next" parser
+		return next(p) // delegate to the "next" parser
 	}
 	node := &PrefixTagOp{}
 	if _, err = p.Expect(START_TAG); err != nil {
