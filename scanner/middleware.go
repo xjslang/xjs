@@ -24,51 +24,51 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 		s.AdvanceChar()
 		if s.currentChar == '=' {
 			s.AdvanceChar()
-			tok = token.Token{Type: token.EQ, Literal: "=="}
+			tok.Type, tok.Literal = token.EQ, "=="
 		} else {
-			tok = token.Token{Type: token.ASSIGN, Literal: "="}
+			tok.Type, tok.Literal = token.ASSIGN, "="
 		}
 	case '!':
 		s.AdvanceChar()
 		if s.currentChar == '=' {
 			s.AdvanceChar()
-			tok = token.Token{Type: token.NOT_EQ, Literal: "!="}
+			tok.Type, tok.Literal = token.NOT_EQ, "!="
 		} else {
-			tok = token.Token{Type: token.NOT, Literal: "!"}
+			tok.Type, tok.Literal = token.NOT, "!"
 		}
 	case '<':
 		s.AdvanceChar()
 		if s.currentChar == '=' {
 			s.AdvanceChar()
-			tok = token.Token{Type: token.LTE, Literal: "<="}
+			tok.Type, tok.Literal = token.LTE, "<="
 		} else {
-			tok = token.Token{Type: token.LT, Literal: "<"}
+			tok.Type, tok.Literal = token.LT, "<"
 		}
 	case '>':
 		s.AdvanceChar()
 		if s.currentChar == '=' {
 			s.AdvanceChar()
-			tok = token.Token{Type: token.GTE, Literal: ">="}
+			tok.Type, tok.Literal = token.GTE, ">="
 		} else {
-			tok = token.Token{Type: token.GT, Literal: ">"}
+			tok.Type, tok.Literal = token.GT, ">"
 		}
 	case '|':
 		c := s.currentChar
 		s.AdvanceChar()
 		if s.currentChar == '|' {
 			s.AdvanceChar()
-			tok = token.Token{Type: token.OR, Literal: "||"}
+			tok.Type, tok.Literal = token.OR, "||"
 		} else {
-			tok = token.Token{Type: token.UNKNOWN, Literal: string(c)}
+			tok.Type, tok.Literal = token.UNKNOWN, string(c)
 		}
 	case '&':
 		c := s.currentChar
 		s.AdvanceChar()
 		if s.currentChar == '&' {
 			s.AdvanceChar()
-			tok = token.Token{Type: token.AND, Literal: "&&"}
+			tok.Type, tok.Literal = token.AND, "&&"
 		} else {
-			tok = token.Token{Type: token.UNKNOWN, Literal: string(c)}
+			tok.Type, tok.Literal = token.UNKNOWN, string(c)
 		}
 	// maths operators
 	case '+':
