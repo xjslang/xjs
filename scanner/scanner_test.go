@@ -129,7 +129,7 @@ func ExampleBuilder_Build() {
 	// {Type: IDENT, Literal: input, Position: {0 7 8}}
 }
 
-func BenchmarkUseScanner(b *testing.B) {
+func BenchmarkNextToken(b *testing.B) {
 	dat, err := os.ReadFile("testdata/sample.js")
 	if err != nil {
 		b.Fatal(err)
