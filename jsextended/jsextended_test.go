@@ -39,8 +39,9 @@ func BenchmarkParse(b *testing.B) {
 	// verify that it can be parsed and printed
 	result, err := Parse(dat)
 	require.NoError(b, err)
-	_, err = Print(result)
+	code, err := Print(result)
 	require.NoError(b, err)
+	require.NotEmpty(b, code)
 
 	b.ResetTimer()
 	for b.Loop() {
@@ -56,8 +57,9 @@ func BenchmarkPrint(b *testing.B) {
 	// verify that it can be parsed and printed
 	result, err := Parse(dat)
 	require.NoError(b, err)
-	_, err = Print(result)
+	code, err := Print(result)
 	require.NoError(b, err)
+	require.NotEmpty(b, code)
 
 	b.ResetTimer()
 	for b.Loop() {
@@ -73,20 +75,14 @@ func BenchmarkParseAndPrint(b *testing.B) {
 	// verify that it can be parsed and printed
 	result, err := Parse(dat)
 	require.NoError(b, err)
-	_, err = Print(result)
+	code, err := Print(result)
 	require.NoError(b, err)
+	require.NotEmpty(b, code)
 
 	b.ResetTimer()
 	for b.Loop() {
-		var err error
-		result, err = Parse(dat)
-		if err != nil {
-			b.Fatal(err)
-		}
-		_, err = Print(result)
-		if err != nil {
-			b.Fatal(err)
-		}
+		result, _ = Parse(dat)
+		_, _ = Print(result)
 	}
 }
 
