@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"maps"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -47,7 +46,6 @@ type Parser struct {
 	CurrentToken   token.Token
 	PeekToken      token.Token
 	scanner        token.Scanner
-	scopes         ScopeTracker
 	stmtParser     func(p *Parser) (ast.Stmt, error)
 	exprParser     func(p *Parser) (ast.Expr, error)
 	infixOpParser  func(p *Parser, left ast.Expr) (ast.Expr, error)
@@ -55,7 +53,6 @@ type Parser struct {
 }
 
 func (p *Parser) init(sc token.Scanner) {
-	p.scopes = make(ScopeTracker)
 	p.scanner = sc
 	if p.stmtParser == nil {
 		p.stmtParser = defaultStmtParser
@@ -85,7 +82,6 @@ func (p *Parser) Fork() *Parser {
 		CurrentToken:   p.CurrentToken,
 		PeekToken:      p.PeekToken,
 		scanner:        sc.Fork(),
-		scopes:         maps.Clone(p.scopes),
 		stmtParser:     p.stmtParser,
 		exprParser:     p.exprParser,
 		infixOpParser:  p.infixOpParser,
@@ -101,7 +97,6 @@ func (p *Parser) Apply(forked *Parser) {
 	sc.Apply(forked.scanner)
 	p.CurrentToken = forked.CurrentToken
 	p.PeekToken = forked.PeekToken
-	p.scopes = maps.Clone(forked.scopes)
 }
 
 func (p *Parser) ParseStmt() (ast.Stmt, error) {
@@ -188,16 +183,4 @@ func (p *Parser) ErrorAt(tok token.Token, msg string) error {
 		},
 		Message: msg,
 	}
-}
-
-func (p *Parser) EnterScope(sc Scope) {
-	p.scopes.Enter(sc)
-}
-
-func (p *Parser) ExitScope(sc Scope) {
-	p.scopes.Exit(sc)
-}
-
-func (p *Parser) InScope(sc Scope) bool {
-	return p.scopes.In(sc)
 }
