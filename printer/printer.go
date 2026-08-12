@@ -168,13 +168,14 @@ func (pr *Printer) Print(args ...any) {
 	}
 }
 
-func (pr *Printer) PrintTrivia(trivia []token.Token) {
+func (pr *Printer) PrintTrivia(trivia string) {
 	if !pr.withTrivia {
 		return
 	}
+	lines := splitTrivia(trivia)
 	es, e := pr.ensureChar, pr.ensure
-	for _, tok := range trivia {
-		if tok.Type == token.NEWLINE {
+	for _, line := range lines {
+		if line == "\n" {
 			if pr.withNewLines {
 				pr.writeRune('\n')
 			}
@@ -182,7 +183,7 @@ func (pr *Printer) PrintTrivia(trivia []token.Token) {
 		}
 		pr.printSpaceIfNeeded()
 		pr.printIndentIfNeeded()
-		pr.writeString(tok.Literal)
+		pr.writeString(line)
 	}
 	pr.ensureChar, pr.ensure = es, e
 }

@@ -124,45 +124,21 @@ func (sc *Scanner) AdvanceChar() {
 }
 
 func (sc *Scanner) NextToken() token.Token {
-	next := func() token.Token {
-		sc.skipWhitespaces()
-		line, column, offset := sc.line, sc.column, sc.offset
-		tok, err := sc.scanner(sc)
-		// TODO: (medium) Scanner.NextToken converts scanner/middleware errors into token.ILLEGAL but discards the error value entirely. With the new middleware signature returning errors, callers still have no way to observe why a token is illegal other than inspecting Literal. Consider exposing the error (e.g., NextToken returning (token.Token, error) or storing the last error on Scanner) so downstream code can surface better diagnostics.
-		if err != nil {
-			tok.Type = token.ILLEGAL
-		}
-		tok.Line = line
-		tok.Column = max(0, column)
-		tok.Offset = offset
-		if sc.currentChar != EOF {
-			tok.Offset = offset - utf8.RuneLen(sc.currentChar)
-		}
-		return tok
-	}
-	var trivia []token.Token
-	afterNewline := false
-	tok := next()
-triviaLoop:
-	for {
-		switch tok.Type {
-		case token.NEWLINE:
-			afterNewline = true
-		case token.LINE_COMMENT, token.BLOCK_COMMENT:
-			afterNewline = afterNewline || strings.ContainsAny(tok.Literal, "\n\r")
-		default:
-			break triviaLoop
-		}
-		trivia = append(trivia, tok)
-		tok = next()
-	}
-	tok.LeadingTrivia = trivia
-	tok.AfterNewline = afterNewline
-	return tok
-}
+	ofs0 := sc.offset - sc.currentSize
+	triviaErr := scanTrivia(sc)
+	leadingTrivia := string(sc.input[ofs0 : sc.offset-sc.currentSize])
+	afterNewline := strings.ContainsAny(leadingTrivia, "\n\r")
+	line, column := sc.line, sc.column
+	startOffset := sc.offset - sc.currentSize
 
-func (sc *Scanner) skipWhitespaces() {
-	for sc.currentChar == ' ' || sc.currentChar == '\t' {
-		sc.AdvanceChar()
+	tok, err := sc.scanner(sc)
+	tok.LeadingTrivia = leadingTrivia
+	tok.AfterNewline = afterNewline
+	tok.Line = line
+	tok.Column = max(0, column)
+	tok.Offset = startOffset
+	if triviaErr != nil || err != nil {
+		tok.Type = token.ILLEGAL
 	}
+	return tok
 }

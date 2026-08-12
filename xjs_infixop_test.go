@@ -65,7 +65,7 @@ func Example_infixOp_pipeline() {
 			ctx["it"] = v.Left
 			if w, ok := v.Left.(*js.Variable); ok {
 				// TODO: relocate comments to the right member
-				w.LeadingTrivia = nil
+				w.LeadingTrivia = ""
 			}
 			pr.Print(v.Right)
 			return nil

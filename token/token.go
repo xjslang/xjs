@@ -49,7 +49,7 @@ type Token struct {
 	Position
 	Type          Type
 	Literal       string
-	LeadingTrivia []Token
+	LeadingTrivia string
 	AfterNewline  bool
 }
 
@@ -93,10 +93,8 @@ const (
 	RBRACKET  // ]
 	NEWLINE   // \r, \n, \r\n
 	// others
-	NUMBER        // 3.1415
-	LINE_COMMENT  // // ..
-	BLOCK_COMMENT // /* .. */
-	STRING        // '..' or ".."
+	NUMBER // 3.1415
+	STRING // '..' or ".."
 )
 
 var tokenInfo = map[Type]struct {
@@ -141,10 +139,8 @@ var tokenInfo = map[Type]struct {
 	RBRACKET:  {"RBRACKET", "]"},
 	NEWLINE:   {"NEWLINE", "new line"},
 	// others
-	LINE_COMMENT:  {"LINE_COMMENT", ""},
-	BLOCK_COMMENT: {"BLOCK_COMMENT", ""},
-	STRING:        {"STRING", ""},
-	NUMBER:        {"NUMBER", ""},
+	STRING: {"STRING", ""},
+	NUMBER: {"NUMBER", ""},
 }
 
 const initCustomType Type = 1000
