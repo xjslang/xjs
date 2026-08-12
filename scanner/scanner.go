@@ -166,7 +166,3 @@ func (sc *Scanner) skipWhitespaces() {
 		sc.AdvanceChar()
 	}
 }
-
-func (sc *Scanner) prevOffset() int {
-	return sc.offset - sc.currentSize
-}

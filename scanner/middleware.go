@@ -18,6 +18,7 @@ func (s *Scanner) useScanner(scanner func(s *Scanner, next func(*Scanner) (token
 }
 
 func defaultScanner(s *Scanner) (tok token.Token, err error) {
+	ofs0 := s.offset - s.currentSize
 	switch s.currentChar {
 	// operators
 	case '=':
@@ -98,14 +99,15 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 		s.AdvanceChar()
 		switch s.currentChar {
 		case '/':
-			lit := ScanLineComment(s)
+			ScanLineComment(s)
+			lit := string(s.input[ofs0 : s.offset-s.currentSize])
 			tok.Type, tok.Literal = token.LINE_COMMENT, lit
 		case '*':
 			tok.Type = token.BLOCK_COMMENT
-			if tok.Literal, err = ScanBlockComment(s); err != nil {
+			if err = ScanBlockComment(s); err != nil {
 				tok.Type = token.ILLEGAL
-				return
 			}
+			tok.Literal = string(s.input[ofs0 : s.offset-s.currentSize])
 		default:
 			tok.Type, tok.Literal = token.DIVIDE, "/"
 		}
@@ -114,27 +116,27 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 		c := s.currentChar
 		s.AdvanceChar()
 		tok.Type = token.STRING
-		if tok.Literal, err = ScanString(s, c); err != nil {
+		if err = ScanString(s, c); err != nil {
 			tok.Type = token.ILLEGAL
-			return
 		}
+		tok.Literal = string(s.input[ofs0 : s.offset-s.currentSize])
 	case '`':
 		s.AdvanceChar()
 		tok.Type = token.STRING
-		if tok.Literal, err = ScanRawString(s); err != nil {
+		if err = ScanRawString(s); err != nil {
 			tok.Type = token.ILLEGAL
-			return
 		}
+		tok.Literal = string(s.input[ofs0 : s.offset-s.currentSize])
 	case ',':
 		s.AdvanceChar()
 		tok.Type, tok.Literal = token.COMMA, ","
 	case '.':
 		if IsDigit(s.PeekChar()) {
 			tok.Type = token.NUMBER
-			if tok.Literal, err = ScanNumber(s); err != nil {
+			if err = ScanNumber(s); err != nil {
 				tok.Type = token.ILLEGAL
-				return
 			}
+			tok.Literal = string(s.input[ofs0 : s.offset-s.currentSize])
 		} else {
 			s.AdvanceChar()
 			tok.Type, tok.Literal = token.DOT, "."
@@ -177,14 +179,15 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 		tok.Type, tok.Literal = token.NEWLINE, "\n"
 	default:
 		if IsLetter(s.currentChar) {
-			lit := ScanIdentifier(s)
+			ScanIdentifier(s)
+			lit := string(s.input[ofs0 : s.offset-s.currentSize])
 			tok.Type, tok.Literal = token.IDENT, lit
 		} else if IsDigit(s.currentChar) {
 			tok.Type = token.NUMBER
-			if tok.Literal, err = ScanNumber(s); err != nil {
+			if err = ScanNumber(s); err != nil {
 				tok.Type = token.ILLEGAL
-				return
 			}
+			tok.Literal = string(s.input[ofs0 : s.offset-s.currentSize])
 		} else if s.currentChar == utf8.RuneError {
 			c := s.currentChar
 			s.AdvanceChar()

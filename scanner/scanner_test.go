@@ -526,7 +526,7 @@ func TestScanNumber(t *testing.T) {
 		for _, input := range inputs {
 			sb := scanner.Builder{}
 			sc := sb.Build([]byte(input))
-			_, err := scanner.ScanNumber(sc)
+			err := scanner.ScanNumber(sc)
 			assert.Error(t, err)
 		}
 	})

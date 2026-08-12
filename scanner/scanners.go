@@ -2,98 +2,75 @@ package scanner
 
 import (
 	"errors"
-	"strings"
 )
 
-func ScanIdentifier(sc *Scanner) string {
-	ofs := sc.prevOffset()
+func ScanIdentifier(sc *Scanner) {
 	for sc.AdvanceChar(); IsLetter(sc.currentChar) || IsDigit(sc.currentChar); sc.AdvanceChar() {
 	}
-	return string(sc.input[ofs:sc.prevOffset()])
 }
 
-func ScanLineComment(sc *Scanner) string {
-	sb := strings.Builder{}
-	sb.WriteString("//")
+func ScanLineComment(sc *Scanner) {
 	for {
 		sc.AdvanceChar()
 		if sc.currentChar == '\n' {
-			sb.WriteRune(sc.currentChar)
 			sc.AdvanceChar()
 			break
 		} else if sc.currentChar == '\r' {
-			sb.WriteRune(sc.currentChar)
 			sc.AdvanceChar()
 			if sc.currentChar == '\n' {
-				sb.WriteRune(sc.currentChar)
 				sc.AdvanceChar()
 			}
 			break
 		} else if sc.currentChar == EOF {
 			break
 		}
-		sb.WriteRune(sc.currentChar)
 	}
-	return sb.String()
 }
 
-func ScanBlockComment(sc *Scanner) (string, error) {
-	sb := strings.Builder{}
-	sb.WriteString("/*")
+func ScanBlockComment(sc *Scanner) error {
 	sc.AdvanceChar() // consume "*"
 	for {
 		if sc.currentChar == '*' && sc.PeekChar() == '/' {
 			// consume "*/"
 			for range 2 {
-				sb.WriteRune(sc.currentChar)
 				sc.AdvanceChar()
 			}
 			break
 		} else if sc.currentChar == EOF {
-			return sb.String(), errors.New("unexpected end of file")
+			return errors.New("unexpected end of file")
 		}
-		sb.WriteRune(sc.currentChar)
 		sc.AdvanceChar()
 	}
-	return sb.String(), nil
+	return nil
 }
 
-func ScanString(sc *Scanner, delimiter rune) (string, error) {
-	sb := strings.Builder{}
-	sb.WriteRune(delimiter)
+func ScanString(sc *Scanner, delimiter rune) error {
 	for {
 		if sc.currentChar == '\\' {
-			sb.WriteRune(sc.currentChar)
 			sc.AdvanceChar()
 			if sc.currentChar == delimiter || sc.currentChar == '\n' {
-				sb.WriteRune(sc.currentChar)
 				sc.AdvanceChar()
 				continue
 			} else if sc.currentChar == '\r' {
-				sb.WriteRune(sc.currentChar)
 				sc.AdvanceChar()
 				if sc.currentChar == '\n' {
-					sb.WriteRune(sc.currentChar)
 					sc.AdvanceChar()
 				}
 				continue
 			}
 		}
 		if sc.currentChar == delimiter {
-			sb.WriteRune(sc.currentChar)
 			sc.AdvanceChar()
 			break
 		} else if sc.currentChar == EOF || sc.currentChar == '\n' || sc.currentChar == '\r' {
-			return sb.String(), errors.New("unexpected end of line")
+			return errors.New("unexpected end of line")
 		}
-		sb.WriteRune(sc.currentChar)
 		sc.AdvanceChar()
 	}
-	return sb.String(), nil
+	return nil
 }
 
-func ScanRawString(sc *Scanner) (string, error) {
-	sb := strings.Builder{}
+func ScanRawString(sc *Scanner) error {
 	scanHole := func() error {
 		depth := 1
 		for {
@@ -101,8 +78,7 @@ func ScanRawString(sc *Scanner) (string, error) {
 				return errors.New("unexpected end of file")
 			} else if sc.currentChar == '`' {
 				sc.AdvanceChar()
-				s, err := ScanRawString(sc)
-				sb.WriteString(s)
+				err := ScanRawString(sc)
 				if err != nil {
 					return err
 				}
@@ -111,66 +87,52 @@ func ScanRawString(sc *Scanner) (string, error) {
 				depth++
 			} else if sc.currentChar == '}' {
 				depth--
-				sb.WriteRune(sc.currentChar)
 				sc.AdvanceChar()
 				if depth == 0 {
 					return nil
 				}
 				continue
 			}
-			sb.WriteRune(sc.currentChar)
 			sc.AdvanceChar()
 		}
 	}
 
-	sb.WriteRune('`')
 	for {
 		if sc.currentChar == '`' {
-			sb.WriteRune(sc.currentChar)
 			sc.AdvanceChar()
 			break
 		} else if sc.currentChar == '\\' {
-			sb.WriteRune(sc.currentChar)
 			sc.AdvanceChar()
 			switch sc.currentChar {
 			case '`', '$':
-				sb.WriteRune(sc.currentChar)
 				sc.AdvanceChar()
 				continue
 			}
 		} else if sc.currentChar == '$' {
-			sb.WriteRune(sc.currentChar)
 			sc.AdvanceChar()
 			if sc.currentChar == '{' {
-				sb.WriteRune(sc.currentChar)
 				sc.AdvanceChar()
 				if err := scanHole(); err != nil {
-					return sb.String(), err
+					return err
 				}
 			}
 			continue
 		} else if sc.currentChar == EOF {
-			return sb.String(), errors.New("unexpected end of file")
+			return errors.New("unexpected end of file")
 		}
-		sb.WriteRune(sc.currentChar)
 		sc.AdvanceChar()
 	}
-	return sb.String(), nil
+	return nil
 }
 
-func ScanNumber(sc *Scanner) (_ string, err error) {
-	var sb strings.Builder
-	next := func() {
-		sb.WriteRune(sc.currentChar)
-		sc.AdvanceChar()
-	}
+func ScanNumber(sc *Scanner) (err error) {
 	scanDigits := func(check func(rune) bool) error {
-		next()
+		sc.AdvanceChar()
 		if !check(sc.currentChar) {
 			return errors.New("digit expected")
 		}
 		for check(sc.currentChar) {
-			next()
+			sc.AdvanceChar()
 		}
 		if IsLetter(sc.currentChar) || IsDigit(sc.currentChar) {
 			return errors.New("digit expected")
@@ -179,24 +141,24 @@ func ScanNumber(sc *Scanner) (_ string, err error) {
 	}
 	scanDecimal := func() error {
 		for IsDigit(sc.currentChar) {
-			next()
+			sc.AdvanceChar()
 		}
 		if sc.currentChar == '.' {
-			next()
+			sc.AdvanceChar()
 		}
 		for IsDigit(sc.currentChar) {
-			next()
+			sc.AdvanceChar()
 		}
 		if c := sc.currentChar; c == 'e' || c == 'E' {
-			next()
+			sc.AdvanceChar()
 			if c := sc.currentChar; c == '+' || c == '-' {
-				next()
+				sc.AdvanceChar()
 			}
 			if !IsDigit(sc.currentChar) {
 				return errors.New("digit expected")
 			}
 			for {
-				next()
+				sc.AdvanceChar()
 				if !IsDigit(sc.currentChar) {
 					break
 				}
@@ -209,7 +171,7 @@ func ScanNumber(sc *Scanner) (_ string, err error) {
 	}
 	switch sc.currentChar {
 	case '0':
-		next()
+		sc.AdvanceChar()
 		switch sc.currentChar {
 		case 'x', 'X':
 			err = scanDigits(IsHexDigit)
@@ -220,7 +182,7 @@ func ScanNumber(sc *Scanner) (_ string, err error) {
 		default:
 			if IsDigit(sc.currentChar) {
 				for IsDigit(sc.currentChar) {
-					next()
+					sc.AdvanceChar()
 				}
 				if c := sc.currentChar; (c == '.' && IsDigit(sc.PeekChar())) || c == 'e' || c == 'E' {
 					err = scanDecimal()
@@ -234,9 +196,9 @@ func ScanNumber(sc *Scanner) (_ string, err error) {
 	}
 	if err != nil {
 		for IsLetter(sc.currentChar) || IsDigit(sc.currentChar) {
-			next()
+			sc.AdvanceChar()
 		}
-		return sb.String(), err
+		return err
 	}
-	return sb.String(), nil
+	return nil
 }
