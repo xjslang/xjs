@@ -32,7 +32,7 @@ func (b *Builder) UseInfixOpParser(parser func(p *Parser, left ast.Expr, next fu
 	return b
 }
 
-func (b *Builder) Build(sc token.Scanner) *Parser {
+func (b *Builder) Build(s token.Scanner) *Parser {
 	p := &Parser{}
 	for _, stmt := range b.stmtParsers {
 		p.useStmtParser(stmt)
@@ -46,6 +46,6 @@ func (b *Builder) Build(sc token.Scanner) *Parser {
 	for _, infirOpParser := range b.infixOpParsers {
 		p.useInfixOpParser(infirOpParser)
 	}
-	p.init(sc)
+	p.init(s)
 	return p
 }
