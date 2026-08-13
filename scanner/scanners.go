@@ -4,12 +4,13 @@ import (
 	"errors"
 )
 
-func ScanIdentifier(sc *Scanner) {
-	for sc.AdvanceChar(); IsLetter(sc.currentChar) || IsDigit(sc.currentChar); sc.AdvanceChar() {
+func scanIdentifier(sc *Scanner) {
+	for IsLetter(sc.currentChar) || IsDigit(sc.currentChar) {
+		sc.AdvanceChar()
 	}
 }
 
-func ScanLineComment(sc *Scanner) {
+func scanLineComment(sc *Scanner) {
 	for {
 		sc.AdvanceChar()
 		if sc.currentChar == '\n' {
@@ -27,7 +28,7 @@ func ScanLineComment(sc *Scanner) {
 	}
 }
 
-func ScanBlockComment(sc *Scanner) error {
+func scanBlockComment(sc *Scanner) error {
 	sc.AdvanceChar() // consume "*"
 	for {
 		if sc.currentChar == '*' && sc.PeekChar() == '/' {
@@ -44,7 +45,36 @@ func ScanBlockComment(sc *Scanner) error {
 	return nil
 }
 
-func ScanString(sc *Scanner, delimiter rune) error {
+func scanTrivia(sc *Scanner) error {
+loop:
+	for {
+		// skip spaces
+		for {
+			if c := sc.currentChar; c != ' ' && c != '\t' && c != '\n' && c != '\r' {
+				break
+			}
+			sc.AdvanceChar()
+		}
+		if sc.currentChar != '/' {
+			break
+		}
+		switch sc.PeekChar() {
+		case '/':
+			sc.AdvanceChar()
+			scanLineComment(sc)
+		case '*':
+			sc.AdvanceChar()
+			if err := scanBlockComment(sc); err != nil {
+				return err
+			}
+		default:
+			break loop
+		}
+	}
+	return nil
+}
+
+func scanString(sc *Scanner, delimiter rune) error {
 	for {
 		if sc.currentChar == '\\' {
 			sc.AdvanceChar()
@@ -70,7 +100,7 @@ func ScanString(sc *Scanner, delimiter rune) error {
 	return nil
 }
 
-func ScanRawString(sc *Scanner) error {
+func scanRawString(sc *Scanner) error {
 	scanHole := func() error {
 		depth := 1
 		for {
@@ -78,7 +108,7 @@ func ScanRawString(sc *Scanner) error {
 				return errors.New("unexpected end of file")
 			} else if sc.currentChar == '`' {
 				sc.AdvanceChar()
-				err := ScanRawString(sc)
+				err := scanRawString(sc)
 				if err != nil {
 					return err
 				}
@@ -125,7 +155,7 @@ func ScanRawString(sc *Scanner) error {
 	return nil
 }
 
-func ScanNumber(sc *Scanner) (err error) {
+func scanNumber(sc *Scanner) (err error) {
 	scanDigits := func(check func(rune) bool) error {
 		sc.AdvanceChar()
 		if !check(sc.currentChar) {
@@ -199,35 +229,6 @@ func ScanNumber(sc *Scanner) (err error) {
 			sc.AdvanceChar()
 		}
 		return err
-	}
-	return nil
-}
-
-func scanTrivia(sc *Scanner) error {
-loop:
-	for {
-		// skip spaces
-		for {
-			if c := sc.currentChar; c != ' ' && c != '\t' && c != '\n' && c != '\r' {
-				break
-			}
-			sc.AdvanceChar()
-		}
-		if sc.currentChar != '/' {
-			break
-		}
-		switch sc.PeekChar() {
-		case '/':
-			sc.AdvanceChar()
-			ScanLineComment(sc)
-		case '*':
-			sc.AdvanceChar()
-			if err := ScanBlockComment(sc); err != nil {
-				return err
-			}
-		default:
-			break loop
-		}
 	}
 	return nil
 }

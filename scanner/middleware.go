@@ -103,14 +103,14 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 		c := s.currentChar
 		s.AdvanceChar()
 		tok.Type = token.STRING
-		if err = ScanString(s, c); err != nil {
+		if err = scanString(s, c); err != nil {
 			tok.Type = token.ILLEGAL
 		}
 		tok.Literal = string(s.input[ofs0 : s.offset-s.currentSize])
 	case '`':
 		s.AdvanceChar()
 		tok.Type = token.STRING
-		if err = ScanRawString(s); err != nil {
+		if err = scanRawString(s); err != nil {
 			tok.Type = token.ILLEGAL
 		}
 		tok.Literal = string(s.input[ofs0 : s.offset-s.currentSize])
@@ -120,7 +120,7 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 	case '.':
 		if IsDigit(s.PeekChar()) {
 			tok.Type = token.NUMBER
-			if err = ScanNumber(s); err != nil {
+			if err = scanNumber(s); err != nil {
 				tok.Type = token.ILLEGAL
 			}
 			tok.Literal = string(s.input[ofs0 : s.offset-s.currentSize])
@@ -166,12 +166,12 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 		tok.Type, tok.Literal = token.NEWLINE, "\n"
 	default:
 		if IsLetter(s.currentChar) {
-			ScanIdentifier(s)
+			scanIdentifier(s)
 			lit := string(s.input[ofs0 : s.offset-s.currentSize])
 			tok.Type, tok.Literal = token.IDENT, lit
 		} else if IsDigit(s.currentChar) {
 			tok.Type = token.NUMBER
-			if err = ScanNumber(s); err != nil {
+			if err = scanNumber(s); err != nil {
 				tok.Type = token.ILLEGAL
 			}
 			tok.Literal = string(s.input[ofs0 : s.offset-s.currentSize])
