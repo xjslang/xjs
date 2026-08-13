@@ -1,17 +1,15 @@
 package parser
 
 import (
-	"strconv"
 	"strings"
-	"unicode/utf8"
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/token"
 )
 
 type Range struct {
-	Start token.Position `json:"start"`
-	End   token.Position `json:"end"`
+	Start int `json:"start"`
+	End   int `json:"end"`
 }
 
 type Error struct {
@@ -20,10 +18,7 @@ type Error struct {
 }
 
 func (err Error) Error() string {
-	start := err.Range.Start
-	return "[line:" + strconv.Itoa(start.Line) +
-		", col:" + strconv.Itoa(start.Column) +
-		"] " + err.Message
+	return err.Message
 }
 
 type ErrorList []error
@@ -148,7 +143,7 @@ func (p *Parser) ExpectLiteral(s string) (token.Token, error) {
 func (p *Parser) ExpectWith(scanner func(s token.Scanner) (string, error)) (tok token.Token, err error) {
 	tok = p.CurrentToken
 	s := p.scanner.(token.ForkableScanner)
-	f := s.ForkFrom(p.CurrentToken.Position)
+	f := s.ForkFrom(p.CurrentToken.Offset)
 	if tok.Literal, err = scanner(f); err != nil {
 		return
 	}
@@ -165,21 +160,14 @@ func (p *Parser) Error(msg string) error {
 
 // ErrorAt returns an error at the given token position.
 func (p *Parser) ErrorAt(tok token.Token, msg string) error {
-	line := tok.Line
-	column := tok.Column
+	offset := tok.Offset
 	if tok.Type == token.EOF {
-		column++
+		offset++
 	}
 	return Error{
 		Range: Range{
-			Start: token.Position{
-				Line:   line,
-				Column: column,
-			},
-			End: token.Position{
-				Line:   line,
-				Column: column + utf8.RuneCountInString(tok.Literal),
-			},
+			Start: offset,
+			End:   offset + len(tok.Literal),
 		},
 		Message: msg,
 	}

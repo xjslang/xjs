@@ -94,17 +94,17 @@ func ExpectSemi(p *parser.Parser) (tok token.Token, err error) {
 		return
 	case token.RBRACE, token.RPAREN, token.EOF:
 		tok = token.Token{
-			Type:     token.SEMICOLON,
-			Literal:  token.SEMICOLON.Literal(),
-			Position: tok.Position,
+			Type:    token.SEMICOLON,
+			Literal: token.SEMICOLON.Literal(),
+			Offset:  tok.Offset,
 		}
 		return
 	default:
 		if tok.AfterNewline {
 			tok = token.Token{
-				Type:     token.SEMICOLON,
-				Literal:  token.SEMICOLON.Literal(),
-				Position: tok.Position,
+				Type:    token.SEMICOLON,
+				Literal: token.SEMICOLON.Literal(),
+				Offset:  tok.Offset,
 			}
 			return
 		}

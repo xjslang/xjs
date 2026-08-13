@@ -13,14 +13,12 @@ import (
 const eol = rune(-1)
 
 type Error struct {
-	token.Position
+	Offset  int
 	Message string
 }
 
 func (err Error) Error() string {
-	return "[line:" + strconv.Itoa(err.Line) +
-		", col:" + strconv.Itoa(err.Column) +
-		"] " + err.Message
+	return err.Message
 }
 
 type ErrorList []error
@@ -189,19 +187,7 @@ func (pr *Printer) PrintTrivia(trivia string) {
 }
 
 func (pr *Printer) Error(msg string) error {
-	s := pr.doc.String()
-	line, col := 0, 0
-	for _, c := range s {
-		if c == '\n' {
-			line++
-			col = -1
-		}
-		col++
-	}
-	return ErrorAt(token.Position{
-		Line:   line,
-		Column: col,
-	}, msg)
+	return ErrorAt(pr.doc.Len(), msg)
 }
 
 func (pr *Printer) Errors() ErrorList {

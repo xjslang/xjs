@@ -468,7 +468,7 @@ func TestErrorAt(t *testing.T) {
 		switch v := node.(type) {
 		case *js.PrefixOp:
 			if v.Op.Type == spreadOp {
-				return printer.ErrorAt(v.Op.Position, "spread operator is not printable")
+				return printer.ErrorAt(v.Op.Offset, "spread operator is not printable")
 			}
 		}
 		return next(pr, node)
@@ -481,7 +481,10 @@ func TestErrorAt(t *testing.T) {
 	require.NoError(t, err)
 	pr.Print(result)
 	_, err = pr.Output()
-	require.EqualError(t, err, "[line:0, col:8] spread operator is not printable")
+	var perr printer.Error
+	require.ErrorAs(t, err, &perr)
+	require.Equal(t, "spread operator is not printable", perr.Message)
+	require.Equal(t, 8, perr.Offset)
 }
 
 func TestError(t *testing.T) {
@@ -489,10 +492,10 @@ func TestError(t *testing.T) {
 	pr := pb.Build()
 	pr.Print("aaa\nbbb")
 	err := pr.Error("something went wrong")
-	var errPos printer.Error
-	require.ErrorAs(t, err, &errPos)
-	require.Equal(t, "something went wrong", errPos.Message)
-	require.EqualError(t, err, "[line:1, col:3] something went wrong")
+	var perr printer.Error
+	require.ErrorAs(t, err, &perr)
+	require.Equal(t, "something went wrong", perr.Message)
+	require.Equal(t, 7, perr.Offset)
 }
 
 type AsyncFunctionDecl struct {
@@ -575,7 +578,7 @@ func TestPrinterContext(t *testing.T) {
 				ctx := pr.Context()
 				_, ok := ctx["async"]
 				if !ok {
-					return printer.ErrorAt(v.Layout.Await.Position, "await is allowed only inside async functions")
+					return printer.ErrorAt(v.Layout.Await.Offset, "await is allowed only inside async functions")
 				}
 				pr.Line().Print(v.Layout.Await)
 				pr.Space().Print(v.Expr)
