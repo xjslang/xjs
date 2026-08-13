@@ -38,7 +38,7 @@ func ExampleScannerBuilder() {
 	input := `
 	name ~~ "john*"
 	name ~! "admin*"`
-	sc := sb.Build([]byte(input))
+	sc := sb.Build(input)
 	for tok := sc.NextToken(); tok.Type != token.EOF; tok = sc.NextToken() {
 		fmt.Printf("[%q: %s]", tok.Literal, tok.Type.Name())
 	}

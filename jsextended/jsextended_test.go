@@ -17,7 +17,7 @@ import (
 	"github.com/xorcare/golden"
 )
 
-func Parse(input []byte) (*js.Program, error) {
+func Parse(input string) (*js.Program, error) {
 	sb := jsextended.ScannerBuilder()
 	sc := sb.Build(input)
 	pb := jsextended.ParserBuilder()
@@ -37,7 +37,8 @@ func BenchmarkParse(b *testing.B) {
 	require.NotEmpty(b, dat)
 
 	// verify that it can be parsed and printed
-	result, err := Parse(dat)
+	src := string(dat)
+	result, err := Parse(src)
 	require.NoError(b, err)
 	code, err := Print(result)
 	require.NoError(b, err)
@@ -45,7 +46,7 @@ func BenchmarkParse(b *testing.B) {
 
 	b.ResetTimer()
 	for b.Loop() {
-		_, _ = Parse(dat)
+		_, _ = Parse(src)
 	}
 }
 
@@ -55,7 +56,7 @@ func BenchmarkPrint(b *testing.B) {
 	require.NotEmpty(b, dat)
 
 	// verify that it can be parsed and printed
-	result, err := Parse(dat)
+	result, err := Parse(string(dat))
 	require.NoError(b, err)
 	code, err := Print(result)
 	require.NoError(b, err)
@@ -73,7 +74,8 @@ func BenchmarkParseAndPrint(b *testing.B) {
 	require.NotEmpty(b, dat)
 
 	// verify that it can be parsed and printed
-	result, err := Parse(dat)
+	src := string(dat)
+	result, err := Parse(src)
 	require.NoError(b, err)
 	code, err := Print(result)
 	require.NoError(b, err)
@@ -81,7 +83,7 @@ func BenchmarkParseAndPrint(b *testing.B) {
 
 	b.ResetTimer()
 	for b.Loop() {
-		result, _ = Parse(dat)
+		result, _ = Parse(src)
 		_, _ = Print(result)
 	}
 }
@@ -96,7 +98,7 @@ func TestRoundtripFiles(t *testing.T) {
 			require.NoError(t, err)
 
 			// data -> AST
-			result, err := Parse(data)
+			result, err := Parse(string(data))
 			require.NoError(t, err)
 
 			// AST -> code
@@ -118,7 +120,7 @@ func TestDebugFiles(t *testing.T) {
 			require.NoError(t, err)
 
 			// data -> AST
-			result, err := Parse(data)
+			result, err := Parse(string(data))
 			require.NoError(t, err)
 
 			// AST -> code
@@ -139,13 +141,13 @@ func TestCheckFiles(t *testing.T) {
 			data, err := os.ReadFile(file)
 			require.NoError(t, err)
 
-			result1, err := Parse(data)
+			result1, err := Parse(string(data))
 			require.NoError(t, err)
 
 			code1, err := Print(result1, printer.Compact())
 			require.NoError(t, err)
 
-			result2, err := Parse([]byte(code1))
+			result2, err := Parse(code1)
 			require.NoError(t, err)
 
 			code2, err := Print(result2, printer.Compact())
@@ -165,7 +167,7 @@ func TestErrorFiles(t *testing.T) {
 			require.NoError(t, err)
 
 			// data -> AST
-			_, errs := Parse(data)
+			_, errs := Parse(string(data))
 			require.Error(t, errs)
 			require.IsType(t, parser.ErrorList{}, errs)
 

@@ -85,7 +85,7 @@ func Example_infixOp_pipeline() {
 
 	// parsing
 	input := `const result = raw |> it.trim() |> it.toLowerCase() |> encodeURIComponent(it);`
-	s := sb.Build([]byte(input))
+	s := sb.Build(input)
 	p := pb.Build(s)
 	result, err := js.ParseProgram(p)
 	if err != nil {

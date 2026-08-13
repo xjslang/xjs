@@ -12,7 +12,8 @@ func (b *Builder) UseScanner(scanner func(sc *Scanner, next func(*Scanner) (toke
 	return b
 }
 
-func (b *Builder) Build(input []byte) *Scanner {
+// TODO: Scanner.Builder.Build now accepts a string and the scanner populates Token.Literal/LeadingTrivia using string slices. In Go, substrings retain a reference to the entire original string, so keeping tokens/AST nodes alive will also keep the full source input alive. If this is intentional for perf, it should be documented on the public Build API (and/or Scanner) so callers understand the memory-ownership tradeoff.
+func (b *Builder) Build(input string) *Scanner {
 	sc := &Scanner{}
 	for _, scanner := range b.scanners {
 		sc.useScanner(scanner)

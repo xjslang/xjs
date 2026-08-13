@@ -67,7 +67,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	program, err := internal.Parse(data)
+	program, err := internal.Parse(string(data))
 
 	// prints errors
 	if checkFlag {

@@ -29,7 +29,7 @@ type MyCustomStmt struct {
 
 func ExampleBuilder_Build() {
 	sb := scanner.Builder{}
-	s := sb.Build([]byte("print('Hello, World!')"))
+	s := sb.Build("print('Hello, World!')")
 	pb := parser.Builder{}
 	p := pb.
 		UseStmtParser(func(p *parser.Parser, next func(*parser.Parser) (ast.Stmt, error)) (_ ast.Stmt, err error) {
@@ -87,7 +87,7 @@ func TestLookahead(t *testing.T) {
 	t.Run("resolved", func(t *testing.T) {
 		input := "b"
 		sb := scanner.Builder{}
-		s := sb.Build([]byte(input))
+		s := sb.Build(input)
 		pb := parser.Builder{}
 		p := pb.Build(s)
 		result, err := parser.Switch(p, func(p *parser.Parser) (*js.Variable, error) {
@@ -103,7 +103,7 @@ func TestLookahead(t *testing.T) {
 	t.Run("not resolved", func(t *testing.T) {
 		input := "c"
 		sb := scanner.Builder{}
-		s := sb.Build([]byte(input))
+		s := sb.Build(input)
 		pb := parser.Builder{}
 		p := pb.Build(s)
 		_, err := parser.Switch(p, func(p *parser.Parser) (*js.Variable, error) {
@@ -127,7 +127,7 @@ func TestMalformedExpr(t *testing.T) {
 			{"{ let x = 100", "} expected"},
 		}
 		for i, test := range tests {
-			s := xjs.ScannerBuilder().Build([]byte(test.input))
+			s := xjs.ScannerBuilder().Build(test.input)
 			p := xjs.ParserBuilder().Build(s)
 			_, err := js.ParseBlockStmt(p)
 			if err == nil {
@@ -147,7 +147,7 @@ func TestMalformedExpr(t *testing.T) {
 			{"(1 + 2", ") expected"},
 		}
 		for i, test := range tests {
-			s := xjs.ScannerBuilder().Build([]byte(test.input))
+			s := xjs.ScannerBuilder().Build(test.input)
 			p := xjs.ParserBuilder().Build(s)
 			_, err := js.ParsePrefixParenOp(p)
 			if err == nil {
@@ -171,7 +171,7 @@ func TestInvalidTokenAfterNewline(t *testing.T) {
 				} else {
 					input = test
 				}
-				s := xjs.ScannerBuilder().Build([]byte(input))
+				s := xjs.ScannerBuilder().Build(input)
 				p := xjs.ParserBuilder().Build(s)
 				var err error
 				if i > 0 {
@@ -230,7 +230,7 @@ func TestExpectWith(t *testing.T) {
 	/lorem ipsum dolor/gd
 	'lorem ipsum'`
 	sb := scanner.Builder{}
-	s := sb.Build([]byte(input))
+	s := sb.Build(input)
 	pb := parser.Builder{}
 	p := pb.Build(s)
 	tok, err := p.ExpectWith(scanRegex)

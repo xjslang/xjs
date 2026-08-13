@@ -15,7 +15,7 @@ func ExampleCompile() {
 		"Hello, " |
 		<strong>"World!"</strong>
 	</p>`
-	result, err := jsx.Parse([]byte(input))
+	result, err := jsx.Parse(input)
 	if err != nil {
 		panic(err)
 	}
@@ -32,7 +32,7 @@ func ExampleCompile() {
 func ExampleFormat() {
 	// transform the input to AST
 	input := `let p = <p>"Hello, " | <strong>"World!"</strong></p>`
-	result, err := jsx.Parse([]byte(input))
+	result, err := jsx.Parse(input)
 	if err != nil {
 		panic(err)
 	}
@@ -54,7 +54,7 @@ func ExampleFormat() {
 func TestParse(t *testing.T) {
 	t.Run("errors", func(t *testing.T) {
 		input := "<div>'Hello, World!'</p>"
-		_, err := jsx.Parse([]byte(input))
+		_, err := jsx.Parse(input)
 		require.Error(t, err)
 		require.Equal(t, err.Error(), "[line:0, col:22] expected closing tag </div>")
 	})
@@ -63,7 +63,7 @@ func TestParse(t *testing.T) {
 func TestCompile(t *testing.T) {
 	t.Run("empty tag", func(t *testing.T) {
 		input := `let p = <p></p>`
-		result, err := jsx.Parse([]byte(input))
+		result, err := jsx.Parse(input)
 		require.NoError(t, err)
 		out, err := jsx.Compile(result)
 		require.NoError(t, err)
@@ -74,7 +74,7 @@ func TestCompile(t *testing.T) {
 func TestFormat(t *testing.T) {
 	t.Run("empty tags", func(t *testing.T) {
 		input := `let p = <p></p>`
-		result, err := jsx.Parse([]byte(input))
+		result, err := jsx.Parse(input)
 		require.NoError(t, err)
 		out, err := jsx.Format(result)
 		require.NoError(t, err)
@@ -87,7 +87,7 @@ func TestFormat(t *testing.T) {
 		<strong>
 		/* c2 */
 		"World!"</strong></p>`
-		result, err := jsx.Parse([]byte(input))
+		result, err := jsx.Parse(input)
 		require.NoError(t, err)
 
 		// transform the AST to properly formatted code

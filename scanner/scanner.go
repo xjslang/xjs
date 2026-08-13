@@ -10,7 +10,7 @@ import (
 const EOF = rune(-1)
 
 type Scanner struct {
-	input        []byte
+	input        string
 	offset       int
 	line, column int
 	scanner      func(*Scanner) (token.Token, error)
@@ -18,7 +18,7 @@ type Scanner struct {
 	currentChar  rune
 }
 
-func (s *Scanner) init(input []byte) {
+func (s *Scanner) init(input string) {
 	s.input = input
 	if s.scanner == nil {
 		s.scanner = defaultScanner
@@ -90,14 +90,14 @@ func (s *Scanner) CurrentChar() rune {
 
 func (s *Scanner) PeekChar() rune {
 	if s.offset < len(s.input) {
-		r, _ := utf8.DecodeRune(s.input[s.offset:])
+		r, _ := utf8.DecodeRuneInString(s.input[s.offset:])
 		return r
 	}
 	return EOF
 }
 
 func (s *Scanner) AdvanceChar() {
-	r, size := utf8.DecodeRune(s.input[s.offset:])
+	r, size := utf8.DecodeRuneInString(s.input[s.offset:])
 	s.offset += size
 	// covers "\r", "\n" and "\r\n"
 	switch r {
