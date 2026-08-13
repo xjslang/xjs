@@ -25,79 +25,77 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 		s.AdvanceChar()
 		if s.currentChar == '=' {
 			s.AdvanceChar()
-			tok.Type, tok.Literal = token.EQ, "=="
+			tok.Type = token.EQ
 		} else {
-			tok.Type, tok.Literal = token.ASSIGN, "="
+			tok.Type = token.ASSIGN
 		}
 	case '!':
 		s.AdvanceChar()
 		if s.currentChar == '=' {
 			s.AdvanceChar()
-			tok.Type, tok.Literal = token.NOT_EQ, "!="
+			tok.Type = token.NOT_EQ
 		} else {
-			tok.Type, tok.Literal = token.NOT, "!"
+			tok.Type = token.NOT
 		}
 	case '<':
 		s.AdvanceChar()
 		if s.currentChar == '=' {
 			s.AdvanceChar()
-			tok.Type, tok.Literal = token.LTE, "<="
+			tok.Type = token.LTE
 		} else {
-			tok.Type, tok.Literal = token.LT, "<"
+			tok.Type = token.LT
 		}
 	case '>':
 		s.AdvanceChar()
 		if s.currentChar == '=' {
 			s.AdvanceChar()
-			tok.Type, tok.Literal = token.GTE, ">="
+			tok.Type = token.GTE
 		} else {
-			tok.Type, tok.Literal = token.GT, ">"
+			tok.Type = token.GT
 		}
 	case '|':
-		c := s.currentChar
 		s.AdvanceChar()
 		if s.currentChar == '|' {
 			s.AdvanceChar()
-			tok.Type, tok.Literal = token.OR, "||"
+			tok.Type = token.OR
 		} else {
-			tok.Type, tok.Literal = token.UNKNOWN, string(c)
+			tok.Type = token.UNKNOWN
 		}
 	case '&':
-		c := s.currentChar
 		s.AdvanceChar()
 		if s.currentChar == '&' {
 			s.AdvanceChar()
-			tok.Type, tok.Literal = token.AND, "&&"
+			tok.Type = token.AND
 		} else {
-			tok.Type, tok.Literal = token.UNKNOWN, string(c)
+			tok.Type = token.UNKNOWN
 		}
 	// maths operators
 	case '+':
 		s.AdvanceChar()
 		if s.currentChar == '+' {
 			s.AdvanceChar()
-			tok.Type, tok.Literal = token.INCREMENT, "++"
+			tok.Type = token.INCREMENT
 		} else {
-			tok.Type, tok.Literal = token.PLUS, "+"
+			tok.Type = token.PLUS
 		}
 	case '-':
 		s.AdvanceChar()
 		if s.currentChar == '-' {
 			s.AdvanceChar()
-			tok.Type, tok.Literal = token.DECREMENT, "--"
+			tok.Type = token.DECREMENT
 		} else {
-			tok.Type, tok.Literal = token.MINUS, "-"
+			tok.Type = token.MINUS
 		}
 	case '*':
 		s.AdvanceChar()
-		tok.Type, tok.Literal = token.MULTIPLY, "*"
+		tok.Type = token.MULTIPLY
 	case '%':
 		s.AdvanceChar()
-		tok.Type, tok.Literal = token.MODULO, "%"
+		tok.Type = token.MODULO
 	// divide operator and comments
 	case '/':
 		s.AdvanceChar()
-		tok.Type, tok.Literal = token.DIVIDE, "/"
+		tok.Type = token.DIVIDE
 	// delimiters
 	case '\'', '"':
 		c := s.currentChar
@@ -106,86 +104,79 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 		if err = scanString(s, c); err != nil {
 			tok.Type = token.ILLEGAL
 		}
-		tok.Literal = s.input[ofs0 : s.offset-s.currentSize]
 	case '`':
 		s.AdvanceChar()
 		tok.Type = token.STRING
 		if err = scanRawString(s); err != nil {
 			tok.Type = token.ILLEGAL
 		}
-		tok.Literal = s.input[ofs0 : s.offset-s.currentSize]
 	case ',':
 		s.AdvanceChar()
-		tok.Type, tok.Literal = token.COMMA, ","
+		tok.Type = token.COMMA
 	case '.':
 		if IsDigit(s.PeekChar()) {
 			tok.Type = token.NUMBER
 			if err = scanNumber(s); err != nil {
 				tok.Type = token.ILLEGAL
 			}
-			tok.Literal = s.input[ofs0 : s.offset-s.currentSize]
 		} else {
 			s.AdvanceChar()
-			tok.Type, tok.Literal = token.DOT, "."
+			tok.Type = token.DOT
 		}
 	case ';':
 		s.AdvanceChar()
-		tok.Type, tok.Literal = token.SEMICOLON, ";"
+		tok.Type = token.SEMICOLON
 	case '(':
 		s.AdvanceChar()
-		tok.Type, tok.Literal = token.LPAREN, "("
+		tok.Type = token.LPAREN
 	case ')':
 		s.AdvanceChar()
-		tok.Type, tok.Literal = token.RPAREN, ")"
+		tok.Type = token.RPAREN
 	case '{':
 		s.AdvanceChar()
-		tok.Type, tok.Literal = token.LBRACE, "{"
+		tok.Type = token.LBRACE
 	case '}':
 		s.AdvanceChar()
-		tok.Type, tok.Literal = token.RBRACE, "}"
+		tok.Type = token.RBRACE
 	case '[':
 		s.AdvanceChar()
-		tok.Type, tok.Literal = token.LBRACKET, "["
-		return
+		tok.Type = token.LBRACKET
 	case ']':
 		s.AdvanceChar()
-		tok.Type, tok.Literal = token.RBRACKET, "]"
+		tok.Type = token.RBRACKET
 	case ':':
 		s.AdvanceChar()
-		tok.Type, tok.Literal = token.COLON, ":"
+		tok.Type = token.COLON
 	case '\r':
 		s.AdvanceChar()
 		if s.currentChar == '\n' {
 			s.AdvanceChar()
-			tok.Type, tok.Literal = token.NEWLINE, "\r\n"
+			tok.Type = token.NEWLINE
 		} else {
-			tok.Type, tok.Literal = token.NEWLINE, "\r"
+			tok.Type = token.NEWLINE
 		}
 	case '\n':
 		s.AdvanceChar()
-		tok.Type, tok.Literal = token.NEWLINE, "\n"
+		tok.Type = token.NEWLINE
 	default:
 		if IsLetter(s.currentChar) {
 			scanIdentifier(s)
-			lit := s.input[ofs0 : s.offset-s.currentSize]
-			tok.Type, tok.Literal = token.IDENT, lit
+			tok.Type = token.IDENT
 		} else if IsDigit(s.currentChar) {
 			tok.Type = token.NUMBER
 			if err = scanNumber(s); err != nil {
 				tok.Type = token.ILLEGAL
 			}
-			tok.Literal = s.input[ofs0 : s.offset-s.currentSize]
 		} else if s.currentChar == utf8.RuneError {
-			c := s.currentChar
 			s.AdvanceChar()
-			tok.Type, tok.Literal = token.ILLEGAL, string(c)
+			tok.Type = token.ILLEGAL
 		} else if s.currentChar == EOF {
 			tok.Type = token.EOF
 		} else {
-			c := s.currentChar
 			s.AdvanceChar()
-			tok.Type, tok.Literal = token.UNKNOWN, string(c)
+			tok.Type = token.UNKNOWN
 		}
 	}
+	tok.Literal = s.input[ofs0 : s.offset-s.currentSize]
 	return
 }
