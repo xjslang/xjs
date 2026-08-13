@@ -52,8 +52,8 @@ type Parser struct {
 	prefixOpParser func(p *Parser) (ast.Expr, error)
 }
 
-func (p *Parser) init(sc token.Scanner) {
-	p.scanner = sc
+func (p *Parser) init(s token.Scanner) {
+	p.scanner = s
 	if p.stmtParser == nil {
 		p.stmtParser = defaultStmtParser
 	}
@@ -77,11 +77,11 @@ func (p *Parser) init(sc token.Scanner) {
 //
 // See also: [Parser.Apply]
 func (p *Parser) Fork() *Parser {
-	sc := p.scanner.(token.ForkableScanner)
+	s := p.scanner.(token.ForkableScanner)
 	return &Parser{
 		CurrentToken:   p.CurrentToken,
 		PeekToken:      p.PeekToken,
-		scanner:        sc.Fork(),
+		scanner:        s.Fork(),
 		stmtParser:     p.stmtParser,
 		exprParser:     p.exprParser,
 		infixOpParser:  p.infixOpParser,
@@ -93,8 +93,8 @@ func (p *Parser) Fork() *Parser {
 //
 // See also: [Parser.Fork]
 func (p *Parser) Apply(forked *Parser) {
-	sc := p.scanner.(token.ForkableScanner)
-	sc.Apply(forked.scanner)
+	s := p.scanner.(token.ForkableScanner)
+	s.Apply(forked.scanner)
 	p.CurrentToken = forked.CurrentToken
 	p.PeekToken = forked.PeekToken
 }
@@ -145,14 +145,14 @@ func (p *Parser) ExpectLiteral(s string) (token.Token, error) {
 }
 
 // ExpectWith consumes the current token if it is accepted by the given scanner function, or returns an error.
-func (p *Parser) ExpectWith(scanner func(sc token.Scanner) (string, error)) (tok token.Token, err error) {
+func (p *Parser) ExpectWith(scanner func(s token.Scanner) (string, error)) (tok token.Token, err error) {
 	tok = p.CurrentToken
-	sc := p.scanner.(token.ForkableScanner)
-	f := sc.ForkFrom(p.CurrentToken.Position)
+	s := p.scanner.(token.ForkableScanner)
+	f := s.ForkFrom(p.CurrentToken.Position)
 	if tok.Literal, err = scanner(f); err != nil {
 		return
 	}
-	sc.Apply(f)
+	s.Apply(f)
 	p.AdvanceToken()
 	p.CurrentToken = tok
 	return

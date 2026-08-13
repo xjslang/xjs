@@ -4,67 +4,67 @@ import (
 	"errors"
 )
 
-func scanIdentifier(sc *Scanner) {
-	for IsLetter(sc.currentChar) || IsDigit(sc.currentChar) {
-		sc.AdvanceChar()
+func scanIdentifier(s *Scanner) {
+	for IsLetter(s.currentChar) || IsDigit(s.currentChar) {
+		s.AdvanceChar()
 	}
 }
 
-func scanLineComment(sc *Scanner) {
+func scanLineComment(s *Scanner) {
 	for {
-		sc.AdvanceChar()
-		if sc.currentChar == '\n' {
-			sc.AdvanceChar()
+		s.AdvanceChar()
+		if s.currentChar == '\n' {
+			s.AdvanceChar()
 			break
-		} else if sc.currentChar == '\r' {
-			sc.AdvanceChar()
-			if sc.currentChar == '\n' {
-				sc.AdvanceChar()
+		} else if s.currentChar == '\r' {
+			s.AdvanceChar()
+			if s.currentChar == '\n' {
+				s.AdvanceChar()
 			}
 			break
-		} else if sc.currentChar == EOF {
+		} else if s.currentChar == EOF {
 			break
 		}
 	}
 }
 
-func scanBlockComment(sc *Scanner) error {
-	sc.AdvanceChar() // consume "*"
+func scanBlockComment(s *Scanner) error {
+	s.AdvanceChar() // consume "*"
 	for {
-		if sc.currentChar == '*' && sc.PeekChar() == '/' {
+		if s.currentChar == '*' && s.PeekChar() == '/' {
 			// consume "*/"
 			for range 2 {
-				sc.AdvanceChar()
+				s.AdvanceChar()
 			}
 			break
-		} else if sc.currentChar == EOF {
+		} else if s.currentChar == EOF {
 			return errors.New("unexpected end of file")
 		}
-		sc.AdvanceChar()
+		s.AdvanceChar()
 	}
 	return nil
 }
 
-func scanTrivia(sc *Scanner) error {
+func scanTrivia(s *Scanner) error {
 loop:
 	for {
 		// skip spaces
 		for {
-			if c := sc.currentChar; c != ' ' && c != '\t' && c != '\n' && c != '\r' {
+			if c := s.currentChar; c != ' ' && c != '\t' && c != '\n' && c != '\r' {
 				break
 			}
-			sc.AdvanceChar()
+			s.AdvanceChar()
 		}
-		if sc.currentChar != '/' {
+		if s.currentChar != '/' {
 			break
 		}
-		switch sc.PeekChar() {
+		switch s.PeekChar() {
 		case '/':
-			sc.AdvanceChar()
-			scanLineComment(sc)
+			s.AdvanceChar()
+			scanLineComment(s)
 		case '*':
-			sc.AdvanceChar()
-			if err := scanBlockComment(sc); err != nil {
+			s.AdvanceChar()
+			if err := scanBlockComment(s); err != nil {
 				return err
 			}
 		default:
@@ -74,135 +74,135 @@ loop:
 	return nil
 }
 
-func scanString(sc *Scanner, delimiter rune) error {
+func scanString(s *Scanner, delimiter rune) error {
 	for {
-		if sc.currentChar == '\\' {
-			sc.AdvanceChar()
-			if sc.currentChar == delimiter || sc.currentChar == '\n' {
-				sc.AdvanceChar()
+		if s.currentChar == '\\' {
+			s.AdvanceChar()
+			if s.currentChar == delimiter || s.currentChar == '\n' {
+				s.AdvanceChar()
 				continue
-			} else if sc.currentChar == '\r' {
-				sc.AdvanceChar()
-				if sc.currentChar == '\n' {
-					sc.AdvanceChar()
+			} else if s.currentChar == '\r' {
+				s.AdvanceChar()
+				if s.currentChar == '\n' {
+					s.AdvanceChar()
 				}
 				continue
 			}
 		}
-		if sc.currentChar == delimiter {
-			sc.AdvanceChar()
+		if s.currentChar == delimiter {
+			s.AdvanceChar()
 			break
-		} else if sc.currentChar == EOF || sc.currentChar == '\n' || sc.currentChar == '\r' {
+		} else if s.currentChar == EOF || s.currentChar == '\n' || s.currentChar == '\r' {
 			return errors.New("unexpected end of line")
 		}
-		sc.AdvanceChar()
+		s.AdvanceChar()
 	}
 	return nil
 }
 
-func scanRawString(sc *Scanner) error {
+func scanRawString(s *Scanner) error {
 	scanHole := func() error {
 		depth := 1
 		for {
-			if sc.currentChar == EOF {
+			if s.currentChar == EOF {
 				return errors.New("unexpected end of file")
-			} else if sc.currentChar == '`' {
-				sc.AdvanceChar()
-				err := scanRawString(sc)
+			} else if s.currentChar == '`' {
+				s.AdvanceChar()
+				err := scanRawString(s)
 				if err != nil {
 					return err
 				}
 				continue
-			} else if sc.currentChar == '{' {
+			} else if s.currentChar == '{' {
 				depth++
-			} else if sc.currentChar == '}' {
+			} else if s.currentChar == '}' {
 				depth--
-				sc.AdvanceChar()
+				s.AdvanceChar()
 				if depth == 0 {
 					return nil
 				}
 				continue
 			}
-			sc.AdvanceChar()
+			s.AdvanceChar()
 		}
 	}
 
 	for {
-		if sc.currentChar == '`' {
-			sc.AdvanceChar()
+		if s.currentChar == '`' {
+			s.AdvanceChar()
 			break
-		} else if sc.currentChar == '\\' {
-			sc.AdvanceChar()
-			switch sc.currentChar {
+		} else if s.currentChar == '\\' {
+			s.AdvanceChar()
+			switch s.currentChar {
 			case '`', '$':
-				sc.AdvanceChar()
+				s.AdvanceChar()
 				continue
 			}
-		} else if sc.currentChar == '$' {
-			sc.AdvanceChar()
-			if sc.currentChar == '{' {
-				sc.AdvanceChar()
+		} else if s.currentChar == '$' {
+			s.AdvanceChar()
+			if s.currentChar == '{' {
+				s.AdvanceChar()
 				if err := scanHole(); err != nil {
 					return err
 				}
 			}
 			continue
-		} else if sc.currentChar == EOF {
+		} else if s.currentChar == EOF {
 			return errors.New("unexpected end of file")
 		}
-		sc.AdvanceChar()
+		s.AdvanceChar()
 	}
 	return nil
 }
 
-func scanNumber(sc *Scanner) (err error) {
+func scanNumber(s *Scanner) (err error) {
 	scanDigits := func(check func(rune) bool) error {
-		sc.AdvanceChar()
-		if !check(sc.currentChar) {
+		s.AdvanceChar()
+		if !check(s.currentChar) {
 			return errors.New("digit expected")
 		}
-		for check(sc.currentChar) {
-			sc.AdvanceChar()
+		for check(s.currentChar) {
+			s.AdvanceChar()
 		}
-		if IsLetter(sc.currentChar) || IsDigit(sc.currentChar) {
+		if IsLetter(s.currentChar) || IsDigit(s.currentChar) {
 			return errors.New("digit expected")
 		}
 		return nil
 	}
 	scanDecimal := func() error {
-		for IsDigit(sc.currentChar) {
-			sc.AdvanceChar()
+		for IsDigit(s.currentChar) {
+			s.AdvanceChar()
 		}
-		if sc.currentChar == '.' {
-			sc.AdvanceChar()
+		if s.currentChar == '.' {
+			s.AdvanceChar()
 		}
-		for IsDigit(sc.currentChar) {
-			sc.AdvanceChar()
+		for IsDigit(s.currentChar) {
+			s.AdvanceChar()
 		}
-		if c := sc.currentChar; c == 'e' || c == 'E' {
-			sc.AdvanceChar()
-			if c := sc.currentChar; c == '+' || c == '-' {
-				sc.AdvanceChar()
+		if c := s.currentChar; c == 'e' || c == 'E' {
+			s.AdvanceChar()
+			if c := s.currentChar; c == '+' || c == '-' {
+				s.AdvanceChar()
 			}
-			if !IsDigit(sc.currentChar) {
+			if !IsDigit(s.currentChar) {
 				return errors.New("digit expected")
 			}
 			for {
-				sc.AdvanceChar()
-				if !IsDigit(sc.currentChar) {
+				s.AdvanceChar()
+				if !IsDigit(s.currentChar) {
 					break
 				}
 			}
 		}
-		if IsLetter(sc.currentChar) {
+		if IsLetter(s.currentChar) {
 			return errors.New("digit expected")
 		}
 		return nil
 	}
-	switch sc.currentChar {
+	switch s.currentChar {
 	case '0':
-		sc.AdvanceChar()
-		switch sc.currentChar {
+		s.AdvanceChar()
+		switch s.currentChar {
 		case 'x', 'X':
 			err = scanDigits(IsHexDigit)
 		case 'o', 'O':
@@ -210,11 +210,11 @@ func scanNumber(sc *Scanner) (err error) {
 		case 'b', 'B':
 			err = scanDigits(IsBinaryDigit)
 		default:
-			if IsDigit(sc.currentChar) {
-				for IsDigit(sc.currentChar) {
-					sc.AdvanceChar()
+			if IsDigit(s.currentChar) {
+				for IsDigit(s.currentChar) {
+					s.AdvanceChar()
 				}
-				if c := sc.currentChar; (c == '.' && IsDigit(sc.PeekChar())) || c == 'e' || c == 'E' {
+				if c := s.currentChar; (c == '.' && IsDigit(s.PeekChar())) || c == 'e' || c == 'E' {
 					err = scanDecimal()
 				}
 			} else {
@@ -225,8 +225,8 @@ func scanNumber(sc *Scanner) (err error) {
 		err = scanDecimal()
 	}
 	if err != nil {
-		for IsLetter(sc.currentChar) || IsDigit(sc.currentChar) {
-			sc.AdvanceChar()
+		for IsLetter(s.currentChar) || IsDigit(s.currentChar) {
+			s.AdvanceChar()
 		}
 		return err
 	}

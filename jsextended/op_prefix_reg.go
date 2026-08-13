@@ -31,25 +31,25 @@ func PrintPrefixRegOp(pr *printer.Printer, node *PrefixRegOp) error {
 	return nil
 }
 
-func scanRegex(sc token.Scanner) (string, error) {
+func scanRegex(s token.Scanner) (string, error) {
 	sb := strings.Builder{}
-	if sc.CurrentChar() != '/' {
+	if s.CurrentChar() != '/' {
 		return "", errors.New("/ expected")
 	}
-	sb.WriteRune(sc.CurrentChar())
-	sc.AdvanceChar() // consume /
+	sb.WriteRune(s.CurrentChar())
+	s.AdvanceChar() // consume /
 	inClass := false
 	for {
-		ch := sc.CurrentChar()
+		ch := s.CurrentChar()
 		if ch == '\\' {
 			sb.WriteRune(ch)
-			sc.AdvanceChar()
-			ch = sc.CurrentChar()
+			s.AdvanceChar()
+			ch = s.CurrentChar()
 			if ch == scanner.EOF || ch == '\n' || ch == '\r' {
 				return sb.String(), errors.New("unexpected end of line")
 			}
 			sb.WriteRune(ch)
-			sc.AdvanceChar()
+			s.AdvanceChar()
 			continue
 		}
 		if ch == scanner.EOF || ch == '\n' || ch == '\r' {
@@ -62,18 +62,18 @@ func scanRegex(sc token.Scanner) (string, error) {
 		}
 		if ch == '/' && !inClass {
 			sb.WriteRune(ch)
-			sc.AdvanceChar()
+			s.AdvanceChar()
 			break
 		}
 		sb.WriteRune(ch)
-		sc.AdvanceChar()
+		s.AdvanceChar()
 	}
 	flags := []rune("dgimsuvy")
-	for slices.Contains(flags, sc.CurrentChar()) {
-		sb.WriteRune(sc.CurrentChar())
-		sc.AdvanceChar()
+	for slices.Contains(flags, s.CurrentChar()) {
+		sb.WriteRune(s.CurrentChar())
+		s.AdvanceChar()
 	}
-	if c := sc.CurrentChar(); (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') {
+	if c := s.CurrentChar(); (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') {
 		return "", errors.New("unknown flag " + string(c))
 	}
 	return sb.String(), nil

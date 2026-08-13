@@ -87,9 +87,9 @@ func TestLookahead(t *testing.T) {
 	t.Run("resolved", func(t *testing.T) {
 		input := "b"
 		sb := scanner.Builder{}
-		sc := sb.Build([]byte(input))
+		s := sb.Build([]byte(input))
 		pb := parser.Builder{}
-		p := pb.Build(sc)
+		p := pb.Build(s)
 		result, err := parser.Switch(p, func(p *parser.Parser) (*js.Variable, error) {
 			return parser1(p)
 		}, func(p *parser.Parser) (*js.Variable, error) {
@@ -103,9 +103,9 @@ func TestLookahead(t *testing.T) {
 	t.Run("not resolved", func(t *testing.T) {
 		input := "c"
 		sb := scanner.Builder{}
-		sc := sb.Build([]byte(input))
+		s := sb.Build([]byte(input))
 		pb := parser.Builder{}
-		p := pb.Build(sc)
+		p := pb.Build(s)
 		_, err := parser.Switch(p, func(p *parser.Parser) (*js.Variable, error) {
 			return parser1(p)
 		}, func(p *parser.Parser) (*js.Variable, error) {
@@ -127,8 +127,8 @@ func TestMalformedExpr(t *testing.T) {
 			{"{ let x = 100", "} expected"},
 		}
 		for i, test := range tests {
-			sc := xjs.ScannerBuilder().Build([]byte(test.input))
-			p := xjs.ParserBuilder().Build(sc)
+			s := xjs.ScannerBuilder().Build([]byte(test.input))
+			p := xjs.ParserBuilder().Build(s)
 			_, err := js.ParseBlockStmt(p)
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
@@ -147,8 +147,8 @@ func TestMalformedExpr(t *testing.T) {
 			{"(1 + 2", ") expected"},
 		}
 		for i, test := range tests {
-			sc := xjs.ScannerBuilder().Build([]byte(test.input))
-			p := xjs.ParserBuilder().Build(sc)
+			s := xjs.ScannerBuilder().Build([]byte(test.input))
+			p := xjs.ParserBuilder().Build(s)
 			_, err := js.ParsePrefixParenOp(p)
 			if err == nil {
 				t.Fatal("Expected an error, got nil")
@@ -171,8 +171,8 @@ func TestInvalidTokenAfterNewline(t *testing.T) {
 				} else {
 					input = test
 				}
-				sc := xjs.ScannerBuilder().Build([]byte(input))
-				p := xjs.ParserBuilder().Build(sc)
+				s := xjs.ScannerBuilder().Build([]byte(input))
+				p := xjs.ParserBuilder().Build(s)
 				var err error
 				if i > 0 {
 					_, err = js.ParseBlockStmt(p)
@@ -188,39 +188,39 @@ func TestInvalidTokenAfterNewline(t *testing.T) {
 }
 
 func TestExpectWith(t *testing.T) {
-	scanRegex := func(sc token.Scanner) (string, error) {
+	scanRegex := func(s token.Scanner) (string, error) {
 		sb := strings.Builder{}
-		if sc.CurrentChar() != '/' {
+		if s.CurrentChar() != '/' {
 			return "", errors.New("/ expected")
 		}
-		sb.WriteRune(sc.CurrentChar())
-		sc.AdvanceChar() // consume /
+		sb.WriteRune(s.CurrentChar())
+		s.AdvanceChar() // consume /
 		for {
-			if sc.CurrentChar() == '\\' {
-				sb.WriteRune(sc.CurrentChar())
-				sc.AdvanceChar()
-				if sc.CurrentChar() == '/' {
-					sb.WriteRune(sc.CurrentChar())
-					sc.AdvanceChar()
+			if s.CurrentChar() == '\\' {
+				sb.WriteRune(s.CurrentChar())
+				s.AdvanceChar()
+				if s.CurrentChar() == '/' {
+					sb.WriteRune(s.CurrentChar())
+					s.AdvanceChar()
 					continue
 				}
 			}
-			if sc.CurrentChar() == '/' {
-				sb.WriteRune(sc.CurrentChar())
-				sc.AdvanceChar()
+			if s.CurrentChar() == '/' {
+				sb.WriteRune(s.CurrentChar())
+				s.AdvanceChar()
 				break
-			} else if sc.CurrentChar() == scanner.EOF || sc.CurrentChar() == '\n' || sc.CurrentChar() == '\r' {
+			} else if s.CurrentChar() == scanner.EOF || s.CurrentChar() == '\n' || s.CurrentChar() == '\r' {
 				return sb.String(), errors.New("unexpected end of line")
 			}
-			sb.WriteRune(sc.CurrentChar())
-			sc.AdvanceChar()
+			sb.WriteRune(s.CurrentChar())
+			s.AdvanceChar()
 		}
 		flags := []rune("dgimsuvy")
-		for slices.Contains(flags, sc.CurrentChar()) {
-			sb.WriteRune(sc.CurrentChar())
-			sc.AdvanceChar()
+		for slices.Contains(flags, s.CurrentChar()) {
+			sb.WriteRune(s.CurrentChar())
+			s.AdvanceChar()
 		}
-		if c := sc.CurrentChar(); c != ' ' && c != '\t' && c != '\n' && c != '\r' && c != scanner.EOF {
+		if c := s.CurrentChar(); c != ' ' && c != '\t' && c != '\n' && c != '\r' && c != scanner.EOF {
 			return "", errors.New("unknown flag " + string(c))
 		}
 		return sb.String(), nil
@@ -230,9 +230,9 @@ func TestExpectWith(t *testing.T) {
 	/lorem ipsum dolor/gd
 	'lorem ipsum'`
 	sb := scanner.Builder{}
-	sc := sb.Build([]byte(input))
+	s := sb.Build([]byte(input))
 	pb := parser.Builder{}
-	p := pb.Build(sc)
+	p := pb.Build(s)
 	tok, err := p.ExpectWith(scanRegex)
 	require.NoError(t, err)
 	require.Equal(t, tok.Literal, "/lorem ipsum dolor/gd")
