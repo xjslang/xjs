@@ -130,7 +130,7 @@ func TestPrintInfixParenOp(t *testing.T) {
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("exp %d", i), func(t *testing.T) {
-			node, err := internal.Parse([]byte(test.input))
+			node, err := internal.Parse(test.input)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -166,7 +166,7 @@ func TestLastComment(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			node, err := internal.Parse([]byte(test.input))
+			node, err := internal.Parse(test.input)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -392,7 +392,7 @@ func TestWithComments(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			result, err := internal.Parse([]byte(input))
+			result, err := internal.Parse(input)
 			require.NoError(t, err)
 			test.pr.Print(result)
 			out, err := test.pr.Output()
@@ -415,7 +415,7 @@ func TestWithNewLines(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			result, err := internal.Parse([]byte(input))
+			result, err := internal.Parse(input)
 			require.NoError(t, err)
 			test.pr.Print(result)
 			out, err := test.pr.Output()
@@ -436,7 +436,7 @@ func TestCompact(t *testing.T) {
 	let x = 100
 	/* b */
 	let y = 200`
-	result, err := internal.Parse([]byte(input))
+	result, err := internal.Parse(input)
 	require.NoError(t, err)
 	out, err := internal.Print(result, printer.Compact())
 	require.NoError(t, err)
@@ -475,7 +475,7 @@ func TestErrorAt(t *testing.T) {
 	}).Build()
 
 	input := `let x = ..rest`
-	sc := sb.Build([]byte(input))
+	sc := sb.Build(input)
 	p := xjs.ParserBuilder().Build(sc)
 	result, err := js.ParseProgram(p)
 	require.NoError(t, err)
@@ -556,7 +556,7 @@ func TestPrinterContext(t *testing.T) {
 	input := `function fetchUserData() {
 		await http.fetch('/user/data')
 	}`
-	sc := sb.Build([]byte(input))
+	sc := sb.Build(input)
 	p := pb.Build(sc)
 	result, err := js.ParseProgram(p)
 	require.NoError(t, err)

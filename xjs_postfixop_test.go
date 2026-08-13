@@ -49,7 +49,7 @@ func Example_postfixOp_factorial() {
 
 	// parsing
 	input := `let f = 5!`
-	s := xjs.ScannerBuilder().Build([]byte(input))
+	s := xjs.ScannerBuilder().Build(input)
 	p := pb.Build(s)
 	result, err := js.ParseProgram(p)
 	if err != nil {

@@ -116,7 +116,7 @@ func Example_prefixOp_htmlTag() {
 	// the source into tokens
 	sb := xjs.ScannerBuilder()
 	sb.UseScanner(htmlScanner)
-	sc := sb.Build([]byte(source)) // scanner
+	sc := sb.Build(source) // scanner
 
 	// Parsing
 	//

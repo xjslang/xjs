@@ -102,7 +102,7 @@ func jsxInfixOpParser(p *parser.Parser, left ast.Expr, next func(*parser.Parser,
 	return next(p, left)
 }
 
-func Parse(input []byte) (*js.Program, error) {
+func Parse(input string) (*js.Program, error) {
 	token.RegisterPrefixOp(startTag)
 	token.RegisterInfixOp(concatTag, token.OR.Precedence())
 

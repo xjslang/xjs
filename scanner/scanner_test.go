@@ -79,7 +79,7 @@ func assertLexerTokens(t *testing.T, sc *scanner.Scanner, expectedToks []token.T
 func assertInputTokens(t *testing.T, input string, expectedToks []token.Token, opts ...TokenCompareOption) {
 	t.Helper()
 	sb := scanner.Builder{}
-	s := sb.Build([]byte(input))
+	s := sb.Build(input)
 	assertLexerTokens(t, s, expectedToks, opts...)
 }
 
@@ -102,7 +102,7 @@ func ExampleBuilder_Build() {
 			}
 			return next(sc) // Delegate to the "next" middleware
 		}).
-		Build([]byte("#some ^input"))
+		Build("#some ^input")
 
 	// Now you can use the scanner
 	for tok := s.NextToken(); tok.Type != token.EOF; tok = s.NextToken() {
@@ -133,7 +133,7 @@ func BenchmarkNextToken(b *testing.B) {
 		})
 	}
 
-	s := sb.Build(dat)
+	s := sb.Build(string(dat))
 	b.ResetTimer()
 	for b.Loop() {
 		s.Reset()
@@ -145,7 +145,7 @@ func BenchmarkNextToken(b *testing.B) {
 func TestLookahead(t *testing.T) {
 	input := "a b c d e f"
 	sb := scanner.Builder{}
-	sc := sb.Build([]byte(input))
+	sc := sb.Build(input)
 	var toks []token.Token
 	for range 2 {
 		toks = append(toks, sc.NextToken())
@@ -208,7 +208,7 @@ func TestTokenPosition(t *testing.T) {
 func TestReset(t *testing.T) {
 	items := []string{"lorem", "ipsum", "dolor"}
 	sb := scanner.Builder{}
-	sc := sb.Build([]byte(strings.Join(items, " ")))
+	sc := sb.Build(strings.Join(items, " "))
 	for range 2 {
 		var toks []token.Token
 		for tok := sc.NextToken(); tok.Type != token.EOF; tok = sc.NextToken() {
@@ -453,7 +453,7 @@ func TestUseScanner(t *testing.T) {
 			}
 			return next(sc)
 		}).
-		Build([]byte("5 ** 2"))
+		Build("5 ** 2")
 	assertLexerTokens(t, sc, []token.Token{
 		{Type: token.NUMBER, Literal: "5"},
 		{Type: powType, Literal: "**"},
@@ -471,7 +471,7 @@ func TestScanNumber(t *testing.T) {
 		}
 		for _, input := range inputs {
 			sb := scanner.Builder{}
-			sc := sb.Build([]byte(input))
+			sc := sb.Build(input)
 			tok := sc.NextToken()
 			require.Equal(t, token.ILLEGAL, tok.Type)
 		}
@@ -482,7 +482,7 @@ func TestSpecialRunes(t *testing.T) {
 	inputs := []string{"T\u200c", "A\u200d"}
 	for _, input := range inputs {
 		sb := scanner.Builder{}
-		sc := sb.Build([]byte(input))
+		sc := sb.Build(input)
 		tok := sc.NextToken()
 		require.Equal(t, token.IDENT, tok.Type)
 		require.Equal(t, input, tok.Literal)

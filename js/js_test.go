@@ -23,7 +23,7 @@ func TestRoundtripFiles(t *testing.T) {
 			require.NoError(t, err)
 
 			// data -> AST
-			result, err := internal.Parse(data)
+			result, err := internal.Parse(string(data))
 			require.NoError(t, err)
 
 			// AST -> code
@@ -45,7 +45,7 @@ func TestDebugFiles(t *testing.T) {
 			require.NoError(t, err)
 
 			// data -> AST
-			result, err := internal.Parse(data)
+			result, err := internal.Parse(string(data))
 			require.NoError(t, err)
 
 			// AST -> code
@@ -67,7 +67,7 @@ func TestCheckFiles(t *testing.T) {
 			require.NoError(t, err)
 
 			// data -> AST
-			result, err := internal.Parse(data)
+			result, err := internal.Parse(string(data))
 			require.NoError(t, err)
 
 			// AST -> code
@@ -75,7 +75,7 @@ func TestCheckFiles(t *testing.T) {
 			require.NoError(t, err)
 
 			// verify printed code parses
-			_, err = internal.Parse([]byte(code))
+			_, err = internal.Parse(code)
 			require.NoError(t, err)
 		})
 	}
@@ -91,7 +91,7 @@ func TestErrorFiles(t *testing.T) {
 			require.NoError(t, err)
 
 			// data -> AST
-			_, errs := internal.Parse(data)
+			_, errs := internal.Parse(string(data))
 			require.Error(t, errs)
 			require.IsType(t, parser.ErrorList{}, errs)
 

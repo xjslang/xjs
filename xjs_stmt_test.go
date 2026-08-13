@@ -95,7 +95,7 @@ func Example_stmt_defer() {
 	}`
 
 	// parsing
-	s := sb.Build([]byte(input))
+	s := sb.Build(input)
 	p := pb.Build(s)
 	node, err := js.ParseProgram(p)
 	if err != nil {

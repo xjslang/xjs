@@ -7,7 +7,7 @@ import (
 	"github.com/xjslang/xjs/printer"
 )
 
-func Parse(input []byte) (*js.Program, error) {
+func Parse(input string) (*js.Program, error) {
 	sc := xjs.ScannerBuilder().Build(input)
 	p := xjs.ParserBuilder().Build(sc)
 	return js.ParseProgram(p)
