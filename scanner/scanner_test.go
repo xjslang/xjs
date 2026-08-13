@@ -142,18 +142,6 @@ func BenchmarkNextToken(b *testing.B) {
 	}
 }
 
-func BenchmarkLexer(b *testing.B) {
-	sb := scanner.Builder{}
-	sc := sb.Build([]byte("lorem ipsum dolor"))
-	var tok token.Token // prevent dead code elimination
-	for b.Loop() {
-		for tok = sc.NextToken(); tok.Type != token.EOF; tok = sc.NextToken() {
-		}
-		sc.Reset()
-	}
-	_ = tok
-}
-
 func TestLookahead(t *testing.T) {
 	input := "a b c d e f"
 	sb := scanner.Builder{}
