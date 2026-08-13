@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
@@ -485,8 +484,8 @@ func TestScanNumber(t *testing.T) {
 		for _, input := range inputs {
 			sb := scanner.Builder{}
 			sc := sb.Build([]byte(input))
-			err := scanner.ScanNumber(sc)
-			assert.Error(t, err)
+			tok := sc.NextToken()
+			require.Equal(t, token.ILLEGAL, tok.Type)
 		}
 	})
 }
