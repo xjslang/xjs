@@ -97,20 +97,7 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 	// divide operator and comments
 	case '/':
 		s.AdvanceChar()
-		switch s.currentChar {
-		case '/':
-			ScanLineComment(s)
-			lit := string(s.input[ofs0 : s.offset-s.currentSize])
-			tok.Type, tok.Literal = token.LINE_COMMENT, lit
-		case '*':
-			tok.Type = token.BLOCK_COMMENT
-			if err = ScanBlockComment(s); err != nil {
-				tok.Type = token.ILLEGAL
-			}
-			tok.Literal = string(s.input[ofs0 : s.offset-s.currentSize])
-		default:
-			tok.Type, tok.Literal = token.DIVIDE, "/"
-		}
+		tok.Type, tok.Literal = token.DIVIDE, "/"
 	// delimiters
 	case '\'', '"':
 		c := s.currentChar

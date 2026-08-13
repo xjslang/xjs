@@ -56,19 +56,8 @@ func AssertTokens(t *testing.T, toks, expectedToks []token.Token, opts ...TokenC
 			t.Errorf("token %d: expected %q, got %q", i, expectedTok.Literal, tok.Literal)
 		case cfg.afterNewline && tok.AfterNewline != expectedTok.AfterNewline:
 			t.Errorf("token %d: expected AfterNewline to be %t, got %t", i, expectedTok.AfterNewline, tok.AfterNewline)
-		case cfg.leadingTrivia:
-			if len(tok.LeadingTrivia) != len(expectedTok.LeadingTrivia) {
-				t.Errorf("token %d: expected %d leading trivia lines, got %d", i, len(expectedTok.LeadingTrivia), len(tok.LeadingTrivia))
-			} else {
-				for j, expectedTrivia := range expectedTok.LeadingTrivia {
-					trivia := tok.LeadingTrivia[j]
-					if trivia.Type != expectedTrivia.Type {
-						t.Errorf("token %d: expected trivia type to be %v, got %v", i, expectedTrivia.Type, trivia.Type)
-					} else if trivia.Literal != expectedTrivia.Literal {
-						t.Errorf("token %d: expected trivia to be %q, got %q", i, expectedTrivia.Literal, trivia.Literal)
-					}
-				}
-			}
+		case cfg.leadingTrivia && tok.LeadingTrivia != expectedTok.LeadingTrivia:
+			t.Errorf("token %d: expected LeadingTrivia to be %q, got %q", i, expectedTok.LeadingTrivia, tok.LeadingTrivia)
 		case cfg.tokenPosition && (tok.Line != expectedTok.Line || tok.Column != expectedTok.Column):
 			t.Errorf("token %d: expected position to be (%d, %d), got (%d, %d)", i, expectedTok.Line, expectedTok.Column, tok.Line, tok.Column)
 		}
@@ -126,7 +115,7 @@ func ExampleBuilder_Build() {
 	// {Type: HASH, Literal: #, Position: {0 0 0}}
 	// {Type: IDENT, Literal: some, Position: {0 1 1}}
 	// {Type: CARET, Literal: ^, Position: {0 6 6}}
-	// {Type: IDENT, Literal: input, Position: {0 7 8}}
+	// {Type: IDENT, Literal: input, Position: {0 7 7}}
 }
 
 func BenchmarkNextToken(b *testing.B) {
@@ -312,15 +301,9 @@ func TestAfterNewline(t *testing.T) {
 func TestBlockComments(t *testing.T) {
 	input := "/* lorem\nipsum dolor */\n\rhello\r\n/* unfinished comment"
 	assertInputTokens(t, input, []token.Token{
-		{Type: token.IDENT, Literal: "hello", LeadingTrivia: []token.Token{
-			{Type: token.BLOCK_COMMENT, Literal: "/* lorem\nipsum dolor */"},
-			{Type: token.NEWLINE, Literal: "\n"},
-			{Type: token.NEWLINE, Literal: "\r"},
-		}},
-		{Type: token.ILLEGAL, Literal: "/* unfinished comment", LeadingTrivia: []token.Token{
-			{Type: token.NEWLINE, Literal: "\r\n"},
-		}},
-		{Type: token.EOF},
+		{Type: token.IDENT, Literal: "hello", LeadingTrivia: "/* lorem\nipsum dolor */\n\r"},
+		{Type: token.ILLEGAL, Literal: "", LeadingTrivia: "\r\n/* unfinished comment"},
+		{Type: token.EOF, Literal: ""},
 	}, CompareLeadingTrivia())
 }
 
@@ -328,55 +311,31 @@ func TestLineComments(t *testing.T) {
 	input := `
   // First Name
   John
-  
+
   // Last Name
   Smith
-	
+
 	// Final comment`
 	assertInputTokens(t, input, []token.Token{
-		{Type: token.IDENT, Literal: "John", LeadingTrivia: []token.Token{
-			{Type: token.NEWLINE, Literal: "\n"},
-			{Type: token.LINE_COMMENT, Literal: "// First Name\n"},
-		}},
-		{Type: token.IDENT, Literal: "Smith", LeadingTrivia: []token.Token{
-			{Type: token.NEWLINE, Literal: "\n"},
-			{Type: token.NEWLINE, Literal: "\n"},
-			{Type: token.LINE_COMMENT, Literal: "// Last Name\n"},
-		}},
-		{Type: token.EOF, LeadingTrivia: []token.Token{
-			{Type: token.NEWLINE, Literal: "\n"},
-			{Type: token.NEWLINE, Literal: "\n"},
-			{Type: token.LINE_COMMENT, Literal: "// Final comment"},
-		}},
+		{Type: token.IDENT, Literal: "John", LeadingTrivia: "\n  // First Name\n  "},
+		{Type: token.IDENT, Literal: "Smith", LeadingTrivia: "\n\n  // Last Name\n  "},
+		{Type: token.EOF, LeadingTrivia: "\n\n\t// Final comment"},
 	}, CompareLeadingTrivia())
 }
 
 func TestEmptySinglelineComment(t *testing.T) {
 	assertInputTokens(t, "//\nhello//\n\npeople//\r\nthere//\r!//", []token.Token{
-		{Type: token.IDENT, Literal: "hello", LeadingTrivia: []token.Token{
-			{Type: token.LINE_COMMENT, Literal: "//\n"},
-		}},
-		{Type: token.IDENT, Literal: "people", LeadingTrivia: []token.Token{
-			{Type: token.LINE_COMMENT, Literal: "//\n"},
-			{Type: token.NEWLINE, Literal: "\n"},
-		}},
-		{Type: token.IDENT, Literal: "there", LeadingTrivia: []token.Token{
-			{Type: token.LINE_COMMENT, Literal: "//\r\n"},
-		}},
-		{Type: token.NOT, Literal: "!", LeadingTrivia: []token.Token{
-			{Type: token.LINE_COMMENT, Literal: "//\r"},
-		}},
-		{Type: token.EOF, Literal: "", LeadingTrivia: []token.Token{
-			{Type: token.LINE_COMMENT, Literal: "//"},
-		}},
+		{Type: token.IDENT, Literal: "hello", LeadingTrivia: "//\n"},
+		{Type: token.IDENT, Literal: "people", LeadingTrivia: "//\n\n"},
+		{Type: token.IDENT, Literal: "there", LeadingTrivia: "//\r\n"},
+		{Type: token.NOT, Literal: "!", LeadingTrivia: "//\r"},
+		{Type: token.EOF, Literal: "", LeadingTrivia: "//"},
 	}, CompareLeadingTrivia())
 }
 
 func TestLastLineComment(t *testing.T) {
 	assertInputTokens(t, "// last comment", []token.Token{
-		{Type: token.EOF, Literal: "", AfterNewline: false, LeadingTrivia: []token.Token{
-			{Type: token.LINE_COMMENT, Literal: "// last comment"},
-		}},
+		{Type: token.EOF, Literal: "", AfterNewline: false, LeadingTrivia: "// last comment"},
 	}, CompareLeadingTrivia(), CompareAfterNewline())
 }
 

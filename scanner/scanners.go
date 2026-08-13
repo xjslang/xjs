@@ -202,3 +202,32 @@ func ScanNumber(sc *Scanner) (err error) {
 	}
 	return nil
 }
+
+func scanTrivia(sc *Scanner) error {
+loop:
+	for {
+		// skip spaces
+		for {
+			if c := sc.currentChar; c != ' ' && c != '\t' && c != '\n' && c != '\r' {
+				break
+			}
+			sc.AdvanceChar()
+		}
+		if sc.currentChar != '/' {
+			break
+		}
+		switch sc.PeekChar() {
+		case '/':
+			sc.AdvanceChar()
+			ScanLineComment(sc)
+		case '*':
+			sc.AdvanceChar()
+			if err := ScanBlockComment(sc); err != nil {
+				return err
+			}
+		default:
+			break loop
+		}
+	}
+	return nil
+}
