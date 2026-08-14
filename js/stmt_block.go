@@ -31,8 +31,8 @@ func ParseBlockStmt(p *parser.Parser) (node *BlockStmt, err error) {
 			} else {
 				errList = append(errList, err)
 			}
-			if prevToken.Position == p.CurrentToken.Position {
-				// advance position to avoid infinite loop
+			if prevToken.Offset == p.CurrentToken.Offset {
+				// advance offset to avoid infinite loop
 				p.AdvanceToken()
 			}
 			advanceToStmtEnd(p)

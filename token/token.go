@@ -6,7 +6,7 @@ import (
 )
 
 type ForkableScanner interface {
-	ForkFrom(Position) Scanner
+	ForkFrom(int) Scanner
 	Fork() Scanner
 	Apply(Scanner)
 }
@@ -39,15 +39,9 @@ func (tt Type) Literal() string {
 	return info.literal
 }
 
-type Position struct {
-	Line   int `json:"line"`
-	Column int `json:"column"`
-	Offset int `json:"offset"`
-}
-
 type Token struct {
-	Position
 	Type          Type
+	Offset        int
 	Literal       string
 	LeadingTrivia string
 	AfterNewline  bool

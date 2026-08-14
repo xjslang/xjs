@@ -6,7 +6,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs/examples/jsx"
+	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
+	"github.com/xjslang/xjs/token"
 )
 
 func ExampleCompile() {
@@ -55,8 +57,16 @@ func TestParse(t *testing.T) {
 	t.Run("errors", func(t *testing.T) {
 		input := "<div>'Hello, World!'</p>"
 		_, err := jsx.Parse(input)
-		require.Error(t, err)
-		require.Equal(t, err.Error(), "[line:0, col:22] expected closing tag </div>")
+		var errlist parser.ErrorList
+		require.ErrorAs(t, err, &errlist)
+		require.NotEmpty(t, errlist)
+		var perr parser.Error
+		require.ErrorAs(t, errlist[0], &perr)
+		l0, c0 := token.Position(input, perr.Range.Start)
+		l1, c1 := token.Position(input, perr.Range.End)
+		require.Equal(t, []int{0, 22}, []int{l0, c0})
+		require.Equal(t, []int{0, 23}, []int{l1, c1})
+		require.ErrorContains(t, err, "expected closing tag </div>")
 	})
 }
 

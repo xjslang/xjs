@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
@@ -57,8 +58,8 @@ func AssertTokens(t *testing.T, toks, expectedToks []token.Token, opts ...TokenC
 			t.Errorf("token %d: expected AfterNewline to be %t, got %t", i, expectedTok.AfterNewline, tok.AfterNewline)
 		case cfg.leadingTrivia && tok.LeadingTrivia != expectedTok.LeadingTrivia:
 			t.Errorf("token %d: expected LeadingTrivia to be %q, got %q", i, expectedTok.LeadingTrivia, tok.LeadingTrivia)
-		case cfg.tokenPosition && (tok.Line != expectedTok.Line || tok.Column != expectedTok.Column):
-			t.Errorf("token %d: expected position to be (%d, %d), got (%d, %d)", i, expectedTok.Line, expectedTok.Column, tok.Line, tok.Column)
+		case cfg.tokenPosition && tok.Offset != expectedTok.Offset:
+			t.Errorf("token %d: expected offset to be %d, got %d", i, expectedTok.Offset, tok.Offset)
 		}
 	}
 }
@@ -107,14 +108,14 @@ func ExampleBuilder_Build() {
 	// Now you can use the scanner
 	for tok := s.NextToken(); tok.Type != token.EOF; tok = s.NextToken() {
 		fmt.Printf(
-			"{Type: %s, Literal: %s, Position: %v}\n",
-			tok.Type.Name(), tok.Literal, tok.Position)
+			"{Type: %s, Literal: %s, Offset: %v}\n",
+			tok.Type.Name(), tok.Literal, tok.Offset)
 	}
 	// Output:
-	// {Type: HASH, Literal: #, Position: {0 0 0}}
-	// {Type: IDENT, Literal: some, Position: {0 1 1}}
-	// {Type: CARET, Literal: ^, Position: {0 6 6}}
-	// {Type: IDENT, Literal: input, Position: {0 7 7}}
+	// {Type: HASH, Literal: #, Offset: 0}
+	// {Type: IDENT, Literal: some, Offset: 1}
+	// {Type: CARET, Literal: ^, Offset: 6}
+	// {Type: IDENT, Literal: input, Offset: 7}
 }
 
 func BenchmarkNextToken(b *testing.B) {
@@ -195,13 +196,13 @@ func TestIdentifier(t *testing.T) {
 func TestTokenPosition(t *testing.T) {
 	input := " aaa   bbb /* block comment*/ ccc\n// comment\rddd\r\ne!\n"
 	assertInputTokens(t, input, []token.Token{
-		{Type: token.IDENT, Literal: "aaa", Position: token.Position{Line: 0, Column: 1}},
-		{Type: token.IDENT, Literal: "bbb", Position: token.Position{Line: 0, Column: 7}},
-		{Type: token.IDENT, Literal: "ccc", Position: token.Position{Line: 0, Column: 30}},
-		{Type: token.IDENT, Literal: "ddd", Position: token.Position{Line: 2, Column: 0}},
-		{Type: token.IDENT, Literal: "e", Position: token.Position{Line: 3, Column: 0}},
-		{Type: token.NOT, Literal: "!", Position: token.Position{Line: 3, Column: 1}},
-		{Type: token.EOF, Position: token.Position{Line: 4, Column: 0}},
+		{Type: token.IDENT, Literal: "aaa", Offset: 1},
+		{Type: token.IDENT, Literal: "bbb", Offset: 7},
+		{Type: token.IDENT, Literal: "ccc", Offset: 30},
+		{Type: token.IDENT, Literal: "ddd", Offset: 45},
+		{Type: token.IDENT, Literal: "e", Offset: 50},
+		{Type: token.NOT, Literal: "!", Offset: 51},
+		{Type: token.EOF, Offset: 53},
 	}, CompareTokenPosition())
 }
 
@@ -487,5 +488,29 @@ func TestSpecialRunes(t *testing.T) {
 		require.Equal(t, token.IDENT, tok.Type)
 		require.Equal(t, input, tok.Literal)
 		require.Equal(t, token.EOF, sc.NextToken().Type)
+	}
+}
+
+func TestPosition(t *testing.T) {
+	input := " aaa   bbb /* block comment*/ ccc\n// comment\rddd\r\ne!\n."
+	positions := []struct{ line, column int }{
+		{0, 1},
+		{0, 7},
+		{0, 30},
+		{2, 0},
+		{3, 0},
+		{3, 1},
+		{4, 0},
+	}
+	sb := scanner.Builder{}
+	s := sb.Build(input)
+	var toks []token.Token
+	for i, tok := 0, s.NextToken(); tok.Type != token.EOF; i, tok = i+1, s.NextToken() {
+		toks = append(toks, tok)
+	}
+	require.Len(t, toks, 7)
+	for i, tok := range toks {
+		l, c := token.Position(input, tok.Offset)
+		assert.Equal(t, [2]int{positions[i].line, positions[i].column}, [2]int{l, c})
 	}
 }

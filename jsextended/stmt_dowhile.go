@@ -48,9 +48,9 @@ func ParseDoWhileStmt(p *parser.Parser) (node *DoWhileStmt, err error) {
 		p.AdvanceToken()
 	} else {
 		node.Layout.Semi = token.Token{
-			Type:     token.SEMICOLON,
-			Literal:  token.SEMICOLON.Literal(),
-			Position: p.CurrentToken.Position,
+			Type:    token.SEMICOLON,
+			Literal: token.SEMICOLON.Literal(),
+			Offset:  p.CurrentToken.Offset,
 		}
 	}
 	return

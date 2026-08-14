@@ -2,14 +2,12 @@ package printer
 
 import (
 	"strings"
-
-	"github.com/xjslang/xjs/token"
 )
 
-func ErrorAt(pos token.Position, msg string) error {
+func ErrorAt(offset int, msg string) error {
 	return Error{
-		Position: pos,
-		Message:  msg,
+		Offset:  offset,
+		Message: msg,
 	}
 }
 
