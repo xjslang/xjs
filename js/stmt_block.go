@@ -71,7 +71,7 @@ func advanceToStmtEnd(p *parser.Parser) {
 			p.AdvanceToken()
 			break
 		}
-		if typ == token.EOF || typ == token.RBRACE || typ == token.LBRACE || p.CurrentToken.AfterNewline {
+		if typ == token.EOF || typ == token.RBRACE || typ == token.LBRACE || p.CurrentToken.IsAfterNewline() {
 			break
 		}
 		p.AdvanceToken()

@@ -24,7 +24,7 @@ func ParseReturnStmt(p *parser.Parser) (node *ReturnStmt, err error) {
 		return
 	}
 	typ := p.CurrentToken.Type
-	if !p.CurrentToken.AfterNewline && typ != token.EOF && typ != token.SEMICOLON && typ != token.RBRACE {
+	if typ != token.EOF && typ != token.SEMICOLON && typ != token.RBRACE && !p.CurrentToken.IsAfterNewline() {
 		if node.Value, err = p.ParseExpr(); err != nil {
 			return
 		}

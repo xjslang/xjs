@@ -100,7 +100,7 @@ func ExpectSemi(p *parser.Parser) (tok token.Token, err error) {
 		}
 		return
 	default:
-		if tok.AfterNewline {
+		if tok.IsAfterNewline() {
 			tok = token.Token{
 				Type:    token.SEMICOLON,
 				Literal: token.SEMICOLON.Literal(),
@@ -117,5 +117,5 @@ func IsSemi(tok token.Token) bool {
 	if typ := tok.Type; typ == token.SEMICOLON || typ == token.RBRACE || typ == token.RPAREN || typ == token.EOF {
 		return true
 	}
-	return tok.AfterNewline
+	return tok.IsAfterNewline()
 }

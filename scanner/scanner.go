@@ -1,7 +1,6 @@
 package scanner
 
 import (
-	"strings"
 	"unicode/utf8"
 
 	"github.com/xjslang/xjs/token"
@@ -100,12 +99,10 @@ func (s *Scanner) NextToken() token.Token {
 	ofs0 := s.offset - s.currentSize
 	triviaErr := scanTrivia(s)
 	leadingTrivia := string(s.input[ofs0 : s.offset-s.currentSize])
-	afterNewline := strings.ContainsAny(leadingTrivia, "\n\r")
 	startOffset := s.offset - s.currentSize
 
 	tok, err := s.scanner(s)
 	tok.LeadingTrivia = leadingTrivia
-	tok.AfterNewline = afterNewline
 	tok.Offset = startOffset
 	if triviaErr != nil || err != nil {
 		tok.Type = token.ILLEGAL

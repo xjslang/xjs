@@ -2,6 +2,7 @@ package token
 
 import (
 	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -44,7 +45,10 @@ type Token struct {
 	Offset        int
 	Literal       string
 	LeadingTrivia string
-	AfterNewline  bool
+}
+
+func (t Token) IsAfterNewline() bool {
+	return strings.ContainsAny(t.LeadingTrivia, "\n\r")
 }
 
 const (
