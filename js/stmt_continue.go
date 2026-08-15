@@ -23,7 +23,7 @@ func ParseContinueStmt(p *parser.Parser) (node *ContinueStmt, err error) {
 	if node.Layout.Continue, err = p.Expect(CONTINUE); err != nil {
 		return
 	}
-	if p.CurrentToken.Type == token.IDENT && !p.CurrentToken.AfterNewline {
+	if p.CurrentToken.Type == token.IDENT && !p.CurrentToken.IsAfterNewline() {
 		if node.Label, err = ParseIdent(p); err != nil {
 			return
 		}

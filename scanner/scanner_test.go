@@ -13,18 +13,12 @@ import (
 )
 
 type tokenCompareConfig struct {
-	afterNewline  bool
 	leadingTrivia bool
 	tokenPosition bool
+	assertFn      func(token.Token) bool
 }
 
 type TokenCompareOption func(cfg *tokenCompareConfig)
-
-func CompareAfterNewline() TokenCompareOption {
-	return func(cfg *tokenCompareConfig) {
-		cfg.afterNewline = true
-	}
-}
 
 func CompareLeadingTrivia() TokenCompareOption {
 	return func(cfg *tokenCompareConfig) {
@@ -35,6 +29,12 @@ func CompareLeadingTrivia() TokenCompareOption {
 func CompareTokenPosition() TokenCompareOption {
 	return func(cfg *tokenCompareConfig) {
 		cfg.tokenPosition = true
+	}
+}
+
+func CompareAssertFn(assertFn func(token.Token) bool) TokenCompareOption {
+	return func(cfg *tokenCompareConfig) {
+		cfg.assertFn = assertFn
 	}
 }
 
@@ -54,12 +54,12 @@ func AssertTokens(t *testing.T, toks, expectedToks []token.Token, opts ...TokenC
 			t.Errorf("token %d: expected type %v, got %v", i, expectedTok.Type, tok.Type)
 		case tok.Literal != expectedTok.Literal:
 			t.Errorf("token %d: expected %q, got %q", i, expectedTok.Literal, tok.Literal)
-		case cfg.afterNewline && tok.AfterNewline != expectedTok.AfterNewline:
-			t.Errorf("token %d: expected AfterNewline to be %t, got %t", i, expectedTok.AfterNewline, tok.AfterNewline)
 		case cfg.leadingTrivia && tok.LeadingTrivia != expectedTok.LeadingTrivia:
 			t.Errorf("token %d: expected LeadingTrivia to be %q, got %q", i, expectedTok.LeadingTrivia, tok.LeadingTrivia)
 		case cfg.tokenPosition && tok.Offset != expectedTok.Offset:
 			t.Errorf("token %d: expected offset to be %d, got %d", i, expectedTok.Offset, tok.Offset)
+		case cfg.assertFn != nil && !cfg.assertFn(tok):
+			t.Errorf("token %d: custom assertion failed for token %+v", i, tok)
 		}
 	}
 }
@@ -279,9 +279,12 @@ func TestAfterNewline(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			assertInputTokens(t, test.input, []token.Token{
 				{Type: token.IDENT, Literal: "hello"},
-				{Type: token.IDENT, Literal: "world", AfterNewline: true},
+				{Type: token.IDENT, Literal: "world"},
 				{Type: token.EOF},
-			}, CompareAfterNewline())
+			}, CompareAssertFn(func(tok token.Token) bool {
+				wantAfterNewline := tok.Literal == "world"
+				return tok.IsAfterNewline() == wantAfterNewline
+			}))
 		})
 	}
 }
@@ -323,8 +326,10 @@ func TestEmptySinglelineComment(t *testing.T) {
 
 func TestLastLineComment(t *testing.T) {
 	assertInputTokens(t, "// last comment", []token.Token{
-		{Type: token.EOF, Literal: "", AfterNewline: false, LeadingTrivia: "// last comment"},
-	}, CompareLeadingTrivia(), CompareAfterNewline())
+		{Type: token.EOF, Literal: "", LeadingTrivia: "// last comment"},
+	}, CompareLeadingTrivia(), CompareAssertFn(func(tok token.Token) bool {
+		return !tok.IsAfterNewline()
+	}))
 }
 
 func TestScanContinuesAfterNullCharacter(t *testing.T) {

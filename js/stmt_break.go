@@ -23,7 +23,7 @@ func ParseBreakStmt(p *parser.Parser) (node *BreakStmt, err error) {
 	if node.Layout.Break, err = p.Expect(BREAK); err != nil {
 		return
 	}
-	if p.CurrentToken.Type == token.IDENT && !p.CurrentToken.AfterNewline {
+	if p.CurrentToken.Type == token.IDENT && !p.CurrentToken.IsAfterNewline() {
 		if node.Label, err = ParseIdent(p); err != nil {
 			return
 		}
