@@ -375,51 +375,6 @@ func TestPrintPriority(t *testing.T) {
 	})
 }
 
-func TestWithComments(t *testing.T) {
-	input := "// c\nlet x = 100\n/* c */let y = 200"
-	tests := []struct {
-		name string
-		pr   *printer.Printer
-	}{
-		{"show comments by default", xjs.PrinterBuilder().Build()},
-		{"hide comments", xjs.PrinterBuilder().Build(printer.WithTrivia(false))},
-		{"show comments", xjs.PrinterBuilder().Build(printer.WithTrivia(true))},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			result, err := internal.Parse(input)
-			require.NoError(t, err)
-			test.pr.Print(result)
-			out, err := test.pr.Output()
-			require.NoError(t, err)
-			golden.Assert(t, []byte(out))
-		})
-	}
-}
-
-func TestWithNewLines(t *testing.T) {
-	input := "let x = 100\n\n\n// line comment\nlet y = 200"
-	tests := []struct {
-		name string
-		pr   *printer.Printer
-	}{
-		{"show new lines by default", xjs.PrinterBuilder().Build()},
-		{"show new lines", xjs.PrinterBuilder().Build(printer.WithNewLines(true))},
-		{"hide new lines", xjs.PrinterBuilder().Build(printer.WithNewLines(false))},
-		{"hide new lines and comments", xjs.PrinterBuilder().Build(printer.WithNewLines(false), printer.WithTrivia(false))},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			result, err := internal.Parse(input)
-			require.NoError(t, err)
-			test.pr.Print(result)
-			out, err := test.pr.Output()
-			require.NoError(t, err)
-			golden.Assert(t, []byte(out))
-		})
-	}
-}
-
 func TestCompact(t *testing.T) {
 	input := `
 	// c

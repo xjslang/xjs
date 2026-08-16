@@ -10,7 +10,7 @@ import (
 func Debug(node ast.Node) (string, error) {
 	prb := jsextended.PrinterBuilder()
 	prb.UsePrinter(debugger)
-	pr := prb.Build(printer.WithTrivia(false))
+	pr := prb.Build(printer.Compact())
 	pr.Print(node)
 	return pr.Output()
 }
