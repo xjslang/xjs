@@ -28,17 +28,15 @@ func (list ErrorList) Error() string {
 }
 
 type config struct {
-	indent       string
-	withTrivia   bool
-	withNewLines bool
+	indent    string
+	isCompact bool
 }
 
 type Option func(*config)
 
 func Compact() Option {
 	return func(cfg *config) {
-		cfg.withTrivia = false
-		cfg.withNewLines = false
+		cfg.isCompact = false
 	}
 }
 
@@ -48,44 +46,29 @@ func WithIndent(value string) Option {
 	}
 }
 
-func WithTrivia(value bool) Option {
-	return func(cfg *config) {
-		cfg.withTrivia = value
-	}
-}
-
-func WithNewLines(value bool) Option {
-	return func(cfg *config) {
-		cfg.withNewLines = value
-	}
-}
-
 type Printer struct {
-	doc          strings.Builder
-	withTrivia   bool
-	withNewLines bool
-	indent       string
-	indentLevel  int
-	lastChar     rune
-	ensureChar   rune
-	ensure       bool
-	printer      func(*Printer, ast.Node) error
-	context      []map[string]any
-	errors       ErrorList
+	doc         *strings.Builder
+	isCompact   bool
+	indent      string
+	indentLevel int
+	lastChar    rune
+	ensureChar  rune
+	ensure      bool
+	printer     func(*Printer, ast.Node) error
+	context     []map[string]any
+	errors      ErrorList
 }
 
 func (pr *Printer) init(opts ...Option) {
 	cfg := &config{
-		withTrivia:   true,
-		withNewLines: true,
-		indent:       "  ",
+		isCompact: true,
+		indent:    "  ",
 	}
 	for _, opt := range opts {
 		opt(cfg)
 	}
-	pr.doc.Reset()
-	pr.withTrivia = cfg.withTrivia
-	pr.withNewLines = cfg.withNewLines
+	pr.doc = &strings.Builder{}
+	pr.isCompact = cfg.isCompact
 	pr.indent = cfg.indent
 	pr.indentLevel = 0
 	pr.lastChar = eol
@@ -167,16 +150,14 @@ func (pr *Printer) Print(args ...any) {
 }
 
 func (pr *Printer) printTrivia(trivia string) {
-	if !pr.withTrivia {
+	if !pr.isCompact {
 		return
 	}
 	lines := splitTrivia(trivia)
 	es, e := pr.ensureChar, pr.ensure
 	for _, line := range lines {
 		if line == "\n" {
-			if pr.withNewLines {
-				pr.writeRune('\n')
-			}
+			pr.writeRune('\n')
 			continue
 		}
 		pr.printSpaceIfNeeded()
@@ -252,7 +233,7 @@ func (pr *Printer) printSeparatorIfNeeded() {
 	if pr.ensure {
 		switch pr.ensureChar {
 		case '\n':
-			if pr.withNewLines && !isNewLine(pr.lastChar) {
+			if pr.isCompact && !isNewLine(pr.lastChar) {
 				pr.writeRune(pr.ensureChar)
 			}
 		case ' ':
