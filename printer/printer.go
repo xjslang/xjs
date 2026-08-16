@@ -152,16 +152,74 @@ func (pr *Printer) printTrivia(trivia string) {
 	if pr.isCompact {
 		return
 	}
-	lines := splitTrivia(trivia)
 	es, e := pr.ensureChar, pr.ensure
-	for _, line := range lines {
-		if line == "\n" {
-			pr.writeRune('\n')
-			continue
+	offset := 0
+	r, size := rune(0), 0
+mainloop:
+	for {
+		// ignore spaces on the left
+		for {
+			r, size = utf8.DecodeRuneInString(trivia[offset:])
+			if r == utf8.RuneError {
+				break mainloop
+			}
+			offset += size
+			if r != ' ' && r != '\t' {
+				break
+			}
 		}
-		pr.printSpaceIfNeeded()
-		pr.printIndentIfNeeded()
-		pr.writeString(line)
+		switch r {
+		case '\n':
+			// scan newline
+			pr.writeRune('\n')
+			continue mainloop
+		case '/':
+			// scan comment
+			o0 := offset
+			pr.printSpaceIfNeeded()
+			pr.printIndentIfNeeded()
+			pr.writeRune('/')
+			r, size = utf8.DecodeRuneInString(trivia[offset:])
+			if r == utf8.RuneError {
+				break mainloop
+			}
+			offset += size
+			switch r {
+			case '/':
+				// scan line comments
+				for {
+					r, size = utf8.DecodeRuneInString(trivia[offset:])
+					if r == utf8.RuneError {
+						break
+					}
+					if r == '\n' {
+						break
+					}
+					offset += size
+				}
+				pr.writeString(trivia[o0:offset])
+			case '*':
+				// scan block comment
+				for {
+					r, size = utf8.DecodeRuneInString(trivia[offset:])
+					if r == utf8.RuneError {
+						break
+					}
+					offset += size
+					if r == '*' {
+						r, size = utf8.DecodeRuneInString(trivia[offset:])
+						if r == utf8.RuneError {
+							break
+						}
+						offset += size
+						if r == '/' {
+							break
+						}
+					}
+				}
+				pr.writeString(trivia[o0:offset])
+			}
+		}
 	}
 	pr.ensureChar, pr.ensure = es, e
 }
