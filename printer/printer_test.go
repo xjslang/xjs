@@ -74,27 +74,22 @@ func TestIndent(t *testing.T) {
 			pr.Print("block {\n")
 			pr.IncreaseIndent()
 			for i := range 3 {
-				pr.PrintIndent()
 				pr.Print(fmt.Sprintf("line %d", i))
 				pr.Print(';')
 				if i == 1 {
 					pr.Print('\n')
-					pr.PrintIndent()
 					pr.Print("nested block {\n")
 					pr.IncreaseIndent()
 					for j := range 2 {
-						pr.PrintIndent()
 						pr.Print(fmt.Sprintf("line %d", j))
 						pr.Print(";\n")
 					}
 					pr.DecreaseIndent()
-					pr.PrintIndent()
 					pr.Print('}')
 				}
 				pr.Print('\n')
 			}
 			pr.DecreaseIndent()
-			pr.PrintIndent()
 			pr.Print('}')
 			out, err := pr.Output()
 			require.NoError(t, err)
