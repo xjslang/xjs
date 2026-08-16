@@ -107,7 +107,7 @@ func (pr *Printer) DecreaseIndent() {
 	}
 }
 
-func (pr *Printer) PrintIndent() {
+func (pr *Printer) printIndent() {
 	for range pr.indentLevel {
 		pr.writeString(pr.indent)
 	}
@@ -244,7 +244,7 @@ func (pr *Printer) printSpaceIfNeeded() {
 
 func (pr *Printer) printIndentIfNeeded() {
 	if isNewLine(pr.lastChar) {
-		pr.PrintIndent()
+		pr.printIndent()
 	}
 }
 
