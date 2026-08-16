@@ -55,7 +55,6 @@ func Example_stmt_defer() {
 	cb.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(*printer.Printer, ast.Node) error) error {
 		switch v := node.(type) {
 		case *DeferStmt:
-			pr.PrintTrivia(v.Defer.LeadingTrivia) // print previous comments and new lines
 			pr.Line().Print("{using _ = {[Symbol.dispose]() {")
 			pr.Print(v.Stmt)
 			pr.Print("}}}")

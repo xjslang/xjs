@@ -166,7 +166,7 @@ func (pr *Printer) Print(args ...any) {
 	}
 }
 
-func (pr *Printer) PrintTrivia(trivia string) {
+func (pr *Printer) printTrivia(trivia string) {
 	if !pr.withTrivia {
 		return
 	}
@@ -232,7 +232,7 @@ func (pr *Printer) printRune(r rune) {
 }
 
 func (pr *Printer) printToken(tok token.Token) {
-	pr.PrintTrivia(tok.LeadingTrivia)
+	pr.printTrivia(tok.LeadingTrivia)
 	pr.printString(tok.Literal)
 }
 
