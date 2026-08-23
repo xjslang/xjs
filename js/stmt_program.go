@@ -17,12 +17,12 @@ type Program struct {
 
 func ParseProgram(p *parser.Parser) (node *Program, err error) {
 	node = &Program{}
-	var errList parser.ErrorList
+	var errList token.ErrorList
 	for p.CurrentToken.Type != token.EOF {
 		prevToken := p.CurrentToken
 		var stmt ast.Stmt
 		if stmt, err = p.ParseStmt(); err != nil {
-			if eList, ok := err.(parser.ErrorList); ok {
+			if eList, ok := err.(token.ErrorList); ok {
 				errList = append(errList, eList...)
 			} else {
 				errList = append(errList, err)

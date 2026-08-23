@@ -1,41 +1,9 @@
 package parser
 
 import (
-	"strings"
-
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/token"
 )
-
-type Range struct {
-	Start int `json:"start"`
-	End   int `json:"end"`
-}
-
-type Error struct {
-	Range   Range  `json:"range"`
-	Message string `json:"message"`
-}
-
-func (err Error) Error() string {
-	return err.Message
-}
-
-type ErrorList []error
-
-func (list ErrorList) Error() string {
-	s := strings.Builder{}
-	for i, err := range list {
-		if err == nil {
-			continue
-		}
-		if i > 0 {
-			s.WriteRune('\n')
-		}
-		s.WriteString(err.Error())
-	}
-	return s.String()
-}
 
 type Parser struct {
 	CurrentToken   token.Token
@@ -164,11 +132,8 @@ func (p *Parser) ErrorAt(tok token.Token, msg string) error {
 	if tok.Type == token.EOF {
 		offset++
 	}
-	return Error{
-		Range: Range{
-			Start: offset,
-			End:   offset + len(tok.Literal),
-		},
+	return token.Error{
+		Range:   token.Range{offset, offset + len(tok.Literal)},
 		Message: msg,
 	}
 }

@@ -21,12 +21,12 @@ func ParseBlockStmt(p *parser.Parser) (node *BlockStmt, err error) {
 	if node.Layout.Lbrace, err = p.Expect(token.LBRACE); err != nil {
 		return
 	}
-	var errList parser.ErrorList
+	var errList token.ErrorList
 	for p.CurrentToken.Type != token.RBRACE && p.CurrentToken.Type != token.EOF {
 		prevToken := p.CurrentToken
 		var stmt ast.Stmt
 		if stmt, err = p.ParseStmt(); err != nil {
-			if eList, ok := err.(parser.ErrorList); ok {
+			if eList, ok := err.(token.ErrorList); ok {
 				errList = append(errList, eList...)
 			} else {
 				errList = append(errList, err)

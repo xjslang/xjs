@@ -6,6 +6,35 @@ import (
 	"sync"
 )
 
+type Range [2]int
+
+type Error struct {
+	Range
+	Message string
+}
+
+func (err Error) Error() string {
+	return err.Message
+}
+
+type ErrorList []error
+
+func (list ErrorList) Error() string {
+	var s strings.Builder
+	first := true
+	for _, err := range list {
+		if err == nil {
+			continue
+		}
+		if !first {
+			s.WriteRune('\n')
+		}
+		first = false
+		s.WriteString(err.Error())
+	}
+	return s.String()
+}
+
 type ForkableScanner interface {
 	ForkFrom(int) Scanner
 	Fork() Scanner

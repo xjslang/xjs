@@ -12,8 +12,8 @@ import (
 	"github.com/xjslang/xjs/internal"
 	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/jsextended"
-	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
+	"github.com/xjslang/xjs/token"
 	"github.com/xorcare/golden"
 )
 
@@ -169,13 +169,13 @@ func TestErrorFiles(t *testing.T) {
 			// data -> AST
 			_, errs := Parse(string(data))
 			require.Error(t, errs)
-			require.IsType(t, parser.ErrorList{}, errs)
+			require.IsType(t, token.ErrorList{}, errs)
 
 			var msgs []string
-			errList := errs.(parser.ErrorList)
+			errList := errs.(token.ErrorList)
 			for _, err := range errList {
-				require.IsType(t, parser.Error{}, err)
-				e := err.(parser.Error)
+				require.IsType(t, token.Error{}, err)
+				e := err.(token.Error)
 				msgs = append(msgs, e.Message)
 			}
 

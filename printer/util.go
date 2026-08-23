@@ -1,8 +1,10 @@
 package printer
 
+import "github.com/xjslang/xjs/token"
+
 func ErrorAt(offset int, msg string) error {
-	return Error{
-		Offset:  offset,
+	return token.Error{
+		Range:   token.Range{offset, offset},
 		Message: msg,
 	}
 }

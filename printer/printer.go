@@ -12,21 +12,6 @@ import (
 
 const eol = rune(-1)
 
-type Error struct {
-	Offset  int
-	Message string
-}
-
-func (err Error) Error() string {
-	return err.Message
-}
-
-type ErrorList []error
-
-func (list ErrorList) Error() string {
-	return errors.Join(list...).Error()
-}
-
 type config struct {
 	indent    string
 	isCompact bool
@@ -56,7 +41,7 @@ type Printer struct {
 	ensure      bool
 	printer     func(*Printer, ast.Node) error
 	context     []map[string]any
-	errors      ErrorList
+	errors      token.ErrorList
 }
 
 func (pr *Printer) init(opts ...Option) {
@@ -228,8 +213,8 @@ func (pr *Printer) Error(msg string) error {
 	return ErrorAt(pr.doc.Len(), msg)
 }
 
-func (pr *Printer) Errors() ErrorList {
-	return append(ErrorList{}, pr.errors...)
+func (pr *Printer) Errors() token.ErrorList {
+	return append(token.ErrorList{}, pr.errors...)
 }
 
 func (pr *Printer) Output() (string, error) {

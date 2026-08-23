@@ -431,10 +431,10 @@ func TestErrorAt(t *testing.T) {
 	require.NoError(t, err)
 	pr.Print(result)
 	_, err = pr.Output()
-	var perr printer.Error
+	var perr token.Error
 	require.ErrorAs(t, err, &perr)
 	require.Equal(t, "spread operator is not printable", perr.Message)
-	require.Equal(t, 8, perr.Offset)
+	require.Equal(t, 8, perr.Range[0])
 }
 
 func TestError(t *testing.T) {
@@ -442,10 +442,10 @@ func TestError(t *testing.T) {
 	pr := pb.Build()
 	pr.Print("aaa\nbbb")
 	err := pr.Error("something went wrong")
-	var perr printer.Error
+	var perr token.Error
 	require.ErrorAs(t, err, &perr)
 	require.Equal(t, "something went wrong", perr.Message)
-	require.Equal(t, 7, perr.Offset)
+	require.Equal(t, 7, perr.Range[0])
 }
 
 type AsyncFunctionDecl struct {
@@ -543,5 +543,5 @@ func TestPrinterContext(t *testing.T) {
 	// validate pr.Errors()
 	errs := pr.Errors()
 	require.Len(t, errs, 1)
-	require.IsType(t, printer.Error{}, errs[0])
+	require.IsType(t, token.Error{}, errs[0])
 }
