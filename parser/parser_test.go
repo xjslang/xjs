@@ -179,7 +179,7 @@ func TestInvalidTokenAfterNewline(t *testing.T) {
 				} else {
 					_, err = js.ParseProgram(p)
 				}
-				var errList parser.ErrorList
+				var errList token.ErrorList
 				require.ErrorAs(t, err, &errList)
 				require.NotEmpty(t, errList)
 			})
