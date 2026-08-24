@@ -27,16 +27,14 @@ func Example_infixOp_pipeline() {
 
 	// Create a scanner that recognize the "|>" token.
 	sb := jsextended.ScannerBuilder()
-	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (tok token.Token, err error) {
-		if tok, err = next(sc); err != nil {
-			return
-		}
+	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) token.Token) token.Token {
+		tok := next(sc)
 		if tok.Literal == "|" && sc.CurrentChar() == '>' {
 			sc.AdvanceChar()
 			tok.Type = PIPE
 			tok.Literal = "|>"
 		}
-		return
+		return tok
 	})
 
 	// Create a parser that "understand" the pipeline syntax.

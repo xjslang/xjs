@@ -89,17 +89,17 @@ func ExampleBuilder_Build() {
 	caretType := token.RegisterType("CARET", "^")
 	sb := scanner.Builder{}
 	s := sb.
-		UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (token.Token, error) {
+		UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) token.Token) token.Token {
 			if sc.CurrentChar() == '#' {
 				sc.AdvanceChar()
-				return token.Token{Type: hashTyp, Literal: "#"}, nil
+				return token.Token{Type: hashTyp, Literal: "#"}
 			}
 			return next(sc) // Delegate to the "next" middleware
 		}).
-		UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (token.Token, error) {
+		UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) token.Token) token.Token {
 			if sc.CurrentChar() == '^' {
 				sc.AdvanceChar()
-				return token.Token{Type: caretType, Literal: "^"}, nil
+				return token.Token{Type: caretType, Literal: "^"}
 			}
 			return next(sc) // Delegate to the "next" middleware
 		}).
@@ -126,11 +126,8 @@ func BenchmarkNextToken(b *testing.B) {
 
 	sb := scanner.Builder{}
 	for range 10 {
-		sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (tok token.Token, err error) {
-			if tok, err = next(sc); err != nil {
-				return
-			}
-			return
+		sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) token.Token) token.Token {
+			return next(sc)
 		})
 	}
 
@@ -450,12 +447,12 @@ func TestUseScanner(t *testing.T) {
 	powType := token.RegisterType("POW", "**")
 	sb := scanner.Builder{}
 	sc := sb.
-		UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (token.Token, error) {
+		UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) token.Token) token.Token {
 			if sc.CurrentChar() == '*' && sc.PeekChar() == '*' {
 				// consume **
 				sc.AdvanceChar()
 				sc.AdvanceChar()
-				return token.Token{Type: powType, Literal: powType.Literal()}, nil
+				return token.Token{Type: powType, Literal: powType.Literal()}
 			}
 			return next(sc)
 		}).

@@ -398,10 +398,8 @@ func TestErrorAt(t *testing.T) {
 	token.RegisterPrefixOp(spreadOp)
 
 	sb := xjs.ScannerBuilder()
-	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (tok token.Token, err error) {
-		if tok, err = next(sc); err != nil {
-			return
-		}
+	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) token.Token) token.Token {
+		tok := next(sc)
 		// instruct the scanner to recognize the spread operator
 		if tok.Type == token.DOT {
 			if sc.CurrentChar() == '.' {
@@ -411,7 +409,7 @@ func TestErrorAt(t *testing.T) {
 				tok.Literal = ".."
 			}
 		}
-		return
+		return tok
 	})
 
 	pr := xjs.PrinterBuilder().UsePrinter(func(pr *printer.Printer, node ast.Node, next func(*printer.Printer, ast.Node) error) error {
@@ -468,10 +466,8 @@ func TestPrinterContext(t *testing.T) {
 	awaitTyp := token.RegisterType("AWAIT", "await")
 
 	sb := xjs.ScannerBuilder()
-	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (tok token.Token, err error) {
-		if tok, err = next(sc); err != nil {
-			return
-		}
+	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) token.Token) token.Token {
+		tok := next(sc)
 		if tok.Type == token.IDENT {
 			switch tok.Literal {
 			case "async":
@@ -480,7 +476,7 @@ func TestPrinterContext(t *testing.T) {
 				tok.Type = awaitTyp
 			}
 		}
-		return
+		return tok
 	})
 
 	pb := xjs.ParserBuilder()
