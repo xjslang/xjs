@@ -51,10 +51,8 @@ var (
 
 func ScannerBuilder() *scanner.Builder {
 	sb := js.ScannerBuilder()
-	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (tok token.Token, err error) {
-		if tok, err = next(sc); err != nil {
-			return
-		}
+	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) token.Token) token.Token {
+		tok := next(sc)
 		switch tok.Type {
 		case token.IDENT:
 			switch tok.Literal {
@@ -242,7 +240,7 @@ func ScannerBuilder() *scanner.Builder {
 				tok.Literal = "%="
 			}
 		}
-		return
+		return tok
 	})
 	return sb
 }

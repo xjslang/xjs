@@ -11,7 +11,7 @@ const EOF = rune(-1)
 type Scanner struct {
 	input       string
 	offset      int
-	scanner     func(*Scanner) (token.Token, error)
+	scanner     func(*Scanner) token.Token
 	currentSize int
 	currentChar rune
 }
@@ -101,10 +101,10 @@ func (s *Scanner) NextToken() token.Token {
 	leadingTrivia := string(s.input[ofs0 : s.offset-s.currentSize])
 	startOffset := s.offset - s.currentSize
 
-	tok, err := s.scanner(s)
+	tok := s.scanner(s)
 	tok.LeadingTrivia = leadingTrivia
 	tok.Offset = startOffset
-	if triviaErr != nil || err != nil {
+	if triviaErr != nil {
 		tok.Type = token.ILLEGAL
 	}
 	return tok

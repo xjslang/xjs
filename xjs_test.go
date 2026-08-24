@@ -14,10 +14,8 @@ func ExampleScannerBuilder() {
 	notLikeTyp := token.RegisterType("NOT_LIKE", "~!")
 
 	sb := xjs.ScannerBuilder()
-	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (tok token.Token, err error) {
-		if tok, err = next(sc); err != nil {
-			return
-		}
+	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) token.Token) (tok token.Token) {
+		tok = next(sc)
 		if tok.Literal == "~" {
 			// after consuming the token, the current char is
 			// already in the next char to be processed

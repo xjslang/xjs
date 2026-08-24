@@ -26,10 +26,8 @@ type PrefixTagOp struct {
 }
 
 // "Teach" the scanner how to recognize our custom tokens.
-func htmlScanner(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (tok token.Token, err error) {
-	if tok, err = next(sc); err != nil {
-		return
-	}
+func htmlScanner(sc *scanner.Scanner, next func(*scanner.Scanner) token.Token) token.Token {
+	tok := next(sc)
 	switch tok.Type {
 	case token.LT:
 		c := sc.CurrentChar()
@@ -42,7 +40,7 @@ func htmlScanner(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, 
 			tok.Literal = "</"
 		}
 	}
-	return
+	return tok
 }
 
 // "Teach" the parser how to traverse our custom syntax.

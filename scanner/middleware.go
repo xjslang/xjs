@@ -7,17 +7,17 @@ import (
 )
 
 // TODO: In the parameter type for `scanner`, the argument is named `s *Scanner`, which is easy to confuse with the method receiver `s *Scanner`. Renaming it to `sc` (or omitting parameter names in the func type) improves readability without changing the type.
-func (s *Scanner) useScanner(scanner func(s *Scanner, next func(*Scanner) (token.Token, error)) (token.Token, error)) {
+func (s *Scanner) useScanner(scanner func(s *Scanner, next func(*Scanner) token.Token) token.Token) {
 	next := s.scanner
 	if next == nil {
 		next = defaultScanner
 	}
-	s.scanner = func(s *Scanner) (token.Token, error) {
+	s.scanner = func(s *Scanner) token.Token {
 		return scanner(s, next)
 	}
 }
 
-func defaultScanner(s *Scanner) (tok token.Token, err error) {
+func defaultScanner(s *Scanner) (tok token.Token) {
 	ofs0 := s.offset - s.currentSize
 	switch s.currentChar {
 	// operators
@@ -101,13 +101,13 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 		c := s.currentChar
 		s.AdvanceChar()
 		tok.Type = token.STRING
-		if err = scanString(s, c); err != nil {
+		if err := scanString(s, c); err != nil {
 			tok.Type = token.ILLEGAL
 		}
 	case '`':
 		s.AdvanceChar()
 		tok.Type = token.STRING
-		if err = scanRawString(s); err != nil {
+		if err := scanRawString(s); err != nil {
 			tok.Type = token.ILLEGAL
 		}
 	case ',':
@@ -116,7 +116,7 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 	case '.':
 		if IsDigit(s.PeekChar()) {
 			tok.Type = token.NUMBER
-			if err = scanNumber(s); err != nil {
+			if err := scanNumber(s); err != nil {
 				tok.Type = token.ILLEGAL
 			}
 		} else {
@@ -164,7 +164,7 @@ func defaultScanner(s *Scanner) (tok token.Token, err error) {
 			tok.Type = token.IDENT
 		} else if IsDigit(s.currentChar) {
 			tok.Type = token.NUMBER
-			if err = scanNumber(s); err != nil {
+			if err := scanNumber(s); err != nil {
 				tok.Type = token.ILLEGAL
 			}
 		} else if s.currentChar == utf8.RuneError {

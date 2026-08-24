@@ -31,10 +31,8 @@ var DEFAULT = token.RegisterType("DEFAULT", "default")
 // ScannerBuilder extends the simplified JavaScript scanner, allowing the input text to be split into custom tokens.
 func ScannerBuilder() *scanner.Builder {
 	sb := &scanner.Builder{}
-	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (tok token.Token, err error) {
-		if tok, err = next(sc); err != nil {
-			return
-		}
+	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) token.Token) token.Token {
+		tok := next(sc)
 		if tok.Type == token.IDENT {
 			switch tok.Literal {
 			case "function":
@@ -65,7 +63,7 @@ func ScannerBuilder() *scanner.Builder {
 				tok.Type = DEFAULT
 			}
 		}
-		return
+		return tok
 	})
 	return sb
 }

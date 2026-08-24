@@ -25,14 +25,12 @@ type DeferStmt struct {
 func Example_stmt_defer() {
 	// Create a scanner that recognizes the "defer" token.
 	sb := xjs.ScannerBuilder()
-	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) (token.Token, error)) (tok token.Token, err error) {
-		if tok, err = next(sc); err != nil {
-			return
-		}
+	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) token.Token) token.Token {
+		tok := next(sc)
 		if tok.Literal == "defer" {
 			tok.Type = DEFER
 		}
-		return
+		return tok
 	})
 
 	// Create a parser that "understand" the defer syntax.
