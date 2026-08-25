@@ -1,0 +1,47 @@
+package js
+
+import (
+	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/parser"
+	"github.com/xjslang/xjs/printer"
+	"github.com/xjslang/xjs/token"
+)
+
+var (
+	LET   = token.RegisterType("LET", "let")
+	CONST = token.RegisterType("CONST", "const")
+	VAR   = token.RegisterType("VAR", "var")
+)
+
+type VarStmt struct {
+	ast.BaseDecl
+	Layout struct {
+		Var  token.Token
+		Semi token.Token
+	}
+	Expr ast.Expr
+}
+
+func ParseVarStmt(p *parser.Parser) (node *VarStmt, err error) {
+	node = &VarStmt{}
+	if typ := p.CurrentToken.Type; typ != LET && typ != CONST && typ != VAR {
+		err = p.Error("syntax error")
+		return
+	}
+	node.Layout.Var = p.CurrentToken
+	p.AdvanceToken()
+	if node.Expr, err = p.ParseExpr(); err != nil {
+		return
+	}
+	if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
+		return
+	}
+	return
+}
+
+func PrintVarStmt(pr *printer.Printer, node *VarStmt) error {
+	pr.Line().Print(node.Layout.Var)
+	pr.Space().Print(node.Expr)
+	pr.Print(node.Layout.Semi)
+	return nil
+}

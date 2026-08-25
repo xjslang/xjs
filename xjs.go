@@ -1,12 +1,5 @@
 // Package xjs provides tools for scanning, parsing, and printing JavaScript.
 //
-// It is organized in two main subpackages:
-//
-//   - js: a simplified subset of JavaScript, without arrow functions,
-//     try/catch, or other additional ECMAScript features.
-//   - jsextended: the "extended" version with additional syntax
-//     and features.
-//
 // The exported functions in this package are thin wrappers around the
 // equivalent functions in the js package.
 package xjs

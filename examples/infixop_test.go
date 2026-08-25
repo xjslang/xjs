@@ -5,7 +5,6 @@ import (
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/js"
-	"github.com/xjslang/xjs/jsextended"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/scanner"
@@ -26,7 +25,7 @@ func Example_infixOp_pipeline() {
 	token.RegisterInfixOp(PIPE, token.COMMA.Precedence())
 
 	// Create a scanner that recognize the "|>" token.
-	sb := jsextended.ScannerBuilder()
+	sb := js.ScannerBuilder()
 	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) token.Token) token.Token {
 		tok := next(sc)
 		if tok.Literal == "|" && sc.CurrentChar() == '>' {
@@ -38,7 +37,7 @@ func Example_infixOp_pipeline() {
 	})
 
 	// Create a parser that "understand" the pipeline syntax.
-	pb := jsextended.ParserBuilder()
+	pb := js.ParserBuilder()
 	pb.UseInfixOpParser(func(p *parser.Parser, left ast.Expr, next func(*parser.Parser, ast.Expr) (ast.Expr, error)) (_ ast.Expr, err error) {
 		if p.CurrentToken.Type != PIPE {
 			return next(p, left) // delegate to the "next" middleware
@@ -54,7 +53,7 @@ func Example_infixOp_pipeline() {
 	})
 
 	// Create a printer able to print the pipeline node.
-	prb := jsextended.PrinterBuilder()
+	prb := js.PrinterBuilder()
 	prb.UsePrinter(func(pr *printer.Printer, node ast.Node, next func(*printer.Printer, ast.Node) error) error {
 		switch v := node.(type) {
 		case *InfixPipeOp:

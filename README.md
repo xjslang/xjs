@@ -1,10 +1,6 @@
 # XJS (eXtensible JavaScript parser)
 
-XJS is a tool for creating JavaScript dialects. It comes with two packages:
-
-- `js`: a simplified version of JavaScript, without arrow functions, try/catch, etc.
-- `jsextended`: an "extended" version of JavaScript with additional syntax and features.
-Use one or the other depending on the kind of dialect you want to build.
+A tool for creating JavaScript dialects.
 
 ## What is a Scanner, a Parser and a Printer?
 
