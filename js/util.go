@@ -67,7 +67,7 @@ func ParseValue(p *parser.Parser) (ast.Expr, error) {
 		p.AdvanceToken()
 		return &Literal{Value: val}, nil
 	}
-	return nil, p.Error("expression expected")
+	return nil, p.Error("unknown expression")
 }
 
 func ParseIdent(p *parser.Parser) (node *Ident, err error) {
