@@ -16,7 +16,27 @@ type PrefixBraceOp struct {
 		Lbrace token.Token
 		Rbrace token.Token
 	}
-	Entries []ObjEntry
+	Entries []ast.Node
+}
+
+type ObjEntry struct {
+	ast.BaseNode
+	Key     ast.Node
+	Value   ast.Expr
+	Default ast.Expr
+}
+
+type ObjMethod struct {
+	ast.BaseNode
+	Layout struct {
+		Flag     token.Token // get or set
+		Multiply token.Token
+	}
+	isAccessor  bool
+	IsGenerator bool
+	Name        ast.Node
+	Params      *FunctionParams
+	Body        *BlockStmt
 }
 
 type ComputedExpr struct {
@@ -28,36 +48,17 @@ type ComputedExpr struct {
 	Expr ast.Expr
 }
 
-type ObjEntry struct {
-	Key   ast.Node
-	Value ast.Expr
-}
-
 func ParsePrefixBraceOp(p *parser.Parser) (node *PrefixBraceOp, err error) {
 	node = &PrefixBraceOp{}
 	if node.Layout.Lbrace, err = p.Expect(token.LBRACE); err != nil {
 		return
 	}
 	for p.CurrentToken.Type != token.RBRACE {
-		entry := ObjEntry{}
-		switch p.CurrentToken.Type {
-		case token.LBRACKET:
-			if entry.Key, err = ParseComputedExpr(p); err != nil {
-				return
-			}
-		case token.STRING, token.NUMBER:
-			if entry.Key, err = ParseValue(p); err != nil {
-				return
-			}
-		default:
-			if entry.Key, err = ParseObjKey(p); err != nil {
-				return
-			}
-		}
-		if _, err = p.Expect(token.COLON); err != nil {
-			return
-		}
-		if entry.Value, err = ParseRightExpr(p, token.COMMA.Precedence()); err != nil {
+		var entry ast.Node
+		if entry, err = parser.Switch(p,
+			func(p *parser.Parser) (ast.Node, error) { return parseObjMethod(p) },
+			func(p *parser.Parser) (ast.Node, error) { return parseObjEntry(p) },
+		); err != nil {
 			return
 		}
 		node.Entries = append(node.Entries, entry)
@@ -70,6 +71,132 @@ func ParsePrefixBraceOp(p *parser.Parser) (node *PrefixBraceOp, err error) {
 		return
 	}
 	return node, nil
+}
+
+func parseObjMethod(p *parser.Parser) (node *ObjMethod, err error) {
+	node = &ObjMethod{}
+	if lit := p.CurrentToken.Literal; (lit == "get" || lit == "set") && p.PeekToken.Type != token.LPAREN {
+		node.isAccessor = true
+		node.Layout.Flag = p.CurrentToken
+		p.AdvanceToken()
+	}
+	if node.IsGenerator = p.CurrentToken.Type == token.MULTIPLY; node.IsGenerator {
+		node.Layout.Multiply = p.CurrentToken
+		p.AdvanceToken()
+	}
+	switch p.CurrentToken.Type {
+	case token.LBRACKET:
+		if node.Name, err = ParseComputedExpr(p); err != nil {
+			return
+		}
+	case token.STRING, token.NUMBER, SPREAD:
+		if node.Name, err = ParseValue(p); err != nil {
+			return
+		}
+	default:
+		if node.Name, err = ParseObjKey(p); err != nil {
+			return
+		}
+	}
+	if node.Params, err = ParseFunctionParams(p); err != nil {
+		return
+	}
+	if node.Body, err = ParseBlockStmt(p); err != nil {
+		return
+	}
+	return
+}
+
+func parseObjEntry(p *parser.Parser) (node *ObjEntry, err error) {
+	node = &ObjEntry{}
+	switch p.CurrentToken.Type {
+	case token.LBRACKET:
+		if node.Key, err = ParseComputedExpr(p); err != nil {
+			return
+		}
+	case token.STRING, token.NUMBER, SPREAD:
+		if node.Key, err = ParseValue(p); err != nil {
+			return
+		}
+	default:
+		if node.Key, err = ParseObjKey(p); err != nil {
+			return
+		}
+	}
+	if p.CurrentToken.Type == token.COLON {
+		p.AdvanceToken()
+		if node.Value, err = ParseRightExpr(p, token.ASSIGN.Precedence()); err != nil {
+			return
+		}
+	}
+	if p.CurrentToken.Type == token.ASSIGN {
+		p.AdvanceToken()
+		if node.Default, err = ParseRightExpr(p, token.COMMA.Precedence()); err != nil {
+			return
+		}
+	}
+	return
+}
+
+func PrintPrefixBraceOp(pr *printer.Printer, node *PrefixBraceOp) (err error) {
+	pr.Print(node.Layout.Lbrace)
+	if len(node.Entries) > 0 {
+		pr.IncreaseIndent()
+		for i, entry := range node.Entries {
+			if i > 0 {
+				pr.Print(",")
+			}
+			switch v := entry.(type) {
+			case *ObjEntry:
+				switch w := v.Key.(type) {
+				case *ComputedExpr:
+					pr.Space().Print(w.Layout.Lbracket, w.Expr, w.Layout.Rbracket)
+				default:
+					pr.Space().Print(w)
+				}
+				if v.Value != nil {
+					pr.Print(":")
+					pr.Space().Print(v.Value)
+				}
+				if v.Default != nil {
+					pr.Space().Print("=")
+					pr.Space().Print(v.Default)
+				}
+			case *ObjMethod:
+				if v.isAccessor {
+					pr.Print(v.Layout.Flag)
+				}
+				if v.IsGenerator {
+					pr.Space().Print(v.Layout.Multiply)
+					switch w := v.Name.(type) {
+					case *ComputedExpr:
+						pr.Print(w.Layout.Lbracket, w.Expr, w.Layout.Rbracket)
+					default:
+						pr.Print(w)
+					}
+				} else {
+					pr.Space()
+					switch w := v.Name.(type) {
+					case *ComputedExpr:
+						pr.Space().Print(w.Layout.Lbracket, w.Expr, w.Layout.Rbracket)
+					default:
+						pr.Space().Print(w)
+					}
+				}
+				if err = PrintFunctionParams(pr, v.Params); err != nil {
+					return
+				}
+				pr.Space().Print(v.Body)
+			default:
+				err = pr.Error("object entry expected")
+				return
+			}
+		}
+		pr.DecreaseIndent()
+		pr.Space()
+	}
+	pr.Print(node.Layout.Rbrace)
+	return
 }
 
 func ParseObjKey(p *parser.Parser) (node *Ident, err error) {
@@ -94,29 +221,4 @@ func ParseComputedExpr(p *parser.Parser) (node *ComputedExpr, err error) {
 		return
 	}
 	return
-}
-
-func PrintPrefixBraceOp(pr *printer.Printer, node *PrefixBraceOp) error {
-	pr.Print(node.Layout.Lbrace)
-	if len(node.Entries) > 0 {
-		pr.IncreaseIndent()
-		for i, entry := range node.Entries {
-			if i > 0 {
-				pr.Print(",")
-			}
-			switch v := entry.Key.(type) {
-			case *ComputedExpr:
-				pr.Space().Print(v.Layout.Lbracket)
-				pr.Print(v.Expr, v.Layout.Rbracket)
-			default:
-				pr.Space().Print(v)
-			}
-			pr.Print(":")
-			pr.Space().Print(entry.Value)
-		}
-		pr.DecreaseIndent()
-		pr.Space()
-	}
-	pr.Print(node.Layout.Rbrace)
-	return nil
 }

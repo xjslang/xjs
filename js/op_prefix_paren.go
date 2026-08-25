@@ -21,8 +21,10 @@ func ParsePrefixParenOp(p *parser.Parser) (node *PrefixParenOp, err error) {
 	if node.Layout.Lparen, err = p.Expect(token.LPAREN); err != nil {
 		return
 	}
-	if node.Value, err = p.ParseExpr(); err != nil {
-		return
+	if p.CurrentToken.Type != token.RPAREN {
+		if node.Value, err = p.ParseExpr(); err != nil {
+			return
+		}
 	}
 	if node.Layout.Rparen, err = p.Expect(token.RPAREN); err != nil {
 		return
@@ -31,6 +33,10 @@ func ParsePrefixParenOp(p *parser.Parser) (node *PrefixParenOp, err error) {
 }
 
 func PrintPrefixParenOp(pr *printer.Printer, node *PrefixParenOp) error {
-	pr.Print(node.Layout.Lparen, node.Value, node.Layout.Rparen)
+	pr.Print(node.Layout.Lparen)
+	if node.Value != nil {
+		pr.Print(node.Value)
+	}
+	pr.Print(node.Layout.Rparen)
 	return nil
 }

@@ -1,0 +1,62 @@
+package js
+
+import (
+	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/parser"
+	"github.com/xjslang/xjs/printer"
+	"github.com/xjslang/xjs/token"
+)
+
+var ARROW = token.RegisterType("ARROW", "=>")
+
+type InfixArrowOp struct {
+	ast.BaseExpr
+	Layout struct {
+		Arrow token.Token
+	}
+	Params ast.Expr
+	Body   ast.Node
+}
+
+func ParseInfixArrowOp(p *parser.Parser, left ast.Expr) (node *InfixArrowOp, err error) {
+	node = &InfixArrowOp{Params: left}
+	if node.Layout.Arrow, err = p.Expect(ARROW); err != nil {
+		return
+	}
+	switch p.CurrentToken.Type {
+	case token.LBRACE:
+		if node.Body, err = ParseBlockStmt(p); err != nil {
+			return
+		}
+	default:
+		if node.Body, err = p.ParseExpr(); err != nil {
+			return
+		}
+	}
+	return
+}
+
+func PrintInfixArrowOp(pr *printer.Printer, node *InfixArrowOp) error {
+	var printParams func(ast.Expr) error
+	printParams = func(n ast.Expr) error {
+		switch v := n.(type) {
+		case *PrefixParenOp:
+			pr.Print(v.Layout.Lparen)
+			if v.Value != nil {
+				if err := printParams(v.Value); err != nil {
+					return err
+				}
+			}
+			pr.Print(v.Layout.Rparen)
+		default:
+			pr.Print(v)
+		}
+		return nil
+	}
+	if err := printParams(node.Params); err != nil {
+		return err
+	}
+	pr.Space().Print(node.Layout.Arrow)
+	pr.Space().Print(node.Body)
+	return nil
+}

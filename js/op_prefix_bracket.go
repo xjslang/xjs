@@ -21,16 +21,32 @@ func ParsePrefixBracketOp(p *parser.Parser) (node *PrefixBracketOp, err error) {
 	if node.Layout.Lbracket, err = p.Expect(token.LBRACKET); err != nil {
 		return
 	}
+	var prevElem ast.Node
 	for p.CurrentToken.Type != token.RBRACKET {
+		for {
+			if prevElem != nil {
+				if _, err = p.Expect(token.COMMA); err != nil {
+					return
+				}
+			} else if p.CurrentToken.Type == token.COMMA {
+				p.AdvanceToken()
+			} else {
+				break
+			}
+			if prevElem == nil {
+				node.Values = append(node.Values, nil)
+			}
+			prevElem = nil
+		}
+		if p.CurrentToken.Type == token.RBRACKET {
+			break
+		}
 		var val ast.Expr
 		if val, err = ParseRightExpr(p, token.COMMA.Precedence()); err != nil {
 			return
 		}
 		node.Values = append(node.Values, val)
-		if p.CurrentToken.Type != token.COMMA {
-			break
-		}
-		p.AdvanceToken()
+		prevElem = val
 	}
 	if node.Layout.Rbracket, err = p.Expect(token.RBRACKET); err != nil {
 		return
@@ -47,7 +63,11 @@ func PrintPrefixBracketOp(pr *printer.Printer, node *PrefixBracketOp) error {
 				pr.Print(",")
 				pr.Space()
 			}
-			pr.Print(val)
+			if val != nil {
+				pr.Print(val)
+			} else {
+				pr.Space()
+			}
 		}
 		pr.DecreaseIndent()
 	}

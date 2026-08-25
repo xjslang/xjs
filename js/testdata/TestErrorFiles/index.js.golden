@@ -1,3 +1,4 @@
+expression expected
 ; expected
 expression expected
 ; expected
@@ -11,11 +12,11 @@ identifier expected
 ) expected
 ( expected
 expression expected
-identifier expected
 expression expected
 expression expected
 expression expected
-] expected
+expression expected
+, expected
 expression expected
 expression expected
 expression expected
@@ -27,7 +28,7 @@ identifier expected
 ) expected
 ) expected
 key expected
-: expected
+} expected
 expression expected
 key expected
 } expected
@@ -36,5 +37,5 @@ expression expected
 expression expected
 expression expected
 ; expected
-identifier expected
+expression expected
 ; expected

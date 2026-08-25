@@ -1,3 +1,4 @@
+new;
 aaa bbb // ; expected
 x =; // expression expected
 { aaa bbb } // ; expected

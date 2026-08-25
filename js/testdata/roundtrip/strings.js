@@ -7,3 +7,6 @@ ${'string'}`;
 `$$$`;
 "lorem\
 ipsum";
+a`tagged template`;
+`\``;
+`\${\`}`;

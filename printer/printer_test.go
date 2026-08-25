@@ -446,34 +446,34 @@ func TestError(t *testing.T) {
 	require.Equal(t, 7, perr.Range[0])
 }
 
-type AsyncFunctionDecl struct {
+type UnsafeFunctionDecl struct {
 	*js.FunctionDecl
 	Layout struct {
-		Async token.Token
+		Unsafe token.Token
 	}
 }
 
-type AwaitStmt struct {
+type UncheckedStmt struct {
 	ast.BaseStmt
 	Layout struct {
-		Await token.Token
+		Unchecked token.Token
 	}
 	Expr ast.Expr
 }
 
 func TestPrinterContext(t *testing.T) {
-	asyncTyp := token.RegisterType("ASYNC", "async")
-	awaitTyp := token.RegisterType("AWAIT", "await")
+	unsafeTyp := token.RegisterType("UNSAFE", "unsafe")
+	uncheckedTyp := token.RegisterType("UNCHECKED", "unchecked")
 
 	sb := xjs.ScannerBuilder()
 	sb.UseScanner(func(sc *scanner.Scanner, next func(*scanner.Scanner) token.Token) token.Token {
 		tok := next(sc)
 		if tok.Type == token.IDENT {
 			switch tok.Literal {
-			case "async":
-				tok.Type = asyncTyp
-			case "await":
-				tok.Type = awaitTyp
+			case "unsafe":
+				tok.Type = unsafeTyp
+			case "unchecked":
+				tok.Type = uncheckedTyp
 			}
 		}
 		return tok
@@ -482,18 +482,18 @@ func TestPrinterContext(t *testing.T) {
 	pb := xjs.ParserBuilder()
 	pb.UseStmtParser(func(p *parser.Parser, next func(*parser.Parser) (ast.Stmt, error)) (_ ast.Stmt, err error) {
 		switch p.CurrentToken.Type {
-		case asyncTyp:
-			node := &AsyncFunctionDecl{}
-			node.Layout.Async = p.CurrentToken
-			p.AdvanceToken() // consume "async"
+		case unsafeTyp:
+			node := &UnsafeFunctionDecl{}
+			node.Layout.Unsafe = p.CurrentToken
+			p.AdvanceToken() // consume "unsafe"
 			if node.FunctionDecl, err = js.ParseFunctionDecl(p); err != nil {
 				return
 			}
 			return node, nil
-		case awaitTyp:
-			node := &AwaitStmt{}
-			node.Layout.Await = p.CurrentToken
-			p.AdvanceToken() // consume "await"
+		case uncheckedTyp:
+			node := &UncheckedStmt{}
+			node.Layout.Unchecked = p.CurrentToken
+			p.AdvanceToken() // consume "unchecked"
 			if node.Expr, err = p.ParseExpr(); err != nil {
 				return
 			}
@@ -503,7 +503,7 @@ func TestPrinterContext(t *testing.T) {
 	})
 
 	input := `function fetchUserData() {
-		await http.fetch('/user/data')
+		unchecked http.fetch('/user/data')
 	}`
 	sc := sb.Build(input)
 	p := pb.Build(sc)
@@ -513,20 +513,20 @@ func TestPrinterContext(t *testing.T) {
 	pr := xjs.PrinterBuilder().
 		UsePrinter(func(pr *printer.Printer, node ast.Node, next func(*printer.Printer, ast.Node) error) error {
 			switch v := node.(type) {
-			case *AsyncFunctionDecl:
+			case *UnsafeFunctionDecl:
 				ctx := pr.PushContext()
 				defer pr.PopContext()
-				ctx["async"] = "yes"
-				pr.Line().Print(v.Layout.Async)
+				ctx["unsafe"] = "yes"
+				pr.Line().Print(v.Layout.Unsafe)
 				pr.Space().Print(v.FunctionDecl)
 				return nil
-			case *AwaitStmt:
+			case *UncheckedStmt:
 				ctx := pr.Context()
-				_, ok := ctx["async"]
+				_, ok := ctx["unsafe"]
 				if !ok {
-					return printer.ErrorAt(v.Layout.Await.Offset, "await is allowed only inside async functions")
+					return printer.ErrorAt(v.Layout.Unchecked.Offset, "unchecked is allowed only inside unsafe functions")
 				}
-				pr.Line().Print(v.Layout.Await)
+				pr.Line().Print(v.Layout.Unchecked)
 				pr.Space().Print(v.Expr)
 				return nil
 			}
@@ -535,7 +535,7 @@ func TestPrinterContext(t *testing.T) {
 		Build()
 	pr.Print(result)
 	_, err = pr.Output()
-	require.ErrorContains(t, err, "await is allowed only inside async functions")
+	require.ErrorContains(t, err, "unchecked is allowed only inside unsafe functions")
 	// validate pr.Errors()
 	errs := pr.Errors()
 	require.Len(t, errs, 1)

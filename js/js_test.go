@@ -8,10 +8,84 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/internal"
+	"github.com/xjslang/xjs/js"
+	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/token"
 	"github.com/xorcare/golden"
 )
+
+func Parse(input string) (*js.Program, error) {
+	sb := js.ScannerBuilder()
+	sc := sb.Build(input)
+	pb := js.ParserBuilder()
+	p := pb.Build(sc)
+	return js.ParseProgram(p)
+}
+
+func Print(result ast.Node, opts ...printer.Option) (string, error) {
+	pr := js.PrinterBuilder().Build(opts...)
+	pr.Print(result)
+	return pr.Output()
+}
+
+func BenchmarkParse(b *testing.B) {
+	dat, err := os.ReadFile("testdata/check/general.js")
+	require.NoError(b, err)
+	require.NotEmpty(b, dat)
+
+	// verify that it can be parsed and printed
+	src := string(dat)
+	result, err := Parse(src)
+	require.NoError(b, err)
+	code, err := Print(result)
+	require.NoError(b, err)
+	require.NotEmpty(b, code)
+
+	b.ResetTimer()
+	for b.Loop() {
+		_, _ = Parse(src)
+	}
+}
+
+func BenchmarkPrint(b *testing.B) {
+	dat, err := os.ReadFile("testdata/check/general.js")
+	require.NoError(b, err)
+	require.NotEmpty(b, dat)
+
+	// verify that it can be parsed and printed
+	result, err := Parse(string(dat))
+	require.NoError(b, err)
+	code, err := Print(result)
+	require.NoError(b, err)
+	require.NotEmpty(b, code)
+
+	b.ResetTimer()
+	for b.Loop() {
+		_, _ = Print(result)
+	}
+}
+
+func BenchmarkParseAndPrint(b *testing.B) {
+	dat, err := os.ReadFile("testdata/check/general.js")
+	require.NoError(b, err)
+	require.NotEmpty(b, dat)
+
+	// verify that it can be parsed and printed
+	src := string(dat)
+	result, err := Parse(src)
+	require.NoError(b, err)
+	code, err := Print(result)
+	require.NoError(b, err)
+	require.NotEmpty(b, code)
+
+	b.ResetTimer()
+	for b.Loop() {
+		result, _ = Parse(src)
+		_, _ = Print(result)
+	}
+}
 
 func TestRoundtripFiles(t *testing.T) {
 	files, err := filepath.Glob("testdata/roundtrip/*.js")
@@ -23,11 +97,11 @@ func TestRoundtripFiles(t *testing.T) {
 			require.NoError(t, err)
 
 			// data -> AST
-			result, err := internal.Parse(string(data))
+			result, err := Parse(string(data))
 			require.NoError(t, err)
 
 			// AST -> code
-			code, err := internal.Print(result)
+			code, err := Print(result)
 			require.NoError(t, err)
 
 			assert.Equal(t, string(data), code)
@@ -45,7 +119,7 @@ func TestDebugFiles(t *testing.T) {
 			require.NoError(t, err)
 
 			// data -> AST
-			result, err := internal.Parse(string(data))
+			result, err := Parse(string(data))
 			require.NoError(t, err)
 
 			// AST -> code
@@ -66,17 +140,18 @@ func TestCheckFiles(t *testing.T) {
 			data, err := os.ReadFile(file)
 			require.NoError(t, err)
 
-			// data -> AST
-			result, err := internal.Parse(string(data))
+			result1, err := Parse(string(data))
 			require.NoError(t, err)
 
-			// AST -> code
-			code, err := internal.Print(result)
+			code1, err := Print(result1, printer.Compact())
 			require.NoError(t, err)
 
-			// verify printed code parses
-			_, err = internal.Parse(code)
+			result2, err := Parse(code1)
 			require.NoError(t, err)
+
+			code2, err := Print(result2, printer.Compact())
+			require.NoError(t, err)
+			require.Equal(t, code1, code2)
 		})
 	}
 }
@@ -91,7 +166,7 @@ func TestErrorFiles(t *testing.T) {
 			require.NoError(t, err)
 
 			// data -> AST
-			_, errs := internal.Parse(string(data))
+			_, errs := Parse(string(data))
 			require.Error(t, errs)
 			require.IsType(t, token.ErrorList{}, errs)
 
