@@ -121,6 +121,36 @@ func (p *Parser) ExpectWith(scanner func(s token.Scanner) (string, error)) (tok 
 	return
 }
 
+// ExpectSemi expects a semicolon or any other symbol that acts as a
+// "statement terminator", such as '}' or ')'. If the statement terminator is a
+// semicolon, then it consumes it and advances to the next token.
+func (p *Parser) ExpectSemi() (tok token.Token, err error) {
+	tok = p.CurrentToken
+	switch tok.Type {
+	case token.SEMICOLON:
+		p.AdvanceToken()
+		return
+	case token.RBRACE, token.RPAREN, token.EOF:
+		tok = token.Token{
+			Type:    token.SEMICOLON,
+			Literal: token.SEMICOLON.Literal(),
+			Offset:  tok.Offset,
+		}
+		return
+	default:
+		if tok.IsAfterNewline() {
+			tok = token.Token{
+				Type:    token.SEMICOLON,
+				Literal: token.SEMICOLON.Literal(),
+				Offset:  tok.Offset,
+			}
+			return
+		}
+	}
+	err = p.Error(token.SEMICOLON.Literal() + " expected")
+	return
+}
+
 // Error returns an error at the current token position.
 func (p *Parser) Error(msg string) error {
 	return p.ErrorAt(p.CurrentToken, msg)

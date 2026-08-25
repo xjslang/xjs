@@ -102,7 +102,7 @@ func parseWildcharExport(p *parser.Parser) (node *WildcharExportStmt, err error)
 	if node.From, err = p.Expect(token.STRING); err != nil {
 		return
 	}
-	if node.Layout.Semi, err = ExpectSemi(p); err != nil {
+	if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
 		return
 	}
 	return
@@ -163,7 +163,7 @@ func parseNamedListExport(p *parser.Parser) (node *NamedListExportStmt, err erro
 			return
 		}
 	}
-	if node.Layout.Semi, err = ExpectSemi(p); err != nil {
+	if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
 		return
 	}
 	return

@@ -83,36 +83,6 @@ func PrintIdent(pr *printer.Printer, node *Ident) error {
 	return nil
 }
 
-// ExpectSemi expects a semicolon or any other symbol that acts as a
-// "statement terminator", such as '}' or ')'. If the statement terminator is a
-// semicolon, then it consumes it and advances to the next token.
-func ExpectSemi(p *parser.Parser) (tok token.Token, err error) {
-	tok = p.CurrentToken
-	switch tok.Type {
-	case token.SEMICOLON:
-		p.AdvanceToken()
-		return
-	case token.RBRACE, token.RPAREN, token.EOF:
-		tok = token.Token{
-			Type:    token.SEMICOLON,
-			Literal: token.SEMICOLON.Literal(),
-			Offset:  tok.Offset,
-		}
-		return
-	default:
-		if tok.IsAfterNewline() {
-			tok = token.Token{
-				Type:    token.SEMICOLON,
-				Literal: token.SEMICOLON.Literal(),
-				Offset:  tok.Offset,
-			}
-			return
-		}
-	}
-	err = p.Error(token.SEMICOLON.Literal() + " expected")
-	return
-}
-
 func IsSemi(tok token.Token) bool {
 	if typ := tok.Type; typ == token.SEMICOLON || typ == token.RBRACE || typ == token.RPAREN || typ == token.EOF {
 		return true

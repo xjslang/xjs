@@ -94,7 +94,7 @@ func parseSideEffectImport(p *parser.Parser) (node *SideEffectImportStmt, err er
 	if node.From, err = p.Expect(token.STRING); err != nil {
 		return
 	}
-	if node.Layout.Semi, err = ExpectSemi(p); err != nil {
+	if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
 		return
 	}
 	return
@@ -117,7 +117,7 @@ func parseWildcardImport(p *parser.Parser) (node *WildcardImportStmt, err error)
 	if node.From, err = p.Expect(token.STRING); err != nil {
 		return
 	}
-	if node.Layout.Semi, err = ExpectSemi(p); err != nil {
+	if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
 		return
 	}
 	return
@@ -164,7 +164,7 @@ func parseNamedListImport(p *parser.Parser) (node *NamedListImportStmt, err erro
 	if node.From, err = p.Expect(token.STRING); err != nil {
 		return
 	}
-	if node.Layout.Semi, err = ExpectSemi(p); err != nil {
+	if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
 		return
 	}
 	return
@@ -196,7 +196,7 @@ func parseDefaultImport(p *parser.Parser) (node *DefaultImportStmt, err error) {
 		if node.From, err = p.Expect(token.STRING); err != nil {
 			return
 		}
-		if node.Layout.Semi, err = ExpectSemi(p); err != nil {
+		if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
 			return
 		}
 	}

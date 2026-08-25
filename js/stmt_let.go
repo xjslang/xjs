@@ -35,7 +35,7 @@ func ParseLetStmt(p *parser.Parser) (node *LetStmt, err error) {
 	if err != nil {
 		return
 	}
-	if node.Layout.Semi, err = ExpectSemi(p); err != nil {
+	if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
 		return
 	}
 	return

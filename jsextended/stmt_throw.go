@@ -2,7 +2,6 @@ package jsextended
 
 import (
 	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/js"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
 	"github.com/xjslang/xjs/token"
@@ -27,7 +26,7 @@ func ParseThrowStmt(p *parser.Parser) (node *ThrowStmt, err error) {
 	if node.Expr, err = p.ParseExpr(); err != nil {
 		return
 	}
-	if node.Layout.Semi, err = js.ExpectSemi(p); err != nil {
+	if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
 		return
 	}
 	return
