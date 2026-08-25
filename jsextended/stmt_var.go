@@ -33,7 +33,7 @@ func ParseVarStmt(p *parser.Parser) (node *VarStmt, err error) {
 	if node.Expr, err = p.ParseExpr(); err != nil {
 		return
 	}
-	if node.Layout.Semi, err = js.ExpectSemi(p); err != nil {
+	if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
 		return
 	}
 	return

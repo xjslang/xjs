@@ -16,7 +16,7 @@ type SemiStmt struct {
 
 func ParseSemiStmt(p *parser.Parser) (node *SemiStmt, err error) {
 	node = &SemiStmt{}
-	if node.Layout.Semi, err = ExpectSemi(p); err != nil {
+	if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
 		return
 	}
 	return node, nil

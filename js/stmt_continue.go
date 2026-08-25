@@ -28,7 +28,7 @@ func ParseContinueStmt(p *parser.Parser) (node *ContinueStmt, err error) {
 			return
 		}
 	}
-	if node.Layout.Semi, err = ExpectSemi(p); err != nil {
+	if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
 		return
 	}
 	return

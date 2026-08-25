@@ -178,7 +178,7 @@ func parseClassField(p *parser.Parser) (node *ClassField, err error) {
 			return
 		}
 	}
-	if node.Layout.Semi, err = js.ExpectSemi(p); err != nil {
+	if node.Layout.Semi, err = p.ExpectSemi(); err != nil {
 		return
 	}
 	return
