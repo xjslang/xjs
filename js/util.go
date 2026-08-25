@@ -66,6 +66,12 @@ func ParseValue(p *parser.Parser) (ast.Expr, error) {
 		val := p.CurrentToken
 		p.AdvanceToken()
 		return &Literal{Value: val}, nil
+	case token.UNCLOSED_STRING:
+		return nil, p.Error("unclosed string")
+	case token.UNCLOSED_BLOCK_COMMENT:
+		return nil, p.Error("unclosed block comment")
+	case token.INVALID_NUMBER:
+		return nil, p.Error("invalid number")
 	}
 	return nil, p.Error("unknown expression")
 }

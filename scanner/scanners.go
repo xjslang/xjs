@@ -1,8 +1,16 @@
 package scanner
 
 import (
-	"errors"
+	"github.com/xjslang/xjs/token"
 )
+
+type Error struct {
+	token.Type
+}
+
+func (e Error) Error() string {
+	return e.Type.Name()
+}
 
 func scanIdentifier(s *Scanner) {
 	for IsLetter(s.currentChar) || IsDigit(s.currentChar) {
@@ -38,7 +46,7 @@ func scanBlockComment(s *Scanner) error {
 			}
 			break
 		} else if s.currentChar == EOF {
-			return errors.New("unexpected end of file")
+			return Error{Type: token.UNCLOSED_BLOCK_COMMENT}
 		}
 		s.AdvanceChar()
 	}
@@ -93,7 +101,7 @@ func scanString(s *Scanner, delimiter rune) error {
 			s.AdvanceChar()
 			break
 		} else if s.currentChar == EOF || s.currentChar == '\n' || s.currentChar == '\r' {
-			return errors.New("unexpected end of line")
+			return Error{Type: token.UNCLOSED_STRING}
 		}
 		s.AdvanceChar()
 	}
@@ -105,7 +113,7 @@ func scanRawString(s *Scanner) error {
 		depth := 1
 		for {
 			if s.currentChar == EOF {
-				return errors.New("unexpected end of file")
+				return Error{Type: token.UNCLOSED_STRING}
 			} else if s.currentChar == '`' {
 				s.AdvanceChar()
 				err := scanRawString(s)
@@ -148,7 +156,7 @@ func scanRawString(s *Scanner) error {
 			}
 			continue
 		} else if s.currentChar == EOF {
-			return errors.New("unexpected end of file")
+			return Error{Type: token.UNCLOSED_STRING}
 		}
 		s.AdvanceChar()
 	}
@@ -159,13 +167,13 @@ func scanNumber(s *Scanner) (err error) {
 	scanDigits := func(check func(rune) bool) error {
 		s.AdvanceChar()
 		if !check(s.currentChar) {
-			return errors.New("digit expected")
+			return Error{Type: token.INVALID_NUMBER}
 		}
 		for check(s.currentChar) {
 			s.AdvanceChar()
 		}
 		if IsLetter(s.currentChar) || IsDigit(s.currentChar) {
-			return errors.New("digit expected")
+			return Error{Type: token.INVALID_NUMBER}
 		}
 		return nil
 	}
@@ -185,7 +193,7 @@ func scanNumber(s *Scanner) (err error) {
 				s.AdvanceChar()
 			}
 			if !IsDigit(s.currentChar) {
-				return errors.New("digit expected")
+				return Error{Type: token.INVALID_NUMBER}
 			}
 			for {
 				s.AdvanceChar()
@@ -195,7 +203,7 @@ func scanNumber(s *Scanner) (err error) {
 			}
 		}
 		if IsLetter(s.currentChar) {
-			return errors.New("digit expected")
+			return Error{Type: token.INVALID_NUMBER}
 		}
 		return nil
 	}

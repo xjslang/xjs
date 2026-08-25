@@ -122,6 +122,10 @@ const (
 	// others
 	NUMBER // 3.1415
 	STRING // '..' or ".."
+	// errors
+	UNCLOSED_STRING
+	UNCLOSED_BLOCK_COMMENT
+	INVALID_NUMBER
 )
 
 var tokenInfo = map[Type]struct {
@@ -168,6 +172,10 @@ var tokenInfo = map[Type]struct {
 	// others
 	STRING: {"STRING", ""},
 	NUMBER: {"NUMBER", ""},
+	// errors
+	UNCLOSED_STRING:        {"UNCLOSED_STRING", ""},
+	UNCLOSED_BLOCK_COMMENT: {"UNCLOSED_BLOCK_COMMENT", ""},
+	INVALID_NUMBER:         {"INVALID_NUMBER", ""},
 }
 
 const initCustomType Type = 1000

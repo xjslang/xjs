@@ -32,10 +32,10 @@ key expected
 unknown expression
 key expected
 } expected
-unknown expression
-unknown expression
-unknown expression
-unknown expression
+invalid number
+invalid number
+invalid number
+invalid number
 ; expected
 unknown expression
 ; expected
