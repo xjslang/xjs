@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"errors"
 	"unicode/utf8"
 
 	"github.com/xjslang/xjs/token"
@@ -102,13 +103,21 @@ func defaultScanner(s *Scanner) (tok token.Token) {
 		s.AdvanceChar()
 		tok.Type = token.STRING
 		if err := scanString(s, c); err != nil {
-			tok.Type = token.ILLEGAL
+			if e, ok := errors.AsType[Error](err); ok {
+				tok.Type = e.Type
+			} else {
+				panic(err)
+			}
 		}
 	case '`':
 		s.AdvanceChar()
 		tok.Type = token.STRING
 		if err := scanRawString(s); err != nil {
-			tok.Type = token.ILLEGAL
+			if e, ok := errors.AsType[Error](err); ok {
+				tok.Type = e.Type
+			} else {
+				panic(err)
+			}
 		}
 	case ',':
 		s.AdvanceChar()
@@ -117,7 +126,11 @@ func defaultScanner(s *Scanner) (tok token.Token) {
 		if IsDigit(s.PeekChar()) {
 			tok.Type = token.NUMBER
 			if err := scanNumber(s); err != nil {
-				tok.Type = token.ILLEGAL
+				if e, ok := errors.AsType[Error](err); ok {
+					tok.Type = e.Type
+				} else {
+					panic(err)
+				}
 			}
 		} else {
 			s.AdvanceChar()
@@ -165,7 +178,11 @@ func defaultScanner(s *Scanner) (tok token.Token) {
 		} else if IsDigit(s.currentChar) {
 			tok.Type = token.NUMBER
 			if err := scanNumber(s); err != nil {
-				tok.Type = token.ILLEGAL
+				if e, ok := errors.AsType[Error](err); ok {
+					tok.Type = e.Type
+				} else {
+					panic(err)
+				}
 			}
 		} else if s.currentChar == utf8.RuneError {
 			s.AdvanceChar()

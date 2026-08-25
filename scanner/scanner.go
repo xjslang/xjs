@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"errors"
 	"unicode/utf8"
 
 	"github.com/xjslang/xjs/token"
@@ -105,7 +106,11 @@ func (s *Scanner) NextToken() token.Token {
 	tok.LeadingTrivia = leadingTrivia
 	tok.Offset = startOffset
 	if triviaErr != nil {
-		tok.Type = token.ILLEGAL
+		if e, ok := errors.AsType[Error](triviaErr); ok {
+			tok.Type = e.Type
+		} else {
+			panic(triviaErr)
+		}
 	}
 	return tok
 }

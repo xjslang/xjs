@@ -185,7 +185,7 @@ func TestIdentifier(t *testing.T) {
 		{Type: token.IDENT, Literal: "$abc"},
 		{Type: token.IDENT, Literal: "Abc0123"},
 		{Type: token.IDENT, Literal: "_$AbC0$__"},
-		{Type: token.ILLEGAL, Literal: "0abc"},
+		{Type: token.INVALID_NUMBER, Literal: "0abc"},
 		{Type: token.EOF},
 	})
 }
@@ -290,7 +290,7 @@ func TestBlockComments(t *testing.T) {
 	input := "/* lorem\nipsum dolor */\n\rhello\r\n/* unfinished comment"
 	assertInputTokens(t, input, []token.Token{
 		{Type: token.IDENT, Literal: "hello", LeadingTrivia: "/* lorem\nipsum dolor */\n\r"},
-		{Type: token.ILLEGAL, Literal: "", LeadingTrivia: "\r\n/* unfinished comment"},
+		{Type: token.UNCLOSED_BLOCK_COMMENT, Literal: "", LeadingTrivia: "\r\n/* unfinished comment"},
 		{Type: token.EOF, Literal: ""},
 	}, CompareLeadingTrivia())
 }
@@ -418,11 +418,11 @@ func TestReadString(t *testing.T) {
 			"`Hello,\nWorld", // missing `
 		}
 		assertInputTokens(t, strings.Join(inputs, "\n"), []token.Token{
-			{Type: token.ILLEGAL, Literal: "'Hello, World"},
-			{Type: token.ILLEGAL, Literal: "'"},
-			{Type: token.ILLEGAL, Literal: "\"Hello, World"},
-			{Type: token.ILLEGAL, Literal: "\""},
-			{Type: token.ILLEGAL, Literal: "`Hello,\nWorld"},
+			{Type: token.UNCLOSED_STRING, Literal: "'Hello, World"},
+			{Type: token.UNCLOSED_STRING, Literal: "'"},
+			{Type: token.UNCLOSED_STRING, Literal: "\"Hello, World"},
+			{Type: token.UNCLOSED_STRING, Literal: "\""},
+			{Type: token.UNCLOSED_STRING, Literal: "`Hello,\nWorld"},
 			{Type: token.EOF},
 		})
 	})
@@ -433,9 +433,9 @@ func TestReadString(t *testing.T) {
 			for _, terminator := range terminators {
 				input := fmt.Sprintf("%sHello%sWorld%s", delimiter, terminator, delimiter)
 				assertInputTokens(t, input, []token.Token{
-					{Type: token.ILLEGAL, Literal: delimiter + "Hello"},
+					{Type: token.UNCLOSED_STRING, Literal: delimiter + "Hello"},
 					{Type: token.IDENT, Literal: "World"},
-					{Type: token.ILLEGAL, Literal: delimiter},
+					{Type: token.UNCLOSED_STRING, Literal: delimiter},
 					{Type: token.EOF},
 				})
 			}
@@ -476,7 +476,7 @@ func TestScanNumber(t *testing.T) {
 			sb := scanner.Builder{}
 			sc := sb.Build(input)
 			tok := sc.NextToken()
-			require.Equal(t, token.ILLEGAL, tok.Type)
+			require.Equal(t, token.INVALID_NUMBER, tok.Type)
 		}
 	})
 }
@@ -514,5 +514,25 @@ func TestPosition(t *testing.T) {
 	for i, tok := range toks {
 		l, c := token.Position(input, tok.Offset)
 		assert.Equal(t, [2]int{positions[i].line, positions[i].column}, [2]int{l, c})
+	}
+}
+
+func TestInvalidTokens(t *testing.T) {
+	tests := []struct {
+		input           string
+		expectedLiteral string
+		expectedType    token.Type
+	}{
+		{"'unclosed quoted string", "'unclosed quoted string", token.UNCLOSED_STRING},
+		{"\"unclosed double quoted string", "\"unclosed double quoted string", token.UNCLOSED_STRING},
+		{"`unclosed template\nliteral", "`unclosed template\nliteral", token.UNCLOSED_STRING},
+		{"/* unclosed block comment", "", token.UNCLOSED_BLOCK_COMMENT},
+		{"1nvalid_number", "1nvalid_number", token.INVALID_NUMBER},
+	}
+	for _, test := range tests {
+		assertInputTokens(t, test.input, []token.Token{
+			{Type: test.expectedType, Literal: test.expectedLiteral},
+			{Type: token.EOF},
+		})
 	}
 }
