@@ -32,6 +32,24 @@ Real-world dialects built with XJS:
 
 See also the [`examples/`](examples/) directory for basic samples.
 
+## Benchmarks
+
+```bash
+go test -run="^$" -bench=BenchmarkCompare -benchmem -count=10 . > result.out
+benchstat -col /parser result.out
+```
+
+Results (lower is faster):
+```
+Goja     ░░░░░░░░░░░░░░░░░░░░░░░░░░░ (10.26% faster)
+tdewolff ░░░░░░░░░░░░░░░░░░░░░░░░░░░░ (5.49% faster)
+XJS      ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+```
+
+**How to interpret the results?**
+
+Comparisons are tricky, especially when the tools being compared serve different purposes. Therefore, the results above simply tell us that XJS is fast enough and uses memory and CPU resources in a modest way. Nothing more :)
+
 ## Contributing
 
 Help is welcome. The project is still under development, and maintaining a JavaScript parser is a lot of work.
