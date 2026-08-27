@@ -1,4 +1,4 @@
-package scanner
+package parser
 
 import (
 	"errors"
@@ -123,7 +123,7 @@ func defaultScanner(s *Scanner) (tok token.Token) {
 		s.AdvanceChar()
 		tok.Type = token.COMMA
 	case '.':
-		if IsDigit(s.PeekChar()) {
+		if isDigit(s.PeekChar()) {
 			tok.Type = token.NUMBER
 			if err := scanNumber(s); err != nil {
 				if e, ok := errors.AsType[Error](err); ok {
@@ -175,7 +175,7 @@ func defaultScanner(s *Scanner) (tok token.Token) {
 		if IsLetter(s.currentChar) {
 			scanIdentifier(s)
 			tok.Type = token.IDENT
-		} else if IsDigit(s.currentChar) {
+		} else if isDigit(s.currentChar) {
 			tok.Type = token.NUMBER
 			if err := scanNumber(s); err != nil {
 				if e, ok := errors.AsType[Error](err); ok {
