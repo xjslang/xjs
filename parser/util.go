@@ -18,3 +18,27 @@ func Switch[T ast.Node](p *Parser, parsers ...func(p *Parser) (T, error)) (node 
 	}
 	return
 }
+
+func IsLetter(r rune) bool {
+	return r >= 'a' && r <= 'z' ||
+		r >= 'A' && r <= 'Z' ||
+		r == '_' || r == '$' ||
+		r == '\u200c' || // ZWNJ
+		r == '\u200d' // ZWJ
+}
+
+func isDigit(r rune) bool {
+	return r >= '0' && r <= '9'
+}
+
+func isHexDigit(r rune) bool {
+	return isDigit(r) || r >= 'a' && r <= 'f' || r >= 'A' && r <= 'F'
+}
+
+func isOctalDigit(r rune) bool {
+	return r >= '0' && r <= '7'
+}
+
+func isBinaryDigit(r rune) bool {
+	return r == '0' || r == '1'
+}
