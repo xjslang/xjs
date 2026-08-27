@@ -4,11 +4,11 @@ import (
 	"errors"
 	"slices"
 	"strings"
-	"text/scanner"
 
 	"github.com/xjslang/xjs/ast"
 	"github.com/xjslang/xjs/parser"
 	"github.com/xjslang/xjs/printer"
+	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
 )
 
@@ -31,7 +31,7 @@ func PrintPrefixRegOp(pr *printer.Printer, node *PrefixRegOp) error {
 	return nil
 }
 
-func scanRegex(s token.Scanner) (string, error) {
+func scanRegex(s *scanner.Scanner) (string, error) {
 	sb := strings.Builder{}
 	if s.CurrentChar() != '/' {
 		return "", errors.New("/ expected")
