@@ -1,4 +1,4 @@
-package scanner_test
+package parser_test
 
 import (
 	"fmt"
@@ -84,7 +84,7 @@ func assertInputTokens(t *testing.T, input string, expectedToks []token.Token, o
 	assertLexerTokens(t, s, expectedToks, opts...)
 }
 
-func ExampleBuilder_Build() {
+func ExampleScannerBuilder_Build() {
 	hashTyp := token.RegisterType("HASH", "#")
 	caretType := token.RegisterType("CARET", "^")
 	sb := scanner.Builder{}
@@ -140,7 +140,7 @@ func BenchmarkNextToken(b *testing.B) {
 	}
 }
 
-func TestLookahead(t *testing.T) {
+func TestScannerLookahead(t *testing.T) {
 	input := "a b c d e f"
 	sb := scanner.Builder{}
 	sc := sb.Build(input)

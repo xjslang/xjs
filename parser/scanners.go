@@ -1,4 +1,4 @@
-package scanner
+package parser
 
 import (
 	"github.com/xjslang/xjs/token"
@@ -13,7 +13,7 @@ func (e Error) Error() string {
 }
 
 func scanIdentifier(s *Scanner) {
-	for IsLetter(s.currentChar) || IsDigit(s.currentChar) {
+	for IsLetter(s.currentChar) || isDigit(s.currentChar) {
 		s.AdvanceChar()
 	}
 }
@@ -172,19 +172,19 @@ func scanNumber(s *Scanner) (err error) {
 		for check(s.currentChar) {
 			s.AdvanceChar()
 		}
-		if IsLetter(s.currentChar) || IsDigit(s.currentChar) {
+		if IsLetter(s.currentChar) || isDigit(s.currentChar) {
 			return Error{Type: token.INVALID_NUMBER}
 		}
 		return nil
 	}
 	scanDecimal := func() error {
-		for IsDigit(s.currentChar) {
+		for isDigit(s.currentChar) {
 			s.AdvanceChar()
 		}
 		if s.currentChar == '.' {
 			s.AdvanceChar()
 		}
-		for IsDigit(s.currentChar) {
+		for isDigit(s.currentChar) {
 			s.AdvanceChar()
 		}
 		if c := s.currentChar; c == 'e' || c == 'E' {
@@ -192,12 +192,12 @@ func scanNumber(s *Scanner) (err error) {
 			if c := s.currentChar; c == '+' || c == '-' {
 				s.AdvanceChar()
 			}
-			if !IsDigit(s.currentChar) {
+			if !isDigit(s.currentChar) {
 				return Error{Type: token.INVALID_NUMBER}
 			}
 			for {
 				s.AdvanceChar()
-				if !IsDigit(s.currentChar) {
+				if !isDigit(s.currentChar) {
 					break
 				}
 			}
@@ -212,17 +212,17 @@ func scanNumber(s *Scanner) (err error) {
 		s.AdvanceChar()
 		switch s.currentChar {
 		case 'x', 'X':
-			err = scanDigits(IsHexDigit)
+			err = scanDigits(isHexDigit)
 		case 'o', 'O':
-			err = scanDigits(IsOctalDigit)
+			err = scanDigits(isOctalDigit)
 		case 'b', 'B':
-			err = scanDigits(IsBinaryDigit)
+			err = scanDigits(isBinaryDigit)
 		default:
-			if IsDigit(s.currentChar) {
-				for IsDigit(s.currentChar) {
+			if isDigit(s.currentChar) {
+				for isDigit(s.currentChar) {
 					s.AdvanceChar()
 				}
-				if c := s.currentChar; (c == '.' && IsDigit(s.PeekChar())) || c == 'e' || c == 'E' {
+				if c := s.currentChar; (c == '.' && isDigit(s.PeekChar())) || c == 'e' || c == 'E' {
 					err = scanDecimal()
 				}
 			} else {
@@ -233,7 +233,7 @@ func scanNumber(s *Scanner) (err error) {
 		err = scanDecimal()
 	}
 	if err != nil {
-		for IsLetter(s.currentChar) || IsDigit(s.currentChar) {
+		for IsLetter(s.currentChar) || isDigit(s.currentChar) {
 			s.AdvanceChar()
 		}
 		return err

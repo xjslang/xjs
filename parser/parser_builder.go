@@ -1,9 +1,6 @@
 package parser
 
-import (
-	"github.com/xjslang/xjs/ast"
-	"github.com/xjslang/xjs/scanner"
-)
+import "github.com/xjslang/xjs/ast"
 
 type Builder struct {
 	stmtParsers     []func(*Parser, func(*Parser) (ast.Stmt, error)) (ast.Stmt, error)
@@ -32,7 +29,7 @@ func (b *Builder) UseInfixOpParser(parser func(p *Parser, left ast.Expr, next fu
 	return b
 }
 
-func (b *Builder) Build(s *scanner.Scanner) *Parser {
+func (b *Builder) Build(s *Scanner) *Parser {
 	p := &Parser{}
 	for _, stmt := range b.stmtParsers {
 		p.useStmtParser(stmt)
