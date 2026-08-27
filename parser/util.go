@@ -1,16 +1,22 @@
 package parser
 
-import "github.com/xjslang/xjs/ast"
+import (
+	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/token"
+)
 
-// Switch tries each parser in order, using Fork/Apply to avoid side effects.
+// Switch tries each parser in order, restoring the parser state after each failed attempt.
 func Switch[T ast.Node](p *Parser, parsers ...func(p *Parser) (T, error)) (node T, err error) {
+	ss := p.scanner.(token.StatefulScanner)
+	snap := ss.State()
+	ct, pt := p.CurrentToken, p.PeekToken
 	for _, parser := range parsers {
-		f := p.Fork()
-		if node, err = parser(f); err != nil {
-			continue
+		if node, err = parser(p); err == nil {
+			return
 		}
-		p.Apply(f)
-		break
+		ss.Restore(snap)
+		p.CurrentToken = ct
+		p.PeekToken = pt
 	}
 	return
 }

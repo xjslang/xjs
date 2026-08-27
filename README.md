@@ -41,8 +41,8 @@ benchstat -col /parser result.out
 
 Results (lower is faster):
 ```
-Goja     ░░░░░░░░░░░░░░░░░░░░░░░░░░░ (10.26% faster)
-tdewolff ░░░░░░░░░░░░░░░░░░░░░░░░░░░░ (5.49% faster)
+Goja     ░░░░░░░░░░░░░░░░░░░░░░░░░░░ (9.65% faster)
+tdewolff ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ (2.37% faster)
 XJS      ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 ```
 

@@ -65,6 +65,20 @@ func (s *Scanner) Apply(from token.Scanner) {
 	}
 }
 
+func (s *Scanner) State() token.ScannerState {
+	return token.ScannerState{
+		Offset:      s.offset,
+		CurrentSize: s.currentSize,
+		CurrentChar: s.currentChar,
+	}
+}
+
+func (s *Scanner) Restore(st token.ScannerState) {
+	s.offset = st.Offset
+	s.currentSize = st.CurrentSize
+	s.currentChar = st.CurrentChar
+}
+
 func (s *Scanner) Reset() {
 	if s.scanner == nil {
 		s.scanner = defaultScanner
