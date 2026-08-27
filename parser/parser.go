@@ -36,32 +36,6 @@ func (p *Parser) init(s token.Scanner) {
 	p.AdvanceToken()
 }
 
-// Fork returns a copy of the parser that can advance without modifying the original state.
-//
-// See also: [Parser.Apply]
-func (p *Parser) Fork() *Parser {
-	s := p.scanner.(token.ForkableScanner)
-	return &Parser{
-		CurrentToken:   p.CurrentToken,
-		PeekToken:      p.PeekToken,
-		scanner:        s.Fork(),
-		stmtParser:     p.stmtParser,
-		exprParser:     p.exprParser,
-		infixOpParser:  p.infixOpParser,
-		prefixOpParser: p.prefixOpParser,
-	}
-}
-
-// Apply copies the state from a forked parser back into the original parser.
-//
-// See also: [Parser.Fork]
-func (p *Parser) Apply(forked *Parser) {
-	s := p.scanner.(token.ForkableScanner)
-	s.Apply(forked.scanner)
-	p.CurrentToken = forked.CurrentToken
-	p.PeekToken = forked.PeekToken
-}
-
 func (p *Parser) ParseStmt() (ast.Stmt, error) {
 	return p.stmtParser(p)
 }
