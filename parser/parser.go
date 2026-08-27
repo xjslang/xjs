@@ -2,20 +2,21 @@ package parser
 
 import (
 	"github.com/xjslang/xjs/ast"
+	"github.com/xjslang/xjs/scanner"
 	"github.com/xjslang/xjs/token"
 )
 
 type Parser struct {
 	CurrentToken   token.Token
 	PeekToken      token.Token
-	scanner        token.Scanner
+	scanner        *scanner.Scanner
 	stmtParser     func(p *Parser) (ast.Stmt, error)
 	exprParser     func(p *Parser) (ast.Expr, error)
 	infixOpParser  func(p *Parser, left ast.Expr) (ast.Expr, error)
 	prefixOpParser func(p *Parser) (ast.Expr, error)
 }
 
-func (p *Parser) init(s token.Scanner) {
+func (p *Parser) init(s *scanner.Scanner) {
 	p.scanner = s
 	if p.stmtParser == nil {
 		p.stmtParser = defaultStmtParser
@@ -82,14 +83,13 @@ func (p *Parser) ExpectLiteral(s string) (token.Token, error) {
 }
 
 // ExpectWith consumes the current token if it is accepted by the given scanner function, or returns an error.
-func (p *Parser) ExpectWith(scanner func(s token.Scanner) (string, error)) (tok token.Token, err error) {
+func (p *Parser) ExpectWith(scanner func(*scanner.Scanner) (string, error)) (tok token.Token, err error) {
 	tok = p.CurrentToken
-	s := p.scanner.(token.ForkableScanner)
-	f := s.ForkFrom(p.CurrentToken.Offset)
+	f := p.scanner.ForkFrom(p.CurrentToken.Offset)
 	if tok.Literal, err = scanner(f); err != nil {
 		return
 	}
-	s.Apply(f)
+	p.scanner.Apply(f)
 	p.AdvanceToken()
 	p.CurrentToken = tok
 	return

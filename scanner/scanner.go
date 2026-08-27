@@ -9,6 +9,12 @@ import (
 
 const EOF = rune(-1)
 
+type ScannerState struct {
+	Offset      int
+	CurrentSize int
+	CurrentChar rune
+}
+
 type Scanner struct {
 	input       string
 	offset      int
@@ -25,7 +31,7 @@ func (s *Scanner) init(input string) {
 	s.Reset()
 }
 
-func (s *Scanner) ForkFrom(offset int) token.Scanner {
+func (s *Scanner) ForkFrom(offset int) *Scanner {
 	newS := &Scanner{
 		input:       s.input,
 		offset:      offset,
@@ -40,7 +46,7 @@ func (s *Scanner) ForkFrom(offset int) token.Scanner {
 	return newS
 }
 
-func (s *Scanner) Fork() token.Scanner {
+func (s *Scanner) Fork() *Scanner {
 	newS := &Scanner{
 		input:       s.input,
 		offset:      s.offset,
@@ -54,26 +60,21 @@ func (s *Scanner) Fork() token.Scanner {
 	return newS
 }
 
-func (s *Scanner) Apply(from token.Scanner) {
-	switch v := from.(type) {
-	case *Scanner:
-		s.offset = v.offset
-		s.currentSize = v.currentSize
-		s.currentChar = v.currentChar
-	default:
-		panic("*Scanner expected")
-	}
+func (s *Scanner) Apply(from *Scanner) {
+	s.offset = from.offset
+	s.currentSize = from.currentSize
+	s.currentChar = from.currentChar
 }
 
-func (s *Scanner) State() token.ScannerState {
-	return token.ScannerState{
+func (s *Scanner) State() ScannerState {
+	return ScannerState{
 		Offset:      s.offset,
 		CurrentSize: s.currentSize,
 		CurrentChar: s.currentChar,
 	}
 }
 
-func (s *Scanner) Restore(st token.ScannerState) {
+func (s *Scanner) Restore(st ScannerState) {
 	s.offset = st.Offset
 	s.currentSize = st.CurrentSize
 	s.currentChar = st.CurrentChar

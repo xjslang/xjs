@@ -188,7 +188,7 @@ func TestInvalidTokenAfterNewline(t *testing.T) {
 }
 
 func TestExpectWith(t *testing.T) {
-	scanRegex := func(s token.Scanner) (string, error) {
+	scanRegex := func(s *scanner.Scanner) (string, error) {
 		sb := strings.Builder{}
 		if s.CurrentChar() != '/' {
 			return "", errors.New("/ expected")

@@ -35,31 +35,6 @@ func (list ErrorList) Error() string {
 	return s.String()
 }
 
-type ForkableScanner interface {
-	ForkFrom(int) Scanner
-	Fork() Scanner
-	Apply(Scanner)
-}
-
-// ScannerState is a value snapshot of a scanner's position, cheap to copy and stack-friendly.
-type ScannerState struct {
-	Offset      int
-	CurrentSize int
-	CurrentChar rune
-}
-
-// StatefulScanner allows saving and restoring the scanner position without heap allocations.
-type StatefulScanner interface {
-	State() ScannerState
-	Restore(ScannerState)
-}
-
-type Scanner interface {
-	CurrentChar() rune
-	AdvanceChar()
-	NextToken() Token
-}
-
 type Type int
 
 func (tt Type) Name() string {
