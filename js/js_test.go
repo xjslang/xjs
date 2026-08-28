@@ -16,6 +16,8 @@ import (
 	"github.com/xorcare/golden"
 )
 
+var sink any
+
 func Parse(input string) (*js.Program, error) {
 	sb := js.ScannerBuilder()
 	sc := sb.Build(input)
@@ -45,7 +47,7 @@ func BenchmarkParse(b *testing.B) {
 
 	b.ResetTimer()
 	for b.Loop() {
-		_, _ = Parse(src)
+		sink, _ = Parse(src)
 	}
 }
 
@@ -63,7 +65,7 @@ func BenchmarkPrint(b *testing.B) {
 
 	b.ResetTimer()
 	for b.Loop() {
-		_, _ = Print(result)
+		sink, _ = Print(result)
 	}
 }
 
@@ -83,7 +85,7 @@ func BenchmarkParseAndPrint(b *testing.B) {
 	b.ResetTimer()
 	for b.Loop() {
 		result, _ = Parse(src)
-		_, _ = Print(result)
+		sink, _ = Print(result)
 	}
 }
 
